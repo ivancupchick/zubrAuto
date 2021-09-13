@@ -2,7 +2,7 @@
   "name": "zubrAuto",
   "version": "1.0.0",
   "description": "node server",
-  "main": "src/app.ts",
+  "main": "build/index.bundle.js",
   "scripts": {
     "start": "rimraf build && tsc && node ./build/index.js",
     "build": "rimraf build && tsc && webpack",
