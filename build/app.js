@@ -32,6 +32,7 @@ class App {
     middlewares() {
         // this.app.use(morgan('dev'));
         this.app.use(express_1.default.json());
+        this.app.use(express_1.default.static(process.cwd() + "/ui/dist/zubr-auto/"));
     }
     routes() {
         this.app.use(index_routes_1.default);
