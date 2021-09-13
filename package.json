@@ -4,7 +4,7 @@
   "description": "node server",
   "main": "build/index.bundle.js",
   "scripts": {
-    "start": "rimraf build && tsc && node ./build/index.js",
+    "start": "rm -rf build && tsc && node ./build/index.js",
     "build": "rm -rf build && tsc && webpack",
     "dev": "rimraf build && tsc && nodemon ./build/index.js localhost 3080",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,8 +12,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "mysql2": "^2.3.0",
-    "typescript": "^4.4.3",
-    "rimraf": "^3.0.2"
+    "typescript": "^4.4.3"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.1",
