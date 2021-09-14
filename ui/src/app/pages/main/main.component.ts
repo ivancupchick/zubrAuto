@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'za-main',
@@ -7,7 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MainComponent implements OnInit {
 
-  constructor() { }
+  constructor(private router: Router) {
+  }
+
+  linkToSettings() {
+    this.router.navigateByUrl('settings');
+  }
 
   ngOnInit(): void {
   }

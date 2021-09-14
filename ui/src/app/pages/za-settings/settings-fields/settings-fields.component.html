@@ -1,1 +1,20 @@
-<p>settings-fields works!</p>
+<p></p>
+<!-- TODO Layout -->
+<!-- <p-card> -->
+  <p-table [value]="cars">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Ситемное имя</th>
+            <th>Название</th>
+            <th>Статус</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-car>
+        <tr>
+            <td>{{car.name}}</td>
+            <td>{{car.title}}</td>
+            <td>{{car.status}}</td>
+        </tr>
+    </ng-template>
+  </p-table>
+<!-- </p-card> -->

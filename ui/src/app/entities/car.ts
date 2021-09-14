@@ -1,24 +1,26 @@
-export interface IOwner {
-  ownerName: string;
-  number: string;
-  notes: string;
-}
+import { ResponseCar } from '../../../../src/interface/Car'
 
-export interface IField {
-  name: string;
-  title: string;
-  type: string;
-}
+// export interface IOwner {
+//   ownerName: string;
+//   number: string;
+//   notes: string;
+// }
 
-export interface ICar {
-  id: number; // system
-  name: string; // system?
-  title: string;
-  status: string;
-  fields: IField[];
-}
+// export interface IField {
+//   name: string;
+//   title: string;
+//   type: string;
+// }
 
-export type Car = ICar & IOwner;
+// export interface ICar {
+//   id: number; // system
+//   name: string; // system?
+//   title: string;
+//   status: string;
+//   fields: IField[];
+// }
+
+export type Car = ResponseCar;
 
 // export {
 //   Car
