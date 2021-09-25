@@ -23,6 +23,7 @@ import { SettingHeaderComponent } from './setting-header/setting-header.componen
 import { SettingFooterComponent } from './setting-footer/setting-footer.component';
 import { CreateFieldComponent } from './modals/create-field/create-field.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FieldFormComponent } from './shared/field-form/field-form.component';
 
 
 
@@ -43,7 +44,8 @@ const routes: Routes = [{
     SettingsFieldsComponent,
     SettingHeaderComponent,
     SettingFooterComponent,
-    CreateFieldComponent
+    CreateFieldComponent,
+    FieldFormComponent
   ],
   imports: [
     RouterModule.forChild(routes),

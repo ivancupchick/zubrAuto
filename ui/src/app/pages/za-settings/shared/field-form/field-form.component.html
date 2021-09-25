@@ -1,0 +1,22 @@
+<form class="p-fluid p-grid" [formGroup]="formGroup">
+  <div class="p-field p-col-12 p-md-4">
+    <span class="p-float-label">
+      <input id="float-input" type="text" pInputText formControlName="name">
+      <label for="float-input">Системное имя</label>
+    </span>
+  </div>
+
+  <div class="p-field p-col-12 p-md-4">
+    <span class="p-float-label">
+      <p-dropdown inputId="dropdown" [autoDisplayFirst]="true" [options]="types" optionLabel="name" formControlName="type" optionValue="code"></p-dropdown>
+      <label for="dropdown">Тип</label>
+    </span>
+  </div>
+
+  <div *ngIf="isVisibleVariants" class="p-field p-col-12 p-md-4">
+    <span class="p-float-label">
+      <textarea pInputTextarea formControlName="variants"></textarea>
+      <label for="dropdown">Варианты (через запятую)</label>
+    </span>
+  </div>
+</form>
