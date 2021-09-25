@@ -36,7 +36,7 @@ export class FieldService {
 
   updateField(value: CreateField, id: number): Observable<boolean> {
     delete (value as any).id;
-    return this.httpClient.put(`${environment.serverUrl}/fields?fieldId=${id}`, value)
+    return this.httpClient.put(`${environment.serverUrl}/fields/${id}`, value)
       .pipe(map(result => {
         console.log(result);
 

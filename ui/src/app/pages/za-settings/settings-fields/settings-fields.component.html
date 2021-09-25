@@ -19,6 +19,7 @@
   <ng-template pTemplate="header">
         <tr>
             <th>Id</th>
+            <th>Системное имя</th>
             <th>Название</th>
             <th>Тип</th>
             <th style="width:8rem"></th>
@@ -28,10 +29,11 @@
         <tr>
             <td>{{field.id}}</td>
             <td>{{field.name}}</td>
+            <td>{{field.name}}</td>
             <td>{{field.type}}</td>
             <td>
                 <button type="button" pButton pRipple icon="pi pi-times" class="p-button-danger" (click)="deleteField(field)"></button>
-                <button type="button" pButton pRipple icon="pi pi-pen" class="p-button-info" (click)="updateField(field)"></button>
+                <button style="margin-left: 5px;" type="button" pButton pRipple icon="pi pi-pencil" class="p-button-secondary" (click)="updateField(field)"></button>
             </td>
         </tr>
   </ng-template>

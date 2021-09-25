@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CreateField, Domain, FieldType } from 'src/app/entities/field';
+import { CreateField, Domain, Field, FieldType } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
 import { FieldFormComponent } from '../../shared/field-form/field-form.component';
 
@@ -16,6 +16,9 @@ export class CreateFieldComponent implements OnInit {
 
   isEdit = false;
   id!: number;
+  field!: Field;
+
+  formValid = false;
 
   @ViewChild(FieldFormComponent) fieldForm!: FieldFormComponent;
 
@@ -30,6 +33,7 @@ export class CreateFieldComponent implements OnInit {
     this.domain = this.config.data.domain;
     this.isEdit = this.config.data.isEdit;
     this.id = this.config.data.id;
+    this.field = this.config.data.field;
   }
 
   create() {
@@ -50,5 +54,9 @@ export class CreateFieldComponent implements OnInit {
 
   cancel() {
     this.ref.close(false);
+  }
+
+  setValidForm(value: boolean) {
+    this.formValid = value;
   }
 }

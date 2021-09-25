@@ -29,11 +29,13 @@ export class SettingsFieldsComponent implements OnInit {
   selectedDomain = Domain.Car;
 
   fields: GridField[] = [];
+  rawFields: Field[] = [];
 
   constructor(private fieldService: FieldService, private dialogService: DialogService) { }
 
   ngOnInit(): void {
     this.fieldService.getFields().subscribe(res => {
+      this.rawFields = [...res];
       this.fields = res.map(field => {
         const gridCar = {
           name: field.name,
@@ -60,7 +62,16 @@ export class SettingsFieldsComponent implements OnInit {
     console.log(field);
   }
 
-  updateField(field: any) {
-    console.log(field);
+  updateField(field: GridField) {
+    const ref = this.dialogService.open(CreateFieldComponent, {
+      data: {
+        domain: this.selectedDomain,
+        isEdit: true,
+        id: +field.id,
+        field: this.rawFields.find(rf => `${rf.id}` === `${field.id}`)
+      },
+      header: 'Редактирование филда',
+      width: '70%'
+    });
   }
 }

@@ -87,10 +87,20 @@ export async function updateField(req: Request, res: Response) {
   const id = +req.params.fieldId;
   const updateField: any = req.body;
   const conn = await connect();
-  await conn.query(getUpdateByIdQuery(TABLE_NAME, id, updateField));
-  res.json({
-      message: 'Field Updated'
-  });
+  conn.query(getUpdateByIdQuery(TABLE_NAME, id, updateField))
+    .then(result => {
+      res.json({
+        message: 'Field Updated',
+        result
+      });
+    })
+    .catch(e => {
+      res.json({
+        message: 'Field not Updated',
+        error: e
+      });
+    });
+
 
   // res.json({
   //   message: 'Field does not updated'

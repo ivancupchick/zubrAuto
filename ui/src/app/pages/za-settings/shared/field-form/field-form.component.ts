@@ -1,6 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CreateField, Domain, FieldType } from 'src/app/entities/field';
+import { CreateField, Domain, Field, FieldType } from 'src/app/entities/field';
 
 @Component({
   selector: 'za-field-form',
@@ -12,8 +12,6 @@ export class FieldFormComponent implements OnInit {
 
   isVisibleVariants = false;
 
-  field!: CreateField;
-
   types = [
     {name: 'Текст', code: FieldType.Text},
     {name: 'Чек-бокс', code: FieldType.Checkbox},
@@ -22,34 +20,27 @@ export class FieldFormComponent implements OnInit {
   ];
 
   formGroup!: FormGroup;
-
+  @Input() field!: Field | null;
   @Input() domain!: Domain;
+
+  @Output() changed = new EventEmitter<boolean>();
+
+  private valid = false;
 
   constructor(private fb: FormBuilder) { }
 
   ngOnInit(): void {
-    this.field = {
-      flags: 0,
-      type: FieldType.Text,
-      name: '',
-      domain: this.domain,
-      variants: '',
-      showUserLevel: 0,
-    };
-
     this.formGroup = this.fb.group({
-      name: ['', Validators.required],
-      type: [FieldType.Text, Validators.required],
-      variants: ['']
+      name: [ this.field ? this.field.name : '', Validators.required],
+      type: [ this.field ? this.field.type : FieldType.Text, Validators.required],
+      variants: [ this.field ? this.field.variants : '']
     });
 
     this.formGroup.valueChanges.subscribe(data => {
+      this.valid = this.formGroup.valid;
+      this.changed.emit(this.valid);
       this.isVisibleVariants = data.type === FieldType.Checkbox || data.type === FieldType.Radio || data.type === FieldType.Multiselect
     })
-  }
-
-  valid(): boolean {
-    return this.formGroup.valid;
   }
 
   getValue(): CreateField {
