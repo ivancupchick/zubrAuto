@@ -1,29 +1,16 @@
-export interface RequestCar {
-  id?: string;
-  title: string;
-  description: string;
-  image_url: string;
-  created_at: Date;
-}
-
-export interface IOwner {
-  ownerName: string;
-  number: string;
-  notes: string;
-}
-
 export interface IField {
+  id: number;
+  flags: number;
+  type: number;
   name: string;
-  title: string;
-  type: string;
+  domain: number;
+  variants: string;
+  showUserLevel: number;
 }
 
-export interface ICar {
+export type ResponseCar = {
   id: number; // system
-  name: string; // system?
-  title: string;
-  status: string;
+  createdDate: number; // TODO?
+  ownerId: number;
   fields: IField[];
-}
-
-export type ResponseCar = ICar & IOwner;
+} ;
