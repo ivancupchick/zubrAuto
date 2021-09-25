@@ -4,6 +4,7 @@ import express, { Application } from 'express';
 // Routes
 import IndexRoutes from './routes/index.routes'
 import CarRoutes from './routes/car.routes'
+import FieldRoutes from './routes/field.routes'
 
 export class App {
     app: Application;
@@ -31,6 +32,7 @@ export class App {
     private routes() {
         this.app.use(IndexRoutes);
         this.app.use('/cars', CarRoutes);
+        this.app.use('/fields', FieldRoutes);
     }
 
     async listen(): Promise<void> {

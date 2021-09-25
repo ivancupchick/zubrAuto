@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
 import { ResponseCar } from '../interface/Car';
-import { Database } from '../interface/database'
+import { Database } from '../interface/Database';
 
 // TODO: CRUD
 // TODO: replace all sql queries to separate file or place(constants in top of this file)
