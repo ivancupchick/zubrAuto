@@ -10,10 +10,8 @@ router.route('/')
     .post((req, res) => modifyRequest(req, res, createField));
 
 router.route('/:fieldId')
-    // .get((req, res) => modifyRequest(req, res, getField))
+    .get((req, res) => modifyRequest(req, res, getField))
     .delete((req, res) => modifyRequest(req, res, deleteField))
     .put((req, res) => modifyRequest(req, res, updateField));
-
-
 
 export default router;

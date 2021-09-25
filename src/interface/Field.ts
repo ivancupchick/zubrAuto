@@ -1,18 +1,29 @@
-export interface IField {
+export type FieldWithValue = IField & {
+  value: string
+};
+
+export type IField = CreateFieldRequest & {
   id: number;
+}
+
+export interface CreateFieldRequest {
   flags: number;
-  type: number;
+  type: FieldType;
   name: string;
-  domain: number;
+  domain: FieldDomains;
   variants?: string;
   showUserLevel: number;
 }
 
-export interface CreateField {
-  flags: number;
-  type: number;
-  name: string;
-  domain: number;
-  variants?: string;
-  showUserLevel: number;
+export enum FieldDomains {
+  'Car',
+  'CarOwner',
+  'Client'
+}
+
+export enum FieldType {
+  'Checkbox',
+  'Radio',
+  'Text',
+  'Multiselect'
 }

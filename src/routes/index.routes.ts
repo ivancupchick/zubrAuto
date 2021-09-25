@@ -11,7 +11,7 @@ router.route('/')
 export function modifyRequest(req: Request, res: Response, request: (req: Request, res: Response) => Promise<Response | void>): Promise<Response | void> {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Request-Method', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', '*');
     res.setHeader('Access-Control-Max-Age', 2592000);
 

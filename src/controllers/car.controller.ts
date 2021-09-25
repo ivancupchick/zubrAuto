@@ -40,6 +40,18 @@ export async function getCars(req: Request, res: Response): Promise<Response | v
                                 .filter(ch => ch.sourceId === databaseCar.id)
                                 .find(ch => ch.fieldId === cf.id)
                             )
+                            .map(cf => {
+                                return {
+                                    id: cf.id,
+                                    name: cf.name,
+                                    flags: cf.flags,
+                                    type: cf.type,
+                                    domain: cf.domain,
+                                    variants: cf.variants,
+                                    showUserLevel: cf.showUserLevel,
+                                    value: chaines.find(c => c.fieldId === cf.id)?.value || ''
+                                }
+                            })
                     }
                 })
 

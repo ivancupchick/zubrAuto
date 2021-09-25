@@ -1,40 +1,51 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import { CreateField, IField } from '../interface/Field';
+import { CreateFieldRequest, IField } from '../interface/Field';
 import { Database } from '../interface/Database';
+import { Client } from 'pg';
+import { getDeleteByIdQuery, getGetAllQuery, getGetByIdQuery, getInsertQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 
 // TODO: replace all sql queries to separate file or place(constants in top of this file)
 // TODO: owner feature (maybe never)
+
+const TABLE_NAME = 'public.fields';
 
 export async function getFields(req: Request, res: Response): Promise<Response | void> {
   let fields: IField[] = [];
   let objectFields: Database.Field[] = [];
 
+  let client: Client;
+
   try {
-    const conn = await connect();
-    conn.query('SELECT * FROM public.fields')
+    connect()
+      .then(conn => {
+        client = conn;
+        return conn.query(getGetAllQuery(TABLE_NAME))
+      })
       .then(resFields => {
-        console.log(resFields.rows[0]);
         objectFields = resFields.rows;
 
         fields = [...objectFields];
 
-        console.log(fields);
         res.json(fields);
       })
-
+      .catch(e => {
+        res.json(e);
+      })
+      .finally(() => {
+        client.end();
+      });
   }
   catch (e) {
-    console.log(e)
     res.json(e)
   }
 }
 
-export async function createField(req: Request<any, string, CreateField>, res: Response) {
-  const newField: CreateField = req.body;
+export async function createField(req: Request<any, string, CreateFieldRequest>, res: Response) {
+  const newField: CreateFieldRequest = req.body;
   try {
     const conn = await connect();
-    conn.query('INSERT INTO fields SET ?', [newField])
+    conn.query( getInsertQuery(TABLE_NAME, newField) )
       .then(result => {
         console.log(result);
         res.json({
@@ -54,16 +65,16 @@ export async function createField(req: Request<any, string, CreateField>, res: R
 }
 
 export async function getField(req: Request, res: Response) {
-  // const id = req.params.fieldId;
-  // const conn = await connect();
-  // const fields = await conn.query('SELECT * FROM fields WHERE id = ?', [id]);
-  // res.json(fields.rows[0]);
+  const id = +req.params.fieldId;
+  const conn = await connect();
+  const fields = await conn.query(getGetByIdQuery(TABLE_NAME, id));
+  res.json(fields.rows[0]);
 }
 
 export async function deleteField(req: Request, res: Response) {
-  const id = req.params.fieldId;
+  const id = +req.params.fieldId;
   const conn = await connect();
-  await conn.query('DELETE FROM fields WHERE id = ?', [id]);
+  await conn.query(getDeleteByIdQuery(TABLE_NAME, id));
   res.json({
       message: 'Field deleted'
   });
@@ -73,10 +84,10 @@ export async function deleteField(req: Request, res: Response) {
 }
 
 export async function updateField(req: Request, res: Response) {
-  const id = req.params.fieldId;
+  const id = +req.params.fieldId;
   const updateField: any = req.body;
   const conn = await connect();
-  await conn.query('UPDATE fields set ? WHERE id = ?', [updateField, id]);
+  await conn.query(getUpdateByIdQuery(TABLE_NAME, id, updateField));
   res.json({
       message: 'Field Updated'
   });

@@ -7,6 +7,7 @@ export namespace Database {
 
   export interface CarOwner {
     id: number;
+    number: string;
   }
 
   export interface Form {
@@ -40,6 +41,7 @@ export namespace Database {
     id: number;
     sourceId: number;
     fieldId: number;
+    value: string;
   }
 
   export interface Field {

@@ -1,36 +1,66 @@
 import { Component, OnInit } from '@angular/core';
-import { Car } from 'src/app/entities/car';
-import { CarService } from 'src/app/services/car/car.service';
+import { Domain, Field } from 'src/app/entities/field';
+import { FieldService } from 'src/app/services/field/field.service';
 
-export interface GridCar {
+import {DialogService} from 'primeng/dynamicdialog';
+import { CreateFieldComponent } from '../modals/create-field/create-field.component';
+
+export interface GridField {
   name: string;
-  title: string;
-  status: string;
+  type: string;
+  id: string;
 }
 
 @Component({
   selector: 'za-settings-fields',
   templateUrl: './settings-fields.component.html',
-  styleUrls: ['./settings-fields.component.scss']
+  styleUrls: ['./settings-fields.component.scss'],
+  providers: [
+    DialogService
+  ]
 })
 export class SettingsFieldsComponent implements OnInit {
-  cars: GridCar[] = [];
+  domains = [
+    {name: 'Машины', code: Domain.Car},
+    {name: 'Владелец машины', code: Domain.CarOwner},
+    {name: 'Клиент', code: Domain.Client},
+  ];
 
-  constructor(private carService: CarService) { }
+  selectedDomain = Domain.Car;
+
+  fields: GridField[] = [];
+
+  constructor(private fieldService: FieldService, private dialogService: DialogService) { }
 
   ngOnInit(): void {
-    this.carService.getCars().subscribe(res => {
-      this.cars = res.map(car => {
+    this.fieldService.getFields().subscribe(res => {
+      this.fields = res.map(field => {
         const gridCar = {
-          name: car.name,
-          title: car.title,
-          status: car.status,
+          name: field.name,
+          type: String(field.type),
+          id: String(field.id),
         }
 
         return gridCar;
       })
     })
-    // this.cars = th
   }
 
+  openNewField() {
+    const ref = this.dialogService.open(CreateFieldComponent, {
+      data: {
+        domain: this.selectedDomain
+      },
+      header: 'Создание филда',
+      width: '70%'
+    });
+  }
+
+  deleteField(field: any) {
+    console.log(field);
+  }
+
+  updateField(field: any) {
+    console.log(field);
+  }
 }

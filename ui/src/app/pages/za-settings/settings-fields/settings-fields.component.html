@@ -1,20 +1,38 @@
 <p></p>
-<!-- TODO Layout -->
-<!-- <p-card> -->
-  <p-table [value]="cars">
-    <ng-template pTemplate="header">
+<p-toolbar>
+    <div class="p-toolbar-group-left">
+        <span style="color: white">Домен</span>
+        <p-dropdown [autoDisplayFirst]="true" [options]="domains" [(ngModel)]="selectedDomain" optionLabel="name" optionValue="code"></p-dropdown>
+        <button pButton type="button" label="Новое поле" icon="pi pi-plus" (click)="openNewField()"></button>
+
+        <i class="pi pi-bars"></i>
+    </div>
+
+    <!-- <div class="p-toolbar-group-right">
+        <p-button icon="pi pi-search"></p-button>
+        <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
+        <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button>
+    </div> -->
+</p-toolbar>
+<p></p>
+<p-table [value]="fields">
+  <ng-template pTemplate="header">
         <tr>
-            <th>Ситемное имя</th>
+            <th>Id</th>
             <th>Название</th>
-            <th>Статус</th>
+            <th>Тип</th>
+            <th style="width:4rem"></th>
         </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-car>
+  </ng-template>
+  <ng-template pTemplate="body" let-field>
         <tr>
-            <td>{{car.name}}</td>
-            <td>{{car.title}}</td>
-            <td>{{car.status}}</td>
+            <td>{{field.id}}</td>
+            <td>{{field.name}}</td>
+            <td>{{field.type}}</td>
+            <td>
+                <button type="button" pButton pRipple icon="pi pi-times" class="p-button-danger" (click)="deleteField(field)"></button>
+                <button type="button" pButton pRipple icon="pi pi-pen" class="p-button-info" (click)="updateField(field)"></button>
+            </td>
         </tr>
-    </ng-template>
-  </p-table>
-<!-- </p-card> -->
+  </ng-template>
+</p-table>
