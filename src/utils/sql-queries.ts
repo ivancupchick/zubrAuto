@@ -19,10 +19,15 @@ export const getUpdateByIdQuery = (tableName: string, id: number, object: any) =
 }
 
 export const getInsertQuery = (tableName: string, object: any) => {
+  let values = [];
+
+  for (const iterator of object) {
+    values.push(iterator)
+  }
   return `INSERT INTO "${tableName}" (${
     Object.keys(object)
       .map(f => `"${f}"`)
-      .join(',')}) VALUES(${Object.values(object)
+      .join(',')}) VALUES(${values
       .map(f => `'${f}'`)
       .join(',')
     }) RETURNING id;`
