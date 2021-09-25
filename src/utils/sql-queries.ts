@@ -18,7 +18,7 @@ export const getUpdateByIdQuery = (tableName: string, id: number, object: any) =
     } WHERE id = ${id};`
 }
 
-export const getInsertQuery = (tableName: string, object: Object) => {
+export const getInsertQuery = (tableName: string, object: any) => {
   return `INSERT INTO "${tableName}" (${
     Object.keys(object)
       .map(f => `"${f}"`)

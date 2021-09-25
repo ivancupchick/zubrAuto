@@ -28,11 +28,10 @@ export async function getFields(req: Request, res: Response): Promise<Response |
         fields = [...objectFields];
 
         res.json(fields);
+        client.end();
       })
       .catch(e => {
         res.json(e);
-      })
-      .finally(() => {
         client.end();
       });
   }
