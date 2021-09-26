@@ -19,13 +19,13 @@ export class App {
     }
 
     private settings() {
-        this.app.set('port', this.port);
+        this.app.set('port', this.port || process.env.PORT || 3000);
     }
 
     private middlewares() {
         // this.app.use(morgan('dev'));
         this.app.use(express.json());
-        this.app.use(express.static(process.cwd()+"/dist/zubr-auto/"));
+        this.app.use(express.static(process.cwd()+"/ui/dist/zubr-auto/"));
 
     }
 
