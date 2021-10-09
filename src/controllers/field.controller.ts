@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import { CreateFieldRequest, IField } from '../interface/Field';
-import { Database } from '../interface/Database';
+import { CreateFieldId, CreateFieldRequest, IField } from '../entities/Field';
+import { Database } from '../entities/Database';
 import { Client } from 'pg';
-import { getDeleteByIdQuery, getGetAllQuery, getGetByIdQuery, getInsertQuery, getUpdateByIdQuery } from '../utils/sql-queries';
+import { getDeleteByIdQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 
 // TODO: replace all sql queries to separate file or place(constants in top of this file)
 // TODO: owner feature (maybe never)
@@ -44,7 +44,7 @@ export async function createField(req: Request<any, string, CreateFieldRequest>,
   const newField: CreateFieldRequest = req.body;
   try {
     const conn = await connect();
-    conn.query( getInsertQuery(TABLE_NAME, newField) )
+    conn.query( getInsertOneQuery(TABLE_NAME, newField) )
       .then(result => {
         console.log(result);
         res.json({
@@ -104,4 +104,8 @@ export async function updateField(req: Request, res: Response) {
   // res.json({
   //   message: 'Field does not updated'
   // });
+}
+
+export async function createFieldChain(conn: Client, sourceId: number, fieldId: number, value: string) {
+  return conn.query(getInsertOneQuery<CreateFieldId>('public.fieldIds', { sourceId, fieldId, value }) )
 }

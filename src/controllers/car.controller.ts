@@ -1,11 +1,14 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import { ResponseCar } from '../interface/Car';
-import { Database } from '../interface/Database';
+import { ResponseCar } from '../entities/Car';
+import { Database } from '../entities/Database';
+import { getFieldsWithValues } from '../utils/field.utils';
+import { getGetAllByOneColumnExpressionQuery, getGetAllQuery } from '../utils/sql-queries';
 
 // TODO: CRUD
 // TODO: replace all sql queries to separate file or place(constants in top of this file)
 // TODO: owner feature (maybe never)
+// TODO: create separate database servicies for all controllers
 
 export async function getCars(req: Request, res: Response): Promise<Response | void> {
     let cars: ResponseCar[] = [];
@@ -15,17 +18,24 @@ export async function getCars(req: Request, res: Response): Promise<Response | v
 
     try {
         const conn = await connect();
-        conn.query('SELECT * FROM public.cars')
+        conn.query<Database.Car>(getGetAllQuery('public.cars'))
             .then(resCars => {
                 console.log(resCars.rows[0]);
                 objectCars = resCars.rows;
 
-                return conn.query(`SELECT * FROM public.fieldsIds WHERE sourceId IN (${objectCars.map((c: Database.Car) => c.id).join(',')})`)
+                const query = getGetAllByOneColumnExpressionQuery('public.fieldsIds', { sourceId: objectCars.map((c: Database.Car) => `${c.id}`) })
+
+                console.log(query);
+                return conn.query<Database.FieldId>(query)
             })
             .then(resFieldIds => {
                 chaines = resFieldIds.rows;
 
-                return conn.query(`SELECT * FROM public.fields WHERE id IN (${chaines.map((ch: Database.FieldId) => ch.fieldId).join(',')})`)
+                const query = getGetAllByOneColumnExpressionQuery('public.fields', { id: chaines.map((ch: Database.FieldId) => `${ch.fieldId}`) })
+
+                console.log(query);
+
+                return conn.query<Database.Field>(query)
             })
             .then(resFields => {
                 chainedFields = resFields.rows;
@@ -35,27 +45,12 @@ export async function getCars(req: Request, res: Response): Promise<Response | v
                         id: databaseCar.id,
                         createdDate: +databaseCar.createdDate,
                         ownerId: databaseCar.ownerId || 0,
-                        fields: chainedFields
-                            .filter(cf => !!chaines
-                                .filter(ch => ch.sourceId === databaseCar.id)
-                                .find(ch => ch.fieldId === cf.id)
-                            )
-                            .map(cf => {
-                                return {
-                                    id: cf.id,
-                                    name: cf.name,
-                                    flags: cf.flags,
-                                    type: cf.type,
-                                    domain: cf.domain,
-                                    variants: cf.variants,
-                                    showUserLevel: cf.showUserLevel,
-                                    value: chaines.find(c => c.fieldId === cf.id)?.value || ''
-                                }
-                            })
+                        fields: getFieldsWithValues(chainedFields, chaines, databaseCar.id)
                     }
                 })
 
                 console.log(cars);
+                conn.end();
                 return res.json(cars);
             })
 

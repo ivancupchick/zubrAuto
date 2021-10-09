@@ -14,7 +14,7 @@ export class FieldFormComponent implements OnInit {
 
   types = [
     {name: 'Текст', code: FieldType.Text},
-    {name: 'Чек-бокс', code: FieldType.Checkbox},
+    {name: 'Да-нет', code: FieldType.Boolean},
     {name: 'Мульти-селект', code: FieldType.Multiselect},
     {name: 'Радио-баттон', code: FieldType.Radio},
   ];
@@ -39,7 +39,7 @@ export class FieldFormComponent implements OnInit {
     this.formGroup.valueChanges.subscribe(data => {
       this.valid = this.formGroup.valid;
       this.changed.emit(this.valid);
-      this.isVisibleVariants = data.type === FieldType.Checkbox || data.type === FieldType.Radio || data.type === FieldType.Multiselect
+      this.isVisibleVariants = data.type === FieldType.Radio || data.type === FieldType.Multiselect
     })
   }
 

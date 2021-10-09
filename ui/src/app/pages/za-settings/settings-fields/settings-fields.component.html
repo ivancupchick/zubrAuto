@@ -2,7 +2,7 @@
 <p-toolbar>
     <div class="p-toolbar-group-left">
         <span style="color: white">Домен</span>
-        <p-dropdown [autoDisplayFirst]="true" [options]="domains" [(ngModel)]="selectedDomain" optionLabel="name" optionValue="code"></p-dropdown>
+        <p-dropdown [autoDisplayFirst]="true" [options]="domains" [(ngModel)]="selectedDomain" (onChange)="onChangeDomain($event)" optionLabel="name" optionValue="code"></p-dropdown>
         <button pButton type="button" label="Новое поле" icon="pi pi-plus" (click)="openNewField()"></button>
 
         <i class="pi pi-bars"></i>
@@ -15,7 +15,7 @@
     </div> -->
 </p-toolbar>
 <p></p>
-<p-table [value]="fields">
+<p-table [value]="sortedFields">
   <ng-template pTemplate="header">
         <tr>
             <th>Id</th>

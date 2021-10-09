@@ -1,8 +1,11 @@
+import { Database } from "../entities/Database";
+import { FieldWithValue } from "../entities/Field";
+
 export enum Flags {
   System = 1,
 }
 
-export class Field {
+export class FlagField {
   static setFlagOn(v: { flags: number }, bit: number) {
     v.flags |= bit;
   }
@@ -18,4 +21,24 @@ export class Flag {
 
     return (value & bit) === bit;
   }
+}
+
+export const getFieldsWithValues = (chainedFields: Database.Field[], chaines: Database.FieldId[], sourceId: number): FieldWithValue[] => {
+  return chainedFields
+    .filter(cf => !!chaines
+      .filter(ch => ch.sourceId === sourceId)
+      .find(ch => ch.fieldId === cf.id)
+    )
+    .map(cf => {
+      return {
+        id: cf.id,
+        name: cf.name,
+        flags: cf.flags,
+        type: cf.type,
+        domain: cf.domain,
+        variants: cf.variants,
+        showUserLevel: cf.showUserLevel,
+        value: chaines.find(c => c.fieldId === cf.id)?.value || ''
+      }
+    })
 }

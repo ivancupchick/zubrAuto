@@ -29,6 +29,7 @@ export class SettingsFieldsComponent implements OnInit {
   selectedDomain = Domain.Car;
 
   fields: GridField[] = [];
+  sortedFields: GridField[] = [];
   rawFields: Field[] = [];
 
   constructor(private fieldService: FieldService, private dialogService: DialogService) { }
@@ -36,15 +37,8 @@ export class SettingsFieldsComponent implements OnInit {
   ngOnInit(): void {
     this.fieldService.getFields().subscribe(res => {
       this.rawFields = [...res];
-      this.fields = res.map(field => {
-        const gridCar = {
-          name: field.name,
-          type: String(field.type),
-          id: String(field.id),
-        }
 
-        return gridCar;
-      })
+      this.sortFields();
     })
   }
 
@@ -73,5 +67,22 @@ export class SettingsFieldsComponent implements OnInit {
       header: 'Редактирование филда',
       width: '70%'
     });
+  }
+
+  onChangeDomain(v: any) {
+    console.log(v);
+    this.sortFields();
+  }
+
+  private sortFields() {
+    this.sortedFields = this.rawFields.filter(f => f.domain === this.selectedDomain).map(this.getGridFields);
+  }
+
+  getGridFields(field: Field): GridField {
+    return {
+        name: field.name,
+        type: String(field.type),
+        id: String(field.id),
+    };
   }
 }

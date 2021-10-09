@@ -1,4 +1,4 @@
-import { ResponseCar } from '../../../../src/interface/Car'
+import { ResponseCar } from '../../../../src/entities/Car'
 
 // export interface IOwner {
 //   ownerName: string;

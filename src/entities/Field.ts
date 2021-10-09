@@ -15,6 +15,13 @@ export interface CreateFieldRequest {
   showUserLevel: number;
 }
 
+
+export interface CreateFieldId {
+  sourceId: number;
+  fieldId: number;
+  value: string;
+}
+
 export enum FieldDomains {
   'Car',
   'CarOwner',
@@ -22,7 +29,7 @@ export enum FieldDomains {
 }
 
 export enum FieldType {
-  'Checkbox',
+  'Boolean',
   'Radio',
   'Text',
   'Multiselect'

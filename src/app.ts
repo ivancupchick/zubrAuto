@@ -1,5 +1,4 @@
 import express, { Application } from 'express';
-// import morgan from 'morgan'
 
 // Routes
 import IndexRoutes from './routes/index.routes'
@@ -23,7 +22,6 @@ export class App {
     }
 
     private middlewares() {
-        // this.app.use(morgan('dev'));
         this.app.use(express.json());
         this.app.use(express.static(process.cwd()+"/ui/dist/zubr-auto/"));
 
