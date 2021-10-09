@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CreateField, Domain, Field, FieldType } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
-import { FieldFormComponent } from '../../shared/field-form/field-form.component';
+import { FieldFormComponent } from '../../shared/fields/field-form/field-form.component';
 
 @Component({
   selector: 'za-create-field',

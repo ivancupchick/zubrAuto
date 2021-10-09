@@ -7,7 +7,7 @@ const menuItems : MenuItem[]  = [
     items: [{
         label: 'Список',
         icon: 'pi pi-fw pi-list',
-        routerLink: 'fields'
+        // routerLink: ''
         // items: [
         //   {
         //     label: 'Project'
@@ -23,17 +23,23 @@ const menuItems : MenuItem[]  = [
     ]
   },
   {
-    label: 'Edit',
-    icon: 'pi pi-fw pi-pencil',
-    items: [
-      {
-        label: 'Delete',
-        icon: 'pi pi-fw pi-trash'
-      }, {
-        label: 'Refresh',
-        icon: 'pi pi-fw pi-refresh'
-      }
-    ]
+    label: 'Настройка филдов',
+    icon: 'pi pi-fw pi-align-left',
+    routerLink: 'fields'
+
+    // items: [
+    //   {
+    //     label: 'Delete',
+    //     icon: 'pi pi-fw pi-trash'
+    //   }, {
+    //     label: 'Refresh',
+    //     icon: 'pi pi-fw pi-refresh'
+    //   }
+    // ]
+  }, {
+    label: 'База клиентов',
+    icon: 'pi pi-fw pi-users',
+    routerLink: 'clients'
   }
 ];
 

@@ -32,5 +32,6 @@ export enum FieldType {
   'Boolean',
   'Radio',
   'Text',
-  'Multiselect'
+  'Multiselect',
+  'Number'
 }

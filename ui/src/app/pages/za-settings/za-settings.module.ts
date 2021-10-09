@@ -23,17 +23,21 @@ import { SettingHeaderComponent } from './setting-header/setting-header.componen
 import { SettingFooterComponent } from './setting-footer/setting-footer.component';
 import { CreateFieldComponent } from './modals/create-field/create-field.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FieldFormComponent } from './shared/field-form/field-form.component';
+import { FieldFormComponent } from './shared/fields/field-form/field-form.component';
+import { SettingsClientsComponent } from './settings-clients/settings-clients.component';
+import { GridComponent } from './shared/grid/grid.component';
 
 
 
 const routes: Routes = [{
   path: '',
   component: ZASettingsComponent,
-  children: [
-    {
+  children: [{
       path: 'fields',
       component: SettingsFieldsComponent
+    }, {
+      path: 'clients',
+      component: SettingsClientsComponent
     }
   ]
 }]
@@ -45,7 +49,9 @@ const routes: Routes = [{
     SettingHeaderComponent,
     SettingFooterComponent,
     CreateFieldComponent,
-    FieldFormComponent
+    FieldFormComponent,
+    SettingsClientsComponent,
+    GridComponent
   ],
   imports: [
     RouterModule.forChild(routes),

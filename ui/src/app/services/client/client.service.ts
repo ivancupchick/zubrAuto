@@ -1,23 +1,23 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CreateField, Field } from 'src/app/entities/field';
-import { environment } from 'src/environments/environment';
 import { map } from 'rxjs/operators';
+import { CreateClientRequest, DBClient } from 'src/app/entities/client';
+import { environment } from 'src/environments/environment';
 
-const API = 'fields';
-const ITEM_ID_NAME = 'fieldId'
+const API = 'clients';
+// const ITEM_ID_NAME = 'clientId'
 
 @Injectable()
-export class FieldService {
+export class ClientService {
 
   constructor(private httpClient: HttpClient) { }
 
-  getFields(): Observable<Field[]> {
-    return this.httpClient.get<Field[]>(`${environment.serverUrl}/${API}`)
+  getClients(): Observable<DBClient[]> {
+    return this.httpClient.get<DBClient[]>(`${environment.serverUrl}/${API}`)
   }
 
-  createField(value: CreateField): Observable<boolean> {
+  createClient(value: CreateClientRequest): Observable<boolean> {
     return this.httpClient.post(`${environment.serverUrl}/${API}`, value)
       .pipe(map(result => {
         console.log(result);
@@ -26,8 +26,8 @@ export class FieldService {
       }))
   }
 
-  getField(id: number): Observable<Field> {
-    return this.httpClient.get<Field[]>(`${environment.serverUrl}/${API}/${id}`)
+  getClient(id: number): Observable<DBClient> {
+    return this.httpClient.get<DBClient[]>(`${environment.serverUrl}/${API}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
@@ -35,7 +35,7 @@ export class FieldService {
       }))
   }
 
-  updateField(value: CreateField, id: number): Observable<boolean> {
+  updateClient(value: CreateClientRequest, id: number): Observable<boolean> {
     delete (value as any).id;
     return this.httpClient.put(`${environment.serverUrl}/${API}/${id}`, value)
       .pipe(map(result => {
@@ -45,7 +45,7 @@ export class FieldService {
       }))
   }
 
-  deleteField(id: number): Observable<boolean> {
+  deleteClient(id: number): Observable<boolean> {
     return this.httpClient.delete(`${environment.serverUrl}/${API}/${id}`)
       .pipe(map(result => {
         console.log(result);
