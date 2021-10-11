@@ -53,5 +53,4 @@ export class FieldFormComponent implements OnInit {
       showUserLevel: 0,
     }
   }
-
 }

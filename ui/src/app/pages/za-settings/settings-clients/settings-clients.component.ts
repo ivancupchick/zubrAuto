@@ -6,12 +6,16 @@ import { ClientService } from 'src/app/services/client/client.service';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsClientsStrings } from './settings-clients.strings';
 
+import {DialogService} from 'primeng/dynamicdialog';
+import { CreateClientComponent } from '../modals/create-client/create-client.component';
+
 
 @Component({
   selector: 'za-settings-clients',
   templateUrl: './settings-clients.component.html',
   styleUrls: ['./settings-clients.component.scss'],
   providers: [
+    DialogService,
     ClientService
   ]
 })
@@ -34,7 +38,7 @@ export class SettingsClientsComponent implements OnInit {
 
   readonly strings = settingsClientsStrings;
 
-  constructor(private clientService: ClientService) { }
+  constructor(private clientService: ClientService, private dialogService: DialogService) { }
 
   ngOnInit(): void {
     this.clientService.getClients().subscribe((result) => {
@@ -92,4 +96,27 @@ export class SettingsClientsComponent implements OnInit {
   private sortClients() {
     this.sortedClients = this.rawClients;
   }
+
+  openNewClientWindow() {
+    const ref = this.dialogService.open(CreateClientComponent, {
+      data: {
+        domain: null // TODO! delete
+      },
+      header: 'Новый клиент',
+      width: '70%'
+    });
+  }
+
+  // updateField(client: GridField) {
+  //   const ref = this.dialogService.open(CreateFieldComponent, {
+  //     data: {
+  //       domain: this.selectedDomain,
+  //       isEdit: true,
+  //       id: +field.id,
+  //       field: this.rawFields.find(rf => `${rf.id}` === `${field.id}`)
+  //     },
+  //     header: 'Редактирование филда',
+  //     width: '70%'
+  //   });
+  // }
 }

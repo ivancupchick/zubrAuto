@@ -26,6 +26,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FieldFormComponent } from './shared/fields/field-form/field-form.component';
 import { SettingsClientsComponent } from './settings-clients/settings-clients.component';
 import { GridComponent } from './shared/grid/grid.component';
+import { CreateClientComponent } from './modals/create-client/create-client.component';
+import { DynamicFormComponent } from './shared/dynamic-form/dynamic-form.component';
 
 
 
@@ -51,7 +53,9 @@ const routes: Routes = [{
     CreateFieldComponent,
     FieldFormComponent,
     SettingsClientsComponent,
-    GridComponent
+    GridComponent,
+    CreateClientComponent,
+    DynamicFormComponent
   ],
   imports: [
     RouterModule.forChild(routes),
