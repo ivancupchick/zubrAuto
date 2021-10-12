@@ -17,7 +17,6 @@ export async function getClients(req: Request, res: Response): Promise<Response 
   let chaines: Database.FieldId[] = [];
   let chainedFields: Database.Field[] = [];
 
-
   try {
     const conn = await connect();
     conn.query<Database.Client>(getGetAllQuery(TABLE_NAME))
@@ -58,7 +57,7 @@ export async function getClients(req: Request, res: Response): Promise<Response 
         return res.json(clients);
       })
       .catch(e => {
-        res.json(e);
+        res.json([]);
         conn.end();
       });
   }

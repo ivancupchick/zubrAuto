@@ -6,7 +6,7 @@ export type ResponseCLient = RequestCreateClient & {
 }
 
 export type RequestCreateClient = CreateClientDB & {
-  fields: FieldWithValue[];
+  fields: (FieldWithValue | { value: string, id: number })[];
 }
 
 export interface CreateClientDB {
