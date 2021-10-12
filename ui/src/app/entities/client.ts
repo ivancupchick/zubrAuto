@@ -1,4 +1,5 @@
-import { CreateClientDB, ResponseCLient } from '../../../../src/entities/Client'
+import { CreateClientDB, ResponseCLient, RequestCreateClient } from '../../../../src/entities/Client'
 
 export type DBClient = ResponseCLient;
+export type NewDBClient = RequestCreateClient;
 export type CreateClientRequest = CreateClientDB;

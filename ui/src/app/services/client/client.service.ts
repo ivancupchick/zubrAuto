@@ -3,7 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CreateClientRequest, DBClient } from 'src/app/entities/client';
+import { Domain, Field } from 'src/app/entities/field';
 import { environment } from 'src/environments/environment';
+import { FieldService } from '../field/field.service';
 
 const API = 'clients';
 // const ITEM_ID_NAME = 'clientId'
@@ -11,7 +13,7 @@ const API = 'clients';
 @Injectable()
 export class ClientService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private fieldService: FieldService) { }
 
   getClients(): Observable<DBClient[]> {
     return this.httpClient.get<DBClient[]>(`${environment.serverUrl}/${API}`)
@@ -52,5 +54,9 @@ export class ClientService {
 
         return true;
       }))
+  }
+
+  getClientFields(): Observable<Field[]> {
+    return this.fieldService.getFieldsByDomain(Domain.Client);
   }
 }

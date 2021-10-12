@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import { CreateFieldId, CreateFieldRequest, IField } from '../entities/Field';
+import { CreateFieldId, CreateFieldRequest, FieldDomains, IField } from '../entities/Field';
 import { Database } from '../entities/Database';
 import { Client } from 'pg';
-import { getDeleteByIdQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
+import { getDeleteByIdQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 
 // TODO: replace all sql queries to separate file or place(constants in top of this file)
 // TODO: owner feature (maybe never)
@@ -21,6 +21,41 @@ export async function getFields(req: Request, res: Response): Promise<Response |
       .then(conn => {
         client = conn;
         return conn.query(getGetAllQuery(TABLE_NAME))
+      })
+      .then(resFields => {
+        objectFields = resFields.rows;
+
+        fields = [...objectFields];
+
+        res.json(fields);
+        client.end();
+      })
+      .catch(e => {
+        res.json(e);
+        client.end();
+      });
+  }
+  catch (e) {
+    res.json(e)
+  }
+}
+
+export async function getFieldsByDomain(req: Request, res: Response): Promise<Response | void> {
+  const domain: FieldDomains = +req.params.domain;
+
+  let fields: IField[] = [];
+  let objectFields: Database.Field[] = [];
+
+  let client: Client;
+
+  try {
+    connect()
+      .then(conn => {
+        client = conn;
+
+        const query = getGetAllByOneColumnExpressionQuery(TABLE_NAME, { domain: [`${domain}`]})
+
+        return conn.query(query)
       })
       .then(resFields => {
         objectFields = resFields.rows;

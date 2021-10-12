@@ -28,6 +28,7 @@ import { SettingsClientsComponent } from './settings-clients/settings-clients.co
 import { GridComponent } from './shared/grid/grid.component';
 import { CreateClientComponent } from './modals/create-client/create-client.component';
 import { DynamicFormComponent } from './shared/dynamic-form/dynamic-form.component';
+import { FieldService } from 'src/app/services/field/field.service';
 
 
 
@@ -76,6 +77,9 @@ const routes: Routes = [{
     MessagesModule,
     MessageModule,
     ToastModule
+  ],
+  providers: [
+    FieldService
   ]
 })
 export class ZASettingsModule { }

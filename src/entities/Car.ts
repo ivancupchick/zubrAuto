@@ -5,4 +5,4 @@ export type ResponseCar = {
   createdDate: number; // TODO?
   ownerId: number;
   fields: FieldWithValue[];
-} ;
+};

@@ -1,12 +1,12 @@
-import { FieldWithValue } from "./Field";
+import { CreateEntitiesField, FieldWithValue } from "./Field";
 
-export type ResponseCLient = RequestCreateClient & {
+export type ResponseCLient = CreateClientDB & {
   id: number;
-
+  fields: FieldWithValue[];
 }
 
 export type RequestCreateClient = CreateClientDB & {
-  fields: (FieldWithValue | { value: string, id: number })[];
+  fields: CreateEntitiesField[];
 }
 
 export interface CreateClientDB {

@@ -1,6 +1,4 @@
-export type FieldWithValue = IField & {
-  value: string
-};
+export type FieldWithValue = IField & CreateEntitiesField;
 
 export type IField = CreateFieldRequest & {
   id: number;
@@ -15,6 +13,10 @@ export interface CreateFieldRequest {
   showUserLevel: number;
 }
 
+export interface CreateEntitiesField {
+  id: number;
+  value: string;
+}
 
 export interface CreateFieldId {
   sourceId: number;
