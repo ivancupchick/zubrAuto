@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CreateClientRequest, DBClient } from 'src/app/entities/client';
-import { Domain, Field } from 'src/app/entities/field';
+import { ServerClient } from 'src/app/entities/client';
+import { Domain, ServerField } from 'src/app/entities/field';
 import { environment } from 'src/environments/environment';
 import { FieldService } from '../field/field.service';
 
@@ -15,12 +15,12 @@ export class ClientService {
 
   constructor(private httpClient: HttpClient, private fieldService: FieldService) { }
 
-  getClients(): Observable<DBClient[]> {
-    return this.httpClient.get<DBClient[]>(`${environment.serverUrl}/${API}`)
+  getClients(): Observable<ServerClient.GetResponse[]> {
+    return this.httpClient.get<ServerClient.GetResponse[]>(`${environment.serverUrl}/${API}`)
   }
 
-  createClient(value: CreateClientRequest): Observable<boolean> {
-    return this.httpClient.post(`${environment.serverUrl}/${API}`, value)
+  createClient(value: ServerClient.CreateRequest): Observable<boolean> {
+    return this.httpClient.post<any>(`${environment.serverUrl}/${API}`, value)
       .pipe(map(result => {
         console.log(result);
 
@@ -28,8 +28,8 @@ export class ClientService {
       }))
   }
 
-  getClient(id: number): Observable<DBClient> {
-    return this.httpClient.get<DBClient[]>(`${environment.serverUrl}/${API}/${id}`)
+  getClient(id: number): Observable<ServerClient.GetResponse> {
+    return this.httpClient.get<ServerClient.GetResponse[]>(`${environment.serverUrl}/${API}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
@@ -37,9 +37,9 @@ export class ClientService {
       }))
   }
 
-  updateClient(value: CreateClientRequest, id: number): Observable<boolean> {
+  updateClient(value: ServerClient.Entity | ServerClient.CreateRequest, id: number): Observable<boolean> {
     delete (value as any).id;
-    return this.httpClient.put(`${environment.serverUrl}/${API}/${id}`, value)
+    return this.httpClient.put<any>(`${environment.serverUrl}/${API}/${id}`, value)
       .pipe(map(result => {
         console.log(result);
 
@@ -48,7 +48,7 @@ export class ClientService {
   }
 
   deleteClient(id: number): Observable<boolean> {
-    return this.httpClient.delete(`${environment.serverUrl}/${API}/${id}`)
+    return this.httpClient.delete<any>(`${environment.serverUrl}/${API}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
@@ -56,7 +56,7 @@ export class ClientService {
       }))
   }
 
-  getClientFields(): Observable<Field[]> {
+  getClientFields(): Observable<ServerField.Entity[]> {
     return this.fieldService.getFieldsByDomain(Domain.Client);
   }
 }

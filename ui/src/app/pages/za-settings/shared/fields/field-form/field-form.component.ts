@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { CreateField, Domain, Field, FieldType } from 'src/app/entities/field';
+import { Domain, FieldType, ServerField } from 'src/app/entities/field';
 
 @Component({
   selector: 'za-field-form',
@@ -13,14 +13,15 @@ export class FieldFormComponent implements OnInit {
   isVisibleVariants = false;
 
   types = [
-    {name: 'Текст', code: FieldType.Text},
-    {name: 'Да-нет', code: FieldType.Boolean},
-    {name: 'Мульти-селект', code: FieldType.Multiselect},
-    {name: 'Радио-баттон', code: FieldType.Radio},
+    {name: 'Textbox', code: FieldType.Text},
+    {name: 'Boolean', code: FieldType.Boolean},
+    {name: 'Multiselect', code: FieldType.Multiselect},
+    {name: 'Radio Button', code: FieldType.Radio},
+    {name: 'Dropdown', code: FieldType.Dropdown},
   ];
 
   formGroup!: FormGroup;
-  @Input() field!: Field | null;
+  @Input() field!: ServerField.Entity | null;
   @Input() domain!: Domain;
 
   @Output() changed = new EventEmitter<boolean>();
@@ -43,7 +44,7 @@ export class FieldFormComponent implements OnInit {
     })
   }
 
-  getValue(): CreateField {
+  getValue(): ServerField.CreateRequest {
     return {
       flags: 0,
       type: this.formGroup.controls['type'].value,

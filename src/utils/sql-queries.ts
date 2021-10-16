@@ -21,9 +21,16 @@ export const getDeleteByAndExpressions = (tableName: string, object: Hash) => {
   });`
 }
 
-export const getUpdateByIdQuery = (tableName: string, id: number, object: any) => {
+export const getUpdateByIdQuery = (tableName: string, id: number, object: any, isField: boolean = false) => {
   return `UPDATE "${tableName}" SET ${
     Object.keys(object)
+      .filter(key => {
+        if (isField) {
+          return key !== 'id' && key !== 'value';
+        }
+
+        return key !== 'id';
+      })
       .map((key) => `"${key}" = '${object[key]}'`)
       .join(',')
     } WHERE id = ${id};`

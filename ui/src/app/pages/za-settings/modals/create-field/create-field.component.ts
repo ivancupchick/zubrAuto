@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Domain, Field } from 'src/app/entities/field';
+import { Domain, ServerField } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
 import { FieldFormComponent } from '../../shared/fields/field-form/field-form.component';
 
@@ -15,7 +15,7 @@ export class CreateFieldComponent implements OnInit {
 
   isEdit = false;
   id!: number;
-  field!: Field;
+  field!: ServerField.Entity;
 
   formValid = false;
 

@@ -1,5 +1,9 @@
-<form class="p-fluid p-grid" [formGroup]="formGroup">
-  <div class="p-field p-col-12 p-md-4">
+<form class="p-fluid p-grid" [formGroup]="formGroup" autocomplete="nope">
+  <div *ngFor="let field of fields" class="p-field p-col-12 p-md-4">
+    <za-primitive-form-field [field]="field" [form]="formGroup"></za-primitive-form-field>
+  </div>
+
+  <!-- <div class="p-field p-col-12 p-md-4">
     <span class="p-float-label">
       <input id="float-input" type="text" pInputText formControlName="name">
       <label for="float-input">Системное имя</label>
@@ -13,10 +17,10 @@
     </span>
   </div>
 
-  <div *ngIf="isVisibleVariants" class="p-field p-col-12 p-md-4">
+  <div class="p-field p-col-12 p-md-4">
     <span class="p-float-label">
       <textarea pInputTextarea formControlName="variants"></textarea>
       <label for="dropdown">Варианты (через запятую)</label>
     </span>
-  </div>
+  </div> -->
 </form>

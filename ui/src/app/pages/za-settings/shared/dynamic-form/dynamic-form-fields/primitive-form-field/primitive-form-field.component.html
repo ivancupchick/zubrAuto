@@ -1,0 +1,29 @@
+<div [formGroup]="form">
+  <label [attr.for]="field.key">{{field.label}}</label>
+
+  <div [ngSwitch]="field.controlType">
+
+    <input
+      *ngSwitchCase="FieldType.Text"
+      [id]="field.key"
+      [formControlName]="field.key"
+      [type]="field.type"
+      autocomplete="nope"
+    >
+
+    <select
+      *ngSwitchCase="FieldType.Dropdown"
+      [id]="field.key"
+      [formControlName]="field.key"
+    >
+      <option
+        *ngFor="let opt of field.variants"
+        [value]="opt.key"
+      >
+        {{opt.value}}
+      </option>
+    </select>
+  </div>
+
+  <div class="errorMessage" *ngIf="!isValid">{{field.label}} is required</div>
+</div>

@@ -1,27 +1,35 @@
-export type FieldWithValue = IField & CreateEntitiesField;
+import { Database } from "./Database";
 
-export type IField = CreateFieldRequest & {
-  id: number;
+export namespace RealField {
+  export type Response = ServerField.Entity & RealField.Request;
+
+  export type Request = {
+    id: number;
+    value: string;
+  }
 }
 
-export interface CreateFieldRequest {
-  flags: number;
-  type: FieldType;
-  name: string;
-  domain: FieldDomains;
-  variants?: string;
-  showUserLevel: number;
-}
+export namespace ServerField {
+  export type BaseEntity = {
+    flags: number;
+    type: FieldType;
+    name: string;
+    domain: FieldDomains;
+    variants: string;
+    showUserLevel: number;
+  }
 
-export interface CreateEntitiesField {
-  id: number;
-  value: string;
-}
+  export type Entity = Database.Field & BaseEntity;
 
-export interface CreateFieldId {
-  sourceId: number;
-  fieldId: number;
-  value: string;
+  export type CreateRequest = BaseEntity;
+
+  export namespace DB {
+    export type CreateChain = {
+      sourceId: number;
+      fieldId: number;
+      value: string;
+    }
+  }
 }
 
 export enum FieldDomains {
@@ -35,5 +43,6 @@ export enum FieldType {
   'Radio',
   'Text',
   'Multiselect',
-  'Number'
+  'Number',
+  'Dropdown'
 }

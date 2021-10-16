@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { DBClient } from 'src/app/entities/client';
-import { FieldsUtils } from 'src/app/entities/field';
+import { ServerClient } from 'src/app/entities/client';
+import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ClientService } from 'src/app/services/client/client.service';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
@@ -20,11 +20,11 @@ import { CreateClientComponent } from '../modals/create-client/create-client.com
   ]
 })
 export class SettingsClientsComponent implements OnInit {
-  sortedClients: DBClient[] = [];
-  rawClients: DBClient[] = [];
+  sortedClients: ServerClient.GetResponse[] = [];
+  rawClients: ServerClient.GetResponse[] = [];
 
-  gridConfig!: GridConfigItem<DBClient>[];
-  gridActionsConfig:  GridActionConfigItem<DBClient>[] = [{
+  gridConfig!: GridConfigItem<ServerClient.GetResponse>[];
+  gridActionsConfig:  GridActionConfigItem<ServerClient.GetResponse>[] = [{
     title: '',
     icon: 'pencil',
     buttonClass: 'secondary',
@@ -36,11 +36,17 @@ export class SettingsClientsComponent implements OnInit {
     handler: (client) => this.deleteClient(client)
   }]
 
+  fieldConfigs!: ServerField.Entity[];
+
   readonly strings = settingsClientsStrings;
 
   constructor(private clientService: ClientService, private dialogService: DialogService) { }
 
   ngOnInit(): void {
+    this.clientService.getClientFields().subscribe(result => {
+      this.fieldConfigs = result;
+    })
+
     this.clientService.getClients().subscribe((result) => {
       this.rawClients = result;
       this.sortClients();
@@ -85,11 +91,18 @@ export class SettingsClientsComponent implements OnInit {
     }];
   }
 
-  updateClient(client: DBClient) {
-    console.log(client);
+  updateClient(client: ServerClient.GetResponse) {
+    const ref = this.dialogService.open(CreateClientComponent, {
+      data: {
+        client,
+        fieldConfigs: this.fieldConfigs
+      },
+      header: 'Новый клиент',
+      width: '70%'
+    });
   }
 
-  deleteClient(client: DBClient) {
+  deleteClient(client: ServerClient.GetResponse) {
     console.log(client);
   }
 
@@ -100,23 +113,10 @@ export class SettingsClientsComponent implements OnInit {
   openNewClientWindow() {
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
-        domain: null // TODO! delete
+        fieldConfigs: this.fieldConfigs
       },
       header: 'Новый клиент',
       width: '70%'
     });
   }
-
-  // updateField(client: GridField) {
-  //   const ref = this.dialogService.open(CreateFieldComponent, {
-  //     data: {
-  //       domain: this.selectedDomain,
-  //       isEdit: true,
-  //       id: +field.id,
-  //       field: this.rawFields.find(rf => `${rf.id}` === `${field.id}`)
-  //     },
-  //     header: 'Редактирование филда',
-  //     width: '70%'
-  //   });
-  // }
 }

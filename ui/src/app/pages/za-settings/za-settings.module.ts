@@ -29,6 +29,7 @@ import { GridComponent } from './shared/grid/grid.component';
 import { CreateClientComponent } from './modals/create-client/create-client.component';
 import { DynamicFormComponent } from './shared/dynamic-form/dynamic-form.component';
 import { FieldService } from 'src/app/services/field/field.service';
+import { PrimitiveFormFieldComponent } from './shared/dynamic-form/dynamic-form-fields/primitive-form-field/primitive-form-field.component';
 
 
 
@@ -56,7 +57,8 @@ const routes: Routes = [{
     SettingsClientsComponent,
     GridComponent,
     CreateClientComponent,
-    DynamicFormComponent
+    DynamicFormComponent,
+    PrimitiveFormFieldComponent
   ],
   imports: [
     RouterModule.forChild(routes),

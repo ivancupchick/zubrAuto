@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Domain, Field } from 'src/app/entities/field';
+import { Domain, RealField, ServerField } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
 
 import {DialogService} from 'primeng/dynamicdialog';
@@ -31,7 +31,7 @@ export class SettingsFieldsComponent implements OnInit {
 
   fields: GridField[] = [];
   sortedFields: GridField[] = [];
-  rawFields: Field[] = [];
+  rawFields: ServerField.Entity[] = [];
 
   constructor(private fieldService: FieldService, private dialogService: DialogService) { }
 
@@ -53,7 +53,7 @@ export class SettingsFieldsComponent implements OnInit {
     });
   }
 
-  deleteField(field: any) {
+  deleteField(field: RealField.Response) {
     console.log(field);
   }
 
@@ -79,7 +79,7 @@ export class SettingsFieldsComponent implements OnInit {
     this.sortedFields = this.rawFields.filter(f => f.domain === this.selectedDomain).map(this.getGridFields);
   }
 
-  getGridFields(field: Field): GridField {
+  getGridFields(field: ServerField.Entity): GridField {
     return {
         name: field.name,
         type: String(field.type),

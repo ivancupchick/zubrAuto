@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import { CreateFieldId, CreateFieldRequest, FieldDomains, IField } from '../entities/Field';
+import { ServerField, FieldDomains } from '../entities/Field';
 import { Database } from '../entities/Database';
 import { Client } from 'pg';
 import { getDeleteByIdQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
@@ -8,10 +8,10 @@ import { getDeleteByIdQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery
 // TODO: replace all sql queries to separate file or place(constants in top of this file)
 // TODO: owner feature (maybe never)
 
-const TABLE_NAME = 'public.fields';
+export const TABLE_NAME = Database.FIELDS_TABLE_NAME;
 
 export async function getFields(req: Request, res: Response): Promise<Response | void> {
-  let fields: IField[] = [];
+  let fields: ServerField.Entity[] = [];
   let objectFields: Database.Field[] = [];
 
   let client: Client;
@@ -20,7 +20,7 @@ export async function getFields(req: Request, res: Response): Promise<Response |
     connect()
       .then(conn => {
         client = conn;
-        return conn.query(getGetAllQuery(TABLE_NAME))
+        return conn.query<Database.Field>(getGetAllQuery(TABLE_NAME))
       })
       .then(resFields => {
         objectFields = resFields.rows;
@@ -43,7 +43,7 @@ export async function getFields(req: Request, res: Response): Promise<Response |
 export async function getFieldsByDomain(req: Request, res: Response): Promise<Response | void> {
   const domain: FieldDomains = +req.params.domain;
 
-  let fields: IField[] = [];
+  let fields: ServerField.Entity[] = [];
   let objectFields: Database.Field[] = [];
 
   let client: Client;
@@ -75,8 +75,8 @@ export async function getFieldsByDomain(req: Request, res: Response): Promise<Re
   }
 }
 
-export async function createField(req: Request<any, string, CreateFieldRequest>, res: Response) {
-  const newField: CreateFieldRequest = req.body;
+export async function createField(req: Request<any, string, ServerField.BaseEntity>, res: Response) {
+  const newField: ServerField.BaseEntity = req.body;
   try {
     const conn = await connect();
     conn.query( getInsertOneQuery(TABLE_NAME, newField) )
@@ -127,7 +127,7 @@ export async function updateField(req: Request, res: Response) {
   const id = +req.params.fieldId;
   const updateField: any = req.body;
   const conn = await connect();
-  conn.query(getUpdateByIdQuery(TABLE_NAME, id, updateField))
+  conn.query(getUpdateByIdQuery(TABLE_NAME, id, updateField, true))
     .then(result => {
       res.json({
         message: 'Field Updated',
@@ -143,5 +143,5 @@ export async function updateField(req: Request, res: Response) {
 }
 
 export async function createFieldChain(conn: Client, sourceId: number, fieldId: number, value: string) {
-  return conn.query(getInsertOneQuery<CreateFieldId>('public.fieldIds', { sourceId, fieldId, value }) )
+  return conn.query(getInsertOneQuery<ServerField.DB.CreateChain>('public.fieldIds', { sourceId, fieldId, value }) )
 }

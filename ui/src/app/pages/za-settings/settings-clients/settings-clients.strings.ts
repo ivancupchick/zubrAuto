@@ -1,4 +1,8 @@
-export const settingsClientsStrings = {
+interface StringHash {
+  [key: string]: string;
+}
+
+export const settingsClientsStrings: StringHash = {
   id: '№',
   date: 'Дата',
   source: 'Источник',

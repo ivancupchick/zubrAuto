@@ -1,20 +1,17 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
-import {  CreateClientDB, RequestCreateClient, ResponseCLient } from '../entities/Client';
+import { ServerClient } from '../entities/Client';
 import { Database } from '../entities/Database';
-import { Client, QueryResult } from 'pg';
 import { getDeleteByIdQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 import { getFieldsWithValues } from '../utils/field.utils';
 import { createFieldChain } from './field.controller';
 
-// TODO: need test all methods
-
-const TABLE_NAME = 'public.clients';
+const TABLE_NAME = Database.CLIENTS_TABLE_NAME;
 
 export async function getClients(req: Request, res: Response): Promise<Response | void> {
-  let clients: ResponseCLient[] = [];
+  let clients: ServerClient.GetResponse[] = [];
   let objectClients: Database.Client[] = [];
-  let chaines: Database.FieldId[] = [];
+  let chaines: Database.FieldChain[] = [];
   let chainedFields: Database.Field[] = [];
 
   try {
@@ -29,15 +26,15 @@ export async function getClients(req: Request, res: Response): Promise<Response 
           fields: []
         }));
 
-        const query = getGetAllByOneColumnExpressionQuery('public.fieldsIds', { sourceId: objectClients.map(c => `${c.id}`) })
+        const query = getGetAllByOneColumnExpressionQuery(Database.FIELD_CHAINS_TABLE_NAME, { sourceId: objectClients.map(c => `${c.id}`) })
 
         console.log(query);
-        return conn.query<Database.FieldId>(query)
+        return conn.query<Database.FieldChain>(query)
       })
       .then(resFieldIds => {
         chaines = resFieldIds.rows;
 
-        const query = getGetAllByOneColumnExpressionQuery('public.fields', { id: chaines.map((ch: Database.FieldId) => `${ch.fieldId}`) })
+        const query = getGetAllByOneColumnExpressionQuery(Database.FIELDS_TABLE_NAME, { id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`) })
 
         console.log(query);
 
@@ -66,11 +63,11 @@ export async function getClients(req: Request, res: Response): Promise<Response 
   }
 }
 
-export async function createClient(req: Request<any, string, RequestCreateClient>, res: Response) {
-  const newClient: RequestCreateClient = req.body;
+export async function createClient(req: Request<any, string, ServerClient.CreateRequest>, res: Response) {
+  const newClient: ServerClient.CreateRequest = req.body;
   try {
     const conn = await connect();
-    conn.query<Database.Client>(getInsertOneQuery<CreateClientDB>(TABLE_NAME, { carIds: newClient.carIds || '' }))
+    conn.query<Database.Client>(getInsertOneQuery<ServerClient.BaseEntity>(TABLE_NAME, { carIds: newClient.carIds || '' }))
       .then(resultWithId => {
         console.log(resultWithId);
 
@@ -120,7 +117,7 @@ export async function deleteClient(req: Request, res: Response) {
 
 export async function updateClient(req: Request, res: Response) {
   const id = +req.params.clientId;
-  const updateClient: RequestCreateClient = req.body;
+  const updateClient: ServerClient.CreateRequest = req.body;
   const conn = await connect();
   conn.query(getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds }))
 

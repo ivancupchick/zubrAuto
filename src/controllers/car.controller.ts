@@ -13,7 +13,7 @@ import { getGetAllByOneColumnExpressionQuery, getGetAllQuery } from '../utils/sq
 export async function getCars(req: Request, res: Response): Promise<Response | void> {
     let cars: ResponseCar[] = [];
     let objectCars: Database.Car[] = [];
-    let chaines: Database.FieldId[] = [];
+    let chaines: Database.FieldChain[] = [];
     let chainedFields: Database.Field[] = [];
 
     try {
@@ -23,15 +23,15 @@ export async function getCars(req: Request, res: Response): Promise<Response | v
                 console.log(resCars.rows[0]);
                 objectCars = resCars.rows;
 
-                const query = getGetAllByOneColumnExpressionQuery('public.fieldsIds', { sourceId: objectCars.map((c: Database.Car) => `${c.id}`) })
+                const query = getGetAllByOneColumnExpressionQuery(Database.FIELD_CHAINS_TABLE_NAME, { sourceId: objectCars.map((c: Database.Car) => `${c.id}`) })
 
                 console.log(query);
-                return conn.query<Database.FieldId>(query)
+                return conn.query<Database.FieldChain>(query)
             })
             .then(resFieldIds => {
                 chaines = resFieldIds.rows;
 
-                const query = getGetAllByOneColumnExpressionQuery('public.fields', { id: chaines.map((ch: Database.FieldId) => `${ch.fieldId}`) })
+                const query = getGetAllByOneColumnExpressionQuery(Database.FIELDS_TABLE_NAME, { id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`) })
 
                 console.log(query);
 

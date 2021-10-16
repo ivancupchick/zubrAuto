@@ -1,14 +1,18 @@
-import { CreateEntitiesField, FieldWithValue } from "./Field";
+import { Database } from "./Database";
+import { RealField } from "./Field";
 
-export type ResponseCLient = CreateClientDB & {
-  id: number;
-  fields: FieldWithValue[];
-}
+export namespace ServerClient {
+  export type BaseEntity = {
+    carIds: string;
+  }
 
-export type RequestCreateClient = CreateClientDB & {
-  fields: CreateEntitiesField[];
-}
+  export type Entity = Database.Client & BaseEntity;
 
-export interface CreateClientDB {
-  carIds: string;
+  export type CreateRequest = {
+    fields: RealField.Request[];
+  } & BaseEntity;
+
+  export type GetResponse = {
+    fields: RealField.Response[];
+  } & Entity;
 }

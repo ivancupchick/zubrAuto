@@ -15,6 +15,7 @@ export namespace Database {
     flags: number;
   }
 
+  export const CLIENTS_TABLE_NAME = 'public.clients';
   export interface Client {
     id: number;
     carIds: string;
@@ -25,7 +26,7 @@ export namespace Database {
     roleLevel: number;
   }
 
-  export interface FileId {
+  export interface FileChain {
     id: number;
     sourceId: number;
     fileId: number;
@@ -37,13 +38,15 @@ export namespace Database {
     type: number;
   }
 
-  export interface FieldId {
+  export const FIELD_CHAINS_TABLE_NAME = 'public.fieldsIds'
+  export interface FieldChain {
     id: number;
     sourceId: number;
     fieldId: number;
     value: string;
   }
 
+  export const FIELDS_TABLE_NAME = 'public.fields';
   export interface Field {
     id: number;
     name: string;

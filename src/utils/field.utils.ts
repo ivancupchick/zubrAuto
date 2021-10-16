@@ -1,5 +1,5 @@
 import { Database } from "../entities/Database";
-import { FieldWithValue } from "../entities/Field";
+import { RealField, ServerField } from "../entities/Field";
 
 export enum Flags {
   System = 1,
@@ -23,7 +23,7 @@ export class Flag {
   }
 }
 
-export const getFieldsWithValues = (chainedFields: Database.Field[], chaines: Database.FieldId[], sourceId: number): FieldWithValue[] => {
+export const getFieldsWithValues = (chainedFields: Database.Field[], chaines: Database.FieldChain[], sourceId: number): RealField.Response[] => {
   return chainedFields
     .filter(cf => !!chaines
       .filter(ch => ch.sourceId === sourceId)
@@ -39,6 +39,6 @@ export const getFieldsWithValues = (chainedFields: Database.Field[], chaines: Da
         variants: cf.variants,
         showUserLevel: cf.showUserLevel,
         value: chaines.find(c => c.fieldId === cf.id)?.value || ''
-      }
+      } 
     })
 }
