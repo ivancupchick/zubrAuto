@@ -6,6 +6,7 @@ export interface DynamicFieldOptions<T> {
   key?: string;
   label?: string;
   required?: boolean;
+  readonly?: boolean;
   order?: number;
   controlType?: FieldType;
   type?: string;
@@ -18,6 +19,7 @@ export class DynamicFieldBase<T> {
   key: string;
   label: string;
   required: boolean;
+  readonly: boolean;
   order: number;
   controlType: FieldType;
   type: string;
@@ -29,6 +31,7 @@ export class DynamicFieldBase<T> {
     this.key = options.key || '';
     this.label = options.label || '';
     this.required = !!options.required;
+    this.readonly = !!options.readonly;
     this.order = options.order === undefined ? 1 : options.order;
     this.controlType = options.controlType || FieldType.Text;
     this.type = options.type || '';

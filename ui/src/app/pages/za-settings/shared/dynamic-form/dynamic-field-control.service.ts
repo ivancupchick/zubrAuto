@@ -18,6 +18,11 @@ export class DynamicFieldControlService {
       group[field.key] = field.required
         ? new FormControl(field.value || '', Validators.required)
         : new FormControl(field.value || '');
+
+      // TODO replace to other place
+      if (field.readonly) {
+        (group[field.key] as FormControl).disable();
+      }
     });
     return new FormGroup(group);
   }

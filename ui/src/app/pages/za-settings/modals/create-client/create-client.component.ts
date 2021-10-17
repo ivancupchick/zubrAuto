@@ -71,6 +71,7 @@ export class CreateClientComponent implements OnInit {
       label: settingsClientsStrings.carIds,
       order: 1,
       controlType: FieldType.Text,
+      readonly: true
     }))
 
     this.dynamicFormFields = formFields;
