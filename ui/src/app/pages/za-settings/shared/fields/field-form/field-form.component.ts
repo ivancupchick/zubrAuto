@@ -40,7 +40,7 @@ export class FieldFormComponent implements OnInit {
     this.formGroup.valueChanges.subscribe(data => {
       this.valid = this.formGroup.valid;
       this.changed.emit(this.valid);
-      this.isVisibleVariants = data.type === FieldType.Radio || data.type === FieldType.Multiselect
+      this.isVisibleVariants = data.type === FieldType.Radio || data.type === FieldType.Multiselect || data.type ===  FieldType.Dropdown
     })
   }
 

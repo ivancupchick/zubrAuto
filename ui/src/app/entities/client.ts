@@ -1,3 +1,3 @@
-import { ServerClient } from '../../../../src/entities/Client';
+import { ServerClient as client } from '../../../../src/entities/Client';
 
-export import ServerClient = ServerClient;
+export import ServerClient = client;

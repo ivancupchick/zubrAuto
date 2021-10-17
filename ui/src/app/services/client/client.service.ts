@@ -20,7 +20,7 @@ export class ClientService {
   }
 
   createClient(value: ServerClient.CreateRequest): Observable<boolean> {
-    return this.httpClient.post<any>(`${environment.serverUrl}/${API}`, value)
+    return this.httpClient.post<never>(`${environment.serverUrl}/${API}`, value)
       .pipe(map(result => {
         console.log(result);
 

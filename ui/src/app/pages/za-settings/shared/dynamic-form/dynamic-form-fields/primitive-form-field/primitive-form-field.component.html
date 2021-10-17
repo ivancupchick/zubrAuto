@@ -1,29 +1,31 @@
-<div [formGroup]="form">
-  <label [attr.for]="field.key">{{field.label}}</label>
+<div [formGroup]="form" class="p-field p-col-12 p-md-12">
+  <ng-container [ngSwitch]="field.controlType">
+    <span class="p-float-label">
+      <input 
+        *ngSwitchCase="FieldType.Text"
+        pInputText 
+        [id]="field.key"
+        [formControlName]="field.key"
+        type="text" 
+        autocomplete="nope"
+      /> 
 
-  <div [ngSwitch]="field.controlType">
+      <!-- need test -->
+      <p-dropdown 
+        *ngSwitchCase="FieldType.Dropdown"
+        [inputId]="field.key" 
+        [autoDisplayFirst]="false" 
+        [formControlName]="field.key"
+        [options]="field.variants" 
+        optionLabel="value" 
+        optionValue="value"
+      ></p-dropdown>
 
-    <input
-      *ngSwitchCase="FieldType.Text"
-      [id]="field.key"
-      [formControlName]="field.key"
-      [type]="field.type"
-      autocomplete="nope"
-    >
+      <label [attr.for]="field.key">{{field.label}}</label>
 
-    <select
-      *ngSwitchCase="FieldType.Dropdown"
-      [id]="field.key"
-      [formControlName]="field.key"
-    >
-      <option
-        *ngFor="let opt of field.variants"
-        [value]="opt.key"
-      >
-        {{opt.value}}
-      </option>
-    </select>
-  </div>
-
-  <div class="errorMessage" *ngIf="!isValid">{{field.label}} is required</div>
+      <!-- <div class="errorMessage" *ngIf="!isValid">{{field.label}} is required</div> -->
+      <!-- <small *ngIf="!isValid" class="p-error">Username is not available.</small> -->
+      <!-- <small id="username2-help">Enter your username to reset your password.</small> -->
+    </span>
+  </ng-container>
 </div>

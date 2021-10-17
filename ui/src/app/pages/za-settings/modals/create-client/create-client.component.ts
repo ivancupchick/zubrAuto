@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerClient } from 'src/app/entities/client';
-import { ServerField, FieldType, UIRealField, RealField } from 'src/app/entities/field';
+import { ServerField, FieldType, UIRealField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ClientService } from 'src/app/services/client/client.service';
 import { settingsClientsStrings } from '../../settings-clients/settings-clients.strings';
@@ -20,7 +20,7 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
 export class CreateClientComponent implements OnInit {
   loading = false;
 
-  @Input() client: ServerClient.Entity & { fields: RealField.Request[] } | undefined;
+  @Input() client: ServerClient.GetResponse | undefined = undefined;
   @Input() fieldConfigs: ServerField.Entity[] = [];
 
   formValid = false;
@@ -29,30 +29,40 @@ export class CreateClientComponent implements OnInit {
 
   @ViewChild(DynamicFormComponent) dynamicForm!: DynamicFormComponent;
 
+  excludeFields: FieldNames.Client[] = [
+    FieldNames.Client.date,
+    'carIds' as FieldNames.Client
+  ];
+
   constructor(
     private clientService: ClientService,
     private dfcs: DynamicFieldControlService,
 
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig
-  ) {}
+  ) {
+    this.client = this.config?.data?.client || undefined;
+  }
 
   ngOnInit(): void {
-    this.client = this.config.data.client || undefined;
+    
     this.fieldConfigs = this.config.data.fieldConfigs;
 
-    const formFields = this.dfcs.getDynamicFieldsFromDBFields(this.fieldConfigs.map(fc => {
-      const fieldValue = !!this.client 
-        ? this.client.fields.find(f => f.id === fc.id)?.value || '' 
-        : '';
+    const formFields = this.dfcs.getDynamicFieldsFromDBFields(this.fieldConfigs
+      .filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
+      .map(fc => {
+        const fieldValue = !!this.client 
+          ? this.client.fields.find(f => f.id === fc.id)?.value || '' 
+          : '';
 
-      const newField = new UIRealField(
-        fc, 
-        fieldValue
-      );
+        const newField = new UIRealField(
+          fc, 
+          fieldValue
+        );
 
-      return newField;
-    })).map(fc => this.updateFieldConfig(fc));
+        return newField;
+      }))
+        .map(fc => this.updateFieldConfig(fc));
 
     formFields.push(this.dfcs.getDynamicFieldFromOptions({
       id: -1,
@@ -71,17 +81,36 @@ export class CreateClientComponent implements OnInit {
 
     console.log(this.dynamicForm.getValue());
 
-    // const methodObs = this.isEdit
-    //   ? this.clientService.updateClient(this.dynamicForm.getValue(), this.id)
-    //   : this.clientService.createClient(this.dynamicForm.getValue())
+    const fields = this.dynamicForm.getValue();
 
-    // methodObs.subscribe(result => {
-    //   if (result) {
-    //     this.ref.close(true);
-    //   } else {
-    //     alert(this.isEdit ? 'Клиент не обновлён' : 'Клиент не создан');
-    //   }
-    // })
+    const client: ServerClient.CreateRequest = {
+      carIds: '',
+      fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
+    } 
+
+    const dateField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.date);
+
+    if (dateField && !this.client) {
+      client.fields.push({
+        id: dateField.id,
+        name: dateField.name,
+        value: (new Date()).getDate().toString()
+      })
+    } else {
+      throw new Error("Сфотографируйте ошибку и отправьте покажите фото администратору");
+    }
+
+    const methodObs = this.client != undefined
+      ? this.clientService.updateClient(client, (this.client as ServerClient.GetResponse).id)
+      : this.clientService.createClient(client)
+
+    methodObs.subscribe(result => {
+      if (result) {
+        this.ref.close(true);
+      } else {
+        alert(!!this.client ? 'Клиент не обновлён' : 'Клиент не создан');
+      }
+    })
   }
 
   cancel() {

@@ -30,7 +30,10 @@ export class UIRealField  {
     this.type = options.type;
     this.name = options.name;
     this.domain = options.domain;
-    this.variants = JSON.parse(options.variants || '[]') || [];
+    this.variants = options.variants.split(',').map((v, i) => ({
+      key: `${options.name}-${i}`,
+      value: v
+    }));
     this.showUserLevel = options.showUserLevel;
     this.value = value;
   }
