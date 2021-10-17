@@ -39,7 +39,7 @@ export namespace Database {
     type: number;
   }
 
-  export const FIELD_CHAINS_TABLE_NAME = 'public.fieldsIds'
+  export const FIELD_CHAINS_TABLE_NAME = 'public.fieldIds'
   export interface FieldChain {
     id: number;
     sourceId: number;

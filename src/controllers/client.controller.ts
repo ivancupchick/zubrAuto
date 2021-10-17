@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { connect } from '../database'
 import { ServerClient } from '../entities/Client';
 import { Database } from '../entities/Database';
-import { getDeleteByIdQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
+import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 import { getFieldsWithValues } from '../utils/field.utils';
 import { createFieldChain } from './field.controller';
 
@@ -26,12 +26,17 @@ export async function getClients(req: Request, res: Response): Promise<Response 
           fields: []
         }));
 
-        const query = getGetAllByOneColumnExpressionQuery(Database.FIELD_CHAINS_TABLE_NAME, { sourceId: objectClients.map(c => `${c.id}`) })
+        const query = getGetAllByExpressionAndQuery(
+          Database.FIELD_CHAINS_TABLE_NAME, {
+            sourceId: objectClients.map(c => `${c.id}`), 
+            sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`] 
+          })
 
         console.log(query);
         return conn.query<Database.FieldChain>(query)
       })
       .then(resFieldIds => {
+        console.log(resFieldIds.rows);
         chaines = resFieldIds.rows;
 
         const query = getGetAllByOneColumnExpressionQuery(Database.FIELDS_TABLE_NAME, { id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`) })
@@ -54,6 +59,7 @@ export async function getClients(req: Request, res: Response): Promise<Response 
         return res.json(clients);
       })
       .catch(e => {
+        console.log(e);
         res.json([]);
         conn.end();
       });
@@ -71,7 +77,7 @@ export async function createClient(req: Request<any, string, ServerClient.Create
       .then(resultWithId => {
         console.log(resultWithId);
 
-        return Promise.all(newClient.fields.map(f => createFieldChain(conn, resultWithId.rows[0].id, f.id, f.value)))
+        return Promise.all(newClient.fields.map(f => createFieldChain(conn, resultWithId.rows[0].id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`)))
       })
       .then(result => {
         console.log(result);
@@ -120,7 +126,6 @@ export async function updateClient(req: Request, res: Response) {
   const updateClient: ServerClient.CreateRequest = req.body;
   const conn = await connect();
   conn.query(getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds }))
-
     .then(result => {
       res.json({
         message: 'Client Updated',

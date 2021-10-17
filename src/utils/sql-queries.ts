@@ -54,7 +54,7 @@ export const getGetAllByOneColumnExpressionQuery = (tableName: string, object: H
 
 export const getGetAllByExpressionAndQuery = (tableName: string, object: Hash) => {
   return `SELECT * FROM "${tableName}" WHERE (${
-    Object.keys(object).map(key => `${key} IN (${object[key].join(',')})`).join(' AND ')
+    Object.keys(object).map(key => `"${key}" IN (${object[key].join(',')})`).join(' AND ')
   });`
 }
 

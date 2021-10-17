@@ -109,18 +109,18 @@ export async function deleteField(req: Request, res: Response) {
   const id = +req.params.fieldId;
   const conn = await connect();
   conn.query(getDeleteByIdQuery(TABLE_NAME, id))
-  .then(result => {
-    res.json({
-      message: 'Field deleted',
-      result
+    .then(result => {
+      res.json({
+        message: 'Field deleted',
+        result
+      });
+    })
+    .catch(e => {
+      res.json({
+        message: 'Field does not deleted',
+        error: e
+      });
     });
-  })
-  .catch(e => {
-    res.json({
-      message: 'Field does not deleted',
-      error: e
-    });
-  });
 }
 
 export async function updateField(req: Request, res: Response) {
@@ -142,6 +142,6 @@ export async function updateField(req: Request, res: Response) {
     });
 }
 
-export async function createFieldChain(conn: Client, sourceId: number, fieldId: number, value: string) {
-  return conn.query(getInsertOneQuery<ServerField.DB.CreateChain>('public.fieldIds', { sourceId, fieldId, value }) )
+export async function createFieldChain(conn: Client, sourceId: number, fieldId: number, value: string, sourceName: string) {
+  return conn.query(getInsertOneQuery<ServerField.DB.CreateChain>('public.fieldIds', { sourceId, fieldId, value, sourceName}) )
 }

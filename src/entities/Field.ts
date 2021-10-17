@@ -29,6 +29,7 @@ export namespace ServerField {
       sourceId: number;
       fieldId: number;
       value: string;
+      sourceName: string;
     }
   }
 }

@@ -54,7 +54,13 @@ export class SettingsFieldsComponent implements OnInit {
   }
 
   deleteField(field: RealField.Response) {
-    console.log(field);
+    this.fieldService.deleteField(field.id).subscribe(res => {
+      if (res) {
+        alert('Удаление прошло успешно');
+      } else {
+        alert('Удаления не произошло');
+      }
+    });
   }
 
   updateField(field: GridField) {
