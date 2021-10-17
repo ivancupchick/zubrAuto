@@ -3,7 +3,7 @@ import { connect } from '../database'
 import { ServerField, FieldDomains } from '../entities/Field';
 import { Database } from '../entities/Database';
 import { Client } from 'pg';
-import { getDeleteByIdQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
+import { getDeleteByIdQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 
 // TODO: replace all sql queries to separate file or place(constants in top of this file)
 // TODO: owner feature (maybe never)
@@ -144,4 +144,21 @@ export async function updateField(req: Request, res: Response) {
 
 export async function createFieldChain(conn: Client, sourceId: number, fieldId: number, value: string, sourceName: string) {
   return conn.query(getInsertOneQuery<ServerField.DB.CreateChain>('public.fieldIds', { sourceId, fieldId, value, sourceName}) )
+}
+
+export async function updateFieldChain(conn: Client, sourceId: number, fieldId: number, value: string, sourceName: string) {
+  const query = getUpdateByAndExpressionQuery(
+    'public.fieldIds', 
+    { 
+      value
+    },
+    {
+      fieldId: [fieldId].map(c => `${c}`), 
+      sourceId: [sourceId].map(c => `${c}`), 
+      sourceName: [`'${sourceName}'`] 
+    }
+  );
+
+  console.log(query);
+  return conn.query(query);
 }

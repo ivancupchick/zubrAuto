@@ -4,7 +4,7 @@ import { ServerClient } from '../entities/Client';
 import { Database } from '../entities/Database';
 import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 import { getFieldsWithValues } from '../utils/field.utils';
-import { createFieldChain } from './field.controller';
+import { createFieldChain, updateFieldChain } from './field.controller';
 
 const TABLE_NAME = Database.CLIENTS_TABLE_NAME;
 
@@ -125,8 +125,12 @@ export async function updateClient(req: Request, res: Response) {
   const id = +req.params.clientId;
   const updateClient: ServerClient.CreateRequest = req.body;
   const conn = await connect();
-  conn.query(getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds }))
+  Promise.all([
+    conn.query(getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds })), 
+    updateClient.fields.map(f => updateFieldChain(conn, id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`))
+  ])
     .then(result => {
+      console.log(result)
       res.json({
         message: 'Client Updated',
         result

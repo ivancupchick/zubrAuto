@@ -98,7 +98,8 @@ export class CreateClientComponent implements OnInit {
         value: (new Date()).getDate().toString()
       })
     } else {
-      throw new Error("Сфотографируйте ошибку и отправьте покажите фото администратору");
+      // TODO create right expression for this error
+      console.log("Сфотографируйте ошибку и отправьте покажите фото администратору");
     }
 
     const methodObs = this.client != undefined

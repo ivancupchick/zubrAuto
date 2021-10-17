@@ -24,7 +24,7 @@ export class SettingsClientsComponent implements OnInit {
   rawClients: ServerClient.GetResponse[] = [];
 
   gridConfig!: GridConfigItem<ServerClient.GetResponse>[];
-  gridActionsConfig:  GridActionConfigItem<ServerClient.GetResponse>[] = [{
+  gridActionsConfig: GridActionConfigItem<ServerClient.GetResponse>[] = [{
     title: '',
     icon: 'pencil',
     buttonClass: 'secondary',
