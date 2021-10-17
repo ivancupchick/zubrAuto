@@ -30,6 +30,7 @@ export namespace Database {
     id: number;
     sourceId: number;
     fileId: number;
+    sourceName: string;
   }
 
   export interface File {
@@ -44,6 +45,7 @@ export namespace Database {
     sourceId: number;
     fieldId: number;
     value: string;
+    sourceName: string;
   }
 
   export const FIELDS_TABLE_NAME = 'public.fields';
