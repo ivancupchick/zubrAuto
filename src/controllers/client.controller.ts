@@ -5,72 +5,111 @@ import { Database } from '../entities/Database';
 import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 import { getFieldsWithValues } from '../utils/field.utils';
 import { createFieldChain, updateFieldChain } from './field.controller';
+import { Client } from 'pg';
 
 const TABLE_NAME = Database.CLIENTS_TABLE_NAME;
 
+// TODO use this, or refactor request
+// type ZAResponce<T> = Response<{
+//   error?: any,
+//   result: T
+// }>;
+
+class ClientHelper {
+  private conn: Client;
+
+  async connect(): Promise<void> {
+    this.conn = await connect()
+  }
+
+  async endConnect() {
+    if (!!this.conn) {
+      this.conn.end();
+    }
+  }
+
+  async getAllClients() {
+    const query = getGetAllQuery(TABLE_NAME);
+
+    console.log(query);
+
+    const clients = await this.conn.query<Database.Client>(query)
+    return clients.rows;
+  }
+
+  async getClientChaines(clients: Database.Client[]) {
+    const query = getGetAllByExpressionAndQuery(
+      Database.FIELD_CHAINS_TABLE_NAME, {
+        sourceId: clients.map(c => `${c.id}`),
+        sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`]
+      }
+    );
+
+    console.log(query);
+
+    const chaines = await this.conn.query<Database.FieldChain>(query);
+    return chaines.rows;
+  }
+
+  async getRelatedFields(chaines: Database.FieldChain[]) {
+    // TODO refactor
+    const query = getGetAllByOneColumnExpressionQuery(
+      Database.FIELDS_TABLE_NAME, {
+        id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`)
+      }
+    );
+
+    console.log(query);
+
+    const fields = await this.conn.query<Database.Field>(query);
+    return fields.rows;
+  }
+
+  // async createClient(chaines: Database.FieldChain[]) {
+  //   // TODO refactor
+  //   const query = getGetAllByOneColumnExpressionQuery(
+  //     Database.FIELDS_TABLE_NAME, {
+  //       id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`)
+  //     }
+  //   );
+
+  //   console.log(query);
+
+  //   const fields = await this.conn.query<Database.Field>(query);
+  //   return fields.rows;
+  // }
+}
+
 export async function getClients(req: Request, res: Response): Promise<Response | void> {
-  let clients: ServerClient.GetResponse[] = [];
-  let objectClients: Database.Client[] = [];
-  let chaines: Database.FieldChain[] = [];
-  let chainedFields: Database.Field[] = [];
+  const clientHelper = new ClientHelper();
 
   try {
-    const conn = await connect();
-    conn.query<Database.Client>(getGetAllQuery(TABLE_NAME))
-      .then(resClients => {
-        objectClients = resClients.rows;
+    await clientHelper.connect();
 
-        clients = objectClients.map(oc => ({
-          id: oc.id,
-          carIds: oc.carIds,
-          fields: []
-        }));
+    const clients = await clientHelper.getAllClients();
+    const chaines = await clientHelper.getClientChaines(clients);
+    const fields = await clientHelper.getRelatedFields(chaines);
 
-        const query = getGetAllByExpressionAndQuery(
-          Database.FIELD_CHAINS_TABLE_NAME, {
-            sourceId: objectClients.map(c => `${c.id}`),
-            sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`]
-          })
+    const result: ServerClient.GetResponse[] = clients.map(client => ({
+      id: client.id,
+      carIds: client.carIds,
+      fields: getFieldsWithValues(fields, chaines, client.id)
+    }))
 
-        console.log(query);
-        return conn.query<Database.FieldChain>(query)
-      })
-      .then(resFieldIds => {
-        console.log(resFieldIds.rows);
-        chaines = resFieldIds.rows;
+    await clientHelper.endConnect();
 
-        const query = getGetAllByOneColumnExpressionQuery(Database.FIELDS_TABLE_NAME, { id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`) })
-
-        console.log(query);
-
-        return conn.query<Database.Field>(query)
-      })
-      .then(resFields => {
-        chainedFields = resFields.rows;
-
-        clients = clients.map(client => ({
-          id: client.id,
-          carIds: client.carIds,
-          fields: getFieldsWithValues(chainedFields, chaines, client.id)
-        }))
-
-        console.log(clients);
-        conn.end();
-        return res.json(clients);
-      })
-      .catch(e => {
-        console.log(e);
-        res.json([]);
-        conn.end();
-      });
+    res.json(result);
   }
   catch (e) {
-    res.json(e)
+    await clientHelper.endConnect();
+    console.log(e);
+    res.json([])
   }
 }
 
 export async function createClient(req: Request<any, string, ServerClient.CreateRequest>, res: Response) {
   const newClient: ServerClient.CreateRequest = req.body;
+
   try {
     const conn = await connect();
     conn.query<Database.Client>(getInsertOneQuery<ServerClient.BaseEntity>(TABLE_NAME, { carIds: newClient.carIds || '' }))
