@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { connect } from '../database'
 import { ServerClient } from '../entities/Client';
 import { Database } from '../entities/Database';
-import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
+import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 import { getFieldsWithValues } from '../utils/field.utils';
 import { createFieldChain, updateFieldChain } from './field.controller';
 import { Client } from 'pg';
@@ -76,8 +76,34 @@ class ClientHelper {
   }
 
   async createClientChaines(newClient: ServerClient.CreateRequest, id: number) {
-    const queries = newClient.fields.map(f => getInsertOneQuery<ServerField.DB.CreateChain>('public.fieldIds', { sourceId: id, fieldId: f.id, value: f.value, sourceName: `${Database.CLIENTS_TABLE_NAME}`}))
-    // const queries = newClient.fields.map(f => createFieldChain(this.conn, id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`))
+    const queries = newClient.fields.map(f => getInsertOneQuery<ServerField.DB.CreateChain>(
+      Database.FIELDS_TABLE_NAME, {
+        sourceId: id,
+        fieldId: f.id,
+        value: f.value,
+        sourceName: `${Database.CLIENTS_TABLE_NAME}`
+      }
+    ));
+    console.log(queries)
+
+    const promises = queries.map(q => this.conn.query(q));
+    const result = await Promise.all(promises);
+    return result;
+  }
+
+  async updateClient(updateClient: ServerClient.CreateRequest, id: number) {
+    const queries = [
+      getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds }),
+      ...updateClient.fields.map(f => getUpdateByAndExpressionQuery(
+        Database.FIELDS_TABLE_NAME, {
+          value: f.value
+        }, {
+          fieldId: [f.id].map(c => `${c}`),
+          sourceId: [id].map(c => `${c}`),
+          sourceName: [`${Database.CLIENTS_TABLE_NAME}`]
+        }
+      ))
+    ];
     console.log(queries)
 
     const promises = queries.map(q => this.conn.query(q));
@@ -128,7 +154,7 @@ export async function createClient(req: Request<any, string, ServerClient.Create
     await clientHelper.endConnect();
 
     res.json({  // TODO! refactor
-      message: 'New Client Created',
+      message: 'Client Created',
       result
     });
   }
@@ -137,7 +163,7 @@ export async function createClient(req: Request<any, string, ServerClient.Create
 
     console.log(e);
     res.json({  // TODO! refactor
-      message: 'New Client Not Created',
+      message: 'Client does not Created',
       error: e
     });
   }
@@ -146,29 +172,31 @@ export async function createClient(req: Request<any, string, ServerClient.Create
 export async function updateClient(req: Request, res: Response) {
   const id = +req.params.clientId;
   const updateClient: ServerClient.CreateRequest = req.body;
-  const conn = await connect();
-  Promise.all([
-    conn.query(getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds })),
-    updateClient.fields.map(f => updateFieldChain(conn, id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`))
-  ])
-    .then(result => {
-      console.log(result)
-      res.json({
-        message: 'Client Updated',
-        result
-      });
-    })
-    .catch(e => {
-      res.json({
-        message: 'Client not Updated',
-        error: e
-      });
+
+  const clientHelper = new ClientHelper();
+
+  try {
+    await clientHelper.connect();
+
+    const result = await clientHelper.updateClient(updateClient, id);
+
+    await clientHelper.endConnect();
+
+    res.json({
+      message: 'Client Updated',
+      result
     });
+  }
+  catch (e) {
+    await clientHelper.endConnect();
 
+    console.log(e);
+    res.json({
+      message: 'Client does not Updated',
+      error: e
+    });
+  }
 
-  // res.json({
-  //   message: 'Client does not updated'
-  // });
 }
 
 export async function deleteClient(req: Request, res: Response) {
