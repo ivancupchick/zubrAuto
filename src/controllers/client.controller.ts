@@ -6,6 +6,7 @@ import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumn
 import { getFieldsWithValues } from '../utils/field.utils';
 import { createFieldChain, updateFieldChain } from './field.controller';
 import { Client } from 'pg';
+import { ServerField } from '../entities/Field';
 
 const TABLE_NAME = Database.CLIENTS_TABLE_NAME;
 
@@ -52,7 +53,7 @@ class ClientHelper {
   }
 
   async getRelatedFields(chaines: Database.FieldChain[]) {
-    // TODO refactor
+    // TODO replace input chaines to exprassion by domain
     const query = getGetAllByOneColumnExpressionQuery(
       Database.FIELDS_TABLE_NAME, {
         id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`)
@@ -65,19 +66,24 @@ class ClientHelper {
     return fields.rows;
   }
 
-  // async createClient(chaines: Database.FieldChain[]) {
-  //   // TODO refactor
-  //   const query = getGetAllByOneColumnExpressionQuery(
-  //     Database.FIELDS_TABLE_NAME, {
-  //       id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`)
-  //     }
-  //   );
+  async createClient(newClient: ServerClient.CreateRequest): Promise<number> {
+    const query = getInsertOneQuery<ServerClient.BaseEntity>(TABLE_NAME, { carIds: newClient.carIds || '' });
 
-  //   console.log(query);
+    console.log(query);
 
-  //   const fields = await this.conn.query<Database.Field>(query);
-  //   return fields.rows;
-  // }
+    const fields = await this.conn.query<Database.Client>(query);
+    return fields.rows[0].id;
+  }
+
+  async createClientChaines(newClient: ServerClient.CreateRequest, id: number) {
+    const queries = newClient.fields.map(f => getInsertOneQuery<ServerField.DB.CreateChain>('public.fieldIds', { sourceId: id, fieldId: f.id, value: f.value, sourceName: `${Database.CLIENTS_TABLE_NAME}`}))
+    // const queries = newClient.fields.map(f => createFieldChain(this.conn, id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`))
+    console.log(queries)
+
+    const promises = queries.map(q => this.conn.query(q));
+    const result = await Promise.all(promises);
+    return result;
+  }
 }
 
 export async function getClients(req: Request, res: Response): Promise<Response | void> {
@@ -102,6 +108,7 @@ export async function getClients(req: Request, res: Response): Promise<Response 
   }
   catch (e) {
     await clientHelper.endConnect();
+
     console.log(e);
     res.json([])
   }
@@ -110,33 +117,29 @@ export async function getClients(req: Request, res: Response): Promise<Response 
 export async function createClient(req: Request<any, string, ServerClient.CreateRequest>, res: Response) {
   const newClient: ServerClient.CreateRequest = req.body;
 
+  const clientHelper = new ClientHelper();
+
   try {
-    const conn = await connect();
-    conn.query<Database.Client>(getInsertOneQuery<ServerClient.BaseEntity>(TABLE_NAME, { carIds: newClient.carIds || '' }))
-      .then(resultWithId => {
-        console.log(resultWithId);
+    await clientHelper.connect();
 
-        return Promise.all(newClient.fields.map(f => createFieldChain(conn, resultWithId.rows[0].id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`)))
-      })
-      .then(result => {
-        console.log(result);
+    const id = await clientHelper.createClient(newClient);
+    const result = await clientHelper.createClientChaines(newClient, id);
 
-        conn.end();
-        res.json({
-          message: 'New Client Created',
-          result
-        });
-      })
-      .catch(result => {
-        console.log(result)
+    await clientHelper.endConnect();
 
-        conn.end();
-        res.json({ result })
-      })
+    res.json({  // TODO! refactor
+      message: 'New Client Created',
+      result
+    });
   }
   catch (e) {
-    console.log(e)
-    res.json(e)
+    await clientHelper.endConnect();
+
+    console.log(e);
+    res.json({  // TODO! refactor
+      message: 'New Client Not Created',
+      error: e
+    });
   }
 }
 
