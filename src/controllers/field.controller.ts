@@ -148,17 +148,31 @@ export async function createFieldChain(conn: Client, sourceId: number, fieldId: 
 
 export async function updateFieldChain(conn: Client, sourceId: number, fieldId: number, value: string, sourceName: string) {
   const query = getUpdateByAndExpressionQuery(
-    'public.fieldIds', 
-    { 
+    'public.fieldIds',
+    {
       value
     },
     {
-      fieldId: [fieldId].map(c => `${c}`), 
-      sourceId: [sourceId].map(c => `${c}`), 
-      sourceName: [`'${sourceName}'`] 
+      fieldId: [fieldId].map(c => `${c}`),
+      sourceId: [sourceId].map(c => `${c}`),
+      sourceName: [`'${sourceName}'`]
     }
   );
 
   console.log(query);
   return conn.query(query);
 }
+
+// export async function deleteFieldChain(conn: Client, sourceId: number, fieldId: number, sourceName: string) {
+//   const query = getDeleteByAndExpressionQuery(
+//     'public.fieldIds',
+//     {
+//       fieldId: [fieldId].map(c => `${c}`),
+//       sourceId: [sourceId].map(c => `${c}`),
+//       sourceName: [`'${sourceName}'`]
+//     }
+//   );
+
+//   console.log(query);
+//   return conn.query(query);
+// }

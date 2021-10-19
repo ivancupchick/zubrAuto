@@ -28,8 +28,8 @@ export async function getClients(req: Request, res: Response): Promise<Response 
 
         const query = getGetAllByExpressionAndQuery(
           Database.FIELD_CHAINS_TABLE_NAME, {
-            sourceId: objectClients.map(c => `${c.id}`), 
-            sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`] 
+            sourceId: objectClients.map(c => `${c.id}`),
+            sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`]
           })
 
         console.log(query);
@@ -101,32 +101,12 @@ export async function createClient(req: Request<any, string, ServerClient.Create
   }
 }
 
-// TODO: do assigning fields
-export async function getClient(req: Request, res: Response) {
-  const id = +req.params.clientId;
-  const conn = await connect();
-  const clients = await conn.query(getGetByIdQuery(TABLE_NAME, id));
-  res.json(clients.rows[0]);
-}
-
-export async function deleteClient(req: Request, res: Response) {
-  const id = +req.params.clientId;
-  const conn = await connect();
-  await conn.query(getDeleteByIdQuery(TABLE_NAME, id));
-  res.json({
-    message: 'Client deleted'
-  });
-  // res.json({
-  //   message: 'Client does not deleted'
-  // });
-}
-
 export async function updateClient(req: Request, res: Response) {
   const id = +req.params.clientId;
   const updateClient: ServerClient.CreateRequest = req.body;
   const conn = await connect();
   Promise.all([
-    conn.query(getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds })), 
+    conn.query(getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds })),
     updateClient.fields.map(f => updateFieldChain(conn, id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`))
   ])
     .then(result => {
@@ -147,4 +127,57 @@ export async function updateClient(req: Request, res: Response) {
   // res.json({
   //   message: 'Client does not updated'
   // });
+}
+
+export async function deleteClient(req: Request, res: Response) {
+  const id = +req.params.clientId;
+  const conn = await connect();
+
+  let chaines: Database.FieldChain[] = [];
+
+  const getChainesQuery = getGetAllByExpressionAndQuery(
+    Database.FIELD_CHAINS_TABLE_NAME, {
+      sourceId: [`${id}`],
+      sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`]
+    })
+
+  console.log(getChainesQuery);
+  conn.query<Database.FieldChain>(getChainesQuery)
+    .then(fieldIdsRes => {
+      chaines = fieldIdsRes.rows;
+
+      const queries = [
+        conn.query(getDeleteByIdQuery(TABLE_NAME, id)),
+        ...chaines.map(ch =>
+          conn.query(getDeleteByIdQuery(Database.FIELD_CHAINS_TABLE_NAME, ch.id))
+        )
+      ];
+
+      return Promise.all(queries);
+    })
+    .then(result => {
+      console.log(result)
+      res.json({
+        message: 'Client Deleted',
+        result
+      });
+    })
+    .catch(e => {
+      res.json({
+        message: 'Client not Deleted',
+        error: e
+      });
+    });
+
+  // res.json({
+  //   message: 'Client does not deleted'
+  // });
+}
+
+// TODO: do assigning fields
+export async function getClient(req: Request, res: Response) {
+  const id = +req.params.clientId;
+  const conn = await connect();
+  const clients = await conn.query(getGetByIdQuery(TABLE_NAME, id));
+  res.json(clients.rows[0]);
 }
