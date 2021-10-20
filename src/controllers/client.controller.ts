@@ -15,12 +15,11 @@ const TABLE_NAME = Database.CLIENTS_TABLE_NAME;
 // }>;
 
 export async function getClients(req: Request, res: Response): Promise<Response | void> {
-  const dbConnection = await ClientConnection.connect();
+  const dbConnection = await ClientConnection.create();
 
   try {
-    const clients = await dbConnection.getAllClients();
+    const [clients, fields] = await Promise.all([dbConnection.getAllClients(), dbConnection.getRelatedFields()]);
     const chaines = await dbConnection.getClientChaines(clients.map(c => c.id));
-    const fields = await dbConnection.getRelatedFields(chaines);
 
     const result: ServerClient.GetResponse[] = clients.map(client => ({
       id: client.id,
@@ -43,7 +42,7 @@ export async function getClients(req: Request, res: Response): Promise<Response 
 export async function createClient(req: Request<any, string, ServerClient.CreateRequest>, res: Response) {
   const newClient: ServerClient.CreateRequest = req.body;
 
-  const dbConnection = await ClientConnection.connect();
+  const dbConnection = await ClientConnection.create();
 
   try {
     const id = await dbConnection.createClient(newClient);
@@ -71,7 +70,7 @@ export async function updateClient(req: Request, res: Response) {
   const id = +req.params.clientId;
   const updateClient: ServerClient.CreateRequest = req.body;
 
-  const dbConnection = await ClientConnection.connect();
+  const dbConnection = await ClientConnection.create();
 
   try {
     const result = await dbConnection.updateClient(updateClient, id);
@@ -98,7 +97,7 @@ export async function updateClient(req: Request, res: Response) {
 export async function deleteClient(req: Request, res: Response) {
   const id = +req.params.clientId;
 
-  const dbConnection = await ClientConnection.connect();
+  const dbConnection = await ClientConnection.create();
 
   try {
     const chaines = await dbConnection.getClientChaines([id]);
@@ -126,7 +125,7 @@ export async function deleteClient(req: Request, res: Response) {
 export async function getClient(req: Request, res: Response) {
   const id = +req.params.clientId;
 
-  const dbConnection = await ClientConnection.connect();
+  const dbConnection = await ClientConnection.create();
 
   try {
     const client = await dbConnection.getClient(id);

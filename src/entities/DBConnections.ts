@@ -3,55 +3,57 @@ import { connect } from "../database";
 import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from "../utils/sql-queries";
 import { ServerClient } from "./Client";
 import { Database } from "./Database";
-import { ServerField } from "./Field";
+import { FieldDomains, RealField, ServerField } from "./Field";
 
-export class ClientConnection {
-  private pgClient: Client;
-  private TABLE_NAME: string;
+interface WithId {
+  id: number;
+}
 
-  static async connect() {
-    const pgClient = await connect();
+interface WithFields {
+  fields: RealField.Request[];
+}
 
-    const connection = new ClientConnection(pgClient);
-    return connection;
-  }
+abstract class BaseConnection {
+  // static async create(BASE_TABLE_NAME: string) {
+  //   const pgClient = await connect();
+
+  //   const connection = new BaseConnection(pgClient, BASE_TABLE_NAME);
+  //   return connection;
+  // }
+
+  constructor(private pgClient: Client, protected BASE_TABLE_NAME: string, protected fieldDomain: FieldDomains) {}
 
   async end() {
     await this.pgClient.end()
   }
 
-  async query<TRes>(query: string) {
+  protected async query<TRes>(query: string) {
     return await this.pgClient.query<TRes>(query)
   }
 
-  constructor(pgClient: Client) {
-    this.pgClient = pgClient;
-    this.TABLE_NAME = Database.CLIENTS_TABLE_NAME;
-  }
-
-  async getClient(id: number) {
-    const query = getGetByIdQuery(this.TABLE_NAME, id);
+  protected async getEntity<TRes>(id: number) {
+    const query = getGetByIdQuery(this.BASE_TABLE_NAME, id);
 
     console.log(query);
 
-    const clients = await this.query<Database.Client>(query)
+    const clients = await this.query<TRes>(query)
     return clients.rows[0];
   }
 
-  async getAllClients() {
-    const query = getGetAllQuery(this.TABLE_NAME);
+  protected async getAllEntities<TRes>() {
+    const query = getGetAllQuery(this.BASE_TABLE_NAME);
 
     console.log(query);
 
-    const clients = await this.query<Database.Client>(query)
+    const clients = await this.query<TRes>(query)
     return clients.rows;
   }
 
-  async getClientChaines(ids: number[]) {
+  protected async getEntityChaines(sourceIds: number[]) {
     const query = getGetAllByExpressionAndQuery(
       Database.FIELD_CHAINS_TABLE_NAME, {
-        sourceId: ids.map(id => `${id}`),
-        sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`]
+        sourceId: sourceIds.map(id => `${id}`),
+        sourceName: [`'${this.BASE_TABLE_NAME}'`]
       }
     );
 
@@ -61,11 +63,10 @@ export class ClientConnection {
     return chaines.rows;
   }
 
-  async getRelatedFields(chaines: Database.FieldChain[]) {
-    // TODO replace input chaines to exprassion by domain
+  protected async getRelatedFields() {
     const query = getGetAllByOneColumnExpressionQuery(
       Database.FIELDS_TABLE_NAME, {
-        id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`)
+        domain: [`${this.fieldDomain}`]
       }
     );
 
@@ -75,35 +76,74 @@ export class ClientConnection {
     return fields.rows;
   }
 
-  async createClient(newClient: ServerClient.CreateRequest): Promise<number> {
-    const query = getInsertOneQuery<ServerClient.BaseEntity>(this.TABLE_NAME, { carIds: newClient.carIds || '' });
+  protected async createEntity<TEntity extends WithId, TBaseEntity>(baseEntity: TBaseEntity): Promise<number> {
+    const query = getInsertOneQuery<TBaseEntity>(this.BASE_TABLE_NAME, baseEntity);
 
     console.log(query);
 
-    const fields = await this.query<Database.Client>(query);
+    const fields = await this.query<TEntity>(query);
     return fields.rows[0].id;
   }
 
-  async createClientChaines(newClient: ServerClient.CreateRequest, id: number) {
-    const queries = newClient.fields.map(f => getInsertOneQuery<ServerField.DB.CreateChain>(
-      Database.FIELDS_TABLE_NAME, {
-        sourceId: id,
-        fieldId: f.id,
-        value: f.value,
-        sourceName: `${Database.CLIENTS_TABLE_NAME}`
-      }
+  protected async createEntityChaines<TCreateRequest extends WithFields>(entity: TCreateRequest, converter: (values: RealField.Request) => ServerField.DB.CreateChain) {
+    const queries = entity.fields.map(f => getInsertOneQuery<ServerField.DB.CreateChain>(
+      Database.FIELD_CHAINS_TABLE_NAME, converter(f)
     ));
     console.log(queries)
 
-    const promises = queries.map(q => this.query(q));
+    const promises = queries.map(q => this.query<any>(q));
     const result = await Promise.all(promises);
-    return result;
+    return [...result.map(r => r.rows)];
+  }
+}
+
+export class ClientConnection extends BaseConnection {
+  static async create() {
+    const pgClient = await connect();
+
+    const connection = new ClientConnection(pgClient);
+    return connection;
   }
 
-  async updateClient(updateClient: ServerClient.CreateRequest, id: number) {
+  constructor(pgClient: Client) {
+    super(pgClient, Database.CLIENTS_TABLE_NAME, FieldDomains.Client);
+  }
+
+  async getClient(id: number) {
+    return super.getEntity<Database.Client>(id);
+  }
+
+  async getAllClients() {
+    return super.getAllEntities<Database.Client>()
+  }
+
+  async getClientChaines(sourceIds: number[]) {
+    return super.getEntityChaines(sourceIds);
+  }
+
+  async getRelatedFields() {
+    return super.getRelatedFields();
+  }
+
+  async createClient(newClient: ServerClient.CreateRequest): Promise<number> {
+    return super.createEntity<Database.Client, ServerClient.BaseEntity>({ carIds: newClient.carIds || '' })
+  }
+
+  async createClientChaines(newClient: ServerClient.CreateRequest, id: number) {
+    return super.createEntityChaines<ServerClient.CreateRequest>(
+      newClient, (v => ({
+        sourceId: id,
+        fieldId: v.id,
+        value: v.value,
+        sourceName: `${this.BASE_TABLE_NAME}`
+      })
+    ));
+  }
+
+  async updateClient(updatedClient: ServerClient.CreateRequest, id: number) {
     const queries = [
-      getUpdateByIdQuery(this.TABLE_NAME, id, { carIds: updateClient.carIds }),
-      ...updateClient.fields.map(f => getUpdateByAndExpressionQuery(
+      getUpdateByIdQuery(this.BASE_TABLE_NAME, id, { carIds: updatedClient.carIds }),
+      ...updatedClient.fields.map(f => getUpdateByAndExpressionQuery(
         Database.FIELDS_TABLE_NAME, {
           value: f.value
         }, {
@@ -122,7 +162,7 @@ export class ClientConnection {
 
   async deleteClient(id: number, chaines: Database.FieldChain[]) {
     const queries = [
-      getDeleteByIdQuery(this.TABLE_NAME, id),
+      getDeleteByIdQuery(this.BASE_TABLE_NAME, id),
       ...chaines.map(ch => getDeleteByIdQuery(Database.FIELD_CHAINS_TABLE_NAME, ch.id))
     ];
     console.log(queries)
