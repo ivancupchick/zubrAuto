@@ -116,14 +116,14 @@ export async function deleteClient(req: Request, res: Response) {
   }
 }
 
-// TODO: do assigning fields
-export async function getClient(req: Request, res: Response) {
+export async function getClient(req: Request, res: Response) { // TODO! works without fields!
   const id = +req.params.clientId;
 
   const dbConnection = await ClientConnection.create();
 
   try {
     const client = await dbConnection.getClient(id);
+    // TODO: do assigning fields
 
     await dbConnection.end();
 

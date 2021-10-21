@@ -1,9 +1,7 @@
 import { Request, Response } from 'express'
-import { connect } from '../database'
-import { ResponseCar } from '../entities/Car';
-import { Database } from '../entities/Database';
+import { ServerCar, ServerCarOwner } from '../entities/Car';
+import { CarConnection, CarOwnerConnection } from '../entities/DBConnections';
 import { getFieldsWithValues } from '../utils/field.utils';
-import { getGetAllByOneColumnExpressionQuery, getGetAllQuery } from '../utils/sql-queries';
 
 // TODO: CRUD
 // TODO: replace all sql queries to separate file or place(constants in top of this file)
@@ -11,99 +9,182 @@ import { getGetAllByOneColumnExpressionQuery, getGetAllQuery } from '../utils/sq
 // TODO: create separate database servicies for all controllers
 
 export async function getCars(req: Request, res: Response): Promise<Response | void> {
-    let cars: ResponseCar[] = [];
-    let objectCars: Database.Car[] = [];
-    let chaines: Database.FieldChain[] = [];
-    let chainedFields: Database.Field[] = [];
+  const dbConnection = await CarConnection.create();
+  const carOwnerConnection = new CarOwnerConnection(dbConnection.conn); // TODO test this
 
-    try {
-        const conn = await connect();
-        conn.query<Database.Car>(getGetAllQuery('public.cars'))
-            .then(resCars => {
-                console.log(resCars.rows[0]);
-                objectCars = resCars.rows;
+  try {
+    const [cars, carFields, carOwners, carOwnerFields] = await Promise.all([
+      dbConnection.getAllCars(),
+      dbConnection.getRelatedFields(),
+      carOwnerConnection.getAllCarOwners(),
+      carOwnerConnection.getRelatedFields(),
+    ]);
 
-                const query = getGetAllByOneColumnExpressionQuery(Database.FIELD_CHAINS_TABLE_NAME, { sourceId: objectCars.map((c: Database.Car) => `${c.id}`) })
+    const [carChaines, carOwnerChaines] = await Promise.all([
+      dbConnection.getCarChaines(cars.map(c => c.id)),
+      carOwnerConnection.getCarOwnerChaines(carOwners.map(c => c.id)),
+    ]);
 
-                console.log(query);
-                return conn.query<Database.FieldChain>(query)
-            })
-            .then(resFieldIds => {
-                chaines = resFieldIds.rows;
+    const result: ServerCar.GetResponse[] = cars.map(car => ({
+      id: car.id,
+      createdDate: car.createdDate,
+      ownerId: car.ownerId,
+      ownerNumber: carOwners.find(co => co.id === car.ownerId)?.number || '',
+      fields: [...getFieldsWithValues(carFields, carChaines, car.id), ...getFieldsWithValues(carOwnerFields, carOwnerChaines, car.ownerId)]
+    }))
 
-                const query = getGetAllByOneColumnExpressionQuery(Database.FIELDS_TABLE_NAME, { id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`) })
+    await dbConnection.end();
 
-                console.log(query);
+    res.json(result);
+  }
+  catch (e) {
+    await dbConnection.end();
 
-                return conn.query<Database.Field>(query)
-            })
-            .then(resFields => {
-                chainedFields = resFields.rows;
+    console.log(e);
+    res.json([])
+  }
+}
 
-                cars = objectCars.map(databaseCar => {
-                    return {
-                        id: databaseCar.id,
-                        createdDate: +databaseCar.createdDate,
-                        ownerId: databaseCar.ownerId || 0,
-                        fields: getFieldsWithValues(chainedFields, chaines, databaseCar.id)
-                    }
-                })
+export async function createCar(req: Request<any, string, ServerCar.CreateRequest>, res: Response) {
+  const newCar: ServerCar.CreateRequest = req.body;
 
-                console.log(cars);
-                conn.end();
-                return res.json(cars);
-            })
+  const dbConnection = await CarConnection.create();
+  const carOwnerConnection = new CarOwnerConnection(dbConnection.conn); // TODO test this
 
+  try {
+    const carOwnerFieldsConfigs = await carOwnerConnection.getRelatedFields();
+    const ownerFields = newCar.fields.filter(f => !!carOwnerFieldsConfigs.find(fc => fc.id === f.id));
+    const carFields = newCar.fields.filter(f => !ownerFields.find(of => of.id === f.id));
+
+    const existCarOwner = await carOwnerConnection.getCarOwnerByNumber(newCar.ownerNumber);
+    const newCarOwner:  ServerCarOwner.CreateRequest = {
+      number: newCar.ownerNumber,
+      fields: ownerFields
+    };
+    const ownerId = !existCarOwner
+      ? await carOwnerConnection.createCarOwner(newCarOwner)
+      : existCarOwner.id;
+    if (!existCarOwner) {
+      await carOwnerConnection.createCarOwnerChaines(newCarOwner, ownerId);
+    } else {
+      await carOwnerConnection.updateCarOwner(newCarOwner, ownerId);
     }
-    catch (e) {
-        console.log(e)
-        return res.json(e)
-    }
-}
 
-export async function createCar(req: Request, res: Response) {
-    // const newCar: ResponseCar = req.body;
-    // const conn = await connect();
-    // await conn.query('INSERT INTO cars SET ?', [newCar]);
-    // res.json({
-    //     message: 'New Car Created'
-    // });
+    const newBDCar: ServerCar.UpdateRequest = {
+      createdDate: newCar.createdDate,
+      ownerId,
+      fields: carFields
+    };
+    const id = await dbConnection.createCar(newBDCar);
+    const result = await dbConnection.createCarChaines(newBDCar, id); // TODO! need this?
 
-    res.json({
-        message: 'New car does not created'
+    await dbConnection.end();
+
+    res.json({  // TODO! refactor
+      message: 'Car Created',
+      result
     });
-}
+  }
+  catch (e) {
+    await dbConnection.end();
 
-export async function getCar(req: Request, res: Response) {
-    // const id = req.params.carId;
-    // const conn = await connect();
-    // const cars = await conn.query('SELECT * FROM cars WHERE id = ?', [id]);
-    // res.json(cars.rows[0]);
-    res.json({});
-}
-
-export async function deleteCar(req: Request, res: Response) {
-    // const id = req.params.carId;
-    // const conn = await connect();
-    // await conn.query('DELETE FROM cars WHERE id = ?', [id]);
-    // res.json({
-    //     message: 'Car deleted'
-    // });
-    res.json({
-        message: 'Car does not deleted'
+    console.log(e);
+    res.json({  // TODO! refactor
+      message: 'Car does not Created',
+      error: e
     });
+  }
 }
 
 export async function updateCar(req: Request, res: Response) {
-    // const id = req.params.carId;
-    // const updateCar: any = req.body;
-    // const conn = await connect();
-    // await conn.query('UPDATE cars set ? WHERE id = ?', [updateCar, id]);
-    // res.json({
-    //     message: 'Car Updated'
-    // });
+  const id = +req.params.carId;
+  const updatedCar: ServerCar.UpdateRequest = req.body;
+
+  const dbConnection = await CarConnection.create();
+  const carOwnerConnection = new CarOwnerConnection(dbConnection.conn); // TODO test this
+
+  try {
+    const carOwnerFieldsConfigs = await carOwnerConnection.getRelatedFields();
+    const ownerFields = updatedCar.fields.filter(f => !!carOwnerFieldsConfigs.find(fc => fc.id === f.id));
+    const carFields = updatedCar.fields.filter(f => !ownerFields.find(of => of.id === f.id));
+
+    const existCarOwner = await carOwnerConnection.getCarOwner(updatedCar.ownerId);
+    const updatedCarOwner:  ServerCarOwner.CreateRequest = {
+      number: existCarOwner.number,
+      fields: ownerFields
+    };
+
+    const updatedBDCar: ServerCar.UpdateRequest = {
+      createdDate: updatedCar.createdDate,
+      ownerId: updatedCar.ownerId,
+      fields: carFields
+    };
+
+    const [result,] = await Promise.all([dbConnection.updateCar(updatedBDCar, id), carOwnerConnection.updateCarOwner(updatedCarOwner, updatedCar.ownerId)]); // TODO! need this?
+
+    await dbConnection.end();
 
     res.json({
-        message: 'Car does not updated'
+      message: 'Car Updated',
+      result
     });
+  }
+  catch (e) {
+    await dbConnection.end();
+
+    console.log(e);
+    res.json({
+      message: 'Car does not Updated',
+      error: e
+    });
+  }
+
+}
+
+export async function deleteCar(req: Request, res: Response) {
+  const id = +req.params.carId;
+
+  const dbConnection = await CarConnection.create();
+
+  try {
+    const chaines = await dbConnection.getCarChaines([id]);
+    const result = await dbConnection.deleteCar(id, chaines);
+
+    await dbConnection.end();
+
+    res.json({
+      message: 'Car Deleted',
+      result
+    });
+  }
+  catch (e) {
+    await dbConnection.end();
+
+    console.log(e);
+    res.json({
+      message: 'Car does not Deleted',
+      error: e
+    });
+  }
+}
+
+export async function getCar(req: Request, res: Response) { // TODO! works without fields!
+  const id = +req.params.carId;
+
+  const dbConnection = await CarConnection.create();
+
+  try {
+    const car = await dbConnection.getCar(id);
+    // TODO: do assigning fields
+
+    await dbConnection.end();
+
+    res.json([car]);
+  }
+  catch (e) {
+    await dbConnection.end();
+
+    console.log(e);
+    res.json([])
+  }
 }

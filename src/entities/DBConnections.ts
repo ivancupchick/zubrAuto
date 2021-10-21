@@ -1,6 +1,7 @@
 import { Client } from "pg";
 import { connect } from "../database";
 import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from "../utils/sql-queries";
+import { ServerCarOwner, ServerCar } from "./Car";
 import { ServerClient } from "./Client";
 import { Database } from "./Database";
 import { FieldDomains, RealField, ServerField } from "./Field";
@@ -21,7 +22,7 @@ abstract class BaseConnection {
   //   return connection;
   // }
 
-  constructor(private pgClient: Client, protected BASE_TABLE_NAME: string, protected fieldDomain: FieldDomains) {}
+  constructor(protected pgClient: Client, protected BASE_TABLE_NAME: string, protected fieldDomain: FieldDomains) {}
 
   async end() {
     await this.pgClient.end()
@@ -99,10 +100,10 @@ abstract class BaseConnection {
   protected async updateEntityWithFields<TCreateRequest extends WithFields, TBaseEntity>(
     entity: TCreateRequest,
     id: number,
-    entityConverter: (entity: TCreateRequest) => TBaseEntity
+    baseEntity: TBaseEntity
   ) {
     const queries = [
-      getUpdateByIdQuery(this.BASE_TABLE_NAME, id, entityConverter(entity)),
+      getUpdateByIdQuery(this.BASE_TABLE_NAME, id, baseEntity),
       ...entity.fields.map(f => getUpdateByAndExpressionQuery(
         Database.FIELD_CHAINS_TABLE_NAME, {
           value: f.value
@@ -141,7 +142,7 @@ export class ClientConnection extends BaseConnection {
     return connection;
   }
 
-  constructor(pgClient: Client) {
+  private constructor(pgClient: Client) {
     super(pgClient, Database.CLIENTS_TABLE_NAME, FieldDomains.Client);
   }
 
@@ -177,10 +178,133 @@ export class ClientConnection extends BaseConnection {
   }
 
   async updateClient(updatedClient: ServerClient.CreateRequest, id: number) {
-    return super.updateEntityWithFields<ServerClient.CreateRequest, ServerClient.BaseEntity>(updatedClient, id, () => ({ carIds: updatedClient.carIds }));
+    return super.updateEntityWithFields<ServerClient.CreateRequest, ServerClient.BaseEntity>(updatedClient, id, { carIds: updatedClient.carIds });
   }
 
   async deleteClient(id: number, chaines: Database.FieldChain[]) {
+    return super.deleteEntityWithFields(id, chaines);
+  }
+}
+
+export class CarOwnerConnection extends BaseConnection {
+  static async create() {
+    const pgClient = await connect();
+
+    const connection = new CarOwnerConnection(pgClient);
+    return connection;
+  }
+
+  constructor(pgClient: Client) {
+    super(pgClient, Database.CAR_OWNERS_TABLE_NAME, FieldDomains.CarOwner);
+  }
+
+  async getCarOwner(id: number) {
+    return super.getEntity<Database.CarOwner>(id);
+  }
+
+  async getCarOwnerByNumber(number: string): Promise<Database.CarOwner | null> {
+    if (!number) {
+      return null;
+    }
+
+    const query = getGetAllByOneColumnExpressionQuery(this.BASE_TABLE_NAME, { number: [`${number}`]})
+
+    console.log(query);
+
+    const clients = await this.query<Database.CarOwner>(query)
+    const result = clients.rows[0];
+    return result || null;
+  }
+
+  async getAllCarOwners() {
+    return super.getAllEntities<Database.CarOwner>()
+  }
+
+  async getCarOwnerChaines(sourceIds: number[]) {
+    return super.getEntityChaines(sourceIds);
+  }
+
+  async getRelatedFields() {
+    return super.getRelatedFields();
+  }
+
+  async createCarOwner(newCarOwner: ServerCarOwner.CreateRequest): Promise<number> {
+    return super.createEntity<Database.CarOwner, ServerCarOwner.BaseEntity>({ number: newCarOwner.number || '' })
+  }
+
+  async createCarOwnerChaines(newCarOwner: ServerCarOwner.CreateRequest, id: number) {
+    return super.createEntityChaines<ServerCarOwner.CreateRequest>(
+      newCarOwner, (v => ({
+        sourceId: id,
+        fieldId: v.id,
+        value: v.value,
+        sourceName: `${this.BASE_TABLE_NAME}`
+      })
+    ));
+  }
+
+  async updateCarOwner(updatedCarOwner: ServerCarOwner.CreateRequest, id: number) {
+    return super.updateEntityWithFields<ServerCarOwner.CreateRequest, ServerCarOwner.BaseEntity>(updatedCarOwner, id, { number: updatedCarOwner.number });
+  }
+
+  async deleteCarOwner(id: number, chaines: Database.FieldChain[]) {
+    return super.deleteEntityWithFields(id, chaines);
+  }
+}
+
+export class CarConnection extends BaseConnection {
+  static async create() {
+    const pgClient = await connect();
+
+    const connection = new CarConnection(pgClient);
+
+    return connection;
+  }
+
+  get conn() {
+    return this.pgClient;
+  }
+
+  private constructor(pgClient: Client) {
+    super(pgClient, Database.CARS_TABLE_NAME, FieldDomains.Car);
+  }
+
+  async getCar(id: number) {
+    return super.getEntity<Database.Car>(id);
+  }
+
+  async getAllCars() {
+    return super.getAllEntities<Database.Car>()
+  }
+
+  async getCarChaines(sourceIds: number[]) {
+    return super.getEntityChaines(sourceIds);
+  }
+
+  async getRelatedFields() {
+    return super.getRelatedFields();
+  }
+
+  async createCar(newCar: ServerCar.UpdateRequest): Promise<number> {
+    return super.createEntity<Database.Car, (ServerCar.BaseEntity & ServerCar.WithOwnerId)>({ createdDate: newCar.createdDate || '', ownerId: newCar.ownerId })
+  }
+
+  async createCarChaines(newCar: ServerCar.UpdateRequest, id: number) {
+    return super.createEntityChaines<ServerCar.UpdateRequest>(
+      newCar, (v => ({
+        sourceId: id,
+        fieldId: v.id,
+        value: v.value,
+        sourceName: `${this.BASE_TABLE_NAME}`
+      })
+    ));
+  }
+
+  async updateCar(updatedCar: ServerCar.UpdateRequest, id: number) { // TODO! remove () => ({ createdDate: updatedCar.createdDate || '', ownerId: updatedCar.ownerId }))
+    return super.updateEntityWithFields<ServerCar.UpdateRequest, (ServerCar.BaseEntity & ServerCar.WithOwnerId)>(updatedCar, id, { createdDate: updatedCar.createdDate || '', ownerId: updatedCar.ownerId });
+  }
+
+  async deleteCar(id: number, chaines: Database.FieldChain[]) {
     return super.deleteEntityWithFields(id, chaines);
   }
 }
