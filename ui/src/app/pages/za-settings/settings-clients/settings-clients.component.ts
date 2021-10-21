@@ -103,7 +103,10 @@ export class SettingsClientsComponent implements OnInit {
   }
 
   deleteClient(client: ServerClient.GetResponse) {
-    console.log(client);
+    this.clientService.deleteClient(client.id)
+      .subscribe(res => {
+        console.log(res);
+      });
   }
 
   private sortClients() {

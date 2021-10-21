@@ -1,183 +1,138 @@
 import { Request, Response } from 'express'
-import { connect } from '../database'
 import { ServerClient } from '../entities/Client';
-import { Database } from '../entities/Database';
-import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 import { getFieldsWithValues } from '../utils/field.utils';
-import { createFieldChain, updateFieldChain } from './field.controller';
+import { ClientConnection } from '../entities/DBConnections';
 
-const TABLE_NAME = Database.CLIENTS_TABLE_NAME;
+// TODO use this, or refactor request
+// type ZAResponce<T> = Response<{
+//   error?: any,
+//   result: T
+// }>;
 
 export async function getClients(req: Request, res: Response): Promise<Response | void> {
-  let clients: ServerClient.GetResponse[] = [];
-  let objectClients: Database.Client[] = [];
-  let chaines: Database.FieldChain[] = [];
-  let chainedFields: Database.Field[] = [];
+  const dbConnection = await ClientConnection.create();
 
   try {
-    const conn = await connect();
-    conn.query<Database.Client>(getGetAllQuery(TABLE_NAME))
-      .then(resClients => {
-        objectClients = resClients.rows;
+    const [clients, fields] = await Promise.all([dbConnection.getAllClients(), dbConnection.getRelatedFields()]);
+    const chaines = await dbConnection.getClientChaines(clients.map(c => c.id));
 
-        clients = objectClients.map(oc => ({
-          id: oc.id,
-          carIds: oc.carIds,
-          fields: []
-        }));
+    const result: ServerClient.GetResponse[] = clients.map(client => ({
+      id: client.id,
+      carIds: client.carIds,
+      fields: getFieldsWithValues(fields, chaines, client.id)
+    }))
 
-        const query = getGetAllByExpressionAndQuery(
-          Database.FIELD_CHAINS_TABLE_NAME, {
-            sourceId: objectClients.map(c => `${c.id}`),
-            sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`]
-          })
+    await dbConnection.end();
 
-        console.log(query);
-        return conn.query<Database.FieldChain>(query)
-      })
-      .then(resFieldIds => {
-        console.log(resFieldIds.rows);
-        chaines = resFieldIds.rows;
-
-        const query = getGetAllByOneColumnExpressionQuery(Database.FIELDS_TABLE_NAME, { id: chaines.map((ch: Database.FieldChain) => `${ch.fieldId}`) })
-
-        console.log(query);
-
-        return conn.query<Database.Field>(query)
-      })
-      .then(resFields => {
-        chainedFields = resFields.rows;
-
-        clients = clients.map(client => ({
-          id: client.id,
-          carIds: client.carIds,
-          fields: getFieldsWithValues(chainedFields, chaines, client.id)
-        }))
-
-        console.log(clients);
-        conn.end();
-        return res.json(clients);
-      })
-      .catch(e => {
-        console.log(e);
-        res.json([]);
-        conn.end();
-      });
+    res.json(result);
   }
   catch (e) {
-    res.json(e)
+    await dbConnection.end();
+
+    console.log(e);
+    res.json([])
   }
 }
 
 export async function createClient(req: Request<any, string, ServerClient.CreateRequest>, res: Response) {
   const newClient: ServerClient.CreateRequest = req.body;
+
+  const dbConnection = await ClientConnection.create();
+
   try {
-    const conn = await connect();
-    conn.query<Database.Client>(getInsertOneQuery<ServerClient.BaseEntity>(TABLE_NAME, { carIds: newClient.carIds || '' }))
-      .then(resultWithId => {
-        console.log(resultWithId);
+    const id = await dbConnection.createClient(newClient);
+    const result = await dbConnection.createClientChaines(newClient, id);
 
-        return Promise.all(newClient.fields.map(f => createFieldChain(conn, resultWithId.rows[0].id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`)))
-      })
-      .then(result => {
-        console.log(result);
+    await dbConnection.end();
 
-        conn.end();
-        res.json({
-          message: 'New Client Created',
-          result
-        });
-      })
-      .catch(result => {
-        console.log(result)
-
-        conn.end();
-        res.json({ result })
-      })
+    res.json({  // TODO! refactor
+      message: 'Client Created',
+      result
+    });
   }
   catch (e) {
-    console.log(e)
-    res.json(e)
+    await dbConnection.end();
+
+    console.log(e);
+    res.json({  // TODO! refactor
+      message: 'Client does not Created',
+      error: e
+    });
   }
 }
 
 export async function updateClient(req: Request, res: Response) {
   const id = +req.params.clientId;
   const updateClient: ServerClient.CreateRequest = req.body;
-  const conn = await connect();
-  Promise.all([
-    conn.query(getUpdateByIdQuery(TABLE_NAME, id, { carIds: updateClient.carIds })),
-    updateClient.fields.map(f => updateFieldChain(conn, id, f.id, f.value, `${Database.CLIENTS_TABLE_NAME}`))
-  ])
-    .then(result => {
-      console.log(result)
-      res.json({
-        message: 'Client Updated',
-        result
-      });
-    })
-    .catch(e => {
-      res.json({
-        message: 'Client not Updated',
-        error: e
-      });
+
+  const dbConnection = await ClientConnection.create();
+
+  try {
+    const result = await dbConnection.updateClient(updateClient, id);
+
+    await dbConnection.end();
+
+    res.json({
+      message: 'Client Updated',
+      result
     });
+  }
+  catch (e) {
+    await dbConnection.end();
 
+    console.log(e);
+    res.json({
+      message: 'Client does not Updated',
+      error: e
+    });
+  }
 
-  // res.json({
-  //   message: 'Client does not updated'
-  // });
 }
 
 export async function deleteClient(req: Request, res: Response) {
   const id = +req.params.clientId;
-  const conn = await connect();
 
-  let chaines: Database.FieldChain[] = [];
+  const dbConnection = await ClientConnection.create();
 
-  const getChainesQuery = getGetAllByExpressionAndQuery(
-    Database.FIELD_CHAINS_TABLE_NAME, {
-      sourceId: [`${id}`],
-      sourceName: [`'${Database.CLIENTS_TABLE_NAME}'`]
-    })
+  try {
+    const chaines = await dbConnection.getClientChaines([id]);
+    const result = await dbConnection.deleteClient(id, chaines);
 
-  console.log(getChainesQuery);
-  conn.query<Database.FieldChain>(getChainesQuery)
-    .then(fieldIdsRes => {
-      chaines = fieldIdsRes.rows;
+    await dbConnection.end();
 
-      const queries = [
-        conn.query(getDeleteByIdQuery(TABLE_NAME, id)),
-        ...chaines.map(ch =>
-          conn.query(getDeleteByIdQuery(Database.FIELD_CHAINS_TABLE_NAME, ch.id))
-        )
-      ];
-
-      return Promise.all(queries);
-    })
-    .then(result => {
-      console.log(result)
-      res.json({
-        message: 'Client Deleted',
-        result
-      });
-    })
-    .catch(e => {
-      res.json({
-        message: 'Client not Deleted',
-        error: e
-      });
+    res.json({
+      message: 'Client Deleted',
+      result
     });
+  }
+  catch (e) {
+    await dbConnection.end();
 
-  // res.json({
-  //   message: 'Client does not deleted'
-  // });
+    console.log(e);
+    res.json({
+      message: 'Client does not Deleted',
+      error: e
+    });
+  }
 }
 
 // TODO: do assigning fields
 export async function getClient(req: Request, res: Response) {
   const id = +req.params.clientId;
-  const conn = await connect();
-  const clients = await conn.query(getGetByIdQuery(TABLE_NAME, id));
-  res.json(clients.rows[0]);
+
+  const dbConnection = await ClientConnection.create();
+
+  try {
+    const client = await dbConnection.getClient(id);
+
+    await dbConnection.end();
+
+    res.json([client]);
+  }
+  catch (e) {
+    await dbConnection.end();
+
+    console.log(e);
+    res.json([])
+  }
 }

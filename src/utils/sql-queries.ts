@@ -1,4 +1,4 @@
-interface Hash {
+export interface ExpressionHash {
   [key: string]: string[];
 }
 
@@ -17,7 +17,7 @@ export const getDeleteByIdQuery = (tableName: string, id: number) => {
   return getDeleteByAndExpressions(tableName, { id: [`${id}`]});
 }
 
-export const getDeleteByAndExpressions = (tableName: string, object: Hash) => {
+export const getDeleteByAndExpressions = (tableName: string, object: ExpressionHash) => {
   return `DELETE FROM "${tableName}" WHERE (${
     Object.keys(object).map(key => `${key} IN (${object[key].join(',')})`).join(' AND ')
   });`
@@ -40,10 +40,10 @@ export const getUpdateByIdQuery = (tableName: string, id: number, object: any, i
 }
 
 // need type for object
-export const getUpdateByAndExpressionQuery = (tableName: string, object: any, expressionsObject: Hash, isField: boolean = false) => {
+export const getUpdateByAndExpressionQuery = (tableName: string, object: any, expressionsObject: ExpressionHash, isField: boolean = false) => {
   return `UPDATE "${tableName}" SET ${
     Object.keys(object)
-      // Need this filter? 
+      // Need this filter?
       .filter(key => {
         if (isField) {
           return key !== 'id' && key !== 'value';
@@ -70,17 +70,17 @@ export function getInsertOneQuery<P = any> (tableName: string, object: P) {
         }) RETURNING id;`
 }
 
-export const getGetAllByOneColumnExpressionQuery = (tableName: string, expressionsObject: Hash) => {
+export const getGetAllByOneColumnExpressionQuery = (tableName: string, expressionsObject: ExpressionHash) => {
   return getGetAllByExpressionAndQuery(tableName, expressionsObject);
 }
 
-export const getGetAllByExpressionAndQuery = (tableName: string, expressionsObject: Hash) => {
+export const getGetAllByExpressionAndQuery = (tableName: string, expressionsObject: ExpressionHash) => {
   return `SELECT * FROM "${tableName}" WHERE (${
     Object.keys(expressionsObject).map(key => `"${key}" IN (${expressionsObject[key].join(',')})`).join(' AND ')
   });`
 }
 
-export const getGetAllByExpressionOrQuery = (tableName: string, expressionsObject: Hash) => {
+export const getGetAllByExpressionOrQuery = (tableName: string, expressionsObject: ExpressionHash) => {
   return `SELECT * FROM "${tableName}" WHERE (${
     Object.keys(expressionsObject).map(key => `${key} IN (${expressionsObject[key].join(',')})`).join(' OR ')
   });`
