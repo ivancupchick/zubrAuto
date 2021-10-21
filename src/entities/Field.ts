@@ -31,6 +31,12 @@ export namespace ServerField {
       value: string;
       sourceName: string;
     }
+
+    export type UpdateChainExpression = {
+      sourceId: number;
+      fieldId: number;
+      sourceName: string;
+    }
   }
 }
 

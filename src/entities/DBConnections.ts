@@ -85,13 +85,49 @@ abstract class BaseConnection {
     return fields.rows[0].id;
   }
 
-  protected async createEntityChaines<TCreateRequest extends WithFields>(entity: TCreateRequest, converter: (values: RealField.Request) => ServerField.DB.CreateChain) {
+  protected async createEntityChaines<TCreateRequest extends WithFields>(entity: TCreateRequest, fieldsConverter: (values: RealField.Request) => ServerField.DB.CreateChain) {
     const queries = entity.fields.map(f => getInsertOneQuery<ServerField.DB.CreateChain>(
-      Database.FIELD_CHAINS_TABLE_NAME, converter(f)
+      Database.FIELD_CHAINS_TABLE_NAME, fieldsConverter(f)
     ));
     console.log(queries)
 
     const promises = queries.map(q => this.query<any>(q));
+    const result = await Promise.all(promises);
+    return [...result.map(r => r.rows)];
+  }
+
+  protected async updateEntityWithFields<TCreateRequest extends WithFields, TBaseEntity>(
+    entity: TCreateRequest,
+    id: number,
+    entityConverter: (entity: TCreateRequest) => TBaseEntity
+  ) {
+    const queries = [
+      getUpdateByIdQuery(this.BASE_TABLE_NAME, id, entityConverter(entity)),
+      ...entity.fields.map(f => getUpdateByAndExpressionQuery(
+        Database.FIELD_CHAINS_TABLE_NAME, {
+          value: f.value
+        }, {
+          fieldId: [f.id].map(c => `${c}`),
+          sourceId: [id].map(c => `${c}`),
+          sourceName: [`'${this.BASE_TABLE_NAME}'`]
+        }
+      ))
+    ];
+    console.log(queries)
+
+    const promises = queries.map(q => this.query<any>(q));
+    const result = await Promise.all(promises);
+    return [...result.map(r => r.rows)];
+  }
+
+  protected async deleteEntityWithFields(id: number, chaines: Database.FieldChain[]) {
+    const queries = [
+      getDeleteByIdQuery(this.BASE_TABLE_NAME, id),
+      ...chaines.map(ch => getDeleteByIdQuery(Database.FIELD_CHAINS_TABLE_NAME, ch.id))
+    ];
+    console.log(queries)
+
+    const promises = queries.map(q => this.query(q));
     const result = await Promise.all(promises);
     return [...result.map(r => r.rows)];
   }
@@ -141,34 +177,10 @@ export class ClientConnection extends BaseConnection {
   }
 
   async updateClient(updatedClient: ServerClient.CreateRequest, id: number) {
-    const queries = [
-      getUpdateByIdQuery(this.BASE_TABLE_NAME, id, { carIds: updatedClient.carIds }),
-      ...updatedClient.fields.map(f => getUpdateByAndExpressionQuery(
-        Database.FIELDS_TABLE_NAME, {
-          value: f.value
-        }, {
-          fieldId: [f.id].map(c => `${c}`),
-          sourceId: [id].map(c => `${c}`),
-          sourceName: [`${Database.CLIENTS_TABLE_NAME}`]
-        }
-      ))
-    ];
-    console.log(queries)
-
-    const promises = queries.map(q => this.query(q));
-    const result = await Promise.all(promises);
-    return result;
+    return super.updateEntityWithFields<ServerClient.CreateRequest, ServerClient.BaseEntity>(updatedClient, id, () => ({ carIds: updatedClient.carIds }));
   }
 
   async deleteClient(id: number, chaines: Database.FieldChain[]) {
-    const queries = [
-      getDeleteByIdQuery(this.BASE_TABLE_NAME, id),
-      ...chaines.map(ch => getDeleteByIdQuery(Database.FIELD_CHAINS_TABLE_NAME, ch.id))
-    ];
-    console.log(queries)
-
-    const promises = queries.map(q => this.query(q));
-    const result = await Promise.all(promises);
-    return result;
+    return super.deleteEntityWithFields(id, chaines);
   }
 }

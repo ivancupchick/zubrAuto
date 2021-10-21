@@ -1,12 +1,7 @@
 import { Request, Response } from 'express'
-import { connect } from '../database'
 import { ServerClient } from '../entities/Client';
-import { Database } from '../entities/Database';
-import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from '../utils/sql-queries';
 import { getFieldsWithValues } from '../utils/field.utils';
 import { ClientConnection } from '../entities/DBConnections';
-
-const TABLE_NAME = Database.CLIENTS_TABLE_NAME;
 
 // TODO use this, or refactor request
 // type ZAResponce<T> = Response<{
