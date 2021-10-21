@@ -1,8 +1,6 @@
 <za-field-form [domain]="domain" (changed)="setValidForm($event)" [field]="isEdit ? field : null"></za-field-form>
 
-<div class="spinner" *ngIf="loading">
-  <p-progressSpinner></p-progressSpinner>
-</div>
+<za-spinner *ngIf="loading"></za-spinner>
 
 <div class="footer">
   <button pButton icon="pi pi-save" [disabled]="!formValid" type="button" [label]="isEdit ? 'Редактировать' : 'Создать'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button>

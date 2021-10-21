@@ -1,8 +1,6 @@
 <za-dynamic-form (changed)="setValidForm($event)" [fields]="dynamicFormFields"></za-dynamic-form>
 
-<div class="spinner" *ngIf="loading">
-  <p-progressSpinner></p-progressSpinner>
-</div>
+<za-spinner *ngIf="loading"></za-spinner>
 
 <div class="footer">
   <button pButton icon="pi pi-save" [disabled]="!formValid" type="button" [label]="!!client ? 'Редактировать' : 'Создать'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button>

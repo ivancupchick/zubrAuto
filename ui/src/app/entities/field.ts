@@ -30,7 +30,7 @@ export class UIRealField  {
     this.type = options.type;
     this.name = options.name;
     this.domain = options.domain;
-    this.variants = options.variants.split(',').map((v, i) => ({
+    this.variants = !options.variants ? [] : options.variants.split(',').map((v, i) => ({
       key: `${options.name}-${i}`,
       value: v
     }));
