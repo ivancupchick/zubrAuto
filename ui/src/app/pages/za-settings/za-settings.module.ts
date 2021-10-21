@@ -11,7 +11,6 @@ import {DialogModule} from 'primeng/dialog';
 import {DynamicDialogModule} from 'primeng/dynamicdialog';
 import {InputTextModule} from 'primeng/inputtext';
 import {DropdownModule} from 'primeng/dropdown';
-import {ProgressSpinnerModule} from 'primeng/progressspinner';
 import {InputTextareaModule} from 'primeng/inputtextarea';
 import {MessagesModule} from 'primeng/messages';
 import {MessageModule} from 'primeng/message';
@@ -30,6 +29,9 @@ import { CreateClientComponent } from './modals/create-client/create-client.comp
 import { DynamicFormComponent } from './shared/dynamic-form/dynamic-form.component';
 import { FieldService } from 'src/app/services/field/field.service';
 import { PrimitiveFormFieldComponent } from './shared/dynamic-form/dynamic-form-fields/primitive-form-field/primitive-form-field.component';
+import { SettingsCarsComponent } from './settings-cars/settings-cars.component';
+import { CreateCarComponent } from './modals/create-car/create-car.component';
+import { SpinnerModule } from 'src/app/shared/components/spinner/spinner.module';
 
 
 
@@ -58,7 +60,9 @@ const routes: Routes = [{
     GridComponent,
     CreateClientComponent,
     DynamicFormComponent,
-    PrimitiveFormFieldComponent
+    PrimitiveFormFieldComponent,
+    SettingsCarsComponent,
+    CreateCarComponent
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -75,10 +79,10 @@ const routes: Routes = [{
     FormsModule,
     ReactiveFormsModule,
     InputTextareaModule,
-    ProgressSpinnerModule,
     MessagesModule,
     MessageModule,
-    ToastModule
+    ToastModule,
+    SpinnerModule
   ],
   providers: [
     FieldService

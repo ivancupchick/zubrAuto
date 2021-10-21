@@ -2,139 +2,64 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
-import { Car } from 'src/app/entities/car';
+import { FieldService } from '../field/field.service';
+import { ServerCar } from 'src/app/entities/car';
+import { map } from 'rxjs/operators';
+import { Domain, ServerField } from 'src/app/entities/field';
 
-const testCars: Car[] = [{
-  id: 0,
-  createdDate: (new Date()).getDate(),
-  ownerId: 0,
-  fields: [{
-    id: 1,
-    flags: 0,
-    type: 0,
-    name: 'name',
-    domain: 0,
-    variants: '',
-    showUserLevel: 0,
-    value: 'firstCar'
-  }, {
-    id: 1,
-    flags: 0,
-    type: 0,
-    name: 'title',
-    domain: 0,
-    variants: '',
-    showUserLevel: 0,
-    value: 'Audi A4'
-  }, {
-    id: 1,
-    flags: 0,
-    type: 0,
-    name: 'status',
-    domain: 0,
-    variants: '',
-    showUserLevel: 0,
-    value: 'new'
-  }, {
-    id: 1,
-    flags: 0,
-    type: 0,
-    name: 'ownerName',
-    domain: 0,
-    variants: '',
-    showUserLevel: 0,
-    value: 'Анатолий'
-  }, {
-    id: 1,
-    flags: 0,
-    type: 0,
-    name: 'number',
-    domain: 0,
-    variants: '',
-    showUserLevel: 0,
-    value: '+375448652152'
-  }, {
-    id: 1,
-    flags: 0,
-    type: 0,
-    name: 'notes',
-    domain: 0,
-    variants: '',
-    showUserLevel: 0,
-    value: 'Позвонить в среду'
-  }],
-  }, {
-    id: 1,
-    createdDate: (new Date()).getDate(),
-    ownerId: 2,
-    fields: [{
-      id: 1,
-      flags: 0,
-      type: 0,
-      name: 'name',
-      domain: 0,
-      variants: '',
-      showUserLevel: 0,
-      value: 'secondCar'
-    }, {
-      id: 1,
-      flags: 0,
-      type: 0,
-      name: 'title',
-      domain: 0,
-      variants: '',
-      showUserLevel: 0,
-      value: 'BMW X6'
-    }, {
-      id: 1,
-      flags: 0,
-      type: 0,
-      name: 'status',
-      domain: 0,
-      variants: '',
-      showUserLevel: 0,
-      value: 'new'
-    }, {
-      id: 1,
-      flags: 0,
-      type: 0,
-      name: 'ownerName',
-      domain: 0,
-      variants: '',
-      showUserLevel: 0,
-      value: 'василий'
-    }, {
-      id: 1,
-      flags: 0,
-      type: 0,
-      name: 'number',
-      domain: 0,
-      variants: '',
-      showUserLevel: 0,
-      value: '9856321'
-    }, {
-      id: 1,
-      flags: 0,
-      type: 0,
-      name: 'notes',
-      domain: 0,
-      variants: '',
-      showUserLevel: 0,
-      value: 'просмотр 23 числа'
-    }],
-}]
+const API = 'cars';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class CarService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient, private fieldService: FieldService) { }
 
-  getCars(): Observable<Car[]> {
-    // this.httpClient.get(`${environment.serverUrl}/cars`).subscribe(r => {
-    //   console.log(r);
-    // })
-    return of(testCars);
+  getCars(): Observable<ServerCar.GetResponse[]> {
+    return this.httpClient.get<ServerCar.GetResponse[]>(`${environment.serverUrl}/${API}`)
+  }
+
+  createCar(value: ServerCar.CreateRequest): Observable<boolean> {
+    return this.httpClient.post<never>(`${environment.serverUrl}/${API}`, value)
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  // getCar(id: number): Observable<ServerCar.GetResponse> {
+  //   return this.httpClient.get<ServerCar.GetResponse[]>(`${environment.serverUrl}/${API}/${id}`)
+  //     .pipe(map(result => {
+  //       console.log(result);
+
+  //       return result[0];
+  //     }))
+  // }
+
+  updateCar(value: ServerCar.UpdateRequest, id: number): Observable<boolean> {
+    delete (value as any).id;
+    return this.httpClient.put<any>(`${environment.serverUrl}/${API}/${id}`, value)
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  deleteCar(id: number): Observable<boolean> {
+    return this.httpClient.delete<any>(`${environment.serverUrl}/${API}/${id}`)
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  getCarFields() {
+    return this.fieldService.getFieldsByDomain(Domain.Car);
+  }
+
+  getCarOwnersFields() {
+    return this.fieldService.getFieldsByDomain(Domain.CarOwner);
   }
 }

@@ -1,4 +1,4 @@
-import { ResponseCar } from '../../../../src/entities/Car'
+import { ServerCar } from '../../../../src/entities/Car'
 
 // export interface IOwner {
 //   ownerName: string;
@@ -20,7 +20,7 @@ import { ResponseCar } from '../../../../src/entities/Car'
 //   fields: IField[];
 // }
 
-export type Car = ResponseCar;
+export import ServerCar = ServerCar;
 
 // export {
 //   Car

@@ -3,11 +3,6 @@ import { ServerCar, ServerCarOwner } from '../entities/Car';
 import { CarConnection, CarOwnerConnection } from '../entities/DBConnections';
 import { getFieldsWithValues } from '../utils/field.utils';
 
-// TODO: CRUD
-// TODO: replace all sql queries to separate file or place(constants in top of this file)
-// TODO: owner feature (maybe never)
-// TODO: create separate database servicies for all controllers
-
 export async function getCars(req: Request, res: Response): Promise<Response | void> {
   const dbConnection = await CarConnection.create();
   const carOwnerConnection = new CarOwnerConnection(dbConnection.conn); // TODO test this

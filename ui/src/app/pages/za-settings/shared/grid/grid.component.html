@@ -17,6 +17,7 @@
           *ngFor="let actionConfig of actions"
           type="button"
           pButton
+          [disabled]="actionConfig.disabled ? actionConfig.disabled() : false"
           pRipple
           icon="pi pi-{{actionConfig.icon}}"
           class="p-button-{{actionConfig.buttonClass}}"

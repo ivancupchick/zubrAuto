@@ -12,4 +12,12 @@ export namespace FieldNames {
     paymentType = 'payment-type',
     tradeInAuto = 'trade-in-auto'
   }
+
+  export enum Car {
+    status = 'status',
+    // name = 'name',
+    // email = 'email',
+    // paymentType = 'payment-type',
+    // tradeInAuto = 'trade-in-auto'
+  }
 }

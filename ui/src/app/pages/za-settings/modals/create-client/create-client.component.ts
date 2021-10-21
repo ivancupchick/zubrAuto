@@ -45,18 +45,18 @@ export class CreateClientComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    
+
     this.fieldConfigs = this.config.data.fieldConfigs;
 
     const formFields = this.dfcs.getDynamicFieldsFromDBFields(this.fieldConfigs
       .filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
       .map(fc => {
-        const fieldValue = !!this.client 
-          ? this.client.fields.find(f => f.id === fc.id)?.value || '' 
+        const fieldValue = !!this.client
+          ? this.client.fields.find(f => f.id === fc.id)?.value || ''
           : '';
 
         const newField = new UIRealField(
-          fc, 
+          fc,
           fieldValue
         );
 
@@ -84,10 +84,11 @@ export class CreateClientComponent implements OnInit {
 
     const fields = this.dynamicForm.getValue();
 
+    const carIds = fields.find(f => f.name === 'carIds')?.value || '';
     const client: ServerClient.CreateRequest = {
-      carIds: '',
+      carIds,
       fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
-    } 
+    }
 
     const dateField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.date);
 

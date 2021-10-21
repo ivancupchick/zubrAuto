@@ -28,6 +28,7 @@ export class SettingsClientsComponent implements OnInit {
     title: '',
     icon: 'pencil',
     buttonClass: 'secondary',
+    disabled: () => this.fieldConfigs.length === 0,
     handler: (client) => this.updateClient(client)
   }, {
     title: '',
@@ -36,7 +37,7 @@ export class SettingsClientsComponent implements OnInit {
     handler: (client) => this.deleteClient(client)
   }]
 
-  fieldConfigs!: ServerField.Entity[];
+  fieldConfigs: ServerField.Entity[] = [];
 
   readonly strings = settingsClientsStrings;
 
@@ -97,7 +98,7 @@ export class SettingsClientsComponent implements OnInit {
         client,
         fieldConfigs: this.fieldConfigs
       },
-      header: 'Новый клиент',
+      header: 'Редактировать клиента',
       width: '70%'
     });
   }

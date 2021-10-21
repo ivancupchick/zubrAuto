@@ -3,7 +3,7 @@
     <div class="p-toolbar-group-left">
         <span style="color: white">Туллбар</span>
         <!-- <p-dropdown [autoDisplayFirst]="true" [options]="domains" [(ngModel)]="selectedDomain" (onChange)="onChangeDomain($event)" optionLabel="name" optionValue="code"></p-dropdown> -->
-        <button pButton type="button" [disabled]="fieldConfigs.length === 0" label="Добавить клиента" icon="pi pi-plus" (click)="openNewClientWindow()"></button>
+        <button pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
 
         <!-- <i class="pi pi-bars"></i> -->
     </div>
@@ -15,4 +15,4 @@
     </div> -->
 </p-toolbar>
 <p></p>
-<za-grid [gridConfig]="gridConfig" [gridData]="sortedClients" [actions]="gridActionsConfig" ></za-grid>
+<za-grid [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" ></za-grid>

@@ -56,7 +56,7 @@ export class ClientService {
       }))
   }
 
-  getClientFields(): Observable<ServerField.Entity[]> {
+  getClientFields() {
     return this.fieldService.getFieldsByDomain(Domain.Client);
   }
 }

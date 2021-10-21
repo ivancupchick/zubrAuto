@@ -10,6 +10,7 @@ export interface GridActionConfigItem<GridItemType> {
   title?: string;
   icon: string;
   buttonClass: string;
+  disabled?: () => boolean;
   handler: (item: GridItemType) => void; // TODO a
 }
 

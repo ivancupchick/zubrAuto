@@ -17,13 +17,13 @@ export namespace ServerCar {
 
   export type Entity = Database.Car & BaseEntity & WithOwnerId;
 
-  export type CreateRequest = {
+  export type EntityRequest = {
     fields: RealField.Request[];
-  } & BaseEntity & WithOwnerNumber;
+  } & BaseEntity;
 
-  export type UpdateRequest = {
-    fields: RealField.Request[];
-  } & BaseEntity & WithOwnerId;
+  export type CreateRequest = EntityRequest & WithOwnerNumber;
+
+  export type UpdateRequest = EntityRequest & WithOwnerId;
 
   export type GetResponse = {
     fields: RealField.Response[];
