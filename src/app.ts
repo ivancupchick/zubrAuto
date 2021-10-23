@@ -1,43 +1,53 @@
 import express, { Application } from 'express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 // Routes
 import IndexRoutes from './routes/index.routes'
 import CarRoutes from './routes/car.routes'
 import FieldRoutes from './routes/field.routes'
-import CLientRoutes from './routes/client.routes'
+import ClientRoutes from './routes/client.routes'
+import AuthRoutes from './routes/auth.routes'
+import { errorMiddleware } from './middlewares/error.middleware';
+import { setHeaders } from './middlewares/set-headers.middleware';
 
 export class App {
-    app: Application;
+  app: Application;
 
-    constructor(
-        private port?: number | string
-    ) {
-        this.app = express();
-        this.settings();
-        this.middlewares();
-        this.routes();
-    }
+  constructor(
+    private port?: number | string
+  ) {
+    this.app = express();
+    this.settings();
+    this.middlewares(this.routes);
+  }
 
-    private settings() {
-        this.app.set('port', this.port || process.env.PORT || 3000);
-    }
+  private settings() {
+    this.app.set('port', this.port || process.env.PORT || 3000);
+  }
 
-    private middlewares() {
-        this.app.use(express.json());
-        this.app.use(express.static(process.cwd()+"/ui/dist/zubr-auto/"));
+  private middlewares(routesHandler: () => void) {
+    this.app.use(express.json());
+    this.app.use(cookieParser());
+    this.app.use(cors());
+    // this.app.use(setHeaders);
 
-    }
+    routesHandler();
 
-    private routes() {
-        this.app.use(IndexRoutes);
-        this.app.use('/cars', CarRoutes);
-        this.app.use('/fields', FieldRoutes);
-        this.app.use('/clients', CLientRoutes);
-    }
+    this.app.use(errorMiddleware);
+  }
 
-    async listen(): Promise<void> {
-        await this.app.listen(this.app.get('port'));
-        console.log('Server on port', this.app.get('port'));
-    }
+  private routes() {
+    this.app.use(express.static(process.cwd()+"/ui/dist/zubr-auto/"));
+    this.app.use(IndexRoutes);
+    this.app.use('/cars', CarRoutes);
+    this.app.use('/fields', FieldRoutes);
+    this.app.use('/clients', ClientRoutes);
+    this.app.use('/auth', AuthRoutes);
+  }
 
+  async listen(): Promise<void> {
+    await this.app.listen(this.app.get('port'));
+    console.log('Server on port', this.app.get('port'));
+  }
 }
