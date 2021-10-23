@@ -4,8 +4,8 @@ import { CarConnection, CarOwnerConnection } from '../entities/DBConnections';
 import { getFieldsWithValues } from '../utils/field.utils';
 
 export async function getCars(req: Request, res: Response): Promise<Response | void> {
-  const dbConnection = await CarConnection.create();
-  const carOwnerConnection = new CarOwnerConnection(dbConnection.conn); // TODO test this
+  const dbConnection = new CarConnection();
+  const carOwnerConnection = new CarOwnerConnection(); // TODO test this
 
   try {
     const [cars, carFields, carOwners, carOwnerFields] = await Promise.all([
@@ -28,13 +28,9 @@ export async function getCars(req: Request, res: Response): Promise<Response | v
       fields: [...getFieldsWithValues(carFields, carChaines, car.id), ...getFieldsWithValues(carOwnerFields, carOwnerChaines, car.ownerId)]
     }))
 
-    await dbConnection.end();
-
     res.json(result);
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json([])
   }
@@ -43,8 +39,8 @@ export async function getCars(req: Request, res: Response): Promise<Response | v
 export async function createCar(req: Request<any, string, ServerCar.CreateRequest>, res: Response) {
   const newCar: ServerCar.CreateRequest = req.body;
 
-  const dbConnection = await CarConnection.create();
-  const carOwnerConnection = new CarOwnerConnection(dbConnection.conn); // TODO test this
+  const dbConnection = new CarConnection();
+  const carOwnerConnection = new CarOwnerConnection(); // TODO test this
 
   try {
     const carOwnerFieldsConfigs = await carOwnerConnection.getRelatedFields();
@@ -73,16 +69,12 @@ export async function createCar(req: Request<any, string, ServerCar.CreateReques
     const id = await dbConnection.createCar(newBDCar);
     const result = await dbConnection.createCarChaines(newBDCar, id); // TODO! need this?
 
-    await dbConnection.end();
-
     res.json({  // TODO! refactor
       message: 'Car Created',
       result
     });
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json({  // TODO! refactor
       message: 'Car does not Created',
@@ -95,8 +87,8 @@ export async function updateCar(req: Request, res: Response) {
   const id = +req.params.carId;
   const updatedCar: ServerCar.UpdateRequest = req.body;
 
-  const dbConnection = await CarConnection.create();
-  const carOwnerConnection = new CarOwnerConnection(dbConnection.conn); // TODO test this
+  const dbConnection = new CarConnection();
+  const carOwnerConnection = new CarOwnerConnection(); // TODO test this
 
   try {
     const carOwnerFieldsConfigs = await carOwnerConnection.getRelatedFields();
@@ -117,16 +109,12 @@ export async function updateCar(req: Request, res: Response) {
 
     const [result,] = await Promise.all([dbConnection.updateCar(updatedBDCar, id), carOwnerConnection.updateCarOwner(updatedCarOwner, updatedCar.ownerId)]); // TODO! need this?
 
-    await dbConnection.end();
-
     res.json({
       message: 'Car Updated',
       result
     });
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json({
       message: 'Car does not Updated',
@@ -139,13 +127,11 @@ export async function updateCar(req: Request, res: Response) {
 export async function deleteCar(req: Request, res: Response) {
   const id = +req.params.carId;
 
-  const dbConnection = await CarConnection.create();
+  const dbConnection = new CarConnection();
 
   try {
     const chaines = await dbConnection.getCarChaines([id]);
     const result = await dbConnection.deleteCar(id, chaines);
-
-    await dbConnection.end();
 
     res.json({
       message: 'Car Deleted',
@@ -153,8 +139,6 @@ export async function deleteCar(req: Request, res: Response) {
     });
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json({
       message: 'Car does not Deleted',
@@ -166,19 +150,15 @@ export async function deleteCar(req: Request, res: Response) {
 export async function getCar(req: Request, res: Response) { // TODO! works without fields!
   const id = +req.params.carId;
 
-  const dbConnection = await CarConnection.create();
+  const dbConnection = new CarConnection();
 
   try {
     const car = await dbConnection.getCar(id);
     // TODO: do assigning fields
 
-    await dbConnection.end();
-
     res.json([car]);
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json([])
   }

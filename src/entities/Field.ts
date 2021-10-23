@@ -1,4 +1,4 @@
-import { Database } from "./Database";
+import { Models } from "./Models";
 
 export namespace RealField {
   export type Response = ServerField.Entity & RealField.Request;
@@ -20,7 +20,7 @@ export namespace ServerField {
     showUserLevel: number;
   }
 
-  export type Entity = Database.Field & BaseEntity;
+  export type Entity = Models.Field & BaseEntity;
 
   export type CreateRequest = BaseEntity;
 

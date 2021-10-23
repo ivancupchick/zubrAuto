@@ -1,4 +1,4 @@
-import { Database } from "../entities/Database";
+import { Models } from "../entities/Models";
 import { RealField, ServerField } from "../entities/Field";
 
 export enum Flags {
@@ -23,7 +23,7 @@ export class Flag {
   }
 }
 
-export const getFieldsWithValues = (chainedFields: Database.Field[], chaines: Database.FieldChain[], sourceId: number): RealField.Response[] => {
+export const getFieldsWithValues = (chainedFields: Models.Field[], chaines: Models.FieldChain[], sourceId: number): RealField.Response[] => {
   return chainedFields
     .filter(cf => !!chaines
       .filter(ch => ch.sourceId === sourceId)

@@ -1,9 +1,8 @@
-import { Client } from "pg";
-import { connect } from "../database";
+import { db } from "../database";
 import { getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllByOneColumnExpressionQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from "../utils/sql-queries";
 import { ServerCarOwner, ServerCar } from "./Car";
 import { ServerClient } from "./Client";
-import { Database } from "./Database";
+import { Models } from "./Models";
 import { FieldDomains, RealField, ServerField } from "./Field";
 
 interface WithId {
@@ -15,21 +14,11 @@ interface WithFields {
 }
 
 abstract class BaseConnection {
-  // static async create(BASE_TABLE_NAME: string) {
-  //   const pgClient = await connect();
-
-  //   const connection = new BaseConnection(pgClient, BASE_TABLE_NAME);
-  //   return connection;
-  // }
-
-  constructor(protected pgClient: Client, protected BASE_TABLE_NAME: string, protected fieldDomain: FieldDomains) {}
-
-  async end() {
-    await this.pgClient.end()
-  }
+  constructor(protected BASE_TABLE_NAME: string, protected fieldDomain: FieldDomains) {}
 
   protected async query<TRes>(query: string) {
-    return await this.pgClient.query<TRes>(query)
+    
+    return await db.query<TRes>(query)
   }
 
   protected async getEntity<TRes>(id: number) {
@@ -52,7 +41,7 @@ abstract class BaseConnection {
 
   protected async getEntityChaines(sourceIds: number[]) {
     const query = getGetAllByExpressionAndQuery(
-      Database.FIELD_CHAINS_TABLE_NAME, {
+      Models.FIELD_CHAINS_TABLE_NAME, {
         sourceId: sourceIds.map(id => `${id}`),
         sourceName: [`'${this.BASE_TABLE_NAME}'`]
       }
@@ -60,20 +49,20 @@ abstract class BaseConnection {
 
     console.log(query);
 
-    const chaines = await this.query<Database.FieldChain>(query);
+    const chaines = await this.query<Models.FieldChain>(query);
     return chaines.rows;
   }
 
   protected async getRelatedFields() {
     const query = getGetAllByOneColumnExpressionQuery(
-      Database.FIELDS_TABLE_NAME, {
+      Models.FIELDS_TABLE_NAME, {
         domain: [`${this.fieldDomain}`]
       }
     );
 
     console.log(query);
 
-    const fields = await this.query<Database.Field>(query);
+    const fields = await this.query<Models.Field>(query);
     return fields.rows;
   }
 
@@ -88,7 +77,7 @@ abstract class BaseConnection {
 
   protected async createEntityChaines<TCreateRequest extends WithFields>(entity: TCreateRequest, fieldsConverter: (values: RealField.Request) => ServerField.DB.CreateChain) {
     const queries = entity.fields.map(f => getInsertOneQuery<ServerField.DB.CreateChain>(
-      Database.FIELD_CHAINS_TABLE_NAME, fieldsConverter(f)
+      Models.FIELD_CHAINS_TABLE_NAME, fieldsConverter(f)
     ));
     console.log(queries)
 
@@ -105,7 +94,7 @@ abstract class BaseConnection {
     const queries = [
       getUpdateByIdQuery(this.BASE_TABLE_NAME, id, baseEntity),
       ...entity.fields.map(f => getUpdateByAndExpressionQuery(
-        Database.FIELD_CHAINS_TABLE_NAME, {
+        Models.FIELD_CHAINS_TABLE_NAME, {
           value: f.value
         }, {
           fieldId: [f.id].map(c => `${c}`),
@@ -121,10 +110,10 @@ abstract class BaseConnection {
     return [...result.map(r => r.rows)];
   }
 
-  protected async deleteEntityWithFields(id: number, chaines: Database.FieldChain[]) {
+  protected async deleteEntityWithFields(id: number, chaines: Models.FieldChain[]) {
     const queries = [
       getDeleteByIdQuery(this.BASE_TABLE_NAME, id),
-      ...chaines.map(ch => getDeleteByIdQuery(Database.FIELD_CHAINS_TABLE_NAME, ch.id))
+      ...chaines.map(ch => getDeleteByIdQuery(Models.FIELD_CHAINS_TABLE_NAME, ch.id))
     ];
     console.log(queries)
 
@@ -135,23 +124,16 @@ abstract class BaseConnection {
 }
 
 export class ClientConnection extends BaseConnection {
-  static async create() {
-    const pgClient = await connect();
-
-    const connection = new ClientConnection(pgClient);
-    return connection;
-  }
-
-  private constructor(pgClient: Client) {
-    super(pgClient, Database.CLIENTS_TABLE_NAME, FieldDomains.Client);
+  constructor() {
+    super(Models.CLIENTS_TABLE_NAME, FieldDomains.Client);
   }
 
   async getClient(id: number) {
-    return super.getEntity<Database.Client>(id);
+    return super.getEntity<Models.Client>(id);
   }
 
   async getAllClients() {
-    return super.getAllEntities<Database.Client>()
+    return super.getAllEntities<Models.Client>()
   }
 
   async getClientChaines(sourceIds: number[]) {
@@ -163,7 +145,7 @@ export class ClientConnection extends BaseConnection {
   }
 
   async createClient(newClient: ServerClient.CreateRequest): Promise<number> {
-    return super.createEntity<Database.Client, ServerClient.BaseEntity>({ carIds: newClient.carIds || '' })
+    return super.createEntity<Models.Client, ServerClient.BaseEntity>({ carIds: newClient.carIds || '' })
   }
 
   async createClientChaines(newClient: ServerClient.CreateRequest, id: number) {
@@ -181,28 +163,21 @@ export class ClientConnection extends BaseConnection {
     return super.updateEntityWithFields<ServerClient.CreateRequest, ServerClient.BaseEntity>(updatedClient, id, { carIds: updatedClient.carIds });
   }
 
-  async deleteClient(id: number, chaines: Database.FieldChain[]) {
+  async deleteClient(id: number, chaines: Models.FieldChain[]) {
     return super.deleteEntityWithFields(id, chaines);
   }
 }
 
 export class CarOwnerConnection extends BaseConnection {
-  static async create() {
-    const pgClient = await connect();
-
-    const connection = new CarOwnerConnection(pgClient);
-    return connection;
-  }
-
-  constructor(pgClient: Client) {
-    super(pgClient, Database.CAR_OWNERS_TABLE_NAME, FieldDomains.CarOwner);
+  constructor() {
+    super(Models.CAR_OWNERS_TABLE_NAME, FieldDomains.CarOwner);
   }
 
   async getCarOwner(id: number) {
-    return super.getEntity<Database.CarOwner>(id);
+    return super.getEntity<Models.CarOwner>(id);
   }
 
-  async getCarOwnerByNumber(number: string): Promise<Database.CarOwner | null> {
+  async getCarOwnerByNumber(number: string): Promise<Models.CarOwner | null> {
     if (!number) {
       return null;
     }
@@ -211,13 +186,13 @@ export class CarOwnerConnection extends BaseConnection {
 
     console.log(query);
 
-    const clients = await this.query<Database.CarOwner>(query)
+    const clients = await this.query<Models.CarOwner>(query)
     const result = clients.rows[0];
     return result || null;
   }
 
   async getAllCarOwners() {
-    return super.getAllEntities<Database.CarOwner>()
+    return super.getAllEntities<Models.CarOwner>()
   }
 
   async getCarOwnerChaines(sourceIds: number[]) {
@@ -229,7 +204,7 @@ export class CarOwnerConnection extends BaseConnection {
   }
 
   async createCarOwner(newCarOwner: ServerCarOwner.CreateRequest): Promise<number> {
-    return super.createEntity<Database.CarOwner, ServerCarOwner.BaseEntity>({ number: newCarOwner.number || '' })
+    return super.createEntity<Models.CarOwner, ServerCarOwner.BaseEntity>({ number: newCarOwner.number || '' })
   }
 
   async createCarOwnerChaines(newCarOwner: ServerCarOwner.CreateRequest, id: number) {
@@ -247,34 +222,22 @@ export class CarOwnerConnection extends BaseConnection {
     return super.updateEntityWithFields<ServerCarOwner.CreateRequest, ServerCarOwner.BaseEntity>(updatedCarOwner, id, { number: updatedCarOwner.number });
   }
 
-  async deleteCarOwner(id: number, chaines: Database.FieldChain[]) {
+  async deleteCarOwner(id: number, chaines: Models.FieldChain[]) {
     return super.deleteEntityWithFields(id, chaines);
   }
 }
 
 export class CarConnection extends BaseConnection {
-  static async create() {
-    const pgClient = await connect();
-
-    const connection = new CarConnection(pgClient);
-
-    return connection;
-  }
-
-  get conn() {
-    return this.pgClient;
-  }
-
-  private constructor(pgClient: Client) {
-    super(pgClient, Database.CARS_TABLE_NAME, FieldDomains.Car);
+  constructor() {
+    super(Models.CARS_TABLE_NAME, FieldDomains.Car);
   }
 
   async getCar(id: number) {
-    return super.getEntity<Database.Car>(id);
+    return super.getEntity<Models.Car>(id);
   }
 
   async getAllCars() {
-    return super.getAllEntities<Database.Car>()
+    return super.getAllEntities<Models.Car>()
   }
 
   async getCarChaines(sourceIds: number[]) {
@@ -286,7 +249,7 @@ export class CarConnection extends BaseConnection {
   }
 
   async createCar(newCar: ServerCar.UpdateRequest): Promise<number> {
-    return super.createEntity<Database.Car, (ServerCar.BaseEntity & ServerCar.WithOwnerId)>({ createdDate: newCar.createdDate || '', ownerId: newCar.ownerId })
+    return super.createEntity<Models.Car, (ServerCar.BaseEntity & ServerCar.WithOwnerId)>({ createdDate: newCar.createdDate || '', ownerId: newCar.ownerId })
   }
 
   async createCarChaines(newCar: ServerCar.UpdateRequest, id: number) {
@@ -304,7 +267,7 @@ export class CarConnection extends BaseConnection {
     return super.updateEntityWithFields<ServerCar.UpdateRequest, (ServerCar.BaseEntity & ServerCar.WithOwnerId)>(updatedCar, id, { createdDate: updatedCar.createdDate || '', ownerId: updatedCar.ownerId });
   }
 
-  async deleteCar(id: number, chaines: Database.FieldChain[]) {
+  async deleteCar(id: number, chaines: Models.FieldChain[]) {
     return super.deleteEntityWithFields(id, chaines);
   }
 }

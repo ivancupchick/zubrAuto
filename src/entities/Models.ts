@@ -1,4 +1,4 @@
-export namespace Database {
+export namespace Models {
 
   export const CARS_TABLE_NAME = 'public.cars';
   export interface Car {
@@ -25,11 +25,22 @@ export namespace Database {
     carIds: string;
   }
 
-  // export const USERS_TABLE_NAME = 'users';
-  // export interface User {
-  //   id: number;
-  //   roleLevel: number;
-  // }
+  export const USERS_TABLE_NAME = 'users';
+  export interface User {
+    id: number;
+    email: string; // uniq, required
+    password: string; // required
+    isActivated: boolean; // default = false
+    activationLink?: string;
+    roleLevel: number;
+  }
+
+  export const USER_TOKENS_TABLE_NAME = 'userTokens';
+  export interface UserToken {
+    id: number;
+    userId: number; // link to User.id
+    refreshToken: string; // required
+  }
 
   // export const FILE_CHAINS_TABLE_NAME = 'filesIds';
   // export interface FileChain {

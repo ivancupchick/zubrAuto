@@ -10,7 +10,7 @@ import { ClientConnection } from '../entities/DBConnections';
 // }>;
 
 export async function getClients(req: Request, res: Response): Promise<Response | void> {
-  const dbConnection = await ClientConnection.create();
+  const dbConnection = new ClientConnection();
 
   try {
     const [clients, fields] = await Promise.all([dbConnection.getAllClients(), dbConnection.getRelatedFields()]);
@@ -22,13 +22,9 @@ export async function getClients(req: Request, res: Response): Promise<Response 
       fields: getFieldsWithValues(fields, chaines, client.id)
     }))
 
-    await dbConnection.end();
-
     res.json(result);
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json([])
   }
@@ -37,13 +33,11 @@ export async function getClients(req: Request, res: Response): Promise<Response 
 export async function createClient(req: Request<any, string, ServerClient.CreateRequest>, res: Response) {
   const newClient: ServerClient.CreateRequest = req.body;
 
-  const dbConnection = await ClientConnection.create();
+  const dbConnection = new ClientConnection();
 
   try {
     const id = await dbConnection.createClient(newClient);
     const result = await dbConnection.createClientChaines(newClient, id);
-
-    await dbConnection.end();
 
     res.json({  // TODO! refactor
       message: 'Client Created',
@@ -51,8 +45,6 @@ export async function createClient(req: Request<any, string, ServerClient.Create
     });
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json({  // TODO! refactor
       message: 'Client does not Created',
@@ -65,12 +57,10 @@ export async function updateClient(req: Request, res: Response) {
   const id = +req.params.clientId;
   const updateClient: ServerClient.CreateRequest = req.body;
 
-  const dbConnection = await ClientConnection.create();
+  const dbConnection = new ClientConnection();
 
   try {
     const result = await dbConnection.updateClient(updateClient, id);
-
-    await dbConnection.end();
 
     res.json({
       message: 'Client Updated',
@@ -78,8 +68,6 @@ export async function updateClient(req: Request, res: Response) {
     });
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json({
       message: 'Client does not Updated',
@@ -92,13 +80,11 @@ export async function updateClient(req: Request, res: Response) {
 export async function deleteClient(req: Request, res: Response) {
   const id = +req.params.clientId;
 
-  const dbConnection = await ClientConnection.create();
+  const dbConnection = new ClientConnection();
 
   try {
     const chaines = await dbConnection.getClientChaines([id]);
     const result = await dbConnection.deleteClient(id, chaines);
-
-    await dbConnection.end();
 
     res.json({
       message: 'Client Deleted',
@@ -106,8 +92,6 @@ export async function deleteClient(req: Request, res: Response) {
     });
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json({
       message: 'Client does not Deleted',
@@ -119,19 +103,15 @@ export async function deleteClient(req: Request, res: Response) {
 export async function getClient(req: Request, res: Response) { // TODO! works without fields!
   const id = +req.params.clientId;
 
-  const dbConnection = await ClientConnection.create();
+  const dbConnection = new ClientConnection();
 
   try {
     const client = await dbConnection.getClient(id);
     // TODO: do assigning fields
 
-    await dbConnection.end();
-
     res.json([client]);
   }
   catch (e) {
-    await dbConnection.end();
-
     console.log(e);
     res.json([])
   }

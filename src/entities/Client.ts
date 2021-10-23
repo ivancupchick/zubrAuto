@@ -1,4 +1,4 @@
-import { Database } from "./Database";
+import { Models } from "./Models";
 import { RealField } from "./Field";
 
 export namespace ServerClient {
@@ -6,7 +6,7 @@ export namespace ServerClient {
     carIds: string;
   }
 
-  export type Entity = Database.Client & BaseEntity;
+  export type Entity = Models.Client & BaseEntity;
 
   export type CreateRequest = {
     fields: RealField.Request[];
