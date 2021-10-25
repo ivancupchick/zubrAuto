@@ -2,7 +2,8 @@ import { Models } from "./Models";
 import { RealField } from "./Field";
 
 export namespace ServerUser {
-  export class Payload {
+  // TODO! replace to ServerAuth
+  export class Payload implements IPayload{
     public id: number;
     public email: string;
     public isActivated: boolean;
@@ -15,6 +16,20 @@ export namespace ServerUser {
       this.roleLevel = options.roleLevel;
     }
   }
+
+  export interface IPayload {
+    id: number;
+    email: string;
+    isActivated: boolean;
+    roleLevel: number;
+  }
+
+  export interface AuthGetResponse {
+    user: IPayload,
+    accessToken: string, 
+    refreshToken: string
+  }
+  // end
 
   export type BaseEntity = {
     email: string; // uniq, required

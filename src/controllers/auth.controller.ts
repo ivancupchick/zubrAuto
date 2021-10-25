@@ -1,15 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { ServerUser } from '../entities/User';
 import authService from '../services/auth.service';
-// import { UserConnection } from '../entities/DBConnections';
 import { validationResult } from 'express-validator';
 import { ApiError } from '../exceptions/api.error';
-
-// TODO use this, or refactor request
-// type ZAResponce<T> = Response<{
-//   error?: any,
-//   result: T
-// }>;
 
 class AuthConntroller {
   async registration(req: Request, res: Response, next: NextFunction) {
@@ -30,7 +23,7 @@ class AuthConntroller {
     }
   }
 
-  async login(req: Request, res: Response, next: NextFunction) { // TODO! works without fields!
+  async login(req: Request, res: Response, next: NextFunction) {
     try {
       const {email, password} = req.body;
       const userData = await authService.login(email, password);
@@ -42,18 +35,18 @@ class AuthConntroller {
     }
   }
 
-  async logout(req: Request, res: Response, next: NextFunction) { // TODO! works without fields!
+  async logout(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
       const token = await authService.logout(refreshToken);
       res.clearCookie('refreshToken');
-      return res.json(token);
+      return res.json(true);
     } catch (e) {
       next(e);
     }
   }
 
-  async activate(req: Request, res: Response, next: NextFunction) { // TODO! works without fields!
+  async activate(req: Request, res: Response, next: NextFunction) {
     try {
       const activationLink = req.params.link;
       await authService.activate(activationLink);
@@ -63,7 +56,7 @@ class AuthConntroller {
     }
   }
 
-  async refresh(req: Request, res: Response, next: NextFunction) { // TODO! works without fields!
+  async refresh(req: Request, res: Response, next: NextFunction) {
     try {
       const { refreshToken } = req.cookies;
       const userData = await authService.refresh(refreshToken);
@@ -108,7 +101,7 @@ class AuthConntroller {
     }
   }
 
-  async getUser(req: Request, res: Response, next: NextFunction) { // TODO! works without fields!
+  async getUser(req: Request, res: Response, next: NextFunction) {
     try {
 
     } catch (e) {

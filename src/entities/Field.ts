@@ -43,7 +43,8 @@ export namespace ServerField {
 export enum FieldDomains {
   'Car',
   'CarOwner',
-  'Client'
+  'Client',
+  'User'
 }
 
 export enum FieldType {

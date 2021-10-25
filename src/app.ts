@@ -29,7 +29,10 @@ export class App {
   private middlewares(routesHandler: () => void) {
     this.app.use(express.json());
     this.app.use(cookieParser());
-    this.app.use(cors());
+    this.app.use(cors({
+      credentials: true,
+      origin: 'localhost:3080' // delete in dev and nice to have if client and server have dirent adreses
+    }));
     // this.app.use(setHeaders);
 
     routesHandler();

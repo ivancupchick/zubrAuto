@@ -16,7 +16,7 @@ router.route('/login').post(userController.login)
 router.route('/logout').post(userController.logout)
 router.route('/activate/:link').get(userController.activate)
 router.route('/refresh').get(userController.refresh)
-router.route('/users').get(authMiddleware, userController.getUsers)
+router.route('/users').get(authMiddleware, userController.getUsers) // replace to users.routers
 
 // router.route('/crud/')
 //     .get((req, res) => modifyRequest(req, res, getFields))
