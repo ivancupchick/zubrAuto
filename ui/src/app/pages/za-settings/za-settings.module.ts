@@ -15,6 +15,9 @@ import {InputTextareaModule} from 'primeng/inputtextarea';
 import {MessagesModule} from 'primeng/messages';
 import {MessageModule} from 'primeng/message';
 import {ToastModule} from 'primeng/toast';
+import {AvatarModule} from 'primeng/avatar';
+import {AvatarGroupModule} from 'primeng/avatargroup';
+import {ChipModule} from 'primeng/chip';
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
 import { SettingsFieldsComponent } from './settings-fields/settings-fields.component';
@@ -26,23 +29,35 @@ import { FieldFormComponent } from './shared/fields/field-form/field-form.compon
 import { SettingsClientsComponent } from './settings-clients/settings-clients.component';
 import { GridComponent } from './shared/grid/grid.component';
 import { CreateClientComponent } from './modals/create-client/create-client.component';
-import { DynamicFormComponent } from './shared/dynamic-form/dynamic-form.component';
 import { FieldService } from 'src/app/services/field/field.service';
-import { PrimitiveFormFieldComponent } from './shared/dynamic-form/dynamic-form-fields/primitive-form-field/primitive-form-field.component';
 import { SettingsCarsComponent } from './settings-cars/settings-cars.component';
 import { CreateCarComponent } from './modals/create-car/create-car.component';
 import { SpinnerModule } from 'src/app/shared/components/spinner/spinner.module';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from 'src/app/interceptors/auth.interceptor';
+import { AuthGuard } from './auth.guard';
+import { SessionService } from 'src/app/services/session/session.service';
+import { SettingsResolver } from './settings.resolver';
+import { AuthService } from 'src/app/services/auth/auth.service';
+import { ModalsAuthModule } from 'src/app/pages/za-settings/modals/modals-auth/modals-auth.module';
+import { DynamicFormModule } from './shared/dynamic-form/dynamic-form.module';
+import { RequestService } from 'src/app/services/request/request.service';
 
 
 
 const routes: Routes = [{
   path: '',
   component: ZASettingsComponent,
+  resolve: {
+    user: SettingsResolver
+  },
   children: [{
       path: 'fields',
+      canActivate: [AuthGuard],
       component: SettingsFieldsComponent
     }, {
       path: 'clients',
+      canActivate: [AuthGuard],
       component: SettingsClientsComponent
     }
   ]
@@ -59,8 +74,6 @@ const routes: Routes = [{
     SettingsClientsComponent,
     GridComponent,
     CreateClientComponent,
-    DynamicFormComponent,
-    PrimitiveFormFieldComponent,
     SettingsCarsComponent,
     CreateCarComponent
   ],
@@ -82,10 +95,26 @@ const routes: Routes = [{
     MessagesModule,
     MessageModule,
     ToastModule,
-    SpinnerModule
+    SpinnerModule,
+    HttpClientModule,
+    AvatarModule,
+    AvatarGroupModule,
+    ChipModule,
+    ModalsAuthModule,
+    DynamicFormModule
   ],
   providers: [
-    FieldService
+    AuthService,
+    AuthGuard,
+    SettingsResolver,
+    SessionService,
+    FieldService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    RequestService
   ]
 })
 export class ZASettingsModule { }

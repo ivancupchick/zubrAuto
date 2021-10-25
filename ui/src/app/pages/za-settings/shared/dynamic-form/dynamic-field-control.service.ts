@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { of } from 'rxjs';
+import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { UIRealField } from 'src/app/entities/field';
 import { DynamicFieldBase, DynamicFieldOptions } from './dynamic-fields/dynamic-field-base';
-import { DropdownDynamicField } from './dynamic-fields/dynamic-field-dropdown';
-import { TextboxDynamicField } from './dynamic-fields/dynamic-field-textbox';
 
 
 @Injectable()
@@ -15,9 +12,12 @@ export class DynamicFieldControlService {
     const group: any = {};
 
     fields.forEach(field => {
-      group[field.key] = field.required
-        ? new FormControl(field.value || '', Validators.required)
-        : new FormControl(field.value || '');
+      const validators: ValidatorFn[] = [...field.validators];
+      if (field.required) {
+        validators.push(Validators.required);
+      }
+
+      group[field.key] = new FormControl(field.value || '', [...validators]);
 
       // TODO replace to other place
       if (field.readonly) {

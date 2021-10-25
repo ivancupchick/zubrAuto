@@ -18,29 +18,30 @@ export class App {
     private port?: number | string
   ) {
     this.app = express();
+    // console.log(this.app);
     this.settings();
     this.middlewares(this.routes);
   }
 
   private settings() {
-    this.app.set('port', this.port || process.env.PORT || 3000);
+    this.app.set('port', this.port || process.env.PORT || 3080);
   }
 
   private middlewares(routesHandler: () => void) {
     this.app.use(express.json());
     this.app.use(cookieParser());
-    this.app.use(cors({
-      credentials: true,
-      origin: 'localhost:3080' // delete in dev and nice to have if client and server have dirent adreses
-    }));
-    // this.app.use(setHeaders);
+    // this.app.use(cors({
+    //   credentials: true,
+    //   origin: 'localhost:4200' // delete in dev and nice to have if client and server have dirent adreses
+    // }));
+    this.app.use(setHeaders);
 
     routesHandler();
 
     this.app.use(errorMiddleware);
   }
 
-  private routes() {
+  private routes = () => {
     this.app.use(express.static(process.cwd()+"/ui/dist/zubr-auto/"));
     this.app.use(IndexRoutes);
     this.app.use('/cars', CarRoutes);

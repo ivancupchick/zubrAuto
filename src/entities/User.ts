@@ -26,7 +26,7 @@ export namespace ServerUser {
 
   export interface AuthGetResponse {
     user: IPayload,
-    accessToken: string, 
+    accessToken: string,
     refreshToken: string
   }
   // end
@@ -51,7 +51,7 @@ export namespace ServerUser {
 }
 
 export enum SystemRole {
-  // Reader = 100,
+  None = 0,
   // Editor = 200,
   SuperAdmin = 1000
 }

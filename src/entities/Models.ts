@@ -25,7 +25,7 @@ export namespace Models {
     carIds: string;
   }
 
-  export const USERS_TABLE_NAME = 'users';
+  export const USERS_TABLE_NAME = 'public.users';
   export interface User {
     id: number;
     email: string; // uniq, required
@@ -35,7 +35,7 @@ export namespace Models {
     roleLevel: number;
   }
 
-  export const USER_TOKENS_TABLE_NAME = 'userTokens';
+  export const USER_TOKENS_TABLE_NAME = 'public.userTokens';
   export interface UserToken {
     id: number;
     userId: number; // link to User.id

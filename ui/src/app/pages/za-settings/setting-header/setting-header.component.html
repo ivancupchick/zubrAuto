@@ -1,1 +1,28 @@
-<p-menubar [model]="items"></p-menubar>
+<p-menubar [model]="items">
+  <ng-template pTemplate="end">
+
+    <!-- <p-avatar image="assets/showcase/images/demo/avatar/asiyajavayant.png" styleClass="p-mr-2" size="large" shape="circle"></p-avatar> -->
+    <!-- image="assets/showcase/images/demo/avatar/amyelsner.png" -->
+    <p-chip *ngIf="!!user" [label]="user.email"  styleClass="p-mr-2"></p-chip>
+
+    <button
+      *ngIf="!!user"
+      pButton
+      icon="pi pi-avatar"
+      type="button"
+      [label]="'Выйти'"
+      (click)="logOut()"
+      class="p-mr-2 p-mb-2 p-button-rounded p-button-sm"
+    ></button>
+
+    <button
+      *ngIf="!user"
+      pButton
+      type="button"
+      [label]="'Войти'"
+      (click)="login()"
+      class="p-mr-2 p-mb-2 p-button-rounded p-button-sm"
+    ></button>
+    <!-- <button pButton icon="pi pi-avatar" type="button" [label]="'Зарегистрироваться'" (click)="signUp()" class="p-mr-2 p-mb-2"></button> -->
+  </ng-template>
+</p-menubar>

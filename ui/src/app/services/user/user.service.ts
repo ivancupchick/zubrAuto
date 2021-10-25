@@ -1,25 +1,25 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ServerClient } from 'src/app/entities/client';
-import { Domain, ServerField } from 'src/app/entities/field';
+import { Domain } from 'src/app/entities/field';
+import { ServerUser } from 'src/app/entities/user';
 import { environment } from 'src/environments/environment';
 import { FieldService } from '../field/field.service';
 import { RequestService } from '../request/request.service';
 
-const API = 'clients';
-// const ITEM_ID_NAME = 'clientId'
+const API = 'users';
 
 @Injectable()
-export class ClientService {
+export class UserService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
-  getClients(): Observable<ServerClient.GetResponse[]> {
-    return this.requestService.get<ServerClient.GetResponse[]>(`${environment.serverUrl}/${API}`)
+  getUsers(): Observable<ServerUser.GetResponse[]> {
+    return this.requestService.get<ServerUser.GetResponse[]>(`${environment.serverUrl}/${API}`)
   }
 
-  createClient(value: ServerClient.CreateRequest): Observable<boolean> {
+  createUser(value: ServerUser.CreateRequest): Observable<boolean> {
     return this.requestService.post<never>(`${environment.serverUrl}/${API}`, value)
       .pipe(map(result => {
         console.log(result);
@@ -28,8 +28,8 @@ export class ClientService {
       }))
   }
 
-  getClient(id: number): Observable<ServerClient.GetResponse> {
-    return this.requestService.get<ServerClient.GetResponse[]>(`${environment.serverUrl}/${API}/${id}`)
+  getUser(id: number): Observable<ServerUser.GetResponse> {
+    return this.requestService.get<ServerUser.GetResponse[]>(`${environment.serverUrl}/${API}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
@@ -37,7 +37,7 @@ export class ClientService {
       }))
   }
 
-  updateClient(value: ServerClient.Entity | ServerClient.CreateRequest, id: number): Observable<boolean> {
+  updateUser(value: ServerUser.Entity | ServerUser.CreateRequest, id: number): Observable<boolean> {
     delete (value as any).id;
     return this.requestService.put<any>(`${environment.serverUrl}/${API}/${id}`, value)
       .pipe(map(result => {
@@ -47,7 +47,7 @@ export class ClientService {
       }))
   }
 
-  deleteClient(id: number): Observable<boolean> {
+  deleteUser(id: number): Observable<boolean> {
     return this.requestService.delete<any>(`${environment.serverUrl}/${API}/${id}`)
       .pipe(map(result => {
         console.log(result);
@@ -56,7 +56,7 @@ export class ClientService {
       }))
   }
 
-  getClientFields() {
-    return this.fieldService.getFieldsByDomain(Domain.Client);
+  getUserFields() {
+    return this.fieldService.getFieldsByDomain(Domain.User);
   }
 }

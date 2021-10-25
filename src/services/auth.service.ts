@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import uuid from 'uuid';
+import { v4 } from 'uuid';
 import mailService from './mail.service';
 import tokenService from './token.service';
 import { Models } from '../entities/Models';
@@ -15,17 +15,17 @@ class AuthService {
     }
 
     const hashPassword = await bcrypt.hash(password, 3)
-    const activationLink = uuid.v4();
-    const user: Models.User = await userRepository.create({ 
+    const activationLink = v4();
+    const user: Models.User = await userRepository.create({
       id: 0, // will be deleted in DAO
-      email, 
+      email,
       isActivated: false,
-      password: hashPassword, 
+      password: hashPassword,
       activationLink,
-      roleLevel: SystemRole.SuperAdmin,
+      roleLevel: SystemRole.None,
     });
 
-    await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink);
+    await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink); // need test
     const userPayload = new ServerUser.Payload(user);
 
     const tokens = tokenService.generateTokens({...userPayload});

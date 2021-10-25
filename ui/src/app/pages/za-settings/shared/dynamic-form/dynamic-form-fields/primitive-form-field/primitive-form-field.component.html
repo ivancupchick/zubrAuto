@@ -1,23 +1,23 @@
 <div [formGroup]="form" class="p-field p-col-12 p-md-12">
   <ng-container [ngSwitch]="field.controlType">
     <span class="p-float-label">
-      <input 
+      <input
         *ngSwitchCase="FieldType.Text"
-        pInputText 
+        pInputText
         [id]="field.key"
         [formControlName]="field.key"
-        type="text" 
+        [type]="field.type || 'text'"
         autocomplete="nope"
-      /> 
+      />
 
       <!-- need test -->
-      <p-dropdown 
+      <p-dropdown
         *ngSwitchCase="FieldType.Dropdown"
-        [inputId]="field.key" 
-        [autoDisplayFirst]="false" 
+        [inputId]="field.key"
+        [autoDisplayFirst]="false"
         [formControlName]="field.key"
-        [options]="field.variants" 
-        optionLabel="value" 
+        [options]="field.variants"
+        optionLabel="value"
         optionValue="value"
       ></p-dropdown>
 

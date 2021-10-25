@@ -1,3 +1,4 @@
+import { ValidatorFn } from "@angular/forms";
 import { FieldType, UIVariant } from "src/app/entities/field";
 
 export interface DynamicFieldOptions<T> {
@@ -6,6 +7,7 @@ export interface DynamicFieldOptions<T> {
   key?: string;
   label?: string;
   required?: boolean;
+  validators?: ValidatorFn[];
   readonly?: boolean;
   order?: number;
   controlType?: FieldType;
@@ -19,6 +21,7 @@ export class DynamicFieldBase<T> {
   key: string;
   label: string;
   required: boolean;
+  validators: ValidatorFn[];
   readonly: boolean;
   order: number;
   controlType: FieldType;
@@ -31,6 +34,7 @@ export class DynamicFieldBase<T> {
     this.key = options.key || '';
     this.label = options.label || '';
     this.required = !!options.required;
+    this.validators = options.validators || [];
     this.readonly = !!options.readonly;
     this.order = options.order === undefined ? 1 : options.order;
     this.controlType = options.controlType || FieldType.Text;
