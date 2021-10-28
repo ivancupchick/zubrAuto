@@ -1,5 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   entry: './build/index.js',
@@ -11,5 +12,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './build'),
     filename: 'index.bundle.js'
-  }
+  },
+  externals: [nodeExternals()]
 };

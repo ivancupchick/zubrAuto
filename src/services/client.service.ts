@@ -19,7 +19,7 @@ class ClientService {
 
     const chaines = await fieldChainRepository.find({
       sourceId: clients.map(c => `${c.id}`),
-      sourceName: [`'${Models.CLIENTS_TABLE_NAME}'`]
+      sourceName: [`${Models.CLIENTS_TABLE_NAME}`]
     });
 
     const result: ServerClient.GetResponse[] = clients.map(client => ({

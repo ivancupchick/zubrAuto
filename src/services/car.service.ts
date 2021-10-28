@@ -64,7 +64,7 @@ class CarService {
     const [ownerFields, carFields] = await this.getCarAndOwnerCarFields(carData);
 
     const existCarOwner = await carOwnerRepository.findOne({ number: [`${carData.ownerNumber}`]});
-    console.log(existCarOwner);
+
     const ownerId = !existCarOwner
       ? (await carOwnerRepository.create({ id: 0, number: carData.ownerNumber })).id
       : existCarOwner.id;

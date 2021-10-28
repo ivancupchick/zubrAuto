@@ -12,7 +12,7 @@ class FieldConntroller {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const fields = fieldService.getAllFields();
+      const fields = await fieldService.getAllFields();
 
       return res.json(fields);
     } catch (e) {
@@ -28,7 +28,7 @@ class FieldConntroller {
       }
 
       const newField: ServerField.BaseEntity = req.body;
-      const field = fieldService.createField(newField);
+      const field = await fieldService.createField(newField);
 
       return res.json(field);
     } catch (e) {
@@ -44,7 +44,7 @@ class FieldConntroller {
       }
 
       const id = +req.params.fieldId;
-      const field = fieldService.getField(id);
+      const field = await fieldService.getField(id);
 
       return res.json(field);
     } catch (e) {
@@ -60,7 +60,7 @@ class FieldConntroller {
       }
 
       const id = +req.params.fieldId;
-      const field = fieldService.deleteField(id);
+      const field = await fieldService.deleteField(id);
 
       return res.json(field);
     } catch (e) {
@@ -77,7 +77,7 @@ class FieldConntroller {
 
       const id = +req.params.fieldId;
       const updatedField: ServerField.Entity = req.body;
-      const field = fieldService.updateField(id, updatedField);
+      const field = await fieldService.updateField(id, updatedField);
 
       return res.json(field);
     } catch (e) {
@@ -94,7 +94,7 @@ class FieldConntroller {
 
       const domain: FieldDomains = +req.params.domain;
 
-      const fields = fieldService.getFieldsByDomain(domain);
+      const fields = await fieldService.getFieldsByDomain(domain);
 
       return res.json(fields);
     } catch (e) {

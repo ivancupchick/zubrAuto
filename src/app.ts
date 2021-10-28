@@ -18,7 +18,6 @@ export class App {
     private port?: number | string
   ) {
     this.app = express();
-    // console.log(this.app);
     this.settings();
     this.middlewares(this.routes);
   }
@@ -42,7 +41,7 @@ export class App {
   }
 
   private routes = () => {
-    this.app.use(express.static(process.cwd()+"/ui/dist/zubr-auto/"));
+    this.app.use(express.static(process.cwd()+"/build/ui/zubr-auto/"));
     this.app.use(IndexRoutes);
     this.app.use('/cars', CarRoutes);
     this.app.use('/fields', FieldRoutes);

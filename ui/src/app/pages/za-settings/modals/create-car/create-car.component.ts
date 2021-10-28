@@ -31,11 +31,16 @@ export class CreateCarComponent implements OnInit {
   carOwnerDynamicFormFields: DynamicFieldBase<string>[] = [];
 
 
-  @ViewChild(DynamicFormComponent) dynamicForm!: DynamicFormComponent;
+  @ViewChild(DynamicFormComponent) carDynamicForm!: DynamicFormComponent;
 
-  excludeFields: FieldNames.Car[] = [
+  carExcludeFields: FieldNames.Car[] = [
     // FieldNames.Car.date,
     'ownerNumber' as FieldNames.Car
+  ];
+
+  carOwnerExcludeFields: FieldNames.CarOwner[] = [
+    FieldNames.CarOwner.name,
+    'ownerNumber' as FieldNames.CarOwner
   ];
 
   constructor(
@@ -53,7 +58,7 @@ export class CreateCarComponent implements OnInit {
     this.carFieldConfigs = this.config.data.carFieldConfigs;
 
     const carOwnerFormFields = this.dfcs.getDynamicFieldsFromDBFields(this.carOwnerFieldConfigs
-      .filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Car))
+      .filter(fc => !this.carOwnerExcludeFields.includes(fc.name as FieldNames.CarOwner))
       .map(fc => {
         const fieldValue = !!this.car
           ? this.car.fields.find(f => f.id === fc.id)?.value || ''
@@ -69,7 +74,7 @@ export class CreateCarComponent implements OnInit {
         .map(fc => this.updateFieldConfig(fc));
 
     const carFormFields = this.dfcs.getDynamicFieldsFromDBFields(this.carFieldConfigs
-      .filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Car))
+      .filter(fc => !this.carExcludeFields.includes(fc.name as FieldNames.Car))
       .map(fc => {
         const fieldValue = !!this.car
           ? this.car.fields.find(f => f.id === fc.id)?.value || ''
@@ -84,15 +89,15 @@ export class CreateCarComponent implements OnInit {
       }))
         .map(fc => this.updateFieldConfig(fc));
 
-    // carOwnerFormFields.push(this.dfcs.getDynamicFieldFromOptions({
-    //   id: -1,
-    //   value: this.car?.ownerNumber || '',
-    //   key: 'ownerNumber',
-    //   label: settingsCarsStrings.ownerNumber,
-    //   order: 1,
-    //   controlType: FieldType.Text,
-    //   readonly: true
-    // }))
+    carOwnerFormFields.push(this.dfcs.getDynamicFieldFromOptions({
+      id: -1,
+      value: this.car?.ownerNumber || '',
+      key: 'ownerNumber',
+      label: settingsCarsStrings.ownerNumber,
+      order: 1,
+      controlType: FieldType.Text,
+      readonly: true
+    }))
 
     this.carOwnerDynamicFormFields = carOwnerFormFields;
     this.carDynamicFormFields = carFormFields;
@@ -101,26 +106,32 @@ export class CreateCarComponent implements OnInit {
   create() {
     this.loading = true;
 
-    console.log(this.dynamicForm.getValue());
+    const carFields = this.carDynamicForm.getValue();
+    const carOwnerFields = this.carDynamicForm.getValue(); // this.carOwnerDynamicForm.getValue(); TODO!
 
-    const fields = this.dynamicForm.getValue();
+    const ownerNumber = carOwnerFields.find(f => f.name === 'ownerNumber')?.value || '';
+
+    const fields = [
+      ...carFields.filter(fc => !this.carExcludeFields.includes(fc.name as FieldNames.Car)),
+      ...carOwnerFields.filter(fc => !this.carOwnerExcludeFields.includes(fc.name as FieldNames.CarOwner))
+    ];
 
     const car: ServerCar.EntityRequest = this.car != undefined
       ? {
         createdDate: this.car.createdDate,
-        fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Car))
+        fields
       }
       : {
         createdDate: (new Date()).getDate().toString(),
-        fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Car))
+        fields
       }
 
-    const ownerNumber = fields.find(f => f.name === 'ownerNumber')?.value || '';
     const methodObs = this.car != undefined
       ? this.carService.updateCar({
           createdDate: car.createdDate,
           fields: car.fields,
-          ownerId: this.car.ownerId
+          ownerId: this.car.ownerId,
+          ownerNumber
         }, this.car.id)
       : this.carService.createCar({
           createdDate: car.createdDate,

@@ -12,7 +12,7 @@ class UserController {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const users = userService.getAllUsers();
+      const users = await userService.getAllUsers();
 
       return res.json(users);
     } catch (e) {
@@ -28,7 +28,7 @@ class UserController {
       }
 
       const id = +req.params.userId;
-      const user = userService.getUser(id);
+      const user = await userService.getUser(id);
 
       return res.json(user);
     } catch (e) {
@@ -44,7 +44,7 @@ class UserController {
       }
 
       const newUser: ServerUser.CreateRequest = req.body;
-      const user = userService.createUser(newUser);
+      const user = await userService.createUser(newUser);
 
       return res.json(user);
     } catch (e) {
@@ -61,7 +61,7 @@ class UserController {
 
       const id = +req.params.userId;
       const updatedUser: ServerUser.CreateRequest = req.body;
-      const user = userService.updateUser(id, updatedUser);
+      const user = await userService.updateUser(id, updatedUser);
 
       return res.json(user);
     } catch (e) {
@@ -77,7 +77,7 @@ class UserController {
       }
 
       const id = +req.params.userId;
-      const user = userService.deleteUser(id);
+      const user = await userService.deleteUser(id);
 
       return res.json(user);
     } catch (e) {
