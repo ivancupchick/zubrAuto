@@ -2,6 +2,12 @@ import { Models } from '../entities/Models';
 import { FieldDomains, FieldType, ServerField } from '../entities/Field';
 import { ApiError } from '../exceptions/api.error';
 import fieldRepository from '../repositories/base/field.repository';
+import carRepository from '../repositories/base/car.repository';
+import userRepository from '../repositories/base/user.repository';
+import carOwnerRepository from '../repositories/base/car-owner.repository';
+import clientRepository from '../repositories/base/client.repository';
+import fieldChainService from './field-chain.service';
+import fieldChainRepository from '../repositories/base/field-chain.repository';
 
 class FieldService {
   async getAllFields() {
@@ -25,6 +31,35 @@ class FieldService {
       showUserLevel: fieldData.showUserLevel
     });
 
+    let tableName = '';
+    let entities: { id: number }[] = [];
+    switch (field.domain) {
+      case FieldDomains.Car:
+        tableName = Models.CARS_TABLE_NAME
+        entities = await carRepository.getAll();
+        break;
+      case FieldDomains.User:
+        tableName = Models.USERS_TABLE_NAME
+        entities = await userRepository.getAll();
+        break;
+      case FieldDomains.CarOwner:
+        tableName = Models.CAR_OWNERS_TABLE_NAME
+        entities = await carOwnerRepository.getAll();
+        break;
+      case FieldDomains.Client:
+        tableName = Models.CLIENTS_TABLE_NAME
+        entities = await clientRepository.getAll();
+        break;
+    }
+
+    await Promise.all(entities.map(entity => fieldChainService.createFieldChain({
+      id: 0,
+      sourceId: entity.id,
+      fieldId: field.id,
+      value: '',
+      sourceName: tableName
+    })))
+
     return field;
   }
 
@@ -35,6 +70,34 @@ class FieldService {
 
   async deleteField(id: number) {
     const field = await fieldRepository.deleteById(id);
+
+    let tableName = '';
+    let entities: { id: number }[] = [];
+    switch (field.domain) {
+      case FieldDomains.Car:
+        tableName = Models.CARS_TABLE_NAME
+        entities = await carRepository.getAll();
+        break;
+      case FieldDomains.User:
+        tableName = Models.USERS_TABLE_NAME
+        entities = await userRepository.getAll();
+        break;
+      case FieldDomains.CarOwner:
+        tableName = Models.CAR_OWNERS_TABLE_NAME
+        entities = await carOwnerRepository.getAll();
+        break;
+      case FieldDomains.Client:
+        tableName = Models.CLIENTS_TABLE_NAME
+        entities = await clientRepository.getAll();
+        break;
+    }
+
+    await Promise.all(entities.map(entity => fieldChainRepository.deleteOne({
+      sourceId: [`${entity.id}`],
+      fieldId: [`${field.id}`],
+      sourceName: [`${tableName}`]
+    })))
+
     return field
   }
 
