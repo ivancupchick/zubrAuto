@@ -24,7 +24,7 @@ class UserService {
 
     const chaines = await fieldChainRepository.find({
       sourceId: users.map(c => `${c.id}`),
-      sourceName: [`'${Models.USERS_TABLE_NAME}'`]
+      sourceName: [`${Models.USERS_TABLE_NAME}`]
     });
 
     const result: ServerUser.GetResponse[] = users.map(user => ({
@@ -109,7 +109,7 @@ class UserService {
     const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.Client);
     const chaines = await fieldChainRepository.find({
       sourceId: [`${id}`],
-      sourceName: [`'${Models.USERS_TABLE_NAME}'`]
+      sourceName: [`${Models.USERS_TABLE_NAME}`]
     });
 
     const result: ServerUser.GetResponse = {

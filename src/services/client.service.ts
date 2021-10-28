@@ -80,7 +80,7 @@ class ClientService {
     const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.Client);
     const chaines = await fieldChainRepository.find({
       sourceId: [`${id}`],
-      sourceName: [`'${Models.CLIENTS_TABLE_NAME}'`]
+      sourceName: [`${Models.CLIENTS_TABLE_NAME}`]
     });
 
     const result: ServerClient.GetResponse = {

@@ -29,11 +29,11 @@ class CarService {
     ] = await Promise.all([
       await fieldChainRepository.find({
         sourceId: cars.map(c => `${c.id}`),
-        sourceName: [`'${Models.CARS_TABLE_NAME}'`]
+        sourceName: [`${Models.CARS_TABLE_NAME}`]
       }),
       await fieldChainRepository.find({
         sourceId: carOwners.map(c => `${c.id}`),
-        sourceName: [`'${Models.CAR_OWNERS_TABLE_NAME}'`]
+        sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`]
       })
     ]);
 
@@ -176,11 +176,11 @@ class CarService {
     ] = await Promise.all([
       await fieldChainRepository.find({
         sourceId: [`${car.id}`],
-        sourceName: [`'${Models.CARS_TABLE_NAME}'`]
+        sourceName: [`${Models.CARS_TABLE_NAME}`]
       }),
       await fieldChainRepository.find({
         sourceId: [`${carOwner.id}`],
-        sourceName: [`'${Models.CAR_OWNERS_TABLE_NAME}'`]
+        sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`]
       })
     ]);
 

@@ -1,11 +1,20 @@
 import { Router } from 'express'
+import { body } from 'express-validator';
 import fieldConntroller from '../controllers/field.controller'
 
 const router = Router();
 
 router.route('/crud/')
     .get(fieldConntroller.getAllFields)
-    .post(fieldConntroller.createField);
+    .post(
+      body('name').isLength({ min: 3, max: 32 }),
+      body('name').matches(/^[a-z][a-z-]{1,20}[a-z]$/),
+      body('flags').isNumeric(),
+      body('domain').isNumeric(),
+      body('variants').isString(),
+      body('showUserLevel').isNumeric(),
+      fieldConntroller.createField
+    );
 
 router.route('/crud/:fieldId')
     .get(fieldConntroller.getField)

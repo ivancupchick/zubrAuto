@@ -10,6 +10,7 @@ router.route('/registration')
   .post(
     body('email').isEmail(),
     body('password').isLength({ min: 3, max: 32 }),
+    body('password').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/),
     authController.registration,
   )
 router.route('/login').post(authController.login)

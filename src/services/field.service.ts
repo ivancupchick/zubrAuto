@@ -17,7 +17,7 @@ class FieldService {
 
   async createField(fieldData: ServerField.CreateRequest) {
     const existField = await fieldRepository.findOne({ name: [fieldData.name], domain: [`${fieldData.domain}`] })
-    if (existField || !fieldData.name || !fieldData.domain) {
+    if (existField) {
       throw ApiError.BadRequest(`Field ${fieldData.name} exists`);
     }
 
@@ -25,7 +25,7 @@ class FieldService {
       id: 0, // will be deleted in DAO
       flags: fieldData.flags || 0,
       type: fieldData.type || FieldType.Text,
-      name: fieldData.name,
+      name: fieldData.name.toLowerCase(),
       domain: fieldData.domain,
       variants: fieldData.variants,
       showUserLevel: fieldData.showUserLevel

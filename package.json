@@ -4,9 +4,10 @@
   "description": "node server",
   "main": "build/index.bundle.js",
   "scripts": {
-    "start": "rm -rf build && cd ui && npm run build && cd .. && tsc && node ./build/index.js",
-    "build": "rm -rf build && cd ui && npm run build --prod && cd .. && tsc && webpack",
+    "start": "rimraf build && cd ui && npm run build && cd .. && tsc && node ./build/index.js",
+    "build": "rimraf build && cd ui && npm run build --prod && cd .. && tsc && webpack",
     "dev": "rimraf build && tsc && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\" \"cd ui && ng build --watch\"",
+    "dev-server": "rimraf build && tsc && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

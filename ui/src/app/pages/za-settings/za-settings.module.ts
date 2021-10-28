@@ -59,6 +59,14 @@ const routes: Routes = [{
       path: 'clients',
       canActivate: [AuthGuard],
       component: SettingsClientsComponent
+    }, {
+      path: 'cars',
+      canActivate: [AuthGuard],
+      component: SettingsCarsComponent
+    }, {
+      path: 'users',
+      canActivate: [AuthGuard],
+      component: SettingsFieldsComponent // SettingsCarsComponent
     }
   ]
 }]

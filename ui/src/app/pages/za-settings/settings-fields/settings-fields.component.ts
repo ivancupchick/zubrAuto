@@ -4,11 +4,16 @@ import { FieldService } from 'src/app/services/field/field.service';
 
 import {DialogService} from 'primeng/dynamicdialog';
 import { CreateFieldComponent } from '../modals/create-field/create-field.component';
+import { tap } from 'rxjs/operators';
+import { settingsClientsStrings } from '../settings-clients/settings-clients.strings';
+import { settingsCarsStrings } from '../settings-cars/settings-cars.strings';
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 export interface GridField {
   name: string;
   type: string;
   id: string;
+  title: string;
 }
 
 @Component({
@@ -21,10 +26,13 @@ export interface GridField {
   ]
 })
 export class SettingsFieldsComponent implements OnInit {
+  loading = false;
+
   domains = [
     {name: 'Машины', code: Domain.Car},
     {name: 'Владелец машины', code: Domain.CarOwner},
     {name: 'Клиент', code: Domain.Client},
+    {name: 'Пользователь', code: Domain.User},
   ];
 
   selectedDomain = Domain.Car;
@@ -36,11 +44,17 @@ export class SettingsFieldsComponent implements OnInit {
   constructor(private fieldService: FieldService, private dialogService: DialogService) { }
 
   ngOnInit(): void {
-    this.fieldService.getFields().subscribe(res => {
-      this.rawFields = [...res];
+    this.getFields().subscribe();
+  }
 
-      this.sortFields();
-    })
+  getFields() {
+    return this.fieldService.getFields().pipe(
+        tap((res => {
+          this.rawFields = [...res];
+
+          this.sortFields();
+        }))
+      )
   }
 
   openNewField() {
@@ -50,11 +64,25 @@ export class SettingsFieldsComponent implements OnInit {
       },
       header: 'Создание филда',
       width: '70%'
+    }).onClose.subscribe((res: boolean) => {
+      if (res) {
+        this.loading = true;
+        this.getFields().subscribe(() => {
+          this.loading = false;
+        });
+      }
     });
   }
 
   deleteField(field: RealField.Response) {
     this.fieldService.deleteField(field.id).subscribe(res => {
+      if (res) {
+        this.loading = true;
+        this.getFields().subscribe(() => {
+          this.loading = false;
+        });
+      }
+
       if (res) {
         alert('Удаление прошло успешно');
       } else {
@@ -73,7 +101,14 @@ export class SettingsFieldsComponent implements OnInit {
       },
       header: 'Редактирование филда',
       width: '70%'
-    });
+    }).onClose.subscribe((res: boolean) => {
+      if (res) {
+        this.loading = true;
+        this.getFields().subscribe(() => {
+          this.loading = false;
+        });
+      }
+    });;
   }
 
   onChangeDomain(v: any) {
@@ -85,11 +120,32 @@ export class SettingsFieldsComponent implements OnInit {
     this.sortedFields = this.rawFields.filter(f => f.domain === this.selectedDomain).map(this.getGridFields);
   }
 
-  getGridFields(field: ServerField.Entity): GridField {
+  getGridFields: ((field: ServerField.Entity) => GridField) = (field: ServerField.Entity) => {
+    let title = field.name;
+
+    switch (this.selectedDomain) {
+      case Domain.Client:
+        title = settingsClientsStrings[field.name] || field.name;
+
+        switch (field.name) {
+          case FieldNames.Client.paymentType:
+            title = settingsClientsStrings.paymentType;
+            break;
+          case FieldNames.Client.tradeInAuto:
+            title = settingsClientsStrings.tradeInAuto;
+            break;
+        }
+        break;
+      case Domain.Car:
+        title = settingsCarsStrings[field.name] || field.name;
+        break;
+    }
+
     return {
-        name: field.name,
-        type: String(field.type),
-        id: String(field.id),
+      name: field.name,
+      type: String(field.type),
+      id: String(field.id),
+      title
     };
   }
 }
