@@ -1,118 +1,89 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { ServerClient } from '../entities/Client';
-import { getFieldsWithValues } from '../utils/field.utils';
-import { ClientConnection } from '../entities/DBConnections';
+import { validationResult } from 'express-validator';
+import { ApiError } from '../exceptions/api.error';
+import clientService from '../services/client.service';
 
-// TODO use this, or refactor request
-// type ZAResponce<T> = Response<{
-//   error?: any,
-//   result: T
-// }>;
+class ClientConntroller {
+  async getAllClient(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
+      }
 
-export async function getClients(req: Request, res: Response): Promise<Response | void> {
-  const dbConnection = new ClientConnection();
+      const clients = clientService.getAllClients();
 
-  try {
-    const [clients, fields] = await Promise.all([dbConnection.getAllClients(), dbConnection.getRelatedFields()]);
-    const chaines = await dbConnection.getClientChaines(clients.map(c => c.id));
-
-    const result: ServerClient.GetResponse[] = clients.map(client => ({
-      id: client.id,
-      carIds: client.carIds,
-      fields: getFieldsWithValues(fields, chaines, client.id)
-    }))
-
-    res.json(result);
-  }
-  catch (e) {
-    console.log(e);
-    res.json([])
-  }
-}
-
-export async function createClient(req: Request<any, string, ServerClient.CreateRequest>, res: Response) {
-  const newClient: ServerClient.CreateRequest = req.body;
-
-  const dbConnection = new ClientConnection();
-
-  try {
-    const id = await dbConnection.createClient(newClient);
-    const result = await dbConnection.createClientChaines(newClient, id);
-
-    res.json({  // TODO! refactor
-      message: 'Client Created',
-      result
-    });
-  }
-  catch (e) {
-    console.log(e);
-    res.json({  // TODO! refactor
-      message: 'Client does not Created',
-      error: e
-    });
-  }
-}
-
-export async function updateClient(req: Request, res: Response) {
-  const id = +req.params.clientId;
-  const updateClient: ServerClient.CreateRequest = req.body;
-
-  const dbConnection = new ClientConnection();
-
-  try {
-    const result = await dbConnection.updateClient(updateClient, id);
-
-    res.json({
-      message: 'Client Updated',
-      result
-    });
-  }
-  catch (e) {
-    console.log(e);
-    res.json({
-      message: 'Client does not Updated',
-      error: e
-    });
+      return res.json(clients);
+    } catch (e) {
+      next(e);
+    }
   }
 
-}
+  async getClient(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
+      }
 
-export async function deleteClient(req: Request, res: Response) {
-  const id = +req.params.clientId;
+      const id = +req.params.clientId;
+      const client = clientService.getClient(id);
 
-  const dbConnection = new ClientConnection();
-
-  try {
-    const chaines = await dbConnection.getClientChaines([id]);
-    const result = await dbConnection.deleteClient(id, chaines);
-
-    res.json({
-      message: 'Client Deleted',
-      result
-    });
+      return res.json(client);
+    } catch (e) {
+      next(e);
+    }
   }
-  catch (e) {
-    console.log(e);
-    res.json({
-      message: 'Client does not Deleted',
-      error: e
-    });
+
+  async createClient(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
+      }
+
+      const newClient: ServerClient.CreateRequest = req.body;
+      const client = clientService.createClient(newClient);
+
+      return res.json(client);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateClient(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
+      }
+
+      const id = +req.params.clientId;
+      const updatedClient: ServerClient.CreateRequest = req.body;
+      const client = clientService.updateClient(id, updatedClient);
+
+      return res.json(client);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async deleteClient(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
+      }
+
+      const id = +req.params.clientId;
+      const client = clientService.deleteClient(id);
+
+      return res.json(client);
+    } catch (e) {
+      next(e);
+    }
   }
 }
 
-export async function getClient(req: Request, res: Response) { // TODO! works without fields!
-  const id = +req.params.clientId;
-
-  const dbConnection = new ClientConnection();
-
-  try {
-    const client = await dbConnection.getClient(id);
-    // TODO: do assigning fields
-
-    res.json([client]);
-  }
-  catch (e) {
-    console.log(e);
-    res.json([])
-  }
-}
+export = new ClientConntroller();

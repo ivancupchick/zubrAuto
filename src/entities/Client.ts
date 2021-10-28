@@ -8,11 +8,7 @@ export namespace ServerClient {
 
   export type Entity = Models.Client & BaseEntity;
 
-  export type CreateRequest = {
-    fields: RealField.Request[];
-  } & BaseEntity;
+  export type CreateRequest = RealField.With.Request & BaseEntity;
 
-  export type GetResponse = {
-    fields: RealField.Response[];
-  } & Entity;
+  export type GetResponse = RealField.With.Response & Entity;
 }

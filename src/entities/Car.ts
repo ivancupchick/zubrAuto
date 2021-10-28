@@ -17,18 +17,13 @@ export namespace ServerCar {
 
   export type Entity = Models.Car & BaseEntity & WithOwnerId;
 
-  export type EntityRequest = {
-    fields: RealField.Request[];
-  } & BaseEntity;
+  export type EntityRequest = RealField.With.Request & BaseEntity;
 
   export type CreateRequest = EntityRequest & WithOwnerNumber;
 
-  export type UpdateRequest = EntityRequest & WithOwnerId;
+  export type UpdateRequest = EntityRequest & WithOwnerId & WithOwnerNumber;
 
-  export type GetResponse = {
-    fields: RealField.Response[];
-    ownerNumber: string;
-  } & Entity;
+  export type GetResponse = Entity & RealField.With.Response & WithOwnerId & WithOwnerNumber;
 }
 
 export namespace ServerCarOwner {
@@ -38,11 +33,7 @@ export namespace ServerCarOwner {
 
   export type Entity = Models.CarOwner & BaseEntity;
 
-  export type CreateRequest = {
-    fields: RealField.Request[];
-  } & BaseEntity;
+  export type CreateRequest = RealField.With.Request & BaseEntity;
 
-  export type GetResponse = {
-    fields: RealField.Response[];
-  } & Entity;
+  export type GetResponse = RealField.With.Response & Entity;
 }

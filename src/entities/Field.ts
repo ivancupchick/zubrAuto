@@ -8,6 +8,16 @@ export namespace RealField {
     name?: string;
     value: string;
   }
+
+  export namespace With {
+    export type Response = {
+      fields: RealField.Response[];
+    }
+
+    export type Request = {
+      fields: RealField.Request[];
+    }
+  }
 }
 
 export namespace ServerField {
@@ -17,7 +27,7 @@ export namespace ServerField {
     name: string;
     domain: FieldDomains;
     variants: string;
-    showUserLevel: number;
+    showUserLevel: number; // maybe not need
   }
 
   export type Entity = Models.Field & BaseEntity;

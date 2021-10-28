@@ -16,6 +16,8 @@ class MailService {
   }
 
   async sendActivationMail(to: string, link) {
+    throw new Error("Not implemented");
+
     await this.transporter.sendMail({
       from: process.env.SMTP_USER,
       to: to,
@@ -27,7 +29,7 @@ class MailService {
           <a href="${link}">${link}</a>
         </div>
       `
-    })
+    });
   }
 }
 

@@ -35,19 +35,14 @@ export namespace ServerUser {
     email: string; // uniq, required
     password: string; // required
     isActivated: boolean; // default = false
-    activationLink?: string;
-    roleLevel: number
+    roleLevel?: number
   }
 
   export type Entity = Models.User & BaseEntity;
 
-  export type CreateRequest = {
-    fields: RealField.Request[];
-  } & BaseEntity;
+  export type CreateRequest = RealField.With.Request & BaseEntity;
 
-  export type GetResponse = {
-    fields: RealField.Response[];
-  } & Entity;
+  export type GetResponse = RealField.With.Response & Entity;
 }
 
 export enum SystemRole {

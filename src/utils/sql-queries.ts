@@ -31,17 +31,14 @@ export const getDeleteByAndExpressions = (tableName: string, expressions: Expres
 export const getUpdateByIdQuery = <T>(tableName: string, id: number, entity: T, isField: boolean = false) => {
   const entityHash: StringHash = {};
 
-  Object.keys(entity).forEach(key => entityHash[key] = `${entity[key]}`);
+  Object.keys(entity)
+    .filter(key => isField
+      ? key !== 'id' && key !== 'value'
+      : key !== 'id')
+    .forEach(key => entityHash[key] = `${entity[key]}`);
 
   return `UPDATE "${tableName}" SET ${
     Object.keys(entityHash)
-      .filter(key => {
-        if (isField) {
-          return key !== 'id' && key !== 'value';
-        }
-
-        return key !== 'id';
-      })
       .map((key) => `"${key}" = '${entityHash[key]}'`)
       .join(',')
     } WHERE id = ${id} RETURNING *;`
@@ -52,14 +49,14 @@ export const getUpdateByAndExpressionQuery = <T>(tableName: string, entity: T, e
   // TODO add Object.keys(entity).reduce
   const entityHash: StringHash = {};
 
-  Object.keys(entity).forEach(key => entityHash[key] = `${entity[key]}`);
+  Object.keys(entity)
+    .filter(key => isField
+      ? key !== 'id' && key !== 'value'
+      : key !== 'id')
+    .forEach(key => entityHash[key] = `${entity[key]}`);
 
   return `UPDATE "${tableName}" SET ${
     Object.keys(entityHash)
-      // Need this filter?
-      .filter(key => isField
-        ? key !== 'id' && key !== 'value'
-        : key !== 'id')
       .map((key) => `"${key}" = '${entityHash[key]}'`)
       .join(',')
     } WHERE (${
@@ -71,7 +68,9 @@ export function getInsertOneQuery<T> (tableName: string, entity: T) {
   // TODO add Object.keys(entity).reduce
   const entityHash: StringHash = {};
 
-  Object.keys(entity).forEach(key => entityHash[key] = `${entity[key]}`);
+  Object.keys(entity)
+    .filter(key => key !== 'id')
+    .forEach(key => entityHash[key] = `${entity[key]}`);
 
   const keys: string[] = Object.keys(entityHash)
     .map(key => `"${key}"`);

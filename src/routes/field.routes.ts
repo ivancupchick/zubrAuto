@@ -1,18 +1,18 @@
 import { Router } from 'express'
-import { getFields, createField, getField, deleteField, updateField, getFieldsByDomain } from '../controllers/field.controller'
+import fieldConntroller from '../controllers/field.controller'
 
 const router = Router();
 
 router.route('/crud/')
-    .get(getFields)
-    .post(createField);
+    .get(fieldConntroller.getAllFields)
+    .post(fieldConntroller.createField);
 
 router.route('/crud/:fieldId')
-    .get(getField)
-    .delete(deleteField)
-    .put(updateField);
+    .get(fieldConntroller.getField)
+    .delete(fieldConntroller.deleteField)
+    .put(fieldConntroller.updateField);
 
 router.route('/getFieldsByDomain/:domain')
-    .get(getFieldsByDomain)
+    .get(fieldConntroller.getFieldsByDomain)
 
 export default router;

@@ -1,15 +1,15 @@
 import { Router } from 'express'
-import { getCars, createCar, getCar, deleteCar, updateCar } from '../controllers/car.controller'
+import carController from '../controllers/car.controller';
 
 const router = Router();
 
 router.route('/')
-    .get(getCars)
-    .post(createCar);
+    .get(carController.getAllCars)
+    .post(carController.createCar);
 
 router.route('/:carId')
-    // .get(getCar)
-    .delete(deleteCar)
-    .put(updateCar);
+    .get(carController.getCar)
+    .delete(carController.deleteCar)
+    .put(carController.updateCar);
 
 export default router;

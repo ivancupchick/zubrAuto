@@ -1,88 +1,89 @@
 import { NextFunction, Request, Response } from 'express'
 import { validationResult } from 'express-validator';
-import { ServerCar } from '../entities/Car';
+import { ServerUser } from '../entities/User';
 import { ApiError } from '../exceptions/api.error';
-import carService from '../services/car.service';
+import userService from '../services/user.service';
 
-class CarController {
-  async getAllCars(req: Request, res: Response, next: NextFunction) {
+class UserController {
+  async getAllUsers(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const cars = carService.getAllCars();
+      const users = userService.getAllUsers();
 
-      return res.json(cars);
+      return res.json(users);
     } catch (e) {
       next(e);
     }
   }
 
-  async createCar(req: Request, res: Response, next: NextFunction) {
+  async getUser(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const newCar: ServerCar.CreateRequest = req.body;
-      const car = carService.createCar(newCar);
-      return res.json(car);
+      const id = +req.params.userId;
+      const user = userService.getUser(id);
+
+      return res.json(user);
     } catch (e) {
       next(e);
     }
   }
 
-  async getCar(req: Request, res: Response, next: NextFunction) {
+  async createUser(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const id = +req.params.carId;
-      const car = carService.getCar(id);
+      const newUser: ServerUser.CreateRequest = req.body;
+      const user = userService.createUser(newUser);
 
-      return res.json(car);
+      return res.json(user);
     } catch (e) {
       next(e);
     }
   }
 
-  async deleteCar(req: Request, res: Response, next: NextFunction) {
+  async updateUser(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const id = +req.params.carId;
-      const car = carService.deleteCar(id);
+      const id = +req.params.userId;
+      const updatedUser: ServerUser.CreateRequest = req.body;
+      const user = userService.updateUser(id, updatedUser);
 
-      return res.json(car);
+      return res.json(user);
     } catch (e) {
       next(e);
     }
   }
 
-  async updateCar(req: Request, res: Response, next: NextFunction) {
+  async deleteUser(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const id = +req.params.carId;
-      const updatedCar: ServerCar.UpdateRequest = req.body;
-      const car = carService.updateCar(id, updatedCar);
+      const id = +req.params.userId;
+      const user = userService.deleteUser(id);
 
-      return res.json(car);
+      return res.json(user);
     } catch (e) {
       next(e);
     }
   }
 }
 
-export = new CarController();
+export = new UserController();

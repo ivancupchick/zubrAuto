@@ -67,47 +67,6 @@ class AuthConntroller {
       next(e);
     }
   }
-
-  async getUsers(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-    try {
-      const users = await authService.getAllUsers()
-      return res.json(users);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async createUser(req: Request<any, string, ServerUser.CreateRequest>, res: Response, next: NextFunction) {
-    try {
-
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async updateUser(req: Request, res: Response, next: NextFunction) {
-    try {
-
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async deleteUser(req: Request, res: Response, next: NextFunction) {
-    try {
-
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async getUser(req: Request, res: Response, next: NextFunction) {
-    try {
-
-    } catch (e) {
-      next(e);
-    }
-  }
 }
 
 export = new AuthConntroller();

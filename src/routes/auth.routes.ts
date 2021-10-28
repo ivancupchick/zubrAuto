@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import userController from '../controllers/auth.controller';
+import authController from '../controllers/auth.controller';
 import { body } from 'express-validator';
 import { authMiddleware } from '../middlewares/auth.middleware';
 
@@ -10,13 +10,13 @@ router.route('/registration')
   .post(
     body('email').isEmail(),
     body('password').isLength({ min: 3, max: 32 }),
-    userController.registration,
+    authController.registration,
   )
-router.route('/login').post(userController.login)
-router.route('/logout').post(userController.logout)
-router.route('/activate/:link').get(userController.activate)
-router.route('/refresh').get(userController.refresh)
-router.route('/users').get(authMiddleware, userController.getUsers) // replace to users.routers
+router.route('/login').post(authController.login)
+router.route('/logout').post(authController.logout)
+router.route('/activate/:link').get(authController.activate)
+router.route('/refresh').get(authController.refresh)
+router.route('/users').get(authMiddleware, authController.getUsers) // replace to users.routers
 
 // router.route('/crud/')
 //     .get((req, res) => modifyRequest(req, res, getFields))
