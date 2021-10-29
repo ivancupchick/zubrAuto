@@ -1,12 +1,18 @@
 import { NextFunction, Request, Response } from 'express'
+import { validationResult } from 'express-validator';
 import { ServerRole } from '../entities/Role';
+import { ApiError } from '../exceptions/api.error';
 import roleService from '../services/role.service';
 import { BaseController } from './base.conroller';
 
-class RoleController extends BaseController {
+class RoleController {
   async getAllRoles(req: Request, res: Response, next: NextFunction) {
     try {
-      this.checkValidation(req);
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
 
       const roles = await roleService.getAllRoles();
 
@@ -18,7 +24,11 @@ class RoleController extends BaseController {
 
   async createRole(req: Request, res: Response, next: NextFunction) {
     try {
-      this.checkValidation(req);
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
 
       const newRole: ServerRole.CreateRequest = req.body;
       const role = await roleService.createRole(newRole);
@@ -30,7 +40,11 @@ class RoleController extends BaseController {
 
   async getRole(req: Request, res: Response, next: NextFunction) {
     try {
-      this.checkValidation(req);
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
 
       const id = +req.params.roleId;
       const role = await roleService.getRole(id);
@@ -43,7 +57,11 @@ class RoleController extends BaseController {
 
   async deleteRole(req: Request, res: Response, next: NextFunction) {
     try {
-      this.checkValidation(req);
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
 
       const id = +req.params.roleId;
       const role = await roleService.deleteRole(id);
@@ -56,7 +74,11 @@ class RoleController extends BaseController {
 
   async updateRole(req: Request, res: Response, next: NextFunction) {
     try {
-      this.checkValidation(req);
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
 
       const id = +req.params.roleId;
       const updatedRole: ServerRole.UpdateRequest = req.body;

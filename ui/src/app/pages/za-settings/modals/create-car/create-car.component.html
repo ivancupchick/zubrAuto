@@ -1,5 +1,7 @@
-<za-dynamic-form (changed)="setValidForm($event, 'carOwnerFormValid')" [fields]="carOwnerDynamicFormFields"></za-dynamic-form>
-<za-dynamic-form (changed)="setValidForm($event, 'carFormValid')" [fields]="carDynamicFormFields"></za-dynamic-form>
+<h1>Форма владельца машины</h1>
+<za-dynamic-form #carOwnerForm (changed)="setValidForm($event, 'carOwnerFormValid')" [fields]="carOwnerDynamicFormFields"></za-dynamic-form>
+<h1>Форма машины</h1>
+<za-dynamic-form #carForm (changed)="setValidForm($event, 'carFormValid')" [fields]="carDynamicFormFields"></za-dynamic-form>
 
 <za-spinner *ngIf="loading"></za-spinner>
 

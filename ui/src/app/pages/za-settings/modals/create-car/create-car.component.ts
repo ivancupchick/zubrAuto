@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerCar } from 'src/app/entities/car';
 import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
@@ -31,7 +31,8 @@ export class CreateCarComponent implements OnInit {
   carOwnerDynamicFormFields: DynamicFieldBase<string>[] = [];
 
 
-  @ViewChild(DynamicFormComponent) carDynamicForm!: DynamicFormComponent;
+  @ViewChild('carForm', { read: DynamicFormComponent }) carDynamicForm!: DynamicFormComponent;
+  @ViewChild('carOwnerForm', { read: DynamicFormComponent }) carOwnerDynamicForm!: DynamicFormComponent;
 
   carExcludeFields: FieldNames.Car[] = [
     // FieldNames.Car.date,
@@ -39,7 +40,6 @@ export class CreateCarComponent implements OnInit {
   ];
 
   carOwnerExcludeFields: FieldNames.CarOwner[] = [
-    FieldNames.CarOwner.name,
     'ownerNumber' as FieldNames.CarOwner
   ];
 
@@ -95,8 +95,7 @@ export class CreateCarComponent implements OnInit {
       key: 'ownerNumber',
       label: settingsCarsStrings.ownerNumber,
       order: 1,
-      controlType: FieldType.Text,
-      readonly: true
+      controlType: FieldType.Text
     }))
 
     this.carOwnerDynamicFormFields = carOwnerFormFields;
@@ -107,7 +106,7 @@ export class CreateCarComponent implements OnInit {
     this.loading = true;
 
     const carFields = this.carDynamicForm.getValue();
-    const carOwnerFields = this.carDynamicForm.getValue(); // this.carOwnerDynamicForm.getValue(); TODO!
+    const carOwnerFields = this.carOwnerDynamicForm.getValue();
 
     const ownerNumber = carOwnerFields.find(f => f.name === 'ownerNumber')?.value || '';
 

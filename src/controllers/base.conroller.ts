@@ -11,13 +11,9 @@ import { ApiError } from "../exceptions/api.error";
 // }
 
 export class BaseController<TGetResponse = any, TCreateRequest = any, TCreateResponse = any, TUpdateRequest = any, TUpdateResponse = any, TDeleteResponse = any> {
-  protected checkValidation(req: Request) {
-    const errors = validationResult(req);
+  // public checkValidation(req: Request) {
 
-    if (!errors.isEmpty()) {
-      throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-    }
-  }
+  // }
 
   // constructor(private crudService: CrudService<TGetResponse, TCreateRequest, TCreateResponse, TUpdateRequest, TUpdateResponse, TDeleteResponse>) {}
 

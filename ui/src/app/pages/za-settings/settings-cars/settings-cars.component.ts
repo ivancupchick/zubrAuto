@@ -50,8 +50,6 @@ export class SettingsCarsComponent implements OnInit {
         this.carOwnerFieldConfigs = carOwnerFieldConfigs;
       });
 
-
-
     this.carService.getCars().subscribe((result) => {
       this.rawCars = result;
       this.sortCars();

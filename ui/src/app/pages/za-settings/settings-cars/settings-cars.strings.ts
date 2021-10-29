@@ -26,4 +26,5 @@ export const settingsCarsStrings: StringHash = {
   'shooting-date': 'Дата съёмки',
   'shooting-time': 'Время съёмки',
   'our-links': 'Наши объявления',
+  name: 'Имя',
 }

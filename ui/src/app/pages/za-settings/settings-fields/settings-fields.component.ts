@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Domain, RealField, ServerField } from 'src/app/entities/field';
+import { Domain, FieldType, RealField, ServerField } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
 
 import {DialogService} from 'primeng/dynamicdialog';
@@ -141,9 +141,35 @@ export class SettingsFieldsComponent implements OnInit {
         break;
     }
 
+    let type = String(field.type);
+
+    // {name: 'Textbox', code: FieldType.Text},
+    // {name: 'Boolean', code: FieldType.Boolean},
+    // {name: 'Multiselect', code: FieldType.Multiselect},
+    // {name: 'Radio Button', code: FieldType.Radio},
+    // {name: 'Dropdown', code: FieldType.Dropdown},
+
+    switch (field.type) {
+      case FieldType.Text:
+        type = 'Textbox'
+        break;
+      case FieldType.Boolean:
+        type = 'Boolean'
+        break;
+      case FieldType.Multiselect:
+        type = 'Multiselect'
+        break;
+      case FieldType.Radio:
+        type = 'Radio Button'
+        break;
+      case FieldType.Dropdown:
+        type = 'Dropdown'
+        break;
+    }
+
     return {
       name: field.name,
-      type: String(field.type),
+      type,
       id: String(field.id),
       title
     };

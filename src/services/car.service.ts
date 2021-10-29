@@ -55,7 +55,7 @@ class CarService {
     const carOwnerFieldsConfigs = await fieldService.getFieldsByDomain(FieldDomains.CarOwner);
 
     const ownerFields = carData.fields.filter(f => !!carOwnerFieldsConfigs.find(fc => fc.id === f.id));
-    const carFields = carData.fields.filter(f => !ownerFields.find(of => of.id === f.id));
+    const carFields = carData.fields.filter(f => !carOwnerFieldsConfigs.find(of => of.id === f.id));
 
     return [ownerFields, carFields];
   }
