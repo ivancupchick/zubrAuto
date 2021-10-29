@@ -1,25 +1,28 @@
 import { Models } from "../entities/Models";
 import { RealField, ServerField } from "../entities/Field";
+import { BitHelper } from "./bit.utils";
 
 export enum Flags {
   System = 1,
 }
 
 export class FlagField {
-  static setFlagOn(v: { flags: number }, bit: number) {
-    v.flags |= bit;
+  static setFlagOn(v: { flags: number }, bit: Flags) {
+    // v.flags |= bit;
+    v.flags = BitHelper.setOn(v.flags, bit)
   }
 
-  static setFlagOff(v: { flags: number }, bit: number) {
-    v.flags &= ~bit;
+  static setFlagOff(v: { flags: number }, bit: Flags) {
+    // v.flags &= ~bit;
+    v.flags = BitHelper.setOff(v.flags, bit);
   }
 }
 
 export class Flag {
-  static Is(v: { flags: number } | number, bit: number) {
+  static Is(v: { flags: number } | number, bit: Flags) {
     const value = typeof v === 'number' ? v : v.flags;
-
-    return (value & bit) === bit;
+// (value & bit) === bit;
+    return BitHelper.Is(value, bit);
   }
 }
 
@@ -39,6 +42,6 @@ export const getFieldsWithValues = (chainedFields: Models.Field[], chaines: Mode
         variants: cf.variants,
         showUserLevel: cf.showUserLevel,
         value: chaines.find(c => c.fieldId === cf.id)?.value || ''
-      } 
+      }
     })
 }

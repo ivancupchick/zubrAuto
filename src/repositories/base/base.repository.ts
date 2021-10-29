@@ -105,7 +105,7 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   }
 
   protected getAllRows(queryResult: QueryResult<T>): T[] {
-    return queryResult.rows;
+    return queryResult.rows || [];
   }
 
   protected getOneRow(queryResult: QueryResult<T>): T {

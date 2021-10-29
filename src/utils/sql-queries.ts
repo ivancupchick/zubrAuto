@@ -6,6 +6,10 @@ export interface StringHash {
   [key: string]: string;
 }
 
+export interface NumberHash {
+  [key: string]: number;
+}
+
 // TODO need to refactor
 
 export const getGetAllQuery = (tableName: string) => {

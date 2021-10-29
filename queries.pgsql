@@ -114,6 +114,26 @@ CREATE TABLE "public.userTokens" (
   OIDS=FALSE
 );
 
+CREATE TABLE "public.roles" (
+	"id" serial NOT NULL,
+	"systemName" VARCHAR(255) NOT NULL,
+	CONSTRAINT "roles_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+CREATE TABLE "public.fieldAccesses" (
+	"id" serial NOT NULL,
+	"fieldId" integer NOT NULL,
+	"sourceId" integer NOT NULL,
+	"sourceName" VARCHAR(255) NOT NULL,
+	"access" integer NOT NULL,
+	CONSTRAINT "fieldAccesses_pk" PRIMARY KEY ("id"),
+  FOREIGN KEY ("fieldId") REFERENCES "public.fields" ("id")
+) WITH (
+  OIDS=FALSE
+);
+
 /*
 	add column
 */

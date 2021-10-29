@@ -7,6 +7,8 @@ import IndexRoutes from './routes/index.routes'
 import CarRoutes from './routes/car.routes'
 import FieldRoutes from './routes/field.routes'
 import ClientRoutes from './routes/client.routes'
+import RoleRoutes from './routes/role.routes'
+
 import AuthRoutes from './routes/auth.routes'
 import { errorMiddleware } from './middlewares/error.middleware';
 import { setHeaders } from './middlewares/set-headers.middleware';
@@ -47,6 +49,7 @@ export class App {
     this.app.use('/fields', FieldRoutes);
     this.app.use('/clients', ClientRoutes);
     this.app.use('/auth', AuthRoutes);
+    this.app.use('/roles', RoleRoutes);
   }
 
   async listen(): Promise<void> {

@@ -74,6 +74,21 @@ export namespace Models {
     type: number;
     domain: number;
     variants: string;
-    showUserLevel: number;
+    showUserLevel: number; // delete
+  }
+
+  export const ROLES_TABLE_NAME = 'public.roles';
+  export interface Role {
+    id: number;
+    systemName: string;
+  }
+
+  export const FIELD_ACCESSES_TABLE_NAME = 'public.fieldAccesses';
+  export interface FieldAccess {
+    id: number;
+    fieldId: number;
+    sourceId: number;
+    sourceName: string;
+    access: number;
   }
 }

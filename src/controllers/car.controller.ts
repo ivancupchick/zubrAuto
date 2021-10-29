@@ -1,16 +1,12 @@
 import { NextFunction, Request, Response } from 'express'
-import { validationResult } from 'express-validator';
 import { ServerCar } from '../entities/Car';
-import { ApiError } from '../exceptions/api.error';
 import carService from '../services/car.service';
+import { BaseController } from './base.conroller';
 
-class CarController {
+class CarController extends BaseController {
   async getAllCars(req: Request, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+      this.checkValidation(req);
 
       const cars = await carService.getAllCars();
 
@@ -22,10 +18,7 @@ class CarController {
 
   async createCar(req: Request, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+      this.checkValidation(req);
 
       const newCar: ServerCar.CreateRequest = req.body;
       const car = await carService.createCar(newCar);
@@ -37,10 +30,7 @@ class CarController {
 
   async getCar(req: Request, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+      this.checkValidation(req);
 
       const id = +req.params.carId;
       const car = await carService.getCar(id);
@@ -53,10 +43,7 @@ class CarController {
 
   async deleteCar(req: Request, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+      this.checkValidation(req);
 
       const id = +req.params.carId;
       const car = await carService.deleteCar(id);
@@ -69,10 +56,7 @@ class CarController {
 
   async updateCar(req: Request, res: Response, next: NextFunction) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+      this.checkValidation(req);
 
       const id = +req.params.carId;
       const updatedCar: ServerCar.UpdateRequest = req.body;
