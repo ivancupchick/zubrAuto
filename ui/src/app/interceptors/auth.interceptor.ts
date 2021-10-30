@@ -11,7 +11,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
   constructor(private sessionService: SessionService) {}
 
-  //test this duration accesstoken = 15s, duration refreshtoken = 30s,
+  // TODO! check this with parametrs: accesstoken duration = 15s, refreshtoken duration = 30s,
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const accessToken = localStorage.getItem('token');
 
@@ -19,10 +19,6 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request)
       .pipe(
-        // map((result => {
-        //   console.log(result);
-        //   return result;
-        // })),
         catchError((err, caught) => {
           if (err instanceof HttpErrorResponse) {
             if (err.status === 401) {
@@ -35,34 +31,6 @@ export class AuthInterceptor implements HttpInterceptor {
           throw err;
         })
       );
-
-    // return next.handle(request)
-    //   .pipe(
-    //     tap(
-    //       (event) => {
-    //         if (event instanceof HttpResponse)
-    //           console.log('Server response')
-    //         },
-    //       (err) => {
-    //         if (err instanceof HttpErrorResponse) {
-    //           if (err.status == 401 && !(originalReq as any)._isRetry) {
-    //             console.log('Unauthorized');
-    //             (originalReq as any)._isRetry = true; //test this
-
-
-    //             this.sessionService.checkAuth()
-    //               .subscribe(arg => {
-    //                 next.handle(originalReq); // maybe authReq
-    //               });
-
-    //             return;
-    //           }
-
-    //           throw err;
-    //         }
-    //       }
-    //     )
-    //   );
   }
 
   private addToken(req: HttpRequest<any>, token: string) {
@@ -70,7 +38,7 @@ export class AuthInterceptor implements HttpInterceptor {
       withCredentials: true, // replace to base interceptor
       headers: req.headers.set(
         'Authorization',
-        token
+        `Bearer ${token}`
       )
     });
   }
