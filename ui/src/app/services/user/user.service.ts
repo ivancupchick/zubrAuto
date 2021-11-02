@@ -36,7 +36,7 @@ export class UserService {
       }))
   }
 
-  updateUser(value: ServerUser.Entity | ServerUser.CreateRequest, id: number): Observable<boolean> {
+  updateUser(value: ServerUser.UpdateRequest, id: number): Observable<boolean> {
     delete (value as any).id;
     return this.requestService.put<any>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`, value)
       .pipe(map(result => {

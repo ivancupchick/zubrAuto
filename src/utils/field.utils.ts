@@ -41,7 +41,7 @@ export const getFieldsWithValues = (chainedFields: Models.Field[], chaines: Mode
         domain: cf.domain,
         variants: cf.variants,
         showUserLevel: cf.showUserLevel,
-        value: chaines.find(c => c.fieldId === cf.id)?.value || ''
+        value: chaines.find(c => c.fieldId === cf.id && c.sourceId === sourceId)?.value || ''
       }
     })
 }

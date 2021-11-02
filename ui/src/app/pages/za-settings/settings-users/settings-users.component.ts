@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { DialogService } from 'primeng/dynamicdialog';
 import { zip } from 'rxjs';
 import { ServerField } from 'src/app/entities/field';
+import { StringHash } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser, SystemRole } from 'src/app/entities/user';
 import { RoleService } from 'src/app/services/role/role.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { CreateUserComponent } from '../modals/create-user/create-user.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
+import { settingsUsersStrings } from './settings-users.strings';
 
 @Component({
   selector: 'za-settings-users',
@@ -114,6 +116,12 @@ export class SettingsUsersComponent implements OnInit {
       case SystemRole.SuperAdmin: return 'Супер Админ';
       case SystemRole.Admin: return 'Админ';
       case SystemRole.None: return 'Не назначена';
+    }
+
+    const customRole = this.roles.find(role => (role.id + 1000) === roleLevel);
+
+    if (customRole) {
+      return (settingsUsersStrings as StringHash)[customRole.systemName] || `${roleLevel}`;
     }
 
     return `${roleLevel}`;

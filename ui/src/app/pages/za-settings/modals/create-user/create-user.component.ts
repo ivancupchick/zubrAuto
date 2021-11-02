@@ -82,7 +82,7 @@ export class CreateUserComponent implements OnInit {
     }));
     formFields.push(this.dfcs.getDynamicFieldFromOptions({
       id: -1,
-      value: `${this.user?.password || ''}`,
+      value: '',
       key: 'password',
       label: 'Пароль',
       order: 1,
@@ -132,13 +132,24 @@ export class CreateUserComponent implements OnInit {
     const user: ServerUser.CreateRequest = {
       email,
       password,
-      isActivated: true, // default = false
+      isActivated: true,
       roleLevel,
       fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.User))
     }
 
+    const userForUpdate: ServerUser.UpdateRequest = {
+      email,
+      isActivated: true,
+      roleLevel,
+      fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.User))
+    }
+
+    if (password) {
+      userForUpdate.password = password
+    }
+
     const methodObs = this.user != undefined
-      ? this.userService.updateUser(user, (this.user as ServerUser.GetResponse).id)
+      ? this.userService.updateUser(userForUpdate, (this.user as ServerUser.GetResponse).id)
       : this.userService.createUser(user)
 
     methodObs.subscribe(result => {
