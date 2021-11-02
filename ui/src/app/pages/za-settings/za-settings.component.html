@@ -1,4 +1,9 @@
-
-<za-setting-header [user]="user"></za-setting-header>
-<router-outlet></router-outlet>
-<za-setting-footer></za-setting-footer>
+<div class="main-wrapper">
+  <za-setting-header [user]="user"></za-setting-header>
+  <!-- <div class="card"> -->
+    <p-card>
+      <router-outlet></router-outlet>
+    </p-card>
+  <!-- </div> -->
+  <za-setting-footer></za-setting-footer>
+</div>
