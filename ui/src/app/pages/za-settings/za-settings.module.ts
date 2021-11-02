@@ -42,6 +42,10 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { ModalsAuthModule } from 'src/app/pages/za-settings/modals/modals-auth/modals-auth.module';
 import { DynamicFormModule } from './shared/dynamic-form/dynamic-form.module';
 import { RequestService } from 'src/app/services/request/request.service';
+import { SettingsRolesComponent } from './settings-roles/settings-roles.component';
+import { CreateRoleComponent } from './modals/create-role/create-role.component';
+import { SettingsUsersComponent } from './settings-users/settings-users.component';
+import { CreateUserComponent } from './modals/create-user/create-user.component';
 
 
 
@@ -52,6 +56,9 @@ const routes: Routes = [{
     user: SettingsResolver
   },
   children: [{
+      path: '',
+      component: SettingsFieldsComponent
+    },{
       path: 'fields',
       canActivate: [AuthGuard],
       component: SettingsFieldsComponent
@@ -66,7 +73,11 @@ const routes: Routes = [{
     }, {
       path: 'users',
       canActivate: [AuthGuard],
-      component: SettingsFieldsComponent // SettingsCarsComponent
+      component: SettingsUsersComponent
+    }, {
+      path: 'roles',
+      canActivate: [AuthGuard],
+      component: SettingsRolesComponent
     }
   ]
 }]
@@ -83,7 +94,11 @@ const routes: Routes = [{
     GridComponent,
     CreateClientComponent,
     SettingsCarsComponent,
-    CreateCarComponent
+    CreateCarComponent,
+    SettingsRolesComponent,
+    CreateRoleComponent,
+    SettingsUsersComponent,
+    CreateUserComponent
   ],
   imports: [
     RouterModule.forChild(routes),

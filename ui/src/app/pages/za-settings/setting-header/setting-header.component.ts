@@ -45,6 +45,10 @@ const menuItems : MenuItem[]  = [
     label: 'Пользователи',
     icon: 'pi pi-fw pi-user-plus',
     routerLink: 'users'
+  }, {
+    label: 'Роли',
+    icon: 'pi pi-fw pi-users',
+    routerLink: 'roles'
   }
 ];
 

@@ -2,7 +2,7 @@ import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerCar } from 'src/app/entities/car';
 import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
-import { FieldNames } from 'src/app/entities/FieldNames';
+import { FieldNames, StringHash } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 import { settingsCarsStrings } from '../../settings-cars/settings-cars.strings';
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
@@ -160,8 +160,8 @@ export class CreateCarComponent implements OnInit {
   }
 
   updateFieldConfig(field: DynamicFieldBase<string>) {
-    if (settingsCarsStrings[field.key]) {
-      field.label = settingsCarsStrings[field.key];
+    if ((settingsCarsStrings as StringHash)[field.key]) {
+      field.label = (settingsCarsStrings as StringHash)[field.key];
     }
 
     switch (field.key) {

@@ -59,41 +59,39 @@ export class SettingsCarsComponent implements OnInit {
       title: this.strings.id,
       name: 'id',
       getValue: (item) => item.id,
-    }
-    // , {
-    //   title: this.strings.date,
-    //   name: 'date',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.date),
-    // }, {
-    //   title: this.strings.source,
-    //   name: 'source',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.source),
-    // }, {
-    //   title: this.strings.name,
-    //   name: 'name',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.name),
-    // }, {
-    //   title: this.strings.number,
-    //   name: 'number',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.number),
-    // }, {
-    //   title: this.strings.email,
-    //   name: 'email',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.email),
-    // }, {
-    //   title: this.strings.carIds,
-    //   name: 'carIds',
-    //   getValue: (item) => item.carIds,
-    // }, {
-    //   title: this.strings.paymentType,
-    //   name: 'paymentType',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.paymentType),
-    // }, {
-    //   title: this.strings.tradeInAuto,
-    //   name: 'tradeInAuto',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.tradeInAuto),
-    // }
-    ];
+    }, {
+      title: this.strings.ownerNumber,
+      name: 'ownerNumber',
+      getValue: (item) => item.ownerNumber,
+    }, {
+      title: this.strings.status,
+      name: 'status',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.status),
+    }, {
+      title: this.strings.engine,
+      name: 'engine',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.engine),
+    }, {
+      title: this.strings.engineCapacity,
+      name: 'engineCapacity',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.engineCapacity),
+    }, {
+      title: this.strings.mark,
+      name: 'mark',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.mark),
+    }, {
+      title: this.strings.model,
+      name: 'model',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.model),
+    }, {
+      title: this.strings.transmission,
+      name: 'transmission',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.transmission),
+    }, {
+      title: this.strings.color,
+      name: 'color',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.color),
+    }];
   }
 
   updateCar(car: ServerCar.GetResponse) {

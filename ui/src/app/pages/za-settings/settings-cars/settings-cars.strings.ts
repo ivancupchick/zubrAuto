@@ -2,29 +2,29 @@ interface StringHash {
   [key: string]: string;
 }
 
-export const settingsCarsStrings: StringHash = {
+export const settingsCarsStrings = {
   id: '№',
   ownerNumber: 'Номер владельца',
   status: 'Статус',
   engine: 'Мотор',
-  'engine-capacity': 'Объём мотора',
+  engineCapacity: 'Объём мотора',
   mileage: 'Пробег',
   year: 'Год выпуска',
   mark: 'Марка',
   model: 'Модель',
   transmission: 'Коробка передач',
   color: 'Цвет',
-  'drive-type': 'Привод',
-  'link-to-ad': 'Ссылка на объявление',
-  'car-owner-price': 'Цена клиента',
+  driveType: 'Привод',
+  linkToAd: 'Ссылка на объявление',
+  carOwnerPrice: 'Цена клиента',
   commission: 'Комиссия',
   comment: 'Комментарии',
-  'date-of-last-status-change': 'Дата действия',
+  dateOfLastStatusChange: 'Дата действия',
   worksheet: 'Анкета',
   bargain: 'Торг',
-  'ad-price': 'Цена на сайте',
-  'shooting-date': 'Дата съёмки',
-  'shooting-time': 'Время съёмки',
-  'our-links': 'Наши объявления',
-  name: 'Имя',
-}
+  adPrice: 'Цена на сайте',
+  shootingDate: 'Дата съёмки',
+  shootingTime: 'Время съёмки',
+  ourLinks: 'Наши объявления',
+  ownerName: 'Имя владельца',
+};

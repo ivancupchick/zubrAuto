@@ -4,14 +4,10 @@ import { Domain, ServerField } from 'src/app/entities/field';
 import { environment } from 'src/environments/environment';
 import { map, tap } from 'rxjs/operators';
 import { RequestService } from '../request/request.service';
+import { Constants } from 'src/app/entities/constants';
 
 // TODO! delete store variables
 // TODO! create base db service
-
-const API = 'fields';
-
-const MAIN_CRUD_API = 'crud';
-const GET_FIELDS_BY_DOMAIN = 'getFieldsByDomain';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +18,7 @@ export class FieldService {
   constructor(private requestService: RequestService) { }
 
   getFields(): Observable<ServerField.Entity[]> {
-    return this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${API}/${MAIN_CRUD_API}`)
+    return this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`)
       .pipe(
         tap(result => {
           this.allFields = result;
@@ -31,7 +27,7 @@ export class FieldService {
   }
 
   createField(value: ServerField.CreateRequest): Observable<boolean> {
-    return this.requestService.post(`${environment.serverUrl}/${API}/${MAIN_CRUD_API}`, value)
+    return this.requestService.post(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`, value)
       .pipe(map(result => {
         console.log(result);
 
@@ -40,7 +36,7 @@ export class FieldService {
   }
 
   getField(id: number): Observable<ServerField.Entity> {
-    return this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${API}/${MAIN_CRUD_API}/${id}`)
+    return this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
@@ -50,7 +46,7 @@ export class FieldService {
 
   updateField(value: ServerField.CreateRequest, id: number): Observable<boolean> {
     delete (value as any).id;
-    return this.requestService.put(`${environment.serverUrl}/${API}/${MAIN_CRUD_API}/${id}`, value)
+    return this.requestService.put(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`, value)
       .pipe(map(result => {
         console.log(result);
 
@@ -59,7 +55,7 @@ export class FieldService {
   }
 
   deleteField(id: number): Observable<boolean> {
-    return this.requestService.delete(`${environment.serverUrl}/${API}/${MAIN_CRUD_API}/${id}`)
+    return this.requestService.delete(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
@@ -70,6 +66,6 @@ export class FieldService {
   getFieldsByDomain(domain: Domain): Observable<ServerField.Entity[]> {
     return this.allFields.length > 0
       ? of(this.allFields.filter(f => `${f.domain}` === `${domain}`))
-      : this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${API}/${GET_FIELDS_BY_DOMAIN}/${domain}`);
+      : this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.GET_FIELDS_BY_DOMAIN}/${domain}`);
   }
 }

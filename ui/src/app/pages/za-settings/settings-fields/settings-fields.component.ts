@@ -7,7 +7,7 @@ import { CreateFieldComponent } from '../modals/create-field/create-field.compon
 import { tap } from 'rxjs/operators';
 import { settingsClientsStrings } from '../settings-clients/settings-clients.strings';
 import { settingsCarsStrings } from '../settings-cars/settings-cars.strings';
-import { FieldNames } from 'src/app/entities/FieldNames';
+import { FieldNames, StringHash } from 'src/app/entities/FieldNames';
 
 export interface GridField {
   name: string;
@@ -137,7 +137,7 @@ export class SettingsFieldsComponent implements OnInit {
         }
         break;
       case Domain.Car:
-        title = settingsCarsStrings[field.name] || field.name;
+        title = (settingsCarsStrings as StringHash)[field.name] || field.name;
         break;
     }
 

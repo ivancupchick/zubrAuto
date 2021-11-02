@@ -12,11 +12,11 @@ router.route('/crud/')
       authMiddleware,
       body('email').isEmail(),
       body('password').isLength({ min: 3, max: 32 }),
-      body('password').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/),
+      // body('password').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/),
       userController.createUser
     );
 
-router.route('/crud/:fieldId')
+router.route('/crud/:userId')
     .get(authMiddleware, userController.getUser)
     .delete(authMiddleware, userController.deleteUser)
     .put(authMiddleware, userController.updateUser);
