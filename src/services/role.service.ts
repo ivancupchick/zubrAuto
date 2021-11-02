@@ -63,13 +63,12 @@ class RoleService {
       systemName: roleData.systemName
     });
 
-    const createdAccess = await fieldAccessRepository.find({
+    const createdAccess = roleData.accesses.length > 0 ? await fieldAccessRepository.find({
       fieldId: roleData.accesses.map(c => `${c.fieldId}`),
       sourceId: [id].map(c => `${c}`),
       sourceName: [Models.ROLES_TABLE_NAME]
-    })
+    }) : [];
     const notCreatedAccess = roleData.accesses.filter(a => createdAccess.find((ca => ca.fieldId === a.fieldId)));
-
 
     await Promise.all((createdAccess || []).map(a => fieldAccessRepository.update({
       access: `${a.access}`

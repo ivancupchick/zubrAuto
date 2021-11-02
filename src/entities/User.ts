@@ -48,5 +48,6 @@ export namespace ServerUser {
 export enum SystemRole {
   None = 0,
   // Editor = 200,
+  Admin = 900,
   SuperAdmin = 1000
 }

@@ -8,6 +8,7 @@
     "build": "rimraf build && cd ui && npm run build --prod && cd .. && tsc && webpack",
     "dev": "rimraf build && tsc && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\" \"cd ui && ng build --watch\"",
     "dev-server": "rimraf build && tsc && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\"",
+    "dev-ui": "cd ui && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
