@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
-import { FieldType, RealField, ServerField, UIRealField } from 'src/app/entities/field';
+import { FormGroup } from '@angular/forms';
+import { RealField } from 'src/app/entities/field';
 import { DynamicFieldControlService } from './dynamic-field-control.service';
 import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
 
@@ -13,9 +13,9 @@ import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
 //   order?: number;
 // }
 
-interface FormGroupCreationObj {
-  [key: string]: (string | ((control: AbstractControl) => ValidationErrors | null))[]
-}
+// interface FormGroupCreationObj {
+//   [key: string]: (string | ((control: AbstractControl) => ValidationErrors | null))[]
+// }
 
 @Component({
   selector: 'za-dynamic-form',
@@ -54,6 +54,8 @@ export class DynamicFormComponent implements OnInit {
     //   }, {})
     // );
 
+    this.changed.emit(!this.formGroup.pristine);
+
     this.formGroup.valueChanges.subscribe(data => {
       this.valid = this.formGroup.valid;
       this.changed.emit(this.valid);
@@ -61,10 +63,12 @@ export class DynamicFormComponent implements OnInit {
   }
 
   getValue(): RealField.Request[] {
-    return this.fields.map((field) => ({
-      id: field.id,
-      name: field.key,
-      value: this.formGroup.controls[field.key].value
-    }))
+    return this.fields
+      .filter((field) => !this.formGroup.controls[field.key].pristine)
+      .map((field) => ({
+        id: field.id,
+        name: field.key,
+        value: this.formGroup.controls[field.key].value
+      }))
   }
 }
