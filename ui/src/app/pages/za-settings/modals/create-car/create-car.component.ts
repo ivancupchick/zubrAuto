@@ -20,9 +20,9 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
 export class CreateCarComponent implements OnInit {
   loading = false;
 
-  @Input() car: ServerCar.GetResponse | undefined = undefined;
-  @Input() carOwnerFieldConfigs: ServerField.Entity[] = [];
-  @Input() carFieldConfigs: ServerField.Entity[] = [];
+  @Input() car: ServerCar.Response | undefined = undefined;
+  @Input() carOwnerFieldConfigs: ServerField.Response[] = [];
+  @Input() carFieldConfigs: ServerField.Response[] = [];
 
   carFormValid = false;
   carOwnerFormValid = false;
@@ -115,26 +115,23 @@ export class CreateCarComponent implements OnInit {
       ...carOwnerFields.filter(fc => !this.carOwnerExcludeFields.includes(fc.name as FieldNames.CarOwner))
     ];
 
-    const car: ServerCar.EntityRequest = this.car != undefined
-      ? {
-        createdDate: this.car.createdDate,
-        fields
-      }
-      : {
-        createdDate: (new Date()).getDate().toString(),
-        fields
-      }
+    // const car: ServerCar.CreateRequest = this.car != undefined
+    //   ? {
+    //     createdDate: this.car.createdDate,
+    //     fields
+    //   }
+    //   : {
+    //     createdDate: (new Date()).getTime().toString(),
+    //     fields
+    //   }
 
     const methodObs = this.car != undefined
       ? this.carService.updateCar({
-          createdDate: car.createdDate,
-          fields: car.fields,
-          ownerId: this.car.ownerId,
+          fields,
           ownerNumber
         }, this.car.id)
       : this.carService.createCar({
-          createdDate: car.createdDate,
-          fields: car.fields,
+          fields,
           ownerNumber
         });
 

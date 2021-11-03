@@ -1,4 +1,5 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { ServerAuth } from '../entities/Auth';
 import { Models } from '../entities/Models';
 import { ServerUser } from '../entities/User';
 import userTokenRepository from '../repositories/base/user-token.repository';
@@ -17,7 +18,7 @@ class TokenService {
 
   validateAccessToken(token: string) {
     try {
-      const userData: ServerUser.Payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET) as ServerUser.Payload;
+      const userData: ServerAuth.Payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET) as ServerAuth.Payload;
       return userData;
     } catch (e) {
       return null;
@@ -27,7 +28,7 @@ class TokenService {
   validateRefreshToken(token: string) {
     try {
        // ServerUser.Payload
-       const userData: ServerUser.Payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET) as ServerUser.Payload;
+       const userData: ServerAuth.Payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET) as ServerAuth.Payload;
        return userData;
     } catch (e) {
       return null;
@@ -42,7 +43,6 @@ class TokenService {
     }
 
     const token = await userTokenRepository.create({
-      id: 0, // will be deleted in DAO
       userId,
       refreshToken
     });

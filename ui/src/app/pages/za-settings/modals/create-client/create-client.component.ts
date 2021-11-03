@@ -20,8 +20,8 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
 export class CreateClientComponent implements OnInit {
   loading = false;
 
-  @Input() client: ServerClient.GetResponse | undefined = undefined;
-  @Input() fieldConfigs: ServerField.Entity[] = [];
+  @Input() client: ServerClient.Response | undefined = undefined;
+  @Input() fieldConfigs: ServerField.Response[] = [];
 
   formValid = false;
 
@@ -104,7 +104,7 @@ export class CreateClientComponent implements OnInit {
     }
 
     const methodObs = this.client != undefined
-      ? this.clientService.updateClient(client, (this.client as ServerClient.GetResponse).id)
+      ? this.clientService.updateClient(client, (this.client as ServerClient.Response).id)
       : this.clientService.createClient(client)
 
     methodObs.subscribe(result => {

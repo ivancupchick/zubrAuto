@@ -19,8 +19,8 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
 export class CreateRoleComponent implements OnInit {
   loading = false;
 
-  @Input() role: ServerRole.GetResponse | undefined = undefined;
-  @Input() fieldConfigs: ServerField.Entity[] = [];
+  @Input() role: ServerRole.Response | undefined = undefined;
+  @Input() fieldConfigs: ServerField.Response[] = [];
 
   formValid = false;
 
@@ -70,7 +70,7 @@ export class CreateRoleComponent implements OnInit {
     }
 
     const methodObs = this.role != undefined
-      ? this.roleService.updateRole(role, (this.role as ServerRole.GetResponse).id)
+      ? this.roleService.updateRole(role, (this.role as ServerRole.Response).id)
       : this.roleService.createRole(role)
 
     methodObs.subscribe(result => {

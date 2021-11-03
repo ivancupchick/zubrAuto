@@ -1,6 +1,7 @@
 import { ServerCar } from "../entities/Car";
 import { FieldDomains, RealField } from "../entities/Field";
 import { Models } from "../entities/Models";
+import { ICrudService } from "../entities/Types";
 import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
@@ -8,8 +9,8 @@ import { getFieldsWithValues } from "../utils/field.utils";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
 
-class CarService {
-  async getAllCars(): Promise<ServerCar.GetResponse[]> {
+class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.UpdateRequest, ServerCar.Response, ServerCar.IdResponse> {
+  async getAll() {
     const [
       cars,
       carFields,
@@ -37,7 +38,7 @@ class CarService {
       })
     ]);
 
-    const result: ServerCar.GetResponse[] = cars.map(car => ({
+    const result: ServerCar.Response[] = cars.map(car => ({
       id: car.id,
       createdDate: car.createdDate,
       ownerId: car.ownerId,
@@ -60,17 +61,16 @@ class CarService {
     return [ownerFields, carFields];
   }
 
-  async createCar(carData: ServerCar.CreateRequest): Promise<any> {
+  async create(carData: ServerCar.CreateRequest) {
     const [ownerFields, carFields] = await this.getCarAndOwnerCarFields(carData);
 
     const existCarOwner = await carOwnerRepository.findOne({ number: [`${carData.ownerNumber}`]});
 
     const ownerId = !existCarOwner
-      ? (await carOwnerRepository.create({ id: 0, number: carData.ownerNumber })).id
+      ? (await carOwnerRepository.create({ number: carData.ownerNumber })).id
       : existCarOwner.id;
     if (!existCarOwner) {
       await Promise.all(ownerFields.map(f => fieldChainService.createFieldChain({
-        id: 0,
         sourceId: ownerId,
         fieldId: f.id,
         value: f.value,
@@ -91,12 +91,10 @@ class CarService {
     }
 
     const car = await carRepository.create({
-      id: 0,
-      createdDate: carData.createdDate,
+      createdDate: (new Date()).getTime().toString(),
       ownerId
     });
     await Promise.all(carFields.map(f => fieldChainService.createFieldChain({
-      id: 0,
       sourceId: car.id,
       fieldId: f.id,
       value: f.value,
@@ -106,21 +104,24 @@ class CarService {
     return { fields: carFields, ...car, ownerNumber: carData.ownerNumber };
   }
 
-  async updateCar(carId: number, carData: ServerCar.UpdateRequest): Promise<any> {
+  async update(carId: number, carData: ServerCar.UpdateRequest) {
     const [ownerFields, carFields] = await this.getCarAndOwnerCarFields(carData);
+    let needUpdate = false;
 
-    const existCarOwnerById = await carOwnerRepository.findOne({ id: [`${carData.ownerId}`]});
+    const existCar = await carRepository.findById(carId);
+    const existCarOwnerById = await carOwnerRepository.findOne({ id: [`${existCar.ownerId}`]});
     const existCarOwnerByNumber = await carOwnerRepository.findOne({ number: [`${carData.ownerNumber}`]});
 
     let carOwner = existCarOwnerById;
 
     if (!existCarOwnerByNumber && carData.ownerNumber) {
-      carOwner = await carOwnerRepository.updateById(carData.ownerId, { id: 0, number: carData.ownerNumber });
+      carOwner = await carOwnerRepository.updateById(existCar.ownerId, { number: carData.ownerNumber });
     } else if (existCarOwnerById.number === existCarOwnerByNumber.number) {
 
     } else if (existCarOwnerById && existCarOwnerByNumber && existCarOwnerByNumber.number !== existCarOwnerById.number) {
-      carData.ownerId = existCarOwnerByNumber.id;
+      carData = Object.assign({}, carData, { ownerId: existCarOwnerByNumber.id});
       carOwner = existCarOwnerByNumber;
+      needUpdate = true;
     }
 
     await Promise.all(ownerFields.map(f => fieldChainRepository.update({
@@ -131,11 +132,11 @@ class CarService {
       sourceName: [Models.CAR_OWNERS_TABLE_NAME]
     })));
 
-    const car = await carRepository.updateById(carId, {
-      id: 0,
-      createdDate: carData.createdDate,
-      ownerId: carData.ownerId
-    });
+    if (needUpdate) {
+      delete carData.fields;
+      await carRepository.updateById(carId, carData as Partial<Models.Car>);
+    }
+
     await Promise.all(carFields.map(f => fieldChainRepository.update({
       value: f.value
     }, {
@@ -144,10 +145,10 @@ class CarService {
       sourceName: [Models.CARS_TABLE_NAME]
     })));
 
-    return { fields: carFields, ...car, ownerNumber: carData.ownerNumber };
+    return { id: carId };
   }
 
-  async deleteCar(id: number) {
+  async delete(id: number) {
     const chaines = await fieldChainRepository.find({
       sourceId: [`${id}`],
       sourceName: [Models.CARS_TABLE_NAME]
@@ -157,7 +158,7 @@ class CarService {
     return car
   }
 
-  async getCar(id: number): Promise<ServerCar.GetResponse> {
+  async get(id: number) {
     const [
       car,
       carFields,
@@ -184,7 +185,7 @@ class CarService {
       })
     ]);
 
-    const result: ServerCar.GetResponse = {
+    const result: ServerCar.Response = {
       id: car.id,
       createdDate: car.createdDate,
       ownerId: car.ownerId,

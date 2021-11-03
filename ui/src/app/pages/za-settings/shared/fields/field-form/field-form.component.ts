@@ -21,7 +21,7 @@ export class FieldFormComponent implements OnInit {
   ];
 
   formGroup!: FormGroup;
-  @Input() field!: ServerField.Entity | null;
+  @Input() field!: ServerField.Response | null;
   @Input() domain!: Domain;
 
   @Output() changed = new EventEmitter<boolean>();

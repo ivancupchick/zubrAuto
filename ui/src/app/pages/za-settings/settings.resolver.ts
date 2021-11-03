@@ -6,14 +6,14 @@ import {
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { ServerUser } from 'src/app/entities/user';
+import { ServerAuth, ServerUser } from 'src/app/entities/user';
 import { SessionService } from 'src/app/services/session/session.service';
 
 @Injectable()
-export class SettingsResolver implements Resolve<ServerUser.IPayload | null> {
+export class SettingsResolver implements Resolve<ServerAuth.IPayload | null> {
   constructor(private sessionService: SessionService) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ServerUser.IPayload | null> {
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ServerAuth.IPayload | null> {
     return this.sessionService.checkAuth().pipe(
       map(res => {
         if (!!res.user) {

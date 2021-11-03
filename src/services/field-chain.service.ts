@@ -10,7 +10,7 @@ class FieldChainService {
     return fieldChains;
   }
 
-  async createFieldChain(fieldChainData: Models.FieldChain) {
+  async createFieldChain(fieldChainData: Omit<Models.FieldChain, 'id'>) {
     const existFieldChain = await fieldChainRepository.findOne({
       sourceId: [`${fieldChainData.sourceId}`],
       fieldId: [`${fieldChainData.fieldId}`],
@@ -21,7 +21,6 @@ class FieldChainService {
     }
 
     const fieldChain: Models.FieldChain = await fieldChainRepository.create({
-      id: 0, // will be deleted in DAO
       fieldId: fieldChainData.fieldId,
       value: fieldChainData.value || '',
       sourceId: fieldChainData.sourceId,
@@ -31,7 +30,7 @@ class FieldChainService {
     return fieldChain;
   }
 
-  async updateFieldChain(id: number, fieldChainData: Models.FieldChain) {
+  async updateFieldChain(id: number, fieldChainData: Partial<Omit<Models.FieldChain, 'id'>>) {
     const fieldChain = await fieldChainRepository.updateById(id, fieldChainData);
     return fieldChain
   }
@@ -45,11 +44,6 @@ class FieldChainService {
     const fieldChain = await fieldChainRepository.findById(id);
     return fieldChain;
   }
-
-  // async getFieldChainsByDomain(domain: FieldDomains) {
-  //   const fieldChains = await fieldChainRepository.find({ domain: [`${domain}`] });
-  //   return fieldChains;
-  // }
 }
 
 export = new FieldChainService();

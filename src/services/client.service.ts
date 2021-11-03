@@ -1,14 +1,15 @@
 import { ServerClient } from "../entities/Client";
 import { FieldDomains } from "../entities/Field";
 import { Models } from "../entities/Models";
+import { ICrudService } from "../entities/Types";
 import clientRepository from "../repositories/base/client.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
 
-class ClientService {
-  async getAllClients(): Promise<ServerClient.GetResponse[]> {
+class ClientService implements ICrudService<ServerClient.CreateRequest, ServerClient.UpdateRequest, ServerClient.Response, ServerClient.IdResponse> {
+  async getAll() {
     const [
       clients,
       relatedFields
@@ -22,7 +23,7 @@ class ClientService {
       sourceName: [`${Models.CLIENTS_TABLE_NAME}`]
     });
 
-    const result: ServerClient.GetResponse[] = clients.map(client => ({
+    const result: ServerClient.Response[] = clients.map(client => ({
       id: client.id,
       carIds: client.carIds,
       fields: getFieldsWithValues(relatedFields, chaines, client.id)
@@ -31,26 +32,23 @@ class ClientService {
     return result;
   }
 
-  async createClient(clientData: ServerClient.CreateRequest) {
+  async create(clientData: ServerClient.CreateRequest) {
     const client = await clientRepository.create({
-      id: 0,
       carIds: clientData.carIds
     });
 
     await Promise.all(clientData.fields.map(f => fieldChainService.createFieldChain({
-      id: 0,
       sourceId: client.id,
       fieldId: f.id,
       value: f.value,
       sourceName: Models.CLIENTS_TABLE_NAME
     })))
 
-    return true;
+    return client;
   }
 
-  async updateClient(id: number, clientData: ServerClient.CreateRequest) {
+  async update(id: number, clientData: ServerClient.CreateRequest) {
     const client = await clientRepository.updateById(id, {
-      id: 0,
       carIds: clientData.carIds
     });
 
@@ -65,7 +63,7 @@ class ClientService {
     return client
   }
 
-  async deleteClient(id: number) {
+  async delete(id: number) {
     const chaines = await fieldChainRepository.find({
       sourceId: [`${id}`],
       sourceName: [Models.CLIENTS_TABLE_NAME]
@@ -75,7 +73,7 @@ class ClientService {
     return client
   }
 
-  async getClient(id: number): Promise<ServerClient.GetResponse> {
+  async get(id: number): Promise<ServerClient.Response> {
     const client = await clientRepository.findById(id);
     const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.Client);
     const chaines = await fieldChainRepository.find({
@@ -83,7 +81,7 @@ class ClientService {
       sourceName: [`${Models.CLIENTS_TABLE_NAME}`]
     });
 
-    const result: ServerClient.GetResponse = {
+    const result: ServerClient.Response = {
       id: client.id,
       carIds: client.carIds,
       fields: getFieldsWithValues(relatedFields, chaines, client.id)

@@ -7,19 +7,19 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 const router = Router();
 
 router.route('/crud/')
-    .get(authMiddleware, userController.getAllUsers)
+    .get(authMiddleware, userController.getAll)
     .post(
       authMiddleware,
       body('email').isEmail(),
       body('password').isLength({ min: 3, max: 32 }),
       // body('password').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/),
-      userController.createUser
+      userController.create
     );
 
 router.route('/crud/:userId')
-    .get(authMiddleware, userController.getUser)
-    .delete(authMiddleware, userController.deleteUser)
-    .put(authMiddleware, userController.updateUser);
+    .get(authMiddleware, userController.get)
+    .delete(authMiddleware, userController.delete)
+    .put(authMiddleware, userController.update);
 
 // router.route('/getUsersByDomain/:domain')
 //     .get(getUsersByDomain)

@@ -14,7 +14,7 @@ class CarController {
         throw ApiError.BadRequest('Ошибка при валидации', errors.array());
       }
 
-      const cars = await carService.getAllCars();
+      const cars = await carService.getAll();
 
       return res.json(cars);
     } catch (e) {
@@ -31,7 +31,7 @@ class CarController {
     }
 
       const newCar: ServerCar.CreateRequest = req.body;
-      const car = await carService.createCar(newCar);
+      const car = await carService.create(newCar);
       return res.json(car);
     } catch (e) {
       next(e);
@@ -47,7 +47,7 @@ class CarController {
       }
 
       const id = +req.params.carId;
-      const car = await carService.getCar(id);
+      const car = await carService.get(id);
 
       return res.json(car);
     } catch (e) {
@@ -64,7 +64,7 @@ class CarController {
       }
 
       const id = +req.params.carId;
-      const car = await carService.deleteCar(id);
+      const car = await carService.delete(id);
 
       return res.json(car);
     } catch (e) {
@@ -82,7 +82,7 @@ class CarController {
 
       const id = +req.params.carId;
       const updatedCar: ServerCar.UpdateRequest = req.body;
-      const car = await carService.updateCar(id, updatedCar);
+      const car = await carService.update(id, updatedCar);
 
       return res.json(car);
     } catch (e) {

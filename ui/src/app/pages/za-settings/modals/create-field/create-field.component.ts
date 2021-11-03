@@ -15,7 +15,7 @@ export class CreateFieldComponent implements OnInit {
 
   isEdit = false;
   id!: number;
-  field!: ServerField.Entity;
+  field!: ServerField.Response;
 
   formValid = false;
 

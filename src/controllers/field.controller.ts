@@ -5,14 +5,14 @@ import { ApiError } from '../exceptions/api.error';
 import fieldService from '../services/field.service';
 
 class FieldConntroller {
-  async getAllFields(req: Request, res: Response, next: NextFunction) {
+  async getAllFields(req: Request, res: Response<ServerField.Response[]>, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const fields = await fieldService.getAllFields();
+      const fields = await fieldService.getAll();
 
       return res.json(fields);
     } catch (e) {
@@ -20,39 +20,23 @@ class FieldConntroller {
     }
   }
 
-  async createField(req: Request, res: Response, next: NextFunction) {
+  async createField(req: Request<{}, ServerField.IdResponse, ServerField.CreateRequest>, res: Response<ServerField.IdResponse>, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const newField: ServerField.BaseEntity = req.body;
-      const field = await fieldService.createField(newField);
+      const newField = req.body;
+      const field = await fieldService.create(newField);
 
-      return res.json(field);
+      return res.json({ id: field.id });
     } catch (e) {
       next(e);
     }
   }
 
-  async getField(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
-
-      const id = +req.params.fieldId;
-      const field = await fieldService.getField(id);
-
-      return res.json(field);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async deleteField(req: Request, res: Response, next: NextFunction) {
+  async getField(req: Request<{ fieldId: string; }>, res: Response<ServerField.Response>, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -60,7 +44,7 @@ class FieldConntroller {
       }
 
       const id = +req.params.fieldId;
-      const field = await fieldService.deleteField(id);
+      const field = await fieldService.get(id);
 
       return res.json(field);
     } catch (e) {
@@ -68,7 +52,7 @@ class FieldConntroller {
     }
   }
 
-  async updateField(req: Request, res: Response, next: NextFunction) {
+  async deleteField(req: Request<{ fieldId: string; }>, res: Response<ServerField.IdResponse>, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -76,8 +60,7 @@ class FieldConntroller {
       }
 
       const id = +req.params.fieldId;
-      const updatedField: ServerField.Entity = req.body;
-      const field = await fieldService.updateField(id, updatedField);
+      const field = await fieldService.delete(id);
 
       return res.json(field);
     } catch (e) {
@@ -85,7 +68,24 @@ class FieldConntroller {
     }
   }
 
-  async getFieldsByDomain(req: Request, res: Response, next: NextFunction) {
+  async updateField(req: Request<{ fieldId: string; }, ServerField.Response, ServerField.UpdateRequest>, res: Response<ServerField.Response>, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
+      }
+
+      const id = +req.params.fieldId;
+      const updatedField = req.body;
+      const field = await fieldService.update(id, updatedField);
+
+      return res.json(field);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getFieldsByDomain(req: Request<{ domain: string; }, ServerField.Response[]>, res: Response<ServerField.Response[]>, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {

@@ -3,7 +3,7 @@ import {MenuItem} from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ServerUser } from 'src/app/entities/user';
+import { ServerAuth, ServerUser } from 'src/app/entities/user';
 import { SessionService } from 'src/app/services/session/session.service';
 import { LoginComponent } from '../modals/modals-auth/login/login.component';
 import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
@@ -61,7 +61,7 @@ const menuItems : MenuItem[]  = [
   ]
 })
 export class SettingHeaderComponent implements OnInit, OnDestroy {
-  @Input() user!: ServerUser.IPayload | null;
+  @Input() user!: ServerAuth.IPayload | null;
 
   items: MenuItem[] = [];
 

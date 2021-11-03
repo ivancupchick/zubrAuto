@@ -13,12 +13,12 @@ import { Constants } from 'src/app/entities/constants';
   providedIn: 'root'
 })
 export class FieldService {
-  allFields: ServerField.Entity[] = [];
+  allFields: ServerField.Response[] = [];
 
   constructor(private requestService: RequestService) { }
 
-  getFields(): Observable<ServerField.Entity[]> {
-    return this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`)
+  getFields(): Observable<ServerField.Response[]> {
+    return this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`)
       .pipe(
         tap(result => {
           this.allFields = result;
@@ -35,12 +35,12 @@ export class FieldService {
       }))
   }
 
-  getField(id: number): Observable<ServerField.Entity> {
-    return this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`)
+  getField(id: number): Observable<ServerField.Response> {
+    return this.requestService.get<ServerField.Response>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
-        return result[0];
+        return result;
       }))
   }
 
@@ -63,9 +63,9 @@ export class FieldService {
       }))
   }
 
-  getFieldsByDomain(domain: Domain): Observable<ServerField.Entity[]> {
+  getFieldsByDomain(domain: Domain): Observable<ServerField.Response[]> {
     return this.allFields.length > 0
       ? of(this.allFields.filter(f => `${f.domain}` === `${domain}`))
-      : this.requestService.get<ServerField.Entity[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.GET_FIELDS_BY_DOMAIN}/${domain}`);
+      : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.GET_FIELDS_BY_DOMAIN}/${domain}`);
   }
 }

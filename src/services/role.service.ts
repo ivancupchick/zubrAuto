@@ -2,9 +2,10 @@ import { ServerRole } from "../entities/Role";
 import { Models } from "../entities/Models";
 import roleRepository from "../repositories/base/role.repository";
 import fieldAccessRepository from "../repositories/base/field-access.repository";
+import { ICrudService } from "../entities/Types";
 
-class RoleService {
-  async getAllRoles(): Promise<ServerRole.GetResponse[]> {
+class RoleService implements ICrudService<ServerRole.CreateRequest, ServerRole.UpdateRequest, ServerRole.Response, ServerRole.IdResponse> {
+  async getAll() {
     const [
       roles,
       fieldAccesses
@@ -13,7 +14,7 @@ class RoleService {
       fieldAccessRepository.find({ sourceName: [`${Models.ROLES_TABLE_NAME}`] })
     ]);
 
-    const result: ServerRole.GetResponse[] = roles.map(role => ({
+    const result: ServerRole.Response[] = roles.map(role => ({
       id: role.id,
       systemName: role.systemName,
       accesses: fieldAccesses.filter(fa => fa.sourceId === role.id && fa.sourceName === `${Models.ROLES_TABLE_NAME}`)
@@ -22,7 +23,7 @@ class RoleService {
     return result;
   }
 
-  async getRole(id: number): Promise<ServerRole.GetResponse> {
+  async get(id: number) {
     const [
       role,
       fieldAccesses
@@ -31,7 +32,7 @@ class RoleService {
       fieldAccessRepository.find({ sourceName: [`${Models.ROLES_TABLE_NAME}`] })
     ]);
 
-    const result: ServerRole.GetResponse = {
+    const result: ServerRole.Response = {
       id: role.id,
       systemName: role.systemName,
       accesses: fieldAccesses.filter(fa => fa.sourceId === role.id && fa.sourceName === `${Models.ROLES_TABLE_NAME}`)
@@ -40,26 +41,23 @@ class RoleService {
     return result;
   }
 
-  async createRole(roleData: ServerRole.CreateRequest) {
+  async create(roleData: ServerRole.CreateRequest) {
     const role = await roleRepository.create({
-      id: 0,
       systemName: roleData.systemName
     });
 
     await Promise.all((roleData.accesses || []).map(a => fieldAccessRepository.create({
-      id: 0,
       sourceId: role.id,
       fieldId: a.fieldId,
       access: a.access,
       sourceName: Models.ROLES_TABLE_NAME
     })))
 
-    return true;
+    return role;
   }
 
-  async updateRole(id: number, roleData: ServerRole.CreateRequest) {
+  async update(id: number, roleData: ServerRole.UpdateRequest) {
     const role = await roleRepository.updateById(id, {
-      id: 0,
       systemName: roleData.systemName
     });
 
@@ -71,7 +69,7 @@ class RoleService {
     const notCreatedAccess = roleData.accesses.filter(a => createdAccess.find((ca => ca.fieldId === a.fieldId)));
 
     await Promise.all((createdAccess || []).map(a => fieldAccessRepository.update({
-      access: `${a.access}`
+      access: a.access
     }, {
       fieldId: [a.fieldId].map(c => `${c}`),
       sourceId: [id].map(c => `${c}`),
@@ -79,7 +77,6 @@ class RoleService {
     })))
 
     await Promise.all((notCreatedAccess || []).map(a => fieldAccessRepository.create({
-      id: 0,
       sourceId: id,
       fieldId: a.fieldId,
       access: a.access,
@@ -89,7 +86,7 @@ class RoleService {
     return role
   }
 
-  async deleteRole(id: number) {
+  async delete(id: number) {
     const accesses = await fieldAccessRepository.find({
       sourceId: [id].map(c => `${c}`),
       sourceName: [Models.ROLES_TABLE_NAME]

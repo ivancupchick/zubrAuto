@@ -1,7 +1,7 @@
 import { Models } from "./Models";
 
 export namespace RealField {
-  export type Response = ServerField.Entity & RealField.Request;
+  export type Response = Models.Field & { value: string; };
 
   export type Request = {
     id: number;
@@ -21,33 +21,10 @@ export namespace RealField {
 }
 
 export namespace ServerField {
-  export type BaseEntity = {
-    flags: number;
-    type: FieldType;
-    name: string;
-    domain: FieldDomains;
-    variants: string;
-    showUserLevel: number; // maybe not need
-  }
-
-  export type Entity = Models.Field & BaseEntity;
-
-  export type CreateRequest = BaseEntity;
-
-  export namespace DB {
-    export type CreateChain = {
-      sourceId: number;
-      fieldId: number;
-      value: string;
-      sourceName: string;
-    }
-
-    export type UpdateChainExpression = {
-      sourceId: number;
-      fieldId: number;
-      sourceName: string;
-    }
-  }
+  export type CreateRequest = Omit<Models.Field, 'id'>;
+  export type UpdateRequest = Partial<Omit<Models.Field, 'id'>>;
+  export type IdResponse = Pick<Models.Field, 'id'>;
+  export type Response = Models.Field;
 }
 
 export enum FieldDomains {

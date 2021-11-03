@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { DialogService } from 'primeng/dynamicdialog';
-import { ServerField } from 'src/app/entities/field';
 import { ServerRole } from 'src/app/entities/role';
 import { RoleService } from 'src/app/services/role/role.service';
 import { CreateRoleComponent } from '../modals/create-role/create-role.component';
@@ -16,11 +15,11 @@ import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.compon
   ]
 })
 export class SettingsRolesComponent implements OnInit {
-  sortedRoles: ServerRole.GetResponse[] = [];
-  rawRoles: ServerRole.GetResponse[] = [];
+  sortedRoles: ServerRole.Response[] = [];
+  rawRoles: ServerRole.Response[] = [];
 
-  gridConfig!: GridConfigItem<ServerRole.GetResponse>[];
-  gridActionsConfig: GridActionConfigItem<ServerRole.GetResponse>[] = [{
+  gridConfig!: GridConfigItem<ServerRole.Response>[];
+  gridActionsConfig: GridActionConfigItem<ServerRole.Response>[] = [{
     title: '',
     icon: 'pencil',
     buttonClass: 'secondary',
@@ -51,7 +50,7 @@ export class SettingsRolesComponent implements OnInit {
       title: 'systemName',
       name: 'systemName',
       getValue: (item) => item.systemName,
-    }, 
+    },
     // {
     //   title: this.strings.source,
     //   name: 'source',
@@ -84,7 +83,7 @@ export class SettingsRolesComponent implements OnInit {
     ];
   }
 
-  updateRole(role: ServerRole.GetResponse) {
+  updateRole(role: ServerRole.Response) {
     const ref = this.dialogService.open(CreateRoleComponent, {
       data: {
         role,
@@ -94,7 +93,7 @@ export class SettingsRolesComponent implements OnInit {
     });
   }
 
-  deleteRole(role: ServerRole.GetResponse) {
+  deleteRole(role: ServerRole.Response) {
     this.roleService.deleteRole(role.id)
       .subscribe(res => {
         console.log(res);
@@ -108,7 +107,7 @@ export class SettingsRolesComponent implements OnInit {
   openNewRoleWindow() {
     const ref = this.dialogService.open(CreateRoleComponent, {
       data: {
-        
+
       },
       header: 'Новая роль',
       width: '70%'

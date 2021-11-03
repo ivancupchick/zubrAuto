@@ -4,7 +4,7 @@ import { zip } from 'rxjs';
 import { ServerField } from 'src/app/entities/field';
 import { StringHash } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
-import { ServerUser, SystemRole } from 'src/app/entities/user';
+import { ServerUser } from 'src/app/entities/user';
 import { RoleService } from 'src/app/services/role/role.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { CreateUserComponent } from '../modals/create-user/create-user.component';
@@ -22,11 +22,11 @@ import { settingsUsersStrings } from './settings-users.strings';
   ]
 })
 export class SettingsUsersComponent implements OnInit {
-  sortedUsers: ServerUser.GetResponse[] = [];
-  rawUsers: ServerUser.GetResponse[] = [];
+  sortedUsers: ServerUser.Response[] = [];
+  rawUsers: ServerUser.Response[] = [];
 
-  gridConfig!: GridConfigItem<ServerUser.GetResponse>[];
-  gridActionsConfig: GridActionConfigItem<ServerUser.GetResponse>[] = [{
+  gridConfig!: GridConfigItem<ServerUser.Response>[];
+  gridActionsConfig: GridActionConfigItem<ServerUser.Response>[] = [{
     title: '',
     icon: 'pencil',
     buttonClass: 'secondary',
@@ -39,8 +39,8 @@ export class SettingsUsersComponent implements OnInit {
     handler: (user) => this.deleteUser(user)
   }]
 
-  fieldConfigs: ServerField.Entity[] = [];
-  roles: ServerRole.GetResponse[] = [];
+  fieldConfigs: ServerField.Response[] = [];
+  roles: ServerRole.Response[] = [];
 
   // readonly strings = settingsUsersStrings;
 
@@ -77,7 +77,7 @@ export class SettingsUsersComponent implements OnInit {
     }];
   }
 
-  updateUser(user: ServerUser.GetResponse) {
+  updateUser(user: ServerUser.Response) {
     const ref = this.dialogService.open(CreateUserComponent, {
       data: {
         user,
@@ -89,7 +89,7 @@ export class SettingsUsersComponent implements OnInit {
     });
   }
 
-  deleteUser(user: ServerUser.GetResponse) {
+  deleteUser(user: ServerUser.Response) {
     this.userService.deleteUser(user.id)
       .subscribe(res => {
         console.log(res);
@@ -113,9 +113,9 @@ export class SettingsUsersComponent implements OnInit {
 
   getRoleName(roleLevel: number): string {
     switch (roleLevel) {
-      case SystemRole.SuperAdmin: return 'Супер Админ';
-      case SystemRole.Admin: return 'Админ';
-      case SystemRole.None: return 'Не назначена';
+      case ServerRole.System.SuperAdmin: return 'Супер Админ';
+      case ServerRole.System.Admin: return 'Админ';
+      case ServerRole.System.None: return 'Не назначена';
     }
 
     const customRole = this.roles.find(role => (role.id + 1000) === roleLevel);

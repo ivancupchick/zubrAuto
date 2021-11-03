@@ -12,7 +12,7 @@ class ClientConntroller {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const clients = await clientService.getAllClients();
+      const clients = await clientService.getAll();
 
       return res.json(clients);
     } catch (e) {
@@ -28,7 +28,7 @@ class ClientConntroller {
       }
 
       const id = +req.params.clientId;
-      const client = await clientService.getClient(id);
+      const client = await clientService.get(id);
 
       return res.json(client);
     } catch (e) {
@@ -44,7 +44,7 @@ class ClientConntroller {
       }
 
       const newClient: ServerClient.CreateRequest = req.body;
-      const client = await clientService.createClient(newClient);
+      const client = await clientService.create(newClient);
 
       return res.json(client);
     } catch (e) {
@@ -61,7 +61,7 @@ class ClientConntroller {
 
       const id = +req.params.clientId;
       const updatedClient: ServerClient.CreateRequest = req.body;
-      const client = await clientService.updateClient(id, updatedClient);
+      const client = await clientService.update(id, updatedClient);
 
       return res.json(client);
     } catch (e) {
@@ -77,7 +77,7 @@ class ClientConntroller {
       }
 
       const id = +req.params.clientId;
-      const client = await clientService.deleteClient(id);
+      const client = await clientService.delete(id);
 
       return res.json(client);
     } catch (e) {

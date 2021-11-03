@@ -2,7 +2,7 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FieldType, ServerField, UIRealField } from 'src/app/entities/field';
 import { FieldNames, StringHash } from 'src/app/entities/FieldNames';
-import { ServerUser, SystemRole } from 'src/app/entities/user';
+import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';
 import { UserService } from 'src/app/services/user/user.service';
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
@@ -22,9 +22,9 @@ import { Validators } from '@angular/forms';
 export class CreateUserComponent implements OnInit {
   loading = false;
 
-  @Input() user: ServerUser.GetResponse | undefined = undefined;
-  @Input() customRoles: ServerRole.GetResponse[] = [];
-  @Input() fieldConfigs: ServerField.Entity[] = [];
+  @Input() user: ServerUser.Response | undefined = undefined;
+  @Input() customRoles: ServerRole.Response[] = [];
+  @Input() fieldConfigs: ServerField.Response[] = [];
 
   formValid = false;
 
@@ -93,18 +93,18 @@ export class CreateUserComponent implements OnInit {
     }))
     formFields.push(this.dfcs.getDynamicFieldFromOptions({
       id: -1,
-      value: `${this.user?.roleLevel || SystemRole.None }`,
+      value: `${this.user?.roleLevel || ServerRole.System.None }`,
       key: 'roleLevel',
       label: 'Роль',
       order: 1,
       variants: [{
-        key: `${SystemRole.None}`,
+        key: `${ServerRole.System.None}`,
         value: 'Никакой'
       }, {
-        key: `${SystemRole.Admin}`,
+        key: `${ServerRole.System.Admin}`,
         value: 'Админ'
       }, {
-        key: `${SystemRole.SuperAdmin}`,
+        key: `${ServerRole.System.SuperAdmin}`,
         value: 'Супер Админ'
       }, ...this.customRoles.map((role) => {
         return {
@@ -149,7 +149,7 @@ export class CreateUserComponent implements OnInit {
     }
 
     const methodObs = this.user != undefined
-      ? this.userService.updateUser(userForUpdate, (this.user as ServerUser.GetResponse).id)
+      ? this.userService.updateUser(userForUpdate, (this.user as ServerUser.Response).id)
       : this.userService.createUser(user)
 
     methodObs.subscribe(result => {

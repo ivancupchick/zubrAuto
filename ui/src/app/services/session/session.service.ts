@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { ServerUser } from 'src/app/entities/user';
+import { ServerAuth, ServerUser } from 'src/app/entities/user';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class SessionService {
   isAuth = false;
 
-  userSubj = new BehaviorSubject<ServerUser.IPayload | null>(null);
+  userSubj = new BehaviorSubject<ServerAuth.IPayload | null>(null);
 
   constructor(private authService: AuthService) {}
 
@@ -16,7 +16,7 @@ export class SessionService {
     this.isAuth = isAuth;
   }
 
-  setUser(user: ServerUser.IPayload | null) {
+  setUser(user: ServerAuth.IPayload | null) {
     this.userSubj.next(user);
   }
 

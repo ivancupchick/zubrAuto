@@ -14,7 +14,7 @@ class RoleController {
         throw ApiError.BadRequest('Ошибка при валидации', errors.array());
       }
 
-      const roles = await roleService.getAllRoles();
+      const roles = await roleService.getAll();
 
       return res.json(roles);
     } catch (e) {
@@ -31,7 +31,7 @@ class RoleController {
       }
 
       const newRole: ServerRole.CreateRequest = req.body;
-      const role = await roleService.createRole(newRole);
+      const role = await roleService.create(newRole);
       return res.json(role);
     } catch (e) {
       next(e);
@@ -47,7 +47,7 @@ class RoleController {
       }
 
       const id = +req.params.roleId;
-      const role = await roleService.getRole(id);
+      const role = await roleService.get(id);
 
       return res.json(role);
     } catch (e) {
@@ -64,7 +64,7 @@ class RoleController {
       }
 
       const id = +req.params.roleId;
-      const role = await roleService.deleteRole(id);
+      const role = await roleService.delete(id);
 
       return res.json(role);
     } catch (e) {
@@ -82,7 +82,7 @@ class RoleController {
 
       const id = +req.params.roleId;
       const updatedRole: ServerRole.UpdateRequest = req.body;
-      const role = await roleService.updateRole(id, updatedRole);
+      const role = await roleService.update(id, updatedRole);
 
       return res.json(role);
     } catch (e) {

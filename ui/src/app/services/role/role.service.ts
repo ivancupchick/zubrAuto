@@ -13,8 +13,8 @@ export class RoleService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
-  getRoles(): Observable<ServerRole.GetResponse[]> {
-    return this.requestService.get<ServerRole.GetResponse[]>(`${environment.serverUrl}/${API}`)
+  getRoles(): Observable<ServerRole.Response[]> {
+    return this.requestService.get<ServerRole.Response[]>(`${environment.serverUrl}/${API}`)
   }
 
   createRole(value: ServerRole.CreateRequest): Observable<boolean> {
@@ -26,8 +26,8 @@ export class RoleService {
       }))
   }
 
-  getRole(id: number): Observable<ServerRole.GetResponse> {
-    return this.requestService.get<ServerRole.GetResponse[]>(`${environment.serverUrl}/${API}/${id}`)
+  getRole(id: number): Observable<ServerRole.Response> {
+    return this.requestService.get<ServerRole.Response[]>(`${environment.serverUrl}/${API}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
@@ -35,7 +35,7 @@ export class RoleService {
       }))
   }
 
-  updateRole(value: ServerRole.Entity | ServerRole.CreateRequest, id: number): Observable<boolean> {
+  updateRole(value: ServerRole.UpdateRequest, id: number): Observable<boolean> {
     delete (value as any).id;
     return this.requestService.put<any>(`${environment.serverUrl}/${API}/${id}`, value)
       .pipe(map(result => {

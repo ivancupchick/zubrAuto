@@ -19,11 +19,11 @@ import { settingsCarsStrings } from './settings-cars.strings';
   ]
 })
 export class SettingsCarsComponent implements OnInit {
-  sortedCars: ServerCar.GetResponse[] = [];
-  rawCars: ServerCar.GetResponse[] = [];
+  sortedCars: ServerCar.Response[] = [];
+  rawCars: ServerCar.Response[] = [];
 
-  gridConfig!: GridConfigItem<ServerCar.GetResponse>[];
-  gridActionsConfig: GridActionConfigItem<ServerCar.GetResponse>[] = [{
+  gridConfig!: GridConfigItem<ServerCar.Response>[];
+  gridActionsConfig: GridActionConfigItem<ServerCar.Response>[] = [{
     title: '',
     icon: 'pencil',
     buttonClass: 'secondary',
@@ -36,8 +36,8 @@ export class SettingsCarsComponent implements OnInit {
     handler: (car) => this.deleteCar(car)
   }]
 
-  carFieldConfigs: ServerField.Entity[] = [];
-  carOwnerFieldConfigs: ServerField.Entity[] = [];
+  carFieldConfigs: ServerField.Response[] = [];
+  carOwnerFieldConfigs: ServerField.Response[] = [];
 
   readonly strings = settingsCarsStrings;
 
@@ -94,7 +94,7 @@ export class SettingsCarsComponent implements OnInit {
     }];
   }
 
-  updateCar(car: ServerCar.GetResponse) {
+  updateCar(car: ServerCar.Response) {
     const ref = this.dialogService.open(CreateCarComponent, {
       data: {
         car,
@@ -106,7 +106,7 @@ export class SettingsCarsComponent implements OnInit {
     });
   }
 
-  deleteCar(car: ServerCar.GetResponse) {
+  deleteCar(car: ServerCar.Response) {
     this.carService.deleteCar(car.id)
       .subscribe(res => {
         console.log(res);

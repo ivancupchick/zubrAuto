@@ -5,14 +5,14 @@ import { ApiError } from '../exceptions/api.error';
 import userService from '../services/user.service';
 
 class UserController {
-  async getAllUsers(req: Request, res: Response, next: NextFunction) {
+  async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
 
-      const users = await userService.getAllUsers();
+      const users = await userService.getAll();
 
       return res.json(users);
     } catch (e) {
@@ -20,7 +20,7 @@ class UserController {
     }
   }
 
-  async getUser(req: Request, res: Response, next: NextFunction) {
+  async get(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -28,7 +28,7 @@ class UserController {
       }
 
       const id = +req.params.userId;
-      const user = await userService.getUser(id);
+      const user = await userService.get(id);
 
       return res.json(user);
     } catch (e) {
@@ -36,7 +36,7 @@ class UserController {
     }
   }
 
-  async createUser(req: Request, res: Response, next: NextFunction) {
+  async create(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -44,7 +44,7 @@ class UserController {
       }
 
       const newUser: ServerUser.CreateRequest = req.body;
-      const user = await userService.createUser(newUser);
+      const user = await userService.create(newUser);
 
       return res.json(user);
     } catch (e) {
@@ -52,7 +52,7 @@ class UserController {
     }
   }
 
-  async updateUser(req: Request, res: Response, next: NextFunction) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -61,7 +61,7 @@ class UserController {
 
       const id = +req.params.userId;
       const updatedUser: ServerUser.CreateRequest = req.body;
-      const user = await userService.updateUser(id, updatedUser);
+      const user = await userService.update(id, updatedUser);
 
       return res.json(user);
     } catch (e) {
@@ -69,7 +69,7 @@ class UserController {
     }
   }
 
-  async deleteUser(req: Request, res: Response, next: NextFunction) {
+  async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -77,7 +77,7 @@ class UserController {
       }
 
       const id = +req.params.userId;
-      const user = await userService.deleteUser(id);
+      const user = await userService.delete(id);
 
       return res.json(user);
     } catch (e) {

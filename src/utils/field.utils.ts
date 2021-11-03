@@ -1,5 +1,5 @@
 import { Models } from "../entities/Models";
-import { RealField, ServerField } from "../entities/Field";
+import { RealField } from "../entities/Field";
 import { BitHelper } from "./bit.utils";
 
 export enum Flags {

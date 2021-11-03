@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { v4 } from 'uuid';
 import mailService from './mail.service';
 import { Models } from '../entities/Models';
-import { ServerUser, SystemRole } from '../entities/User';
+import { ServerUser } from '../entities/User';
 import { ApiError } from '../exceptions/api.error';
 import userRepository from '../repositories/base/user.repository';
 import fieldService from './field.service';
@@ -10,10 +10,10 @@ import { FieldDomains } from '../entities/Field';
 import fieldChainRepository from '../repositories/base/field-chain.repository';
 import { getFieldsWithValues } from '../utils/field.utils';
 import fieldChainService from './field-chain.service';
+import { ICrudService } from '../entities/Types';
 
-class UserService {
-  // replace to other service
-  async getAllUsers() {
+class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.UpdateRequest, ServerUser.Response, ServerUser.IdResponse> {
+  async getAll(): Promise<ServerUser.Response[]> {
     const [
       users,
       relatedFields
@@ -27,7 +27,7 @@ class UserService {
       sourceName: [`${Models.USERS_TABLE_NAME}`]
     });
 
-    const result: ServerUser.GetResponse[] = users.map(user => ({
+    const result: ServerUser.Response[] = users.map(user => ({
       id: user.id,
       email: user.email,
       password: user.password,
@@ -40,25 +40,22 @@ class UserService {
     return result;
   }
 
-  async createUser(userData: ServerUser.CreateRequest) {
+  async create(userData: ServerUser.CreateRequest) {
     const existUser = await userRepository.findOne({ email: [userData.email] })
     if (existUser) {
       throw ApiError.BadRequest(`User with ${userData.email} exists`); // Error codes
     }
 
-    const hashPassword = await bcrypt.hash(userData.password, 3)
     const activationLink = v4();
-    const user: Models.User = await userRepository.create({
-      id: 0, // will be deleted in DAO
-      email: userData.email,
-      isActivated: true,
-      password: hashPassword,
-      activationLink: !userData.isActivated ? activationLink : '',
-      roleLevel: userData.roleLevel || SystemRole.None,
-    });
+    userData.password = await bcrypt.hash(userData.password, 3)
+    if (!userData.isActivated) {
+      userData = Object.assign({}, userData, { activationLink });
+    }
 
-    await Promise.all(userData.fields.map(f => fieldChainService.createFieldChain({
-      id: 0,
+    const fields = [...userData.fields];
+    delete userData.fields;
+    const user: Models.User = await userRepository.create(userData);
+    await Promise.all(fields.map(f => fieldChainService.createFieldChain({
       sourceId: user.id,
       fieldId: f.id,
       value: f.value,
@@ -72,27 +69,16 @@ class UserService {
     return user;
   }
 
-  async updateUser(id: number, userData: ServerUser.UpdateRequest) { // TODO deleting userTokens
-    let hashPassword = '';
-
+  async update(id: number, userData: ServerUser.UpdateRequest) { // TODO deleting userTokens
     if (userData.password) {
-      hashPassword = await bcrypt.hash(userData.password, 3)
+      userData.password = await bcrypt.hash(userData.password, 3)
     }
 
-    const updatedUserData: Models.User = {
-      id: 0, // will be deleted in DAO
-      email: userData.email,
-      isActivated: true,
-      roleLevel: userData.roleLevel || SystemRole.None,
-    } as Models.User;
+    const fields = [...userData.fields];
+    delete userData.fields;
+    const user = await userRepository.updateById(id, userData);
 
-    if (hashPassword) {
-      updatedUserData.password = hashPassword;
-    }
-
-    const user = await userRepository.updateById(id, updatedUserData);
-
-    await Promise.all(userData.fields.map(f => fieldChainRepository.update({
+    await Promise.all(fields.map(f => fieldChainRepository.update({
       value: f.value
     }, {
       fieldId: [f.id].map(c => `${c}`),
@@ -103,7 +89,7 @@ class UserService {
     return user
   }
 
-  async deleteUser(id: number) { // TODO deleting userTokens
+  async delete(id: number) { // TODO deleting userTokens
     const chaines = await fieldChainRepository.find({
       sourceId: [`${id}`],
       sourceName: [Models.USERS_TABLE_NAME]
@@ -113,7 +99,7 @@ class UserService {
     return user
   }
 
-  async getUser(id: number) {
+  async get(id: number) {
     const user = await userRepository.findById(id);
     const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.User);
     const chaines = await fieldChainRepository.find({
@@ -121,7 +107,7 @@ class UserService {
       sourceName: [`${Models.USERS_TABLE_NAME}`]
     });
 
-    const result: ServerUser.GetResponse = {
+    const result: ServerUser.Response = {
       id: user.id,
       email: user.email,
       isActivated: user.isActivated,

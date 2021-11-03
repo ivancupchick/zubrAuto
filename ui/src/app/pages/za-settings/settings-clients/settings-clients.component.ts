@@ -20,11 +20,11 @@ import { CreateClientComponent } from '../modals/create-client/create-client.com
   ]
 })
 export class SettingsClientsComponent implements OnInit {
-  sortedClients: ServerClient.GetResponse[] = [];
-  rawClients: ServerClient.GetResponse[] = [];
+  sortedClients: ServerClient.Response[] = [];
+  rawClients: ServerClient.Response[] = [];
 
-  gridConfig!: GridConfigItem<ServerClient.GetResponse>[];
-  gridActionsConfig: GridActionConfigItem<ServerClient.GetResponse>[] = [{
+  gridConfig!: GridConfigItem<ServerClient.Response>[];
+  gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [{
     title: '',
     icon: 'pencil',
     buttonClass: 'secondary',
@@ -37,7 +37,7 @@ export class SettingsClientsComponent implements OnInit {
     handler: (client) => this.deleteClient(client)
   }]
 
-  fieldConfigs: ServerField.Entity[] = [];
+  fieldConfigs: ServerField.Response[] = [];
 
   readonly strings = settingsClientsStrings;
 
@@ -92,7 +92,7 @@ export class SettingsClientsComponent implements OnInit {
     }];
   }
 
-  updateClient(client: ServerClient.GetResponse) {
+  updateClient(client: ServerClient.Response) {
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
         client,
@@ -103,7 +103,7 @@ export class SettingsClientsComponent implements OnInit {
     });
   }
 
-  deleteClient(client: ServerClient.GetResponse) {
+  deleteClient(client: ServerClient.Response) {
     this.clientService.deleteClient(client.id)
       .subscribe(res => {
         console.log(res);

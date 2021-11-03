@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { ServerUser } from 'src/app/entities/user';
+import { ServerAuth, ServerUser } from 'src/app/entities/user';
 import { SessionService } from 'src/app/services/session/session.service';
 
 @Component({
@@ -10,9 +10,9 @@ import { SessionService } from 'src/app/services/session/session.service';
 })
 export class ZASettingsComponent implements OnInit {
 
-  @Input() user!: ServerUser.IPayload | null;
+  @Input() user!: ServerAuth.IPayload | null;
 
-  userSubj = new Subject<ServerUser.IPayload | null>();
+  userSubj = new Subject<ServerAuth.IPayload | null>();
 
   constructor(private sessionService: SessionService) {
     this.userSubj.next(this.user);

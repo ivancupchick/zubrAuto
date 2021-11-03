@@ -7,7 +7,7 @@ class FieldRepository extends BaseRepository<Models.Field> {
     super(Models.FIELDS_TABLE_NAME);
   }
 
-  async updateById(id: number, item: Models.Field): Promise<Models.Field> {
+  async updateById(id: number, item: Partial<Omit<Models.Field, 'id'>>): Promise<Models.Field> {
     const query = getUpdateByIdQuery(this.tableName, id, item, true)
 
     console.log(query)
@@ -16,7 +16,7 @@ class FieldRepository extends BaseRepository<Models.Field> {
     return this.getOneRow(dbResult);
   }
 
-  async update(newValues: StringHash, expressionHash: ExpressionHash): Promise<Models.Field> {
+  async update(newValues: Partial<Omit<Models.Field, 'id'>>, expressionHash: ExpressionHash<Models.Field>): Promise<Models.Field> {
     const query = getUpdateByAndExpressionQuery(this.tableName, newValues, expressionHash, true)
 
     console.log(query)

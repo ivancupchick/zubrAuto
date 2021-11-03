@@ -1,4 +1,5 @@
-import { ServerUser as user, SystemRole as role } from '../../../../src/entities/User';
+import { ServerUser as user } from '../../../../src/entities/User';
+import { ServerAuth as auth } from '../../../../src/entities/Auth';
 
 export import ServerUser = user;
-export import SystemRole = role;
+export import ServerAuth = auth;

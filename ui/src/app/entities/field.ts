@@ -24,7 +24,7 @@ export class UIRealField  {
   public showUserLevel: number;
   public value: string;
 
-  constructor(options: ServerField.Entity, value: string = '') {
+  constructor(options: ServerField.Response, value: string = '') {
     this.id = options.id;
     this.flags = options.flags;
     this.type = options.type;

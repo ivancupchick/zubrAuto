@@ -14,8 +14,8 @@ export class CarService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
-  getCars(): Observable<ServerCar.GetResponse[]> {
-    return this.requestService.get<ServerCar.GetResponse[]>(`${environment.serverUrl}/${API}`)
+  getCars(): Observable<ServerCar.Response[]> {
+    return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}`)
   }
 
   createCar(value: ServerCar.CreateRequest): Observable<boolean> {
@@ -27,8 +27,8 @@ export class CarService {
       }))
   }
 
-  // getCar(id: number): Observable<ServerCar.GetResponse> {
-  //   return this.requestService.get<ServerCar.GetResponse[]>(`${environment.serverUrl}/${API}/${id}`)
+  // getCar(id: number): Observable<ServerCar.Response> {
+  //   return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${id}`)
   //     .pipe(map(result => {
   //       console.log(result);
 

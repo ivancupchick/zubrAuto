@@ -8,21 +8,21 @@ import carOwnerRepository from '../repositories/base/car-owner.repository';
 import clientRepository from '../repositories/base/client.repository';
 import fieldChainService from './field-chain.service';
 import fieldChainRepository from '../repositories/base/field-chain.repository';
+import { ICrudService } from '../entities/Types';
 
-class FieldService {
-  async getAllFields() {
+class FieldService implements ICrudService<ServerField.CreateRequest, ServerField.UpdateRequest, ServerField.Response, ServerField.IdResponse> {
+  async getAll() {
     const fields = await fieldRepository.getAll();
     return fields;
   }
 
-  async createField(fieldData: ServerField.CreateRequest) {
+  async create(fieldData: ServerField.CreateRequest) {
     const existField = await fieldRepository.findOne({ name: [fieldData.name], domain: [`${fieldData.domain}`] })
     if (existField) {
       throw ApiError.BadRequest(`Field ${fieldData.name} exists`);
     }
 
     const field: Models.Field = await fieldRepository.create({
-      id: 0, // will be deleted in DAO
       flags: fieldData.flags || 0,
       type: fieldData.type || FieldType.Text,
       name: fieldData.name.toLowerCase(),
@@ -53,7 +53,6 @@ class FieldService {
     }
 
     await Promise.all(entities.map(entity => fieldChainService.createFieldChain({
-      id: 0,
       sourceId: entity.id,
       fieldId: field.id,
       value: '',
@@ -63,12 +62,21 @@ class FieldService {
     return field;
   }
 
-  async updateField(id: number, fieldData: ServerField.Entity) {
-    const field = await fieldRepository.updateById(id, fieldData);
+  async update(id: number, fieldData: ServerField.UpdateRequest) {
+    const field: Models.Field = await fieldRepository.updateById(id, {
+      flags: fieldData.flags || 0,
+      type: fieldData.type || FieldType.Text,
+      name: fieldData.name.toLowerCase(),
+      domain: fieldData.domain,
+      variants: fieldData.variants,
+      showUserLevel: fieldData.showUserLevel
+    });
+
+    // const field = await fieldRepository.updateById(id, fieldData);
     return field
   }
 
-  async deleteField(id: number) {
+  async delete(id: number) {
     const field = await fieldRepository.deleteById(id);
 
     let tableName = '';
@@ -101,9 +109,11 @@ class FieldService {
     return field
   }
 
-  async getField(id: number) {
-    const field = await fieldRepository.findById(id);
-    return field;
+  async get(id: number): Promise<ServerField.Response> {
+    throw new Error("Not implemented");
+
+    // const field = await fieldRepository.findById(id);
+    // return field;
   }
 
   async getFieldsByDomain(domain: FieldDomains) {

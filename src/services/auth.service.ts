@@ -3,9 +3,11 @@ import { v4 } from 'uuid';
 import mailService from './mail.service';
 import tokenService from './token.service';
 import { Models } from '../entities/Models';
-import { ServerUser, SystemRole } from '../entities/User';
+import { ServerUser } from '../entities/User';
 import { ApiError } from '../exceptions/api.error';
 import userRepository from '../repositories/base/user.repository';
+import { ServerRole } from '../entities/Role';
+import { ServerAuth } from '../entities/Auth';
 
 class AuthService {
   async registration(email: string, password: string) {
@@ -17,16 +19,15 @@ class AuthService {
     const hashPassword = await bcrypt.hash(password, 3)
     const activationLink = v4();
     const user: Models.User = await userRepository.create({
-      id: 0, // will be deleted in DAO
       email,
       isActivated: false,
       password: hashPassword,
       activationLink,
-      roleLevel: SystemRole.None,
+      roleLevel: ServerRole.System.None,
     });
 
     await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink); // need test
-    const userPayload = new ServerUser.Payload(user);
+    const userPayload = new ServerAuth.Payload(user);
 
     const tokens = tokenService.generateTokens({...userPayload});
     await tokenService.saveToken(userPayload.id, tokens.refreshToken);
@@ -37,8 +38,8 @@ class AuthService {
     };
   }
 
-  async activate(activateLink: string) {
-    const existUser = await userRepository.findOne({ activateLink: [activateLink] })
+  async activate(activationLink: string) {
+    const existUser = await userRepository.findOne({ activationLink: [activationLink] })
 
     if (!existUser) {
       throw ApiError.BadRequest(`User not exists`); // Error codes
@@ -59,7 +60,7 @@ class AuthService {
       throw ApiError.BadRequest('Неверный пароль'); // Error codes
     }
 
-    const userPayload = new ServerUser.Payload(user);
+    const userPayload = new ServerAuth.Payload(user);
     const tokens = tokenService.generateTokens({...userPayload});
     await tokenService.saveToken(userPayload.id, tokens.refreshToken);
 
@@ -79,7 +80,7 @@ class AuthService {
       throw ApiError.UnauthorizedError();
     }
 
-    const userData: ServerUser.Payload = tokenService.validateRefreshToken(refreshToken) as ServerUser.Payload;
+    const userData: ServerAuth.Payload = tokenService.validateRefreshToken(refreshToken) as ServerAuth.Payload;
     const tokenFromDb  = await tokenService.findToken(refreshToken);
 
     if (!userData || !tokenFromDb) {
@@ -87,7 +88,7 @@ class AuthService {
     }
 
     const user = await userRepository.findById(userData.id);
-    const userPayload = new ServerUser.Payload(user);
+    const userPayload = new ServerAuth.Payload(user);
     const tokens = tokenService.generateTokens({...userPayload});
     await tokenService.saveToken(userPayload.id, tokens.refreshToken);
 

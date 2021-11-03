@@ -2,13 +2,10 @@ import { Models } from "./Models";
 import { RealField } from "./Field";
 
 export namespace ServerClient {
-  export type BaseEntity = {
-    carIds: string;
-  }
+  type Entity = Omit<Models.Client, 'id'>;
 
-  export type Entity = Models.Client & BaseEntity;
-
-  export type CreateRequest = RealField.With.Request & BaseEntity;
-
-  export type GetResponse = RealField.With.Response & Entity;
+  export type CreateRequest = RealField.With.Request & Entity;
+  export type UpdateRequest = RealField.With.Request & Partial<Entity>;
+  export type Response = Models.Client & RealField.With.Response;
+  export type IdResponse = Pick<Response, 'id'>
 }

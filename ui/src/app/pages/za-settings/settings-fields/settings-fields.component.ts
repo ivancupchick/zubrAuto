@@ -39,7 +39,7 @@ export class SettingsFieldsComponent implements OnInit {
 
   fields: GridField[] = [];
   sortedFields: GridField[] = [];
-  rawFields: ServerField.Entity[] = [];
+  rawFields: ServerField.Response[] = [];
 
   constructor(private fieldService: FieldService, private dialogService: DialogService) { }
 
@@ -120,7 +120,7 @@ export class SettingsFieldsComponent implements OnInit {
     this.sortedFields = this.rawFields.filter(f => f.domain === this.selectedDomain).map(this.getGridFields);
   }
 
-  getGridFields: ((field: ServerField.Entity) => GridField) = (field: ServerField.Entity) => {
+  getGridFields: ((field: ServerField.Response) => GridField) = (field: ServerField.Response) => {
     let title = field.name;
 
     switch (this.selectedDomain) {

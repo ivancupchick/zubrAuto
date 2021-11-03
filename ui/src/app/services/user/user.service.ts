@@ -14,8 +14,8 @@ export class UserService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
-  getUsers(): Observable<ServerUser.GetResponse[]> {
-    return this.requestService.get<ServerUser.GetResponse[]>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`)
+  getUsers(): Observable<ServerUser.Response[]> {
+    return this.requestService.get<ServerUser.Response[]>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`)
   }
 
   createUser(value: ServerUser.CreateRequest): Observable<boolean> {
@@ -27,8 +27,8 @@ export class UserService {
       }))
   }
 
-  getUser(id: number): Observable<ServerUser.GetResponse> {
-    return this.requestService.get<ServerUser.GetResponse[]>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`)
+  getUser(id: number): Observable<ServerUser.Response> {
+    return this.requestService.get<ServerUser.Response[]>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
