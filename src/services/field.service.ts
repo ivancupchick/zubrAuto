@@ -167,7 +167,6 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
       fieldId: [`${field.id}`],
     });
 
-    console.log(fieldIds.map(fieldChain => fieldChain.id))
     await Promise.all([
       ...fieldIds.map(fieldChain => fieldChainRepository.deleteById(fieldChain.id)),
     ]);
