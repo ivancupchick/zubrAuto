@@ -68,7 +68,7 @@ class FieldConntroller {
     }
   }
 
-  async updateField(req: Request<{ fieldId: string; }, ServerField.Response, ServerField.UpdateRequest>, res: Response<ServerField.Response>, next: NextFunction) {
+  async updateField(req: Request<{ fieldId: string; }, ServerField.IdResponse, ServerField.UpdateRequest>, res: Response<ServerField.IdResponse>, next: NextFunction) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {

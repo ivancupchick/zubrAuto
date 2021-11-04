@@ -1,5 +1,5 @@
 import { Models } from '../entities/Models';
-import { FieldDomains, FieldType, ServerField } from '../entities/Field';
+import { FieldDomains, FieldType, getDomainByTableName, getTableNameByDomain, ServerField } from '../entities/Field';
 import { ApiError } from '../exceptions/api.error';
 import fieldRepository from '../repositories/base/field.repository';
 import carRepository from '../repositories/base/car.repository';
@@ -9,11 +9,27 @@ import clientRepository from '../repositories/base/client.repository';
 import fieldChainService from './field-chain.service';
 import fieldChainRepository from '../repositories/base/field-chain.repository';
 import { ICrudService } from '../entities/Types';
+import fieldAccessRepository from '../repositories/base/field-access.repository';
 
 class FieldService implements ICrudService<ServerField.CreateRequest, ServerField.UpdateRequest, ServerField.Response, ServerField.IdResponse> {
   async getAll() {
-    const fields = await fieldRepository.getAll();
-    return fields;
+    const [fields, fieldAccesses] = await Promise.all([
+      fieldRepository.getAll(),
+      fieldAccessRepository.getAll()
+    ]);
+
+    const result: ServerField.Response[] = fields.map(field => ({
+      ...field,
+      accesses: fieldAccesses.filter(fa => fa.fieldId === field.id).map(fa => ({
+        id: fa.id,
+        fieldId: fa.fieldId,
+        sourceId: fa.sourceId,
+        domain: getDomainByTableName(fa.sourceName),
+        access: fa.access
+      })),
+    }));
+
+    return result;
   }
 
   async create(fieldData: ServerField.CreateRequest) {
@@ -30,6 +46,15 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
       variants: fieldData.variants,
       showUserLevel: fieldData.showUserLevel
     });
+
+    if (fieldData.accesses) {
+      await Promise.all((fieldData.accesses || []).map(a => fieldAccessRepository.create({
+        sourceId: a.sourceId,
+        fieldId: field.id,
+        access: a.access,
+        sourceName: getTableNameByDomain(a.domain)
+      })))
+    }
 
     let tableName = '';
     let entities: { id: number }[] = [];
@@ -63,14 +88,47 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
   }
 
   async update(id: number, fieldData: ServerField.UpdateRequest) {
-    const field: Models.Field = await fieldRepository.updateById(id, {
-      flags: fieldData.flags || 0,
-      type: fieldData.type || FieldType.Text,
-      name: fieldData.name.toLowerCase(),
-      domain: fieldData.domain,
-      variants: fieldData.variants,
-      showUserLevel: fieldData.showUserLevel
-    });
+    const accesses = [...fieldData.accesses];
+    delete fieldData.accesses;
+
+    if (fieldData.name) {
+      fieldData.name === fieldData.name.trim();
+    }
+
+    const field: Models.Field = await fieldRepository.updateById(id, fieldData);
+
+    const createdAccess = accesses.length > 0
+      ? await fieldAccessRepository.find({
+        fieldId: [`${id}`]
+      })
+      : [];
+    const notCreatedAccess = accesses.filter(na => !createdAccess.find((ca => ca.sourceId === na.sourceId && ca.sourceName === getTableNameByDomain(na.domain))));
+
+    await Promise.all(
+      createdAccess
+        .map(a => {
+          const newAccess = accesses.find(na => na.sourceId === a.sourceId && getTableNameByDomain(na.domain) === a.sourceName);
+          const newAccessValue: number | null = !!newAccess ? newAccess.access : null;
+
+          switch (newAccessValue) {
+            case null: return null;
+            case 0: return fieldAccessRepository.deleteById(a.id);
+          }
+
+          return fieldAccessRepository.updateById(id, { access: newAccessValue })
+        })
+        .filter(a => a)
+    )
+
+    await Promise.all(
+      notCreatedAccess
+        .map(na => fieldAccessRepository.create({
+          sourceId: na.sourceId,
+          fieldId: id,
+          access: na.access,
+          sourceName: getTableNameByDomain(na.domain)
+        }))
+    )
 
     // const field = await fieldRepository.updateById(id, fieldData);
     return field
@@ -100,25 +158,63 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
         break;
     }
 
-    await Promise.all(entities.map(entity => fieldChainRepository.deleteOne({
-      sourceId: [`${entity.id}`],
-      fieldId: [`${field.id}`],
-      sourceName: [`${tableName}`]
-    })))
+    const createdAccess = (await fieldAccessRepository.find({
+      fieldId: [`${id}`]
+    })) || [];
+
+    await Promise.all([
+      ...entities.map(entity => fieldChainRepository.deleteOne({
+        sourceId: [`${entity.id}`],
+        fieldId: [`${field.id}`],
+        sourceName: [`${tableName}`]
+      })),
+    ]);
+
+    await Promise.all([
+      ...createdAccess.map(a => fieldAccessRepository.deleteById(a.id))
+    ]);
 
     return field
   }
 
-  async get(id: number): Promise<ServerField.Response> {
-    throw new Error("Not implemented");
+  async get(id: number) {
+    const [field, fieldAccesses] = await Promise.all([
+      fieldRepository.findById(id),
+      fieldAccessRepository.getAll()
+    ]);
 
-    // const field = await fieldRepository.findById(id);
-    // return field;
+    const result = {
+      ...field,
+      accesses: fieldAccesses.filter(fa => fa.fieldId === field.id).map(fa => ({
+        id: fa.id,
+        fieldId: fa.fieldId,
+        sourceId: fa.sourceId,
+        domain: getDomainByTableName(fa.sourceName),
+        access: fa.access
+      })),
+    };
+
+    return result;
   }
 
-  async getFieldsByDomain(domain: FieldDomains) {
-    const fields = await fieldRepository.find({ domain: [`${domain}`] });
-    return fields;
+  async getFieldsByDomain(domain: FieldDomains): Promise<ServerField.Response[]> {
+    const [fields, fieldAccesses] = await Promise.all([
+      fieldRepository.find({ domain: [`${domain}`] }),
+      fieldAccessRepository.getAll()
+    ]);
+
+    const result = fields.map(field => ({
+      ...field,
+      accesses: fieldAccesses.filter(fa => fa.fieldId === field.id).map(fa => ({
+        id: fa.id,
+        fieldId: fa.fieldId,
+        sourceId: fa.sourceId,
+        domain: getDomainByTableName(fa.sourceName),
+        access: fa.access
+      })),
+    }));
+
+    return result;
   }
 }
 
