@@ -1,4 +1,5 @@
 import { RealField, ServerField, FieldDomains as domain, FieldType as type } from '../../../../src/entities/Field'
+import { FieldAccess } from './fieldAccess';
 
 export interface UIVariant {
   key: string;
@@ -10,7 +11,7 @@ export interface UIVariant {
 // export type EntityField = RealFieldRequest;
 
 export import FieldType = type;
-export import Domain = domain;
+export import FieldDomains = domain;
 export import RealField = RealField;
 export import ServerField = ServerField;
 
@@ -19,7 +20,7 @@ export class UIRealField  {
   public flags: number;
   public type: FieldType;
   public name: string;
-  public domain: Domain;
+  public domain: FieldDomains;
   public variants: UIVariant[] = [];
   public showUserLevel: number;
   public value: string;
@@ -106,11 +107,30 @@ export class FieldsUtils {
         flags: 0,
         variants: '',
         showUserLevel: 0,
-        domain: Domain.Car
+        domain: FieldDomains.Car
       });
       return true;
     }
 
     return false;
   }
+}
+
+export function getDomainName(domain: FieldDomains): string {
+  switch (domain) {
+    case FieldDomains.Role: return 'Роль';
+    default: return 'None';
+  }
+}
+
+
+export function getAccessName(access: number): string {
+  const result = (FieldAccess.writable(access)
+    ? 'Может изменять'
+    : ' ') +
+    (FieldAccess.isNoAccess(access)
+    ? 'Не видит'
+    : ' ');
+
+  return access === 0 ? 'Не может изменять но видит' : result.trim();
 }

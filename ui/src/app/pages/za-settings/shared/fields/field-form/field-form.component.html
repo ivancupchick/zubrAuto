@@ -19,4 +19,18 @@
       <label for="dropdown">Варианты (через запятую)</label>
     </span>
   </div>
+
+  <div class="p-field p-col-12 p-md-4">
+    <span class="p-float-label access-wrapper">
+      <p-chips inputId="chips" class="p-inputwrapper-focus" formControlName="accesses">
+        <ng-template let-item pTemplate="item">
+            {{item.domainName}} - {{item.sourceName}} - {{item.accessName}}
+        </ng-template>
+      </p-chips>
+      <label for="chips">Варианты (через запятую)</label>
+      <button pButton icon="pi pi-pencil" type="button" (click)="openEditAccesses()"></button>
+    </span>
+  </div>
 </form>
+
+<za-spinner *ngIf="loading"></za-spinner>

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Domain, ServerField } from 'src/app/entities/field';
+import { FieldDomains, ServerField } from 'src/app/entities/field';
 import { environment } from 'src/environments/environment';
 import { map, tap } from 'rxjs/operators';
 import { RequestService } from '../request/request.service';
@@ -63,7 +63,7 @@ export class FieldService {
       }))
   }
 
-  getFieldsByDomain(domain: Domain): Observable<ServerField.Response[]> {
+  getFieldsByDomain(domain: FieldDomains): Observable<ServerField.Response[]> {
     return this.allFields.length > 0
       ? of(this.allFields.filter(f => `${f.domain}` === `${domain}`))
       : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.GET_FIELDS_BY_DOMAIN}/${domain}`);

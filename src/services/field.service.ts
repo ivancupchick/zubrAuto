@@ -111,11 +111,11 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
           const newAccessValue: number | null = !!newAccess ? newAccess.access : null;
 
           switch (newAccessValue) {
-            case null: return null;
+            case null: return fieldAccessRepository.deleteById(a.id);
             case 0: return fieldAccessRepository.deleteById(a.id);
           }
 
-          return fieldAccessRepository.updateById(id, { access: newAccessValue })
+          return fieldAccessRepository.updateById(a.id, { access: newAccessValue })
         })
         .filter(a => a)
     )
@@ -135,7 +135,7 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
   }
 
   async delete(id: number) {
-    const field = await fieldRepository.deleteById(id);
+    const field = await fieldRepository.findById(id);
 
     let tableName = '';
     let entities: { id: number }[] = [];
@@ -162,18 +162,21 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
       fieldId: [`${id}`]
     })) || [];
 
+    const fieldIds = await fieldChainRepository.find({
+      sourceId: entities.map(e => `${e.id}`),
+      fieldId: [`${field.id}`],
+    });
+
+    console.log(fieldIds.map(fieldChain => fieldChain.id))
     await Promise.all([
-      ...entities.map(entity => fieldChainRepository.deleteOne({
-        sourceId: [`${entity.id}`],
-        fieldId: [`${field.id}`],
-        sourceName: [`${tableName}`]
-      })),
+      ...fieldIds.map(fieldChain => fieldChainRepository.deleteById(fieldChain.id)),
     ]);
 
     await Promise.all([
       ...createdAccess.map(a => fieldAccessRepository.deleteById(a.id))
     ]);
 
+    await fieldRepository.deleteById(id);
     return field
   }
 

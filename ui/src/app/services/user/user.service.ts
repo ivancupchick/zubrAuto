@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Constants } from 'src/app/entities/constants';
-import { Domain } from 'src/app/entities/field';
+import { FieldDomains } from 'src/app/entities/field';
 import { ServerUser } from 'src/app/entities/user';
 import { environment } from 'src/environments/environment';
 import { FieldService } from '../field/field.service';
@@ -56,6 +56,6 @@ export class UserService {
   }
 
   getUserFields() {
-    return this.fieldService.getFieldsByDomain(Domain.User);
+    return this.fieldService.getFieldsByDomain(FieldDomains.User);
   }
 }

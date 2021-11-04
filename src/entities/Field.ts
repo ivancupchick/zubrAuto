@@ -38,7 +38,8 @@ export enum FieldDomains {
   'Car',
   'CarOwner',
   'Client',
-  'User'
+  'User',
+  'Role'
 }
 
 export enum FieldType {
@@ -52,20 +53,21 @@ export enum FieldType {
 
 export function getTableNameByDomain(domain: FieldDomains): string {
   switch (domain) {
-    case FieldDomains.Car: return Models.CARS_TABLE_NAME;
-    case FieldDomains.CarOwner: return Models.CAR_OWNERS_TABLE_NAME;
-    case FieldDomains.Client: return Models.CLIENTS_TABLE_NAME;
-    case FieldDomains.User: return Models.USERS_TABLE_NAME;
+    // case FieldDomains.Car: return Models.CARS_TABLE_NAME;
+    // case FieldDomains.CarOwner: return Models.CAR_OWNERS_TABLE_NAME;
+    // case FieldDomains.Client: return Models.CLIENTS_TABLE_NAME;
+    case FieldDomains.Role: return Models.ROLES_TABLE_NAME;
     default: return 'None';
   }
 }
 
 export function getDomainByTableName(tableName: string): FieldDomains {
   switch (tableName) {
-    case Models.CARS_TABLE_NAME: return FieldDomains.Car;
-    case Models.CAR_OWNERS_TABLE_NAME: return FieldDomains.CarOwner;
-    case Models.CLIENTS_TABLE_NAME: return FieldDomains.Client;
-    case Models.USERS_TABLE_NAME: return FieldDomains.User;
+    // case Models.CARS_TABLE_NAME: return FieldDomains.Car;
+    // case Models.CAR_OWNERS_TABLE_NAME: return FieldDomains.CarOwner;
+    // case Models.CLIENTS_TABLE_NAME: return FieldDomains.Client;
+    // case Models.USERS_TABLE_NAME: return FieldDomains.User;
+    case Models.ROLES_TABLE_NAME: return FieldDomains.Role;
     default: return 1000;
   }
 }

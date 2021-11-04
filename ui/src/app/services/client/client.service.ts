@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServerClient } from 'src/app/entities/client';
-import { Domain } from 'src/app/entities/field';
+import { FieldDomains } from 'src/app/entities/field';
 import { environment } from 'src/environments/environment';
 import { FieldService } from '../field/field.service';
 import { RequestService } from '../request/request.service';
@@ -57,6 +57,6 @@ export class ClientService {
   }
 
   getClientFields() {
-    return this.fieldService.getFieldsByDomain(Domain.Client);
+    return this.fieldService.getFieldsByDomain(FieldDomains.Client);
   }
 }

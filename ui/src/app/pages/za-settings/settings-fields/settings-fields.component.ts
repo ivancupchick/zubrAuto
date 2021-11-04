@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Domain, FieldType, RealField, ServerField } from 'src/app/entities/field';
+import { FieldDomains, FieldType, RealField, ServerField } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
 
 import {DialogService} from 'primeng/dynamicdialog';
@@ -29,13 +29,13 @@ export class SettingsFieldsComponent implements OnInit {
   loading = false;
 
   domains = [
-    {name: 'Машины', code: Domain.Car},
-    {name: 'Владелец машины', code: Domain.CarOwner},
-    {name: 'Клиент', code: Domain.Client},
-    {name: 'Пользователь', code: Domain.User},
+    {name: 'Машины', code: FieldDomains.Car},
+    {name: 'Владелец машины', code: FieldDomains.CarOwner},
+    {name: 'Клиент', code: FieldDomains.Client},
+    {name: 'Пользователь', code: FieldDomains.User},
   ];
 
-  selectedDomain = Domain.Car;
+  selectedDomain = FieldDomains.Car;
 
   fields: GridField[] = [];
   sortedFields: GridField[] = [];
@@ -124,7 +124,7 @@ export class SettingsFieldsComponent implements OnInit {
     let title = field.name;
 
     switch (this.selectedDomain) {
-      case Domain.Client:
+      case FieldDomains.Client:
         title = settingsClientsStrings[field.name] || field.name;
 
         switch (field.name) {
@@ -136,7 +136,7 @@ export class SettingsFieldsComponent implements OnInit {
             break;
         }
         break;
-      case Domain.Car:
+      case FieldDomains.Car:
         title = (settingsCarsStrings as StringHash)[field.name] || field.name;
         break;
     }

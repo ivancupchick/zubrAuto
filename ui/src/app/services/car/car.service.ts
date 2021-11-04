@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
 import { ServerCar } from 'src/app/entities/car';
 import { map } from 'rxjs/operators';
-import { Domain } from 'src/app/entities/field';
+import { FieldDomains } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
 
 const API = 'cars';
@@ -56,10 +56,10 @@ export class CarService {
   }
 
   getCarFields() {
-    return this.fieldService.getFieldsByDomain(Domain.Car);
+    return this.fieldService.getFieldsByDomain(FieldDomains.Car);
   }
 
   getCarOwnersFields() {
-    return this.fieldService.getFieldsByDomain(Domain.CarOwner);
+    return this.fieldService.getFieldsByDomain(FieldDomains.CarOwner);
   }
 }

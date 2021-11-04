@@ -18,6 +18,8 @@ import {ToastModule} from 'primeng/toast';
 import {AvatarModule} from 'primeng/avatar';
 import {AvatarGroupModule} from 'primeng/avatargroup';
 import {ChipModule} from 'primeng/chip';
+import {ChipsModule} from 'primeng/chips';
+import {RadioButtonModule} from 'primeng/radiobutton';
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
 import { SettingsFieldsComponent } from './settings-fields/settings-fields.component';
@@ -46,6 +48,7 @@ import { SettingsRolesComponent } from './settings-roles/settings-roles.componen
 import { CreateRoleComponent } from './modals/create-role/create-role.component';
 import { SettingsUsersComponent } from './settings-users/settings-users.component';
 import { CreateUserComponent } from './modals/create-user/create-user.component';
+import { SelectAccessComponent } from './modals/select-access/select-access.component';
 
 
 
@@ -98,7 +101,8 @@ const routes: Routes = [{
     SettingsRolesComponent,
     CreateRoleComponent,
     SettingsUsersComponent,
-    CreateUserComponent
+    CreateUserComponent,
+    SelectAccessComponent
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -123,6 +127,8 @@ const routes: Routes = [{
     AvatarModule,
     AvatarGroupModule,
     ChipModule,
+    ChipsModule,
+    RadioButtonModule,
     ModalsAuthModule,
     DynamicFormModule
   ],
