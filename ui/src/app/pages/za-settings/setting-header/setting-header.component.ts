@@ -3,6 +3,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ServerAuth } from 'src/app/entities/user';
+import { ClientService } from 'src/app/services/client/client.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { LoginComponent } from '../modals/modals-auth/login/login.component';
 import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
@@ -14,7 +15,8 @@ import { ActionsItem, ActionsService } from './actions.service';
   styleUrls: ['./setting-header.component.scss'],
   providers: [
     DialogService,
-    ActionsService
+    ActionsService,
+    ClientService
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

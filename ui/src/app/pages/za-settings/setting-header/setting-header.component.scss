@@ -1,10 +1,13 @@
-// p-menubar {
-//   background-color: aqua;
+p-menubar {
+  // background-color: aqua;
 
-//   ::ng-deep {
-//     .p-menubar {
-//       border-radius: 0;
-//       margin: 0;
-//     }
-//   }
-// }
+  ::ng-deep {
+    .p-menubar-start {
+      overflow-x: auto;
+    }
+
+    .p-menuitem {
+      white-space: nowrap;
+    }
+  }
+}
