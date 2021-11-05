@@ -17,4 +17,15 @@ export namespace ServerRole {
     Admin = 900,
     SuperAdmin = 1000
   }
+
+  export enum Custom {
+    contactCenter = 'contactCenter',
+    contactCenterChief = 'contactCenterChief',
+    carShooting = 'carShooting',
+    carShootingChief = 'carShootingChief',
+    customerService = 'customerService',
+    customerServiceChief = 'customerServiceChief',
+    carSales = 'carSales',
+    carSalesChief = 'carSalesChief',
+  }
 }

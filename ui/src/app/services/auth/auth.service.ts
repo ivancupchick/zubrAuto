@@ -38,8 +38,8 @@ export class AuthService {
     return this.requestService.get<ServerAuth.AuthGetResponse>(`${environment.serverUrl}/${API}/${'refresh'}`)
       .pipe(
         map(res => {
-        console.log(res);
-        return res;
+          console.log(res);
+          return res;
         })
       )
   }

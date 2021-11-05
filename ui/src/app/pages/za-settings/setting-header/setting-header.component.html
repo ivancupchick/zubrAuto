@@ -1,6 +1,22 @@
-<p-menubar [model]="items">
-  <ng-template pTemplate="end">
+<p-menubar>
+  <ng-template pTemplate="start">
+    <ul class="p-menubar-root-list">
+      <ng-container *ngFor="let action of actions">
+        <li *ngIf="!action.visible ? true : action.visible()" class="p-element p-menuitem">
+          <a *ngIf="!!action.routerLink" [routerLink]="action.routerLink" class="p-element p-menuitem-link">
+            <span class="p-menuitem-icon {{action.icon}}"></span>
+            <span class="p-menuitem-text">{{ action.label }}</span>
+          </a>
 
+          <a *ngIf="action.handler" class="p-element p-menuitem-link" (click)="action.handler()">
+            <span class="p-menuitem-icon {{action.icon}}"></span>
+            <span class="p-menuitem-text">{{ action.label }}</span>
+          </a>
+        </li>
+      </ng-container>
+    </ul>
+  </ng-template>
+  <ng-template pTemplate="end">
     <!-- <p-avatar image="assets/showcase/images/demo/avatar/asiyajavayant.png" styleClass="p-mr-2" size="large" shape="circle"></p-avatar> -->
     <!-- image="assets/showcase/images/demo/avatar/amyelsner.png" -->
     <p-chip *ngIf="!!user" [label]="user.email"  styleClass="p-mr-2"></p-chip>

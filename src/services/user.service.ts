@@ -11,6 +11,8 @@ import fieldChainRepository from '../repositories/base/field-chain.repository';
 import { getFieldsWithValues } from '../utils/field.utils';
 import fieldChainService from './field-chain.service';
 import { ICrudService } from '../entities/Types';
+import roleRepository from '../repositories/base/role.repository';
+import { ServerRole } from '../entities/Role';
 
 class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.UpdateRequest, ServerUser.Response, ServerUser.IdResponse> {
   async getAll(): Promise<ServerUser.Response[]> {
@@ -27,6 +29,8 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       sourceName: [`${Models.USERS_TABLE_NAME}`]
     });
 
+    const customRoles = await roleRepository.getAll();
+
     const result: ServerUser.Response[] = users.map(user => ({
       id: user.id,
       email: user.email,
@@ -34,6 +38,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       isActivated: user.isActivated,
       activationLink: user.activationLink,
       roleLevel: user.roleLevel,
+      customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
       fields: getFieldsWithValues(relatedFields, chaines, user.id)
     }))
 
@@ -107,11 +112,14 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       sourceName: [`${Models.USERS_TABLE_NAME}`]
     });
 
+    const customRoles = await roleRepository.getAll();
+
     const result: ServerUser.Response = {
       id: user.id,
       email: user.email,
       isActivated: user.isActivated,
       roleLevel: user.roleLevel,
+      customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
       fields: getFieldsWithValues(relatedFields, chaines, user.id)
     };
 

@@ -8,9 +8,10 @@ import { ApiError } from '../exceptions/api.error';
 import userRepository from '../repositories/base/user.repository';
 import { ServerRole } from '../entities/Role';
 import { ServerAuth } from '../entities/Auth';
+import roleRepository from '../repositories/base/role.repository';
 
 class AuthService {
-  async registration(email: string, password: string) {
+  async registration(email: string, password: string): Promise<ServerAuth.AuthGetResponse> {
     const existUser = await userRepository.findOne({ email: [email] })
     if (existUser) {
       throw ApiError.BadRequest(`User with ${email} exists`); // Error codes
@@ -18,6 +19,7 @@ class AuthService {
 
     const hashPassword = await bcrypt.hash(password, 3)
     const activationLink = v4();
+    const customRoles = await roleRepository.getAll();
     const user: Models.User = await userRepository.create({
       email,
       isActivated: false,
@@ -26,8 +28,13 @@ class AuthService {
       roleLevel: ServerRole.System.None,
     });
 
+    const payloadUser: ServerAuth.IPayload = {
+      ...user,
+      customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
+    }
+
     await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink); // need test
-    const userPayload = new ServerAuth.Payload(user);
+    const userPayload = new ServerAuth.Payload(payloadUser);
 
     const tokens = tokenService.generateTokens({...userPayload});
     await tokenService.saveToken(userPayload.id, tokens.refreshToken);
@@ -49,7 +56,7 @@ class AuthService {
     userRepository.updateById(existUser.id, existUser);
   }
 
-  async login(email, password) {
+  async login(email, password): Promise<ServerAuth.AuthGetResponse> {
     const user = await userRepository.findOne({ email: [email] });
     if (!user) {
       throw ApiError.BadRequest('Пользователь с таким email не найден'); // Error codes
@@ -60,7 +67,13 @@ class AuthService {
       throw ApiError.BadRequest('Неверный пароль'); // Error codes
     }
 
-    const userPayload = new ServerAuth.Payload(user);
+    const customRoles = await roleRepository.getAll();
+    const payloadUser: ServerAuth.IPayload = {
+      ...user,
+      customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
+    }
+
+    const userPayload = new ServerAuth.Payload(payloadUser);
     const tokens = tokenService.generateTokens({...userPayload});
     await tokenService.saveToken(userPayload.id, tokens.refreshToken);
 
@@ -75,7 +88,7 @@ class AuthService {
     return token;
   }
 
-  async refresh(refreshToken: string) {
+  async refresh(refreshToken: string): Promise<ServerAuth.AuthGetResponse> {
     if (!refreshToken) {
       throw ApiError.UnauthorizedError();
     }
@@ -88,7 +101,13 @@ class AuthService {
     }
 
     const user = await userRepository.findById(userData.id);
-    const userPayload = new ServerAuth.Payload(user);
+    const customRoles = await roleRepository.getAll();
+
+    const userPayload = new ServerAuth.Payload({
+      ...user,
+      customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
+    });
+
     const tokens = tokenService.generateTokens({...userPayload});
     await tokenService.saveToken(userPayload.id, tokens.refreshToken);
 
@@ -96,12 +115,6 @@ class AuthService {
       ...tokens,
       user: userPayload
     };
-  }
-
-  // replace to other service
-  async getAllUsers() {
-    const users: Models.User[] = await userRepository.getAll();
-    return users;
   }
 }
 

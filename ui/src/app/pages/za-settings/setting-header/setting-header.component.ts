@@ -1,73 +1,36 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import {MenuItem} from 'primeng/api';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ServerAuth, ServerUser } from 'src/app/entities/user';
+import { ServerAuth } from 'src/app/entities/user';
 import { SessionService } from 'src/app/services/session/session.service';
 import { LoginComponent } from '../modals/modals-auth/login/login.component';
 import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
-
-const menuItems : MenuItem[]  = [
-  // {
-  //   label: 'Машины',
-  //   items: [{
-  //       label: 'Список',
-  //       icon: 'pi pi-fw pi-list',
-  //       // routerLink: ''
-  //       // items: [
-  //       //   {
-  //       //     label: 'Project'
-  //       //   }, {
-  //       //     label: 'Other'
-  //       //   },
-  //       // ]
-  //     },{
-  //       label: 'Open'
-  //     }, {
-  //       label: 'Quit'
-  //     }
-  //   ]
-  // },
-  {
-    label: 'База машин',
-    icon: 'pi pi-fw pi-th-large',
-    routerLink: 'cars'
-  }, {
-    label: 'Настройка филдов',
-    icon: 'pi pi-fw pi-align-left',
-    routerLink: 'fields'
-  }, {
-    label: 'База клиентов',
-    icon: 'pi pi-fw pi-users',
-    routerLink: 'clients'
-  }, {
-    label: 'Пользователи',
-    icon: 'pi pi-fw pi-user-plus',
-    routerLink: 'users'
-  }, {
-    label: 'Роли',
-    icon: 'pi pi-fw pi-users',
-    routerLink: 'roles'
-  }
-];
+import { ActionsItem, ActionsService } from './actions.service';
 
 @Component({
   selector: 'za-setting-header',
   templateUrl: './setting-header.component.html',
   styleUrls: ['./setting-header.component.scss'],
   providers: [
-    DialogService
-  ]
+    DialogService,
+    ActionsService
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingHeaderComponent implements OnInit, OnDestroy {
-  @Input() user!: ServerAuth.IPayload | null;
+  @Input() user: ServerAuth.IPayload | null = null;
 
-  items: MenuItem[] = [];
+  readonly actions: ActionsItem[] = this.actionsService.getActions();
 
   destroyed = new Subject();
 
-  constructor(private dialogService: DialogService, public sessionService: SessionService) { }
+  constructor(
+    private dialogService: DialogService,
+    public sessionService: SessionService,
+    private actionsService: ActionsService,
+    private cdr: ChangeDetectorRef,
+  ) { }
 
   ngOnInit(): void {
     this.sessionService.userSubj
@@ -76,8 +39,9 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
       )
       .subscribe(user => {
         this.user = user;
+        this.rebuildActions();
       });
-    this.items = menuItems;
+
   }
 
   login() {
@@ -95,10 +59,14 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
   }
 
   logOut() {
-    this.sessionService.logout().subscribe()
+    this.sessionService.logout().subscribe();
   }
 
   ngOnDestroy() {
     this.destroyed.next();
+  }
+
+  rebuildActions() {;
+    this.cdr.detectChanges();
   }
 }
