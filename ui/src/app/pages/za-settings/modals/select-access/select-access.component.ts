@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { StringHash } from 'src/app/entities/constants';
 import { FieldDomains, getAccessName, getDomainName } from 'src/app/entities/field';
 import { AccessChip } from 'src/app/entities/fieldAccess';
-import { StringHash } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { settingsUsersStrings } from '../../settings-users/settings-users.strings';
 import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid.component';

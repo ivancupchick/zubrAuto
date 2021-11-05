@@ -7,7 +7,8 @@ import { CreateFieldComponent } from '../modals/create-field/create-field.compon
 import { tap } from 'rxjs/operators';
 import { settingsClientsStrings } from '../settings-clients/settings-clients.strings';
 import { settingsCarsStrings } from '../settings-cars/settings-cars.strings';
-import { FieldNames, StringHash } from 'src/app/entities/FieldNames';
+import { FieldNames } from 'src/app/entities/FieldNames';
+import { StringHash } from 'src/app/entities/constants';
 
 export interface GridField {
   name: string;

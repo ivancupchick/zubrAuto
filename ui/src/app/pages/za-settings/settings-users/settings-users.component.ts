@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DialogService } from 'primeng/dynamicdialog';
 import { zip } from 'rxjs';
 import { ServerField } from 'src/app/entities/field';
-import { StringHash } from 'src/app/entities/FieldNames';
+import { StringHash } from 'src/app/entities/constants';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser } from 'src/app/entities/user';
 import { RoleService } from 'src/app/services/role/role.service';

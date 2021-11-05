@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'primeng/dynamicdialog';
+import { StringHash } from 'src/app/entities/constants';
 import { FieldDomains, FieldType, getAccessName, getDomainName, ServerField } from 'src/app/entities/field';
-import { AccessChip, FieldAccess } from 'src/app/entities/fieldAccess';
-import { StringHash } from 'src/app/entities/FieldNames';
+import { AccessChip } from 'src/app/entities/fieldAccess';
 import { ServerRole } from 'src/app/entities/role';
 import { RoleService } from 'src/app/services/role/role.service';
 import { SelectAccessComponent } from '../../../modals/select-access/select-access.component';

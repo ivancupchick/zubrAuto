@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FieldType, ServerField, UIRealField } from 'src/app/entities/field';
-import { FieldNames, StringHash } from 'src/app/entities/FieldNames';
+import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';
 import { UserService } from 'src/app/services/user/user.service';
@@ -10,6 +10,7 @@ import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynam
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
 import { settingsUsersStrings } from '../../settings-users/settings-users.strings';
 import { Validators } from '@angular/forms';
+import { StringHash } from 'src/app/entities/constants';
 
 @Component({
   selector: 'za-create-user',

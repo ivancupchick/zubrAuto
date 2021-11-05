@@ -1,7 +1,3 @@
-export interface StringHash {
-  [key: string]: string
-}
-
 export namespace FieldNames {
   export enum Client {
     date = 'date',
