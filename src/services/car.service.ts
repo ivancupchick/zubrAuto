@@ -110,13 +110,13 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
     const existCar = await carRepository.findById(carId);
     const existCarOwnerById = await carOwnerRepository.findOne({ id: [`${existCar.ownerId}`]});
-    const existCarOwnerByNumber = await carOwnerRepository.findOne({ number: [`${carData.ownerNumber}`]});
+    const existCarOwnerByNumber = carData.ownerNumber ? await carOwnerRepository.findOne({ number: [`${carData.ownerNumber}`]}) : null;
 
     let carOwner = existCarOwnerById;
 
     if (!existCarOwnerByNumber && carData.ownerNumber) {
       carOwner = await carOwnerRepository.updateById(existCar.ownerId, { number: carData.ownerNumber });
-    } else if (existCarOwnerById.number === existCarOwnerByNumber.number) {
+    // } else if (existCarOwnerById.number === existCarOwnerByNumber.number) {
 
     } else if (existCarOwnerById && existCarOwnerByNumber && existCarOwnerByNumber.number !== existCarOwnerById.number) {
       carData = Object.assign({}, carData, { ownerId: existCarOwnerByNumber.id});

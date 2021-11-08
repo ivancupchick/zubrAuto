@@ -1,4 +1,6 @@
 import { ServerCar } from '../../../../src/entities/Car'
+import { FieldsUtils } from './field';
+import { FieldNames } from './FieldNames';
 
 // export interface IOwner {
 //   ownerName: string;
@@ -21,6 +23,10 @@ import { ServerCar } from '../../../../src/entities/Car'
 // }
 
 export import ServerCar = ServerCar;
+
+export function getCarStatus(car: ServerCar.Response): string {
+  return FieldsUtils.getDropdownValue(car, FieldNames.Car.status);
+}
 
 // export {
 //   Car

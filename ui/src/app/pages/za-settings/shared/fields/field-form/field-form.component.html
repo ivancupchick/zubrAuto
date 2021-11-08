@@ -16,8 +16,15 @@
   <div *ngIf="isVisibleVariants" class="p-field p-col-12 p-md-4">
     <span class="p-float-label">
       <textarea pInputTextarea formControlName="variants"></textarea>
-      <label for="dropdown">Варианты (через запятую)</label>
+      <label for="variants">Варианты (через запятую)</label>
     </span>
+  </div>
+
+  <div class="p-field p-col-12 p-md-4">
+    <div class="p-field-checkbox">
+      <p-checkbox name="isSystem" inputId="isSystem" [binary]="true" formControlName="isSystem"></p-checkbox>
+      <label for="isSystem">Это системный филд</label>
+    </div>
   </div>
 
   <div class="p-field p-col-12 p-md-4">

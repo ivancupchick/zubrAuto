@@ -2,16 +2,18 @@ import { Injectable } from '@angular/core';
 import { DialogService } from 'primeng/dynamicdialog';
 import { StringHash } from 'src/app/entities/constants';
 import { ServerRole } from 'src/app/entities/role';
-import { ServerAuth } from 'src/app/entities/user';
 import { ClientService } from 'src/app/services/client/client.service';
 import { SessionService } from 'src/app/services/session/session.service';
+import { CreateCallBaseComponent } from '../modals/create-call-base/create-call-base.component';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
+import { QueryCarTypes } from '../settings-cars/settings-cars.component';
 
 export interface ActionsItem {
   label: string,
   icon: string,
   routerLink?: string,
+  queryParams?: StringHash,
   handler?: () => void,
   visible?: () => boolean,
 }
@@ -22,11 +24,11 @@ export class ActionsService {
 
   getActions(): ActionsItem[] {
     return [
-      // this.getCarSettingsPageRoutingAction(),
-      // this.getFieldPageRoutingAction(),
-      // this.getClientSettingsPageRoutingAction(),
-      // this.getUserSettingsPageRoutingAction(),
-      // this.getRoleSettingsPageRoutingAction(),
+      this.getCarSettingsPageRoutingAction(),
+      this.getFieldPageRoutingAction(),
+      this.getClientSettingsPageRoutingAction(),
+      this.getUserSettingsPageRoutingAction(),
+      this.getRoleSettingsPageRoutingAction(),
       ...this.getContactServiceActions(),
       ...this.getCarShootingActions(),
       ...this.getCustomerServiceActions(),
@@ -87,7 +89,8 @@ export class ActionsService {
     return [{
       label: 'Моя база обзвона',
       icon: 'pi pi-fw pi-mobile',
-      routerLink: 'cars',
+      routerLink: `cars`,
+      queryParams: { type: QueryCarTypes.contactCenter },
       visible: () => this.user?.customRoleName === ServerRole.Custom.contactCenter
                   || this.user?.customRoleName === ServerRole.Custom.contactCenterChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,
@@ -96,7 +99,7 @@ export class ActionsService {
       icon: 'pi pi-fw pi-mobile',
       // routerLink: 'roles',
       handler: () => {
-        const ref = this.dialogService.open(SignUpComponent, {
+        const ref = this.dialogService.open(CreateCallBaseComponent, {
           header: 'Добавить базу обзвона',
           width: '40%'
         });
@@ -107,6 +110,7 @@ export class ActionsService {
       label: 'Вся база обзвона',
       icon: 'pi pi-fw pi-mobile',
       routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.allContactCenter },
       visible: () => this.user?.customRoleName === ServerRole.Custom.contactCenterChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,
     }]
@@ -147,7 +151,7 @@ export class ActionsService {
     }, {
       label: 'База клиентов',
       icon: 'pi pi-fw pi-th-large',
-      routerLink: 'client',
+      routerLink: 'clients',
       visible: () => this.user?.customRoleName === ServerRole.Custom.customerService
                   || this.user?.customRoleName === ServerRole.Custom.customerServiceChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,

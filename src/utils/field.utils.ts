@@ -2,24 +2,22 @@ import { Models } from "../entities/Models";
 import { RealField } from "../entities/Field";
 import { BitHelper } from "./bit.utils";
 
-export enum Flags {
-  System = 1,
-}
+export namespace FlagField {
+  export enum Flags {
+    System = 1,
+  }
 
-export class FlagField {
-  static setFlagOn(v: { flags: number }, bit: Flags) {
+  export function setFlagOn(v: { flags: number }, bit: Flags) {
     // v.flags |= bit;
     v.flags = BitHelper.setOn(v.flags, bit)
   }
 
-  static setFlagOff(v: { flags: number }, bit: Flags) {
+  export function setFlagOff(v: { flags: number }, bit: Flags) {
     // v.flags &= ~bit;
     v.flags = BitHelper.setOff(v.flags, bit);
   }
-}
 
-export class Flag {
-  static Is(v: { flags: number } | number, bit: Flags) {
+  export function Is(v: { flags: number } | number, bit: Flags) {
     const value = typeof v === 'number' ? v : v.flags;
 // (value & bit) === bit;
     return BitHelper.Is(value, bit);

@@ -7,8 +7,8 @@ const router = Router();
 router.route('/crud/')
     .get(fieldConntroller.getAllFields)
     .post(
-      body('name').isLength({ min: 3, max: 32 }),
-      body('name').matches(/^[a-z][a-z-]{1,20}[a-z]$/),
+      body('name').isLength({ min: 3, max: 50 }),
+      body('name').matches(/^[a-z][a-z-]{1,50}[a-z]$/),
       body('flags').isNumeric(),
       body('domain').isNumeric(),
       body('variants').isString(),

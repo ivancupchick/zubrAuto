@@ -140,3 +140,10 @@ CREATE TABLE "public.fieldAccesses" (
 
 ALTER TABLE "public.fieldIds"
 ADD COLUMN "value" VARCHAR(255);
+
+/**
+  change type
+*/
+
+ALTER TABLE "public.userTokens"
+ALTER COLUMN "refreshToken" TYPE VARCHAR;

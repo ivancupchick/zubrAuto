@@ -1,5 +1,6 @@
 import { RealField, ServerField, FieldDomains as domain, FieldType as type } from '../../../../src/entities/Field'
 import { FieldAccess } from './fieldAccess';
+import { FlagField as flagField } from '../../../../src/utils/field.utils'
 
 export interface UIVariant {
   key: string;
@@ -14,6 +15,7 @@ export import FieldType = type;
 export import FieldDomains = domain;
 export import RealField = RealField;
 export import ServerField = ServerField;
+export import FlagField = flagField;
 
 export class UIRealField  {
   public id: number;
@@ -41,6 +43,14 @@ export class UIRealField  {
 }
 
 export class FieldsUtils {
+  static getDropdownValue(entity: RealField.With.Response, fieldName: string) {
+    const field = entity.fields.find(f => f.name === fieldName);
+
+    return !field
+      ? ''
+      : field.variants.split(',').find((variant, index) => `${fieldName}-${index}` === field.value) || ''
+  }
+
   static getFields(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[]): RealField.Response[] {
     return Array.isArray(entityOrFieldsArray)
     ? entityOrFieldsArray

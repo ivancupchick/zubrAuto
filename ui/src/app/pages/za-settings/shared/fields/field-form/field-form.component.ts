@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'primeng/dynamicdialog';
 import { StringHash } from 'src/app/entities/constants';
-import { FieldDomains, FieldType, getAccessName, getDomainName, ServerField } from 'src/app/entities/field';
+import { FieldDomains, FieldType, FlagField, getAccessName, getDomainName, ServerField } from 'src/app/entities/field';
 import { AccessChip } from 'src/app/entities/fieldAccess';
 import { ServerRole } from 'src/app/entities/role';
 import { RoleService } from 'src/app/services/role/role.service';
@@ -57,11 +57,14 @@ export class FieldFormComponent implements OnInit {
   ngOnInit(): void {
     this.loading = true;
 
+    console.log(FlagField.Is(this.field || 0, FlagField.Flags.System));
+
     this.formGroup = this.fb.group({
       name: [ this.field ? this.field.name : '', Validators.required],
       type: [ this.field ? this.field.type : FieldType.Text, Validators.required],
       variants: [ this.field ? this.field.variants : ''],
-      accesses: [ this.originalAccesses ]
+      accesses: [ this.originalAccesses ],
+      isSystem: [ this.field ? FlagField.Is(this.field, FlagField.Flags.System) : false ]
     });
 
     this.formGroup.valueChanges.subscribe(data => {
@@ -91,7 +94,7 @@ export class FieldFormComponent implements OnInit {
   }
 
   getValue(): ServerField.CreateRequest {
-    return {
+    const field = {
       flags: 0,
       type: this.formGroup.controls['type'].value,
       name: this.formGroup.controls['name'].value,
@@ -104,6 +107,14 @@ export class FieldFormComponent implements OnInit {
         access: ac.access
       }))
     }
+
+    if (this.formGroup.controls['isSystem'].value) {
+      FlagField.setFlagOn(field, FlagField.Flags.System);
+    } else {
+      FlagField.setFlagOff(field, FlagField.Flags.System);
+    }
+
+    return field;
   }
 
   setAccessesToForm(accesses: AccessChip[]) {

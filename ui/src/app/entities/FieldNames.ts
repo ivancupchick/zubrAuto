@@ -31,7 +31,25 @@ export namespace FieldNames {
     shootingDate = 'shooting-date',
     shootingTime = 'shooting-time',
     ourLinks = 'our-links',
+    contactCenterSpecialistId = 'contact-center-specialist-id',
   }
+
+  export enum CarStatus {
+    contactCenter_InProgress = '[ОКЦ]В работе',
+    contactCenter_NoAnswer = '[ОКЦ]Недозвон',
+    contactCenter_MakingDecision = '[ОКЦ]Принимает решение',
+    contactCenter_WaitingShooting = '[ОКЦ]Ожидание съемки',
+    contactCenter_Deny = '[ОКЦ]Отказ',
+    carShooting_InProgres = '[ОСА]в работе',
+    carShooting_Ready = '[ОСА]готов',
+    customerService_InProgress = '[ОРК]в работе',
+    customerService_Ready = '[ОРК]готов',
+    carSales_InProgress = '[ОПА]в работе',
+    carSales_Deleted = '[ОПА]удалена',
+    carSales_Sold = '[ОПА]продано'
+  }
+
+
 
   export enum CarOwner {
     name = 'name',

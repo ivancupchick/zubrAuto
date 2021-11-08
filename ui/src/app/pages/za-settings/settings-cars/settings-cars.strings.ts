@@ -27,4 +27,5 @@ export const settingsCarsStrings = {
   shootingTime: 'Время съёмки',
   ourLinks: 'Наши объявления',
   ownerName: 'Имя владельца',
+  contactCenterSpecialistId: 'Специалист контактного центра',
 };

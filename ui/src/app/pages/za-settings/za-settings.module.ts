@@ -20,6 +20,8 @@ import {AvatarGroupModule} from 'primeng/avatargroup';
 import {ChipModule} from 'primeng/chip';
 import {ChipsModule} from 'primeng/chips';
 import {RadioButtonModule} from 'primeng/radiobutton';
+import {TabViewModule} from 'primeng/tabview';
+import {CheckboxModule} from 'primeng/checkbox';
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
 import { SettingsFieldsComponent } from './settings-fields/settings-fields.component';
@@ -49,6 +51,8 @@ import { CreateRoleComponent } from './modals/create-role/create-role.component'
 import { SettingsUsersComponent } from './settings-users/settings-users.component';
 import { CreateUserComponent } from './modals/create-user/create-user.component';
 import { SelectAccessComponent } from './modals/select-access/select-access.component';
+import { SettingsHomeComponent } from './settings-home/settings-home.component';
+import { CreateCallBaseComponent } from './modals/create-call-base/create-call-base.component';
 
 
 
@@ -60,7 +64,7 @@ const routes: Routes = [{
   },
   children: [{
       path: '',
-      component: SettingsFieldsComponent
+      component: SettingsHomeComponent
     },{
       path: 'fields',
       canActivate: [AuthGuard],
@@ -102,7 +106,9 @@ const routes: Routes = [{
     CreateRoleComponent,
     SettingsUsersComponent,
     CreateUserComponent,
-    SelectAccessComponent
+    SelectAccessComponent,
+    SettingsHomeComponent,
+    CreateCallBaseComponent
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -129,6 +135,8 @@ const routes: Routes = [{
     ChipModule,
     ChipsModule,
     RadioButtonModule,
+    TabViewModule,
+    CheckboxModule,
     ModalsAuthModule,
     DynamicFormModule
   ],
