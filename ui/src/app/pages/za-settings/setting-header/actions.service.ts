@@ -20,6 +20,8 @@ export interface ActionsItem {
 
 @Injectable()
 export class ActionsService {
+  selectedRole: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin = ServerRole.System.Admin;
+
   constructor(private sessionService: SessionService, private dialogService: DialogService, private clientService: ClientService) {}
 
   getActions(): ActionsItem[] {
@@ -29,10 +31,10 @@ export class ActionsService {
       this.getClientSettingsPageRoutingAction(),
       this.getUserSettingsPageRoutingAction(),
       this.getRoleSettingsPageRoutingAction(),
-      // ...this.getContactServiceActions(),
-      // ...this.getCarShootingActions(),
-      // ...this.getCustomerServiceActions(),
-      // ...this.getCarSalesActions()
+      ...this.getContactServiceActions(),
+      ...this.getCarShootingActions(),
+      ...this.getCustomerServiceActions(),
+      ...this.getCarSalesActions()
     ]
   }
 
@@ -45,7 +47,7 @@ export class ActionsService {
       label: 'База машин',
       icon: 'pi pi-fw pi-th-large',
       routerLink: 'cars',
-      visible: () => this.user?.roleLevel === ServerRole.System.SuperAdmin,
+      visible: () => (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) && this.selectedRole === ServerRole.System.Admin,
     }
   }
 
@@ -54,7 +56,7 @@ export class ActionsService {
       label: 'Настройка филдов',
       icon: 'pi pi-fw pi-align-left',
       routerLink: 'fields',
-      visible: () => this.user?.roleLevel === ServerRole.System.SuperAdmin,
+      visible: () => (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) && this.selectedRole === ServerRole.System.Admin,
     }
   }
 
@@ -63,7 +65,7 @@ export class ActionsService {
       label: 'База клиентов',
       icon: 'pi pi-fw pi-users',
       routerLink: 'clients',
-      visible: () => this.user?.roleLevel === ServerRole.System.SuperAdmin,
+      visible: () => (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) && this.selectedRole === ServerRole.System.Admin,
     }
   }
 
@@ -72,7 +74,7 @@ export class ActionsService {
       label: 'Пользователи',
       icon: 'pi pi-fw pi-user-plus',
       routerLink: 'users',
-      visible: () => this.user?.roleLevel === ServerRole.System.SuperAdmin,
+      visible: () => (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) && this.selectedRole === ServerRole.System.Admin,
     }
   }
 
@@ -81,7 +83,7 @@ export class ActionsService {
       label: 'Роли',
       icon: 'pi pi-fw pi-users',
       routerLink: 'roles',
-      visible: () => this.user?.roleLevel === ServerRole.System.SuperAdmin,
+      visible: () => (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) && this.selectedRole === ServerRole.System.Admin,
     }
   }
 
@@ -93,7 +95,13 @@ export class ActionsService {
       queryParams: { type: QueryCarTypes.myCallBase },
       visible: () => this.user?.customRoleName === ServerRole.Custom.contactCenter
                   || this.user?.customRoleName === ServerRole.Custom.contactCenterChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.contactCenter
+                      || this.selectedRole === ServerRole.Custom.contactCenterChief
+                    )
+                  ),
     }, {
       label: 'Добавить базу обзвона',
       icon: 'pi pi-fw pi-mobile',
@@ -105,14 +113,24 @@ export class ActionsService {
         });
       },
       visible: () => this.user?.customRoleName === ServerRole.Custom.contactCenterChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.contactCenterChief
+                    )
+                  ),
     }, {
       label: 'Вся база обзвона',
       icon: 'pi pi-fw pi-mobile',
       routerLink: 'cars',
       queryParams: { type: QueryCarTypes.allCallBase },
       visible: () => this.user?.customRoleName === ServerRole.Custom.contactCenterChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.contactCenterChief
+                    )
+                  ),
     }]
   }
 
@@ -124,14 +142,26 @@ export class ActionsService {
       queryParams: { type: QueryCarTypes.myShootingBase },
       visible: () => this.user?.customRoleName === ServerRole.Custom.carShooting
                   || this.user?.customRoleName === ServerRole.Custom.carShootingChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.carShooting
+                      || this.selectedRole === ServerRole.Custom.carShootingChief
+                    )
+                  ),
     }, {
       label: 'Создать Анкету',
       icon: 'pi pi-fw pi-camera',
       routerLink: 'new-worksheet',
       visible: () => this.user?.customRoleName === ServerRole.Custom.carShooting
                   || this.user?.customRoleName === ServerRole.Custom.carShootingChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.carShooting
+                      || this.selectedRole === ServerRole.Custom.carShootingChief
+                    )
+                  ),
     }]
   }
 
@@ -143,14 +173,26 @@ export class ActionsService {
       queryParams: { type: QueryCarTypes.allShootingBase },
       visible: () => this.user?.customRoleName === ServerRole.Custom.customerService
                   || this.user?.customRoleName === ServerRole.Custom.customerServiceChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.customerService
+                      || this.selectedRole === ServerRole.Custom.customerServiceChief
+                    )
+                  ),
     }, {
       label: 'База клиентов',
       icon: 'pi pi-fw pi-th-large',
       routerLink: 'clients',
       visible: () => this.user?.customRoleName === ServerRole.Custom.customerService
                   || this.user?.customRoleName === ServerRole.Custom.customerServiceChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.customerService
+                      || this.selectedRole === ServerRole.Custom.customerServiceChief
+                    )
+                  ),
     }]
   }
 
@@ -174,7 +216,13 @@ export class ActionsService {
       },
       visible: () => this.user?.customRoleName === ServerRole.Custom.carSales
                   || this.user?.customRoleName === ServerRole.Custom.carSalesChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.carSales
+                      || this.selectedRole === ServerRole.Custom.carSalesChief
+                    )
+                  ),
     }, {
       label: 'Автомобили в продаже',
       icon: 'pi pi-fw pi-money-bill',
@@ -182,14 +230,26 @@ export class ActionsService {
       queryParams: { type: QueryCarTypes.carsForSale },
       visible: () => this.user?.customRoleName === ServerRole.Custom.carSales
                   || this.user?.customRoleName === ServerRole.Custom.carSalesChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.carSales
+                      || this.selectedRole === ServerRole.Custom.carSalesChief
+                    )
+                  ),
     }, {
       label: 'База клиентов',
       icon: 'pi pi-fw pi-money-bill',
       routerLink: 'clients',
       visible: () => this.user?.customRoleName === ServerRole.Custom.carSales
                   || this.user?.customRoleName === ServerRole.Custom.carSalesChief
-                  || this.user?.roleLevel === ServerRole.System.SuperAdmin,
+                  || (
+                    (this.user?.roleLevel === ServerRole.System.Admin || this.user?.roleLevel === ServerRole.System.SuperAdmin) &&
+                    (
+                        this.selectedRole === ServerRole.Custom.carSales
+                      || this.selectedRole === ServerRole.Custom.carSalesChief
+                    )
+                  ),
     }]
   }
 }
