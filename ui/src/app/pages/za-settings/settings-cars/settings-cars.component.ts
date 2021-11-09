@@ -16,8 +16,11 @@ import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.compon
 import { settingsCarsStrings } from './settings-cars.strings';
 
 export enum QueryCarTypes {
-  contactCenter = 'contact-center',
-  allContactCenter = 'all-contact-center'
+  myCallBase = 'my-call-base',
+  allCallBase = 'all-call-base',
+  myShootingBase = 'my-shooting-base',
+  allShootingBase = 'all-shooting-base',
+  carsForSale = 'cars-for-sale',
 }
 
 @Component({
@@ -53,6 +56,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   carFieldConfigs: ServerField.Response[] = [];
   carOwnerFieldConfigs: ServerField.Response[] = [];
   contactCenterUsers: ServerUser.Response[] = [];
+  carShootingUsers: ServerUser.Response[] = [];
 
   readonly strings = settingsCarsStrings;
 
@@ -78,6 +82,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.contactCenterUsers = users
           .filter(u => u.customRoleName === ServerRole.Custom.contactCenter
                     || u.customRoleName === ServerRole.Custom.contactCenterChief);
+        this.carShootingUsers = users
+          .filter(u => u.customRoleName === ServerRole.Custom.carShooting
+                    || u.customRoleName === ServerRole.Custom.carShootingChief);
       });
 
     this.carService.getCars().subscribe((result) => {
@@ -134,7 +141,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         car,
         carFieldConfigs: this.carFieldConfigs,
         carOwnerFieldConfigs: this.carOwnerFieldConfigs,
-        contactCenterUsers: this.contactCenterUsers
+        contactCenterUsers: this.contactCenterUsers,
+        carShootingUsers: this.carShootingUsers,
       },
       header: 'Редактировать машину',
       width: '70%'
@@ -150,7 +158,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   private sortCars() {
     switch (this.type) {
-      case QueryCarTypes.contactCenter:
+      case QueryCarTypes.myCallBase:
         this.sortedCars = this.rawCars
           .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
                        getCarStatus(c) === FieldNames.CarStatus.contactCenter_WaitingShooting
@@ -160,13 +168,36 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                     || getCarStatus(c) === FieldNames.CarStatus.contactCenter_NoAnswer
           ));
         break;
-      case QueryCarTypes.allContactCenter:
+      case QueryCarTypes.allCallBase:
         this.sortedCars = this.rawCars // FIX THIS
           .filter(c => getCarStatus(c) === FieldNames.CarStatus.contactCenter_WaitingShooting
                     || getCarStatus(c) === FieldNames.CarStatus.contactCenter_InProgress
                     || getCarStatus(c) === FieldNames.CarStatus.contactCenter_Deny
                     || getCarStatus(c) === FieldNames.CarStatus.contactCenter_MakingDecision
                     || getCarStatus(c) === FieldNames.CarStatus.contactCenter_NoAnswer
+          );
+        break;
+      case QueryCarTypes.myShootingBase:
+        this.sortedCars = this.rawCars
+          .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.carShootingSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
+                       getCarStatus(c) === FieldNames.CarStatus.carShooting_InProgres
+                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
+          ));
+        break;
+      case QueryCarTypes.allShootingBase:
+        this.sortedCars = this.rawCars
+          .filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
+                    || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
+                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_InProgres
+                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
+          );
+        break;
+      case QueryCarTypes.carsForSale:
+        this.sortedCars = this.rawCars
+          .filter(c => getCarStatus(c) === FieldNames.CarStatus.carSales_InProgress
+                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
+                    || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
+                    || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
           );
         break;
       default:
@@ -181,7 +212,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       data: {
         carFieldConfigs: this.carFieldConfigs,
         carOwnerFieldConfigs: this.carOwnerFieldConfigs,
-        contactCenterUsers: this.contactCenterUsers
+        contactCenterUsers: this.contactCenterUsers,
+        carShootingUsers: this.carShootingUsers,
       },
       header: 'Новая машина',
       width: '70%'

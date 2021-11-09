@@ -53,6 +53,7 @@ import { CreateUserComponent } from './modals/create-user/create-user.component'
 import { SelectAccessComponent } from './modals/select-access/select-access.component';
 import { SettingsHomeComponent } from './settings-home/settings-home.component';
 import { CreateCallBaseComponent } from './modals/create-call-base/create-call-base.component';
+import { NewWorksheetComponent } from './new-worksheet/new-worksheet.component';
 
 
 
@@ -85,6 +86,10 @@ const routes: Routes = [{
       path: 'roles',
       canActivate: [AuthGuard],
       component: SettingsRolesComponent
+    }, {
+      path: 'new-worksheet',
+      canActivate: [AuthGuard], // TODO: Add Guard for carShootingDepartment Users
+      component: NewWorksheetComponent
     }
   ]
 }]
@@ -108,7 +113,8 @@ const routes: Routes = [{
     CreateUserComponent,
     SelectAccessComponent,
     SettingsHomeComponent,
-    CreateCallBaseComponent
+    CreateCallBaseComponent,
+    NewWorksheetComponent
   ],
   imports: [
     RouterModule.forChild(routes),

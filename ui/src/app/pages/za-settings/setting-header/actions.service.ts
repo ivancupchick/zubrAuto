@@ -29,10 +29,10 @@ export class ActionsService {
       this.getClientSettingsPageRoutingAction(),
       this.getUserSettingsPageRoutingAction(),
       this.getRoleSettingsPageRoutingAction(),
-      ...this.getContactServiceActions(),
-      ...this.getCarShootingActions(),
-      ...this.getCustomerServiceActions(),
-      ...this.getCarSalesActions()
+      // ...this.getContactServiceActions(),
+      // ...this.getCarShootingActions(),
+      // ...this.getCustomerServiceActions(),
+      // ...this.getCarSalesActions()
     ]
   }
 
@@ -90,7 +90,7 @@ export class ActionsService {
       label: 'Моя база обзвона',
       icon: 'pi pi-fw pi-mobile',
       routerLink: `cars`,
-      queryParams: { type: QueryCarTypes.contactCenter },
+      queryParams: { type: QueryCarTypes.myCallBase },
       visible: () => this.user?.customRoleName === ServerRole.Custom.contactCenter
                   || this.user?.customRoleName === ServerRole.Custom.contactCenterChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,
@@ -110,7 +110,7 @@ export class ActionsService {
       label: 'Вся база обзвона',
       icon: 'pi pi-fw pi-mobile',
       routerLink: 'cars',
-      queryParams: { type: QueryCarTypes.allContactCenter },
+      queryParams: { type: QueryCarTypes.allCallBase },
       visible: () => this.user?.customRoleName === ServerRole.Custom.contactCenterChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,
     }]
@@ -121,19 +121,14 @@ export class ActionsService {
       label: 'Моя база съёмок',
       icon: 'pi pi-fw pi-camera',
       routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.myShootingBase },
       visible: () => this.user?.customRoleName === ServerRole.Custom.carShooting
                   || this.user?.customRoleName === ServerRole.Custom.carShootingChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,
     }, {
       label: 'Создать Анкету',
       icon: 'pi pi-fw pi-camera',
-      // routerLink: 'roles',
-      handler: () => {
-        const ref = this.dialogService.open(SignUpComponent, {
-          header: 'Добавить базу обзвона',
-          width: '40%'
-        });
-      },
+      routerLink: 'new-worksheet',
       visible: () => this.user?.customRoleName === ServerRole.Custom.carShooting
                   || this.user?.customRoleName === ServerRole.Custom.carShootingChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,
@@ -145,6 +140,7 @@ export class ActionsService {
       label: 'База съёмок',
       icon: 'pi pi-fw pi-th-large',
       routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.allShootingBase },
       visible: () => this.user?.customRoleName === ServerRole.Custom.customerService
                   || this.user?.customRoleName === ServerRole.Custom.customerServiceChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,
@@ -164,7 +160,9 @@ export class ActionsService {
       icon: 'pi pi-fw pi-money-bill',
       // routerLink: 'roles',
       handler: () => {
+        // TODO: globalLoading = true;
         this.clientService.getClientFields().subscribe(result => {
+          // TODO: globalLoading = false;
           const ref = this.dialogService.open(CreateClientComponent, {
             data: {
               fieldConfigs: result
@@ -181,6 +179,7 @@ export class ActionsService {
       label: 'Автомобили в продаже',
       icon: 'pi pi-fw pi-money-bill',
       routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.carsForSale },
       visible: () => this.user?.customRoleName === ServerRole.Custom.carSales
                   || this.user?.customRoleName === ServerRole.Custom.carSalesChief
                   || this.user?.roleLevel === ServerRole.System.SuperAdmin,

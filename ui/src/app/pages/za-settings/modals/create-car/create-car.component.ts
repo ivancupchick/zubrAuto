@@ -43,6 +43,7 @@ export class CreateCarComponent implements OnInit {
     // FieldNames.Car.date,
     'ownerNumber' as FieldNames.Car,
     FieldNames.Car.contactCenterSpecialistId,
+    FieldNames.Car.carShootingSpecialistId,
   ];
 
   carOwnerExcludeFields: FieldNames.CarOwner[] = [
@@ -50,6 +51,7 @@ export class CreateCarComponent implements OnInit {
   ];
 
   contactCenterUsers: ServerUser.Response[] = [];
+  carShootingUsers: ServerUser.Response[] = [];
 
   constructor(
     private carService: CarService,
@@ -65,6 +67,7 @@ export class CreateCarComponent implements OnInit {
     this.carOwnerFieldConfigs = this.config.data.carOwnerFieldConfigs;
     this.carFieldConfigs = this.config.data.carFieldConfigs;
     this.contactCenterUsers = this.config.data.contactCenterUsers;
+    this.carShootingUsers = this.config.data.carShootingUsers;
 
     this.generateForm();
   }
@@ -128,6 +131,21 @@ export class CreateCarComponent implements OnInit {
         ]
       })
     )
+    const carShootingField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.carShootingSpecialistId);
+    carFormFields.push(
+      this.dfcs.getDynamicFieldFromOptions({
+        id: carShootingField?.id || -1,
+        value: this.car?.fields.find(f => f.name === FieldNames.Car.carShootingSpecialistId)?.value || 'None',
+        key: FieldNames.Car.carShootingSpecialistId,
+        label: settingsCarsStrings.carShootingSpecialistId,
+        order: 1,
+        controlType: FieldType.Dropdown,
+        variants: [
+          { value: 'Никто', key: 'None' },
+          ...this.carShootingUsers.map(u => ({ key: `${u.id}`, value: u.email }))
+        ]
+      })
+    )
 
     this.carOwnerDynamicFormFields = carOwnerFormFields;
     this.carDynamicFormFields = carFormFields;
@@ -142,6 +160,7 @@ export class CreateCarComponent implements OnInit {
 
     const ownerNumber = carOwnerFields.find(f => f.name === 'ownerNumber')?.value || this.car?.ownerNumber || '';
     const contactCenterUser = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId);
+    const carShootingUser = carFields.find(f => f.name === FieldNames.Car.carShootingSpecialistId);
 
     const fields = [
       ...carFields.filter(fc => !this.carExcludeFields.includes(fc.name as FieldNames.Car)),
@@ -150,6 +169,9 @@ export class CreateCarComponent implements OnInit {
 
     if (contactCenterUser) {
       fields.push(contactCenterUser);
+    }
+    if (carShootingUser) {
+      fields.push(carShootingUser)
     }
 
     // const car: ServerCar.CreateRequest = this.car != undefined
@@ -208,6 +230,9 @@ export class CreateCarComponent implements OnInit {
         break;
       case FieldNames.Car.contactCenterSpecialistId:
         field.label = settingsCarsStrings.contactCenterSpecialistId;
+        break;
+      case FieldNames.Car.carShootingSpecialistId:
+        field.label = settingsCarsStrings.carShootingSpecialistId;
         break;
       case FieldNames.Car.dateOfLastStatusChange:
         field.label = settingsCarsStrings.dateOfLastStatusChange;
