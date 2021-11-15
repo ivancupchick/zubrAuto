@@ -1,11 +1,13 @@
 import { ServerCar } from "../entities/Car";
-import { FieldDomains, RealField } from "../entities/Field";
+import { FieldDomains, FieldNames, RealField } from "../entities/Field";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
 import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
+import fieldRepository from "../repositories/base/field.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
+import carInfoGetterService from "./car-info-getter.service";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
 
@@ -69,6 +71,63 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     const ownerId = !existCarOwner
       ? (await carOwnerRepository.create({ number: carData.ownerNumber })).id
       : existCarOwner.id;
+
+    const existCarIds = await carRepository.find({ ownerId: [`${existCarOwner?.id || -1}` ]});
+
+    if (existCarIds.length > 0) {
+      const fields = await fieldRepository.find({ name: [FieldNames.Car.mark, FieldNames.Car.model, FieldNames.Car.mileage]});
+      const carFieldChains = (await Promise.all(
+        existCarIds
+          .map(car => fieldChainRepository.find({
+            sourceId: [`${car.id}`],
+            sourceName: [Models.CARS_TABLE_NAME],
+            fieldId: fields.map(f => `${f.id}`)
+          }))
+      )).reduce(function(prev, next) {
+        return prev.concat(next);
+      });
+
+      const realFields: (RealField.Response & { carId: number })[] = fields
+        .map(f => ({
+          ...f,
+          carId: carFieldChains.find(cfc => cfc.fieldId === f.id)?.sourceId || -1,
+          value: carFieldChains.find(cfc => cfc.fieldId === f.id)?.value || ''
+        })).filter(f => f.carId !== -1);
+
+      const realFieldsMatches: (RealField.Response & { carId: number })[] = realFields
+        .filter(rf => {
+          const field = carData.fields.find(f => f.id === rf.id);
+
+          return rf.value === field.value
+        })
+
+      let matches: { [key: number]: number[] } = {};
+
+      realFieldsMatches.forEach(rfm => {
+        if (!matches[rfm.carId]) {
+          matches[rfm.carId] = [rfm.id];
+        } else {
+          matches[rfm.carId].push(rfm.id);
+        }
+      })
+
+      let trueMatches = 0;
+
+      for (const key in matches) {
+        if (Object.prototype.hasOwnProperty.call(matches, key)) {
+          const element = matches[key];
+
+          if (element.length > 0) {
+            ++trueMatches;
+          }
+        }
+      }
+
+      if (trueMatches > 0) {
+        return { id: -1 };
+      }
+    }
+
     if (!existCarOwner) {
       await Promise.all(ownerFields.map(f => fieldChainService.createFieldChain({
         sourceId: ownerId,
@@ -101,7 +160,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       sourceName: Models.CARS_TABLE_NAME
     })));
 
-    return { fields: carFields, ...car, ownerNumber: carData.ownerNumber };
+    return { id: car.id };
   }
 
   async update(carId: number, carData: ServerCar.UpdateRequest) {
@@ -195,6 +254,34 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
         ...getFieldsWithValues(carOwnerFields, carOwnerChaines, car.ownerId)
       ]
     };
+
+    return result;
+  }
+
+  async createCarsByLink(data: ServerCar.CreateByLink): Promise<(ServerCar.Response | ServerCar.IdResponse)[]> {
+    const [
+      carFields,
+      carOwnerFields
+    ] = await Promise.all([
+      fieldService.getFieldsByDomain(FieldDomains.Car),
+      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
+    ]);
+
+    const queries = data.link.split('?')[1];
+
+    const createCarData = await carInfoGetterService.getCarsInfo(queries, carFields, carOwnerFields, data.userId);
+
+    const createdCarIds = await Promise.all(createCarData.map(cc => this.create(cc)))
+
+    const result = createdCarIds.map((r, i) => {
+      if (r.id === -1) {
+        const carData = createCarData[i];
+
+        return { ...carData, id: -1 }; // TODO! Maybe rethink minor errors for all apies...
+      }
+
+      return {...r};
+    })
 
     return result;
   }

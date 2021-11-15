@@ -10,6 +10,8 @@ declare global {
       SMTP_PASSWORD: string;
       API_URL: string;
       CLIENT_URL: string;
+      CARS_INFO_LINK: string;
+      CARS_PHONE_LINK: string;
     }
   }
 }

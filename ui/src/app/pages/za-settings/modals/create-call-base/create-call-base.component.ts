@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerRole } from 'src/app/entities/role';
+import { CarService } from 'src/app/services/car/car.service';
 import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
@@ -8,7 +9,8 @@ import { UserService } from 'src/app/services/user/user.service';
   templateUrl: './create-call-base.component.html',
   styleUrls: ['./create-call-base.component.scss'],
   providers: [
-    UserService
+    UserService,
+    CarService
   ]
 })
 export class CreateCallBaseComponent implements OnInit {
@@ -25,6 +27,7 @@ export class CreateCallBaseComponent implements OnInit {
 
   constructor(
     private userService: UserService,
+    private carService: CarService,
 
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig
@@ -51,8 +54,16 @@ export class CreateCallBaseComponent implements OnInit {
   }
 
   create() {
-    console.log(this.selectedContactUser);
-    console.log(this.link);
+    this.loading = true;
+
+    this.carService.createCarsByLink(this.link, +this.selectedContactUser).subscribe(res => {
+      alert('Новые машины успешно добавлены');
+      this.loading = false;
+    }, e => {
+      console.error(e);
+      alert('Новые машины не добавлены');
+      this.loading = false;
+    })
   }
 
 }

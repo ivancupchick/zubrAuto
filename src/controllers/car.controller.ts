@@ -89,6 +89,22 @@ class CarController {
       next(e);
     }
   }
+
+  async createCarsByLink(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+    }
+
+      const body: ServerCar.CreateByLink = req.body;
+      const cars = await carService.createCarsByLink(body);
+      return res.json(cars);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export = new CarController();

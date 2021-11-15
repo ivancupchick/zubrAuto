@@ -1,10 +1,11 @@
 import { Router } from 'express'
 import { body } from 'express-validator';
 import fieldConntroller from '../controllers/field.controller'
+import { Constants } from '../utils/constansts';
 
 const router = Router();
 
-router.route('/crud/')
+router.route(`/${ Constants.API.CRUD }/`)
     .get(fieldConntroller.getAllFields)
     .post(
       body('name').isLength({ min: 3, max: 50 }),
@@ -16,7 +17,7 @@ router.route('/crud/')
       fieldConntroller.createField
     );
 
-router.route('/crud/:fieldId')
+router.route(`/${ Constants.API.CRUD }/:fieldId`)
     .get(fieldConntroller.getField)
     .delete(fieldConntroller.deleteField)
     .put(fieldConntroller.updateField);

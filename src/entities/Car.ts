@@ -9,4 +9,9 @@ export namespace ServerCar {
   export type UpdateRequest = RealField.With.Request & Partial<WithOwnerNumber>;
   export type Response = Models.Car & RealField.With.Response & WithOwnerNumber;
   export type IdResponse = Pick<Response, 'id'>
+
+  export type CreateByLink = {
+    link: string;
+    userId: number;
+  }
 }

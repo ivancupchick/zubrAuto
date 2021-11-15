@@ -2,11 +2,12 @@ import { Router } from 'express'
 import { body } from 'express-validator';
 import userController from '../controllers/user.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { Constants } from '../utils/constansts';
 
 
 const router = Router();
 
-router.route('/crud/')
+router.route(`/${ Constants.API.CRUD }/`)
     .get(authMiddleware, userController.getAll)
     .post(
       authMiddleware,
@@ -16,7 +17,7 @@ router.route('/crud/')
       userController.create
     );
 
-router.route('/crud/:userId')
+router.route(`/${ Constants.API.CRUD }/:userId`)
     .get(authMiddleware, userController.get)
     .delete(authMiddleware, userController.delete)
     .put(authMiddleware, userController.update);

@@ -6,8 +6,9 @@ import { ServerCar } from 'src/app/entities/car';
 import { map } from 'rxjs/operators';
 import { FieldDomains } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
+import { Constants } from 'src/app/entities/constants';
 
-const API = 'cars';
+const API = Constants.API.CARS;
 
 @Injectable()
 export class CarService {
@@ -15,11 +16,11 @@ export class CarService {
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
   getCars(): Observable<ServerCar.Response[]> {
-    return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}`)
+    return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }`)
   }
 
   createCar(value: ServerCar.CreateRequest): Observable<boolean> {
-    return this.requestService.post<never>(`${environment.serverUrl}/${API}`, value)
+    return this.requestService.post<never>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }`, value)
       .pipe(map(result => {
         console.log(result);
 
@@ -27,18 +28,18 @@ export class CarService {
       }))
   }
 
-  // getCar(id: number): Observable<ServerCar.Response> {
-  //   return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${id}`)
-  //     .pipe(map(result => {
-  //       console.log(result);
+  getCar(id: number): Observable<ServerCar.Response> {
+    return this.requestService.get<ServerCar.Response>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }/${id}`)
+      .pipe(map(result => {
+        console.log(result);
 
-  //       return result[0];
-  //     }))
-  // }
+        return result;
+      }))
+  }
 
   updateCar(value: ServerCar.UpdateRequest, id: number): Observable<boolean> {
     delete (value as any).id;
-    return this.requestService.put<any>(`${environment.serverUrl}/${API}/${id}`, value)
+    return this.requestService.put<any>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }/${id}`, value)
       .pipe(map(result => {
         console.log(result);
 
@@ -47,7 +48,16 @@ export class CarService {
   }
 
   deleteCar(id: number): Observable<boolean> {
-    return this.requestService.delete<any>(`${environment.serverUrl}/${API}/${id}`)
+    return this.requestService.delete<any>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }/${id}`)
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  createCarsByLink(link: string, userId: number) {
+    return this.requestService.post<any>(`${environment.serverUrl}/${API}/${ Constants.API.CREATE_CARS_BY_LINK }`, { link, userId })
       .pipe(map(result => {
         console.log(result);
 
