@@ -1,5 +1,8 @@
 import { Models } from "./Models";
 import { RequireAtLeastOne } from "./Types";
+import { FieldNames as fieldNames } from '../../ui/src/app/entities/FieldNames';
+
+export import FieldNames = fieldNames;
 
 export namespace RealField {
   export type Response = Models.Field & { value: string; };
