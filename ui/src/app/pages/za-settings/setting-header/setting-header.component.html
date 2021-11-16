@@ -3,7 +3,7 @@
     <ul class="p-menubar-root-list">
       <ng-container *ngFor="let action of actions">
         <li *ngIf="!action.visible ? true : action.visible()" class="p-element p-menuitem">
-          <a *ngIf="!!action.routerLink" [routerLink]="action.routerLink" [queryParams]="action.queryParams || {}" class="p-element p-menuitem-link">
+          <a *ngIf="action.routerLink !== null && !action.handler" [routerLink]="action.routerLink" [queryParams]="action.queryParams || {}" class="p-element p-menuitem-link">
             <span class="p-menuitem-icon {{action.icon}}"></span>
             <span class="p-menuitem-text">{{ action.label }}</span>
           </a>

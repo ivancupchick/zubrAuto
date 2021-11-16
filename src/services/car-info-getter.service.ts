@@ -86,10 +86,10 @@ interface ICar {
     small: IPhoto;
   }[];
   price: {
-    byn: IPrice;
-    eur: IPrice;
-    rub: IPrice;
-    usd: IPrice;
+    byn: IPrice<'byn'>;
+    eur: IPrice<'eur'>;
+    rub: IPrice<'rub'>;
+    usd: IPrice<'usd'>;
   }
   properties: ICarProperty[];
   publicStatus: {
@@ -116,13 +116,13 @@ interface IPhoto {
   url: string;
   width: number;
 }
-interface IPrice {
+interface IPrice<T> {
   amount: number;
-  currency: 'byn' | 'eur' | 'rub' | 'usd'
+  currency: T
 }
 interface ICarProperty {
   fallbackType: 'string' | 'boolean' | 'int' | string;
-  id: 2
+  id: number;
   name: PropertyName,
   value: boolean | string | number;
 }
