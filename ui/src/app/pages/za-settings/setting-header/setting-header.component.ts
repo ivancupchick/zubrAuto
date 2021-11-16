@@ -65,7 +65,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
   }
 
   onChangeSelectedRole(v: any) {
-    this.actionsService.selectedRole = this.selectedRole;
+    this.sessionService.setCustomRole(this.selectedRole);
     this.rebuildActions();
   }
 
