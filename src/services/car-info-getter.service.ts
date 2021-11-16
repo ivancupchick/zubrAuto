@@ -238,7 +238,7 @@ class CarInfoGetter {
         const engineValue = this.convertEngineType(value);
         const variantId = fieldConfig.variants.split(',').findIndex(variant => variant === engineValue);
 
-        if (!variantId) {
+        if (variantId === -1) {
           return '';
         }
 
@@ -254,7 +254,7 @@ class CarInfoGetter {
         const transmission = this.convertTransmission(value);
         const variantId = fieldConfig.variants.split(',').findIndex(variant => variant === transmission);
 
-        if (!variantId) {
+        if (variantId === -1) {
           return '';
         }
 
@@ -265,7 +265,7 @@ class CarInfoGetter {
         const driveType = this.convertDriveType(value);
         const variantId = fieldConfig.variants.split(',').findIndex(variant => variant === driveType);
 
-        if (!variantId) {
+        if (variantId === -1) {
           return '';
         }
 
