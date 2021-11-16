@@ -32,7 +32,8 @@ export namespace FieldNames {
     shootingTime = 'shooting-time',
     ourLinks = 'our-links',
     contactCenterSpecialistId = 'contact-center-specialist-id',
-    carShootingSpecialistId = 'car-shooting-specialist-id'
+    carShootingSpecialistId = 'car-shooting-specialist-id',
+    source = "source",
   }
 
   export enum CarStatus {

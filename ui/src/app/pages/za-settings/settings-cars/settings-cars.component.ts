@@ -128,6 +128,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: this.strings.color,
       name: 'color',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.color),
+    }, {
+      title: this.strings.source,
+      name: 'source',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.source),
     }];
   }
 
