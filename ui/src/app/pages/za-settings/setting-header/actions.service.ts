@@ -26,6 +26,7 @@ export class ActionsService {
 
   getActions(): ActionsItem[] {
     return [
+      this.getHomePageRoutingAction(),
       this.getCarSettingsPageRoutingAction(),
       this.getFieldPageRoutingAction(),
       this.getClientSettingsPageRoutingAction(),
@@ -40,6 +41,15 @@ export class ActionsService {
 
   get user() {
     return this.sessionService.userSubj.getValue();
+  }
+
+  getHomePageRoutingAction(): ActionsItem {
+    return {
+      label: 'Домой',
+      icon: 'pi pi-fw pi-home',
+      routerLink: '',
+      visible: () => true,
+    }
   }
 
   getCarSettingsPageRoutingAction(): ActionsItem {

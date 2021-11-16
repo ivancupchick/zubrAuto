@@ -4,6 +4,8 @@ export interface GridConfigItem<GridItemType> {
   title: string;
   name: string;
   getValue: ((item: GridItemType) => string) | ((item: GridItemType) => any);
+  available?: () => boolean;
+  sortable?: () => boolean; // TODO!
 }
 
 export interface GridActionConfigItem<GridItemType> {

@@ -4,8 +4,10 @@ interface StringHash {
 
 export const settingsCarsStrings = {
   id: '№',
+  date: 'Дата',
   ownerNumber: 'Номер владельца',
   status: 'Статус',
+  brandAndModel: 'Автомобиль',
   engine: 'Мотор',
   engineCapacity: 'Объём мотора',
   mileage: 'Пробег',
@@ -17,6 +19,7 @@ export const settingsCarsStrings = {
   driveType: 'Привод',
   linkToAd: 'Ссылка на объявление',
   carOwnerPrice: 'Цена клиента',
+  trueCarPrice: 'Цена на руки',
   commission: 'Комиссия',
   comment: 'Комментарии',
   dateOfLastStatusChange: 'Дата действия',
@@ -30,4 +33,9 @@ export const settingsCarsStrings = {
   contactCenterSpecialistId: 'Специалист контактного центра',
   carShootingSpecialistId: 'Специалист отдела съёмок',
   source: 'Источник',
+  photos: 'Фото',
+  photo360: 'Фото 360',
+  linkToVideo: 'Ссылка на видео',
+
+  nextAction: 'Следующее действие',
 };

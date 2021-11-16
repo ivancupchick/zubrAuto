@@ -92,47 +92,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       this.sortCars();
     })
 
-    this.gridConfig = [{
-      title: this.strings.id,
-      name: 'id',
-      getValue: (item) => item.id,
-    }, {
-      title: this.strings.ownerNumber,
-      name: 'ownerNumber',
-      getValue: (item) => item.ownerNumber,
-    }, {
-      title: this.strings.status,
-      name: 'status',
-      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.status),
-    }, {
-      title: this.strings.engine,
-      name: 'engine',
-      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.engine),
-    }, {
-      title: this.strings.engineCapacity,
-      name: 'engineCapacity',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.engineCapacity),
-    }, {
-      title: this.strings.mark,
-      name: 'mark',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.mark),
-    }, {
-      title: this.strings.model,
-      name: 'model',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.model),
-    }, {
-      title: this.strings.transmission,
-      name: 'transmission',
-      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.transmission),
-    }, {
-      title: this.strings.color,
-      name: 'color',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.color),
-    }, {
-      title: this.strings.source,
-      name: 'source',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.source),
-    }];
+    this.gridConfig = this.getGridConfig();
   }
 
   ngOnDestroy() {
@@ -209,7 +169,176 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }
   }
 
+  private getGridConfig(): GridConfigItem<ServerCar.Response>[] {
+    const configs: GridConfigItem<ServerCar.Response>[] = [{
+      title: this.strings.id,
+      name: 'id',
+      getValue: (item) => item.id, // TODO! ,
+    }, {
+      title: this.strings.date,
+      name: 'CreatedDate',
+      getValue: (item) => {
+        try {
+          const date = new Date(+item.createdDate);
+          return date instanceof Date ? `${date.getDay()}/${date.getMonth()}/${date.getFullYear()}` : ''
+        } catch (error) {
+          console.error(error);
+          return item.createdDate
+        }
+      },
+      available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+    }, {
+      title: this.strings.source,
+      name: 'source',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.source),
+      available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+    }, {
+      title: this.strings.ownerName,
+      name: 'ownerName',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.CarOwner.name),
+      available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+    }, {
+      title: this.strings.ownerNumber,
+      name: 'ownerNumber',
+      getValue: (item) => item.ownerNumber,
+      available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+    }, {
+      title: this.strings.brandAndModel,
+      name: 'brandAndModel',
+      getValue: (item) => `${FieldsUtils.getFieldValue(item, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(item, FieldNames.Car.model)}`,
+    }, {
+      title: this.strings.year,
+      name: 'year',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.year),
+    }, {
+      title: this.strings.worksheet,
+      name: 'worksheet',
+      getValue: (item) => '', // TODO! specific fields? FieldsUtils.getFieldValue(item, FieldNames.Car.worksheet),
+      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
+    }, {
+      title: this.strings.engine,
+      name: 'engine',
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.engine),
+    }, {
+      title: this.strings.engineCapacity,
+      name: 'engineCapacity',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.engineCapacity),
+    }, {
+      title: this.strings.transmission,
+      name: 'transmission',
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.transmission),
+    }, {
+      title: this.strings.color,
+      name: 'color',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.color),
+    }, {
+      title: this.strings.driveType,
+      name: 'driveType',
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.driveType).split(' ')[1],
+    }, {
+      title: this.strings.mileage,
+      name: 'mileage',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.mileage),
+    }, {
+      title: this.strings.linkToAd,
+      name: 'linkToAd',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.linkToAd),
+      available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+    },
+    // {
+    //   title: this.strings.trueCarPrice,
+    //   name: 'trueCarPrice',
+    //   getValue: (item) => '',
+    //   available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+    // },
+    {
+      title: this.sessionService.isCarShooting
+          || this.sessionService.isCarShootingChief
+          || this.sessionService.isCustomerService
+          || this.sessionService.isCustomerServiceChief
+          || this.sessionService.isCarSales
+          || this.sessionService.isCarSalesChief
+        ? this.strings.trueCarPrice
+        : this.strings.carOwnerPrice, // TODO!
+      name: 'carOwnerPrice',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice),
+    }, {
+      title: this.strings.commission,
+      name: 'commission',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.commission),
+    }, {
+      title: this.strings.bargain,
+      name: 'bargain',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.bargain),
+      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief
+                    || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
+                    || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
+    }, {
+      title: this.strings.adPrice,
+      name: 'adPrice',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.adPrice),
+      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief
+                    || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
+                    || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
+    }, {
+      title: this.strings.status,
+      name: 'status',
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.status),
+      available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+    }, {
+      title: this.strings.comment,
+      name: 'comment',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.comment),
+      available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+    }, {
+      title: this.strings.shootingDate,
+      name: 'shootingDate',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate),
+      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    }, {
+      title: this.strings.shootingTime,
+      name: 'shootingTime',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.shootingTime),
+      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    }, {
+      title: this.strings.photos,
+      name: 'photos',
+      getValue: (item) => '', // TODO! specific fields
+      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    }, {
+      title: this.strings.photo360,
+      name: 'photo360',
+      getValue: (item) => '', // TODO! specific fields
+      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    }, {
+      title: this.strings.linkToVideo,
+      name: 'linkToVideo',
+      getValue: (item) => '', // TODO! specific fields
+      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    }, {
+      title: this.strings.ourLinks,
+      name: 'ourLinks',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.ourLinks),
+      available: () => this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    }, {
+      title: this.strings.nextAction,
+      name: 'nextAction',
+      getValue: (item) => '', // TODO! specific field???
+      available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+    }, {
+      title: this.strings.dateOfLastStatusChange,
+      name: 'dateOfLastStatusChange',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfLastStatusChange),
+      available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+    }
+    ];
 
+
+
+
+
+    return configs.filter(config => !config.available || config.available());
+  }
 
   openNewCarWindow() {
     const ref = this.dialogService.open(CreateCarComponent, {
