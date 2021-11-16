@@ -286,6 +286,9 @@ class CarInfoGetter {
       case FieldNames.Car.status: {
         return 'status-0';
       }
+      case FieldNames.Car.source: {
+        return ['a','v','.','b','y'].join();
+      }
     }
 
     return `${car.properties.find(property => property.name === this.getPropertyName(name))?.value || ''}`;
