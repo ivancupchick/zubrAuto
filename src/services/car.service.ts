@@ -1,5 +1,6 @@
 import { ServerCar } from "../entities/Car";
-import { FieldDomains, FieldNames, RealField } from "../entities/Field";
+import { FieldDomains, RealField } from "../entities/Field";
+import { FieldNames } from "../entities/FieldNames";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
 import carOwnerRepository from "../repositories/base/car-owner.repository";

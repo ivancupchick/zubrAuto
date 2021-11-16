@@ -1,7 +1,7 @@
-import { resolve } from 'path/posix';
 import request from 'request-promise';
 import { ServerCar } from '../entities/Car';
-import { FieldNames, RealField, ServerField } from '../entities/Field';
+import { RealField, ServerField } from '../entities/Field';
+import { FieldNames } from '../entities/FieldNames';
 
 // const CARS_INFO_LINK = process.env.CARS_INFO_LINK;
 const getPhoneLink = (id: number) => {
