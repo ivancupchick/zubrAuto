@@ -23,6 +23,7 @@ interface IAccess {
 }
 
 interface GridItemType {
+  id: number;
   sourceId: number;
   access: number;
 }
@@ -67,6 +68,7 @@ export class SelectAccessComponent implements OnInit {
     command: () => {
       const id = this.roles.find(role => !this.selectedSources.includes(role.id))?.id || 0
       this.gridData.push({
+        id: id,
         sourceId: id,
         access: 1
       });
@@ -87,6 +89,7 @@ export class SelectAccessComponent implements OnInit {
     this.availableAccessSources = this.convertRolesToSource(this.roles);
 
     this.gridData = this.accesses.map(access => ({
+      id: access.sourceId,
       sourceId: access.sourceId,
       access: access.access
     })).filter(access => access.access !== 0);

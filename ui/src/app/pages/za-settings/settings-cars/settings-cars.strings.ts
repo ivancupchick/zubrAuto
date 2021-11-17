@@ -5,7 +5,7 @@ interface StringHash {
 export const settingsCarsStrings = {
   id: '№',
   date: 'Дата',
-  ownerNumber: 'Номер владельца',
+  ownerNumber: 'Телефон',
   status: 'Статус',
   brandAndModel: 'Автомобиль',
   engine: 'Мотор',
@@ -29,7 +29,7 @@ export const settingsCarsStrings = {
   shootingDate: 'Дата съёмки',
   shootingTime: 'Время съёмки',
   ourLinks: 'Наши объявления',
-  ownerName: 'Имя владельца',
+  ownerName: 'Имя',
   contactCenterSpecialistId: 'Специалист контактного центра',
   carShootingSpecialistId: 'Специалист отдела съёмок',
   source: 'Источник',
