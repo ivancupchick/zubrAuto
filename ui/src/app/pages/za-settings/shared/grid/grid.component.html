@@ -1,6 +1,18 @@
-<p-table responsiveLayout="scroll" [value]="gridData">
+<p-table responsiveLayout="scroll"
+  [(selection)]="selectedKeys"
+  dataKey="id"
+  styleClass="p-datatable-sm p-datatable-gridlines"
+  [paginator]="true"
+  [rows]="10"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="Показ с {first} по {last} из {totalRecords}"
+  [rowsPerPageOptions]="[10,25,50]"
+  [value]="gridData">
   <ng-template pTemplate="header">
     <tr>
+      <th style="width: 3rem">
+        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+      </th>
       <th *ngFor="let config of gridConfig">
         {{ config.title }}
       </th>
@@ -9,6 +21,9 @@
   </ng-template>
   <ng-template pTemplate="body" let-gridItem>
     <tr>
+      <td>
+        <p-tableCheckbox [value]="gridItem"></p-tableCheckbox>
+      </td>
       <td *ngFor="let config of gridConfig">
         {{ config.getValue(gridItem) }}
       </td>
@@ -28,4 +43,10 @@
       </td>
     </tr>
   </ng-template>
+  <!-- <ng-template pTemplate="paginatorleft">
+    <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
+  </ng-template>
+  <ng-template pTemplate="paginatorright">
+    <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
+  </ng-template> -->
 </p-table>
