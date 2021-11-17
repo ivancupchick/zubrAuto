@@ -272,6 +272,10 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
     const createCarData = await carInfoGetterService.getCarsInfo(queries, carFields, carOwnerFields, data.userId);
 
+    if (createCarData.length === 0) {
+      return [];
+    }
+
     const createdCarIds = await Promise.all(createCarData.map(cc => this.create(cc)))
 
     const result = createdCarIds.map((r, i) => {
