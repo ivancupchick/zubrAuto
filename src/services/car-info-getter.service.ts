@@ -75,6 +75,8 @@ interface ICar {
   locationName: string;
   shortLocationName: string;
   metadata: ICarMetadata;
+  organizationId: number;
+  organizationTitle: string;
   originalDaysOnSale: number;
   photos: {
     big: IPhoto;
@@ -153,8 +155,8 @@ class CarInfoGetter {
       additionalInform = await Promise.all(otherQueries.map((link, i) => this.getResponseFromLink<ICarsInfo>(link, i * 300)))
     }
 
-    const allCars: ICar[] = carsInfo.adverts;
-    additionalInform.forEach(info => { allCars.push(...info.adverts); })
+    const allCars: ICar[] = carsInfo.adverts.filter(car => !(car.organizationId || car.organizationTitle));
+    additionalInform.forEach(info => { allCars.push(...info.adverts.filter(car => !(car.organizationId || car.organizationTitle))); })
 
     const ids: number[] = allCars.map(car => car.id);
 
@@ -287,7 +289,10 @@ class CarInfoGetter {
         return 'status-0';
       }
       case FieldNames.Car.source: {
-        return ['a','v','.','b','y'].join();
+        // const reg = /^(?:https?:\/\/).*?([^.\r\n\/]+\.)?([^.\r\n\/]+\.[^.\r\n\/]{2,6}(?:\.[^.\r\n\/]{2,6})?).*$/g;
+        // const arr = reg.exec(car.publicUrl);
+        // return arr[arr.length - 1]
+        return ['a','v','.','b','y'].join('');
       }
     }
 
