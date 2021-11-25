@@ -6,7 +6,8 @@ export namespace FieldNames {
     number = 'number',
     email = 'email',
     paymentType = 'payment-type',
-    tradeInAuto = 'trade-in-auto'
+    tradeInAuto = 'trade-in-auto',
+    dealStatus = 'deal-status',
   }
 
   export enum Car {
@@ -42,16 +43,24 @@ export namespace FieldNames {
     contactCenter_MakingDecision = '[ОКЦ]Принимает решение',
     contactCenter_WaitingShooting = '[ОКЦ]Ожидание съемки',
     contactCenter_Deny = '[ОКЦ]Отказ',
+    contactCenter_Refund = '[ОКЦ]Возврат от ОСА',
     carShooting_InProgres = '[ОСА]в работе',
+    carShooting_Refund = '[ОСА]Возврат от ОРК',
     carShooting_Ready = '[ОСА]готов',
-    customerService_InProgress = '[ОРК]в работе',
-    customerService_Ready = '[ОРК]готов',
-    carSales_InProgress = '[ОПА]в работе',
-    carSales_Deleted = '[ОПА]удалена',
-    carSales_Sold = '[ОПА]продано'
+    customerService_InProgress = '[ОРК]в работе', // ОРК, ОПА
+    customerService_OnPause = '[ОРК]на паузе',
+    customerService_OnDelete = '[ОРК]на удаление',
+    customerService_Sold = '[ОРК]продана',
+    carSales_Deposit = '[ОПА]Дан задаток',
+    admin_Deleted = '[Админ]Удалена',
   }
 
-
+  export enum DealStatus {
+    InProgress = 'В работе',
+    Deny = 'Отказ',
+    Sold = 'Продано',
+    OnDeposit = 'Дал задаток',
+  }
 
   export enum CarOwner {
     name = 'name',

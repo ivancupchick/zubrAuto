@@ -145,23 +145,23 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.sortedCars = this.rawCars
           .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.carShootingSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
                        getCarStatus(c) === FieldNames.CarStatus.carShooting_InProgres
-                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
+                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Refund
           ));
         break;
       case QueryCarTypes.allShootingBase:
         this.sortedCars = this.rawCars
-          .filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
-                    || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
-                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_InProgres
+          .filter(c => getCarStatus(c) === FieldNames.CarStatus.carShooting_InProgres
+                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Refund
                     || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
+                    // || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
           );
         break;
       case QueryCarTypes.carsForSale:
         this.sortedCars = this.rawCars
-          .filter(c => getCarStatus(c) === FieldNames.CarStatus.carSales_InProgress
-                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
-                    || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
-                    || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
+          .filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
+                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Refund
+                    // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
+                    // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
           );
         break;
       default:
