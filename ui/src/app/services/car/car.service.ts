@@ -4,9 +4,10 @@ import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
 import { ServerCar } from 'src/app/entities/car';
 import { map } from 'rxjs/operators';
-import { FieldDomains } from 'src/app/entities/field';
+import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
 import { Constants } from 'src/app/entities/constants';
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 const API = Constants.API.CARS;
 
@@ -63,6 +64,23 @@ export class CarService {
 
         return true;
       }))
+  }
+
+  contactCenterCall(id: number, newStatus: FieldNames.CarStatus, comment = '') {
+    const statusConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.status);
+    const commentConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.comment);
+
+    if (statusConfig && commentConfig) {
+      const statusField = FieldsUtils.setDropdownValue(statusConfig, newStatus);
+      const commentField = FieldsUtils.setFieldValue(commentConfig, comment);
+
+      const car: ServerCar.UpdateRequest = {
+        fields: [statusField, commentField]
+      }
+      return this.updateCar(car, id)
+    } else {
+      return of(false)
+    }
   }
 
   getCarFields() {

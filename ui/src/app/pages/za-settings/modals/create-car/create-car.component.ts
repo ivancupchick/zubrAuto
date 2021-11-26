@@ -234,9 +234,9 @@ export class CreateCarComponent implements OnInit {
       case FieldNames.Car.carShootingSpecialistId:
         field.label = settingsCarsStrings.carShootingSpecialistId;
         break;
-      case FieldNames.Car.dateOfLastStatusChange:
-        field.label = settingsCarsStrings.dateOfLastStatusChange;
-        break;
+      // case FieldNames.Car.dateOfLastStatusChange:
+      //   field.label = settingsCarsStrings.dateOfLastStatusChange;
+      //   break;
       case FieldNames.Car.driveType:
         field.label = settingsCarsStrings.driveType;
         break;

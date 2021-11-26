@@ -55,6 +55,7 @@ import { SettingsHomeComponent } from './settings-home/settings-home.component';
 import { CreateCallBaseComponent } from './modals/create-call-base/create-call-base.component';
 import { NewWorksheetComponent } from './new-worksheet/new-worksheet.component';
 import { NewQuestionnaireComponent } from './new-questionnaire/new-questionnaire.component';
+import { ContactCenterCallComponent } from './modals/contact-center-call/contact-center-call.component';
 
 
 
@@ -120,7 +121,8 @@ const routes: Routes = [{
     SettingsHomeComponent,
     CreateCallBaseComponent,
     NewWorksheetComponent,
-    NewQuestionnaireComponent
+    NewQuestionnaireComponent,
+    ContactCenterCallComponent
   ],
   imports: [
     RouterModule.forChild(routes),
