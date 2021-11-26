@@ -13,6 +13,7 @@ export interface GridActionConfigItem<GridItemType extends { id: number }> {
   icon: string;
   buttonClass: string;
   disabled?: () => boolean;
+  available?: () => boolean;
   handler: (item: GridItemType) => void; // TODO a
 }
 

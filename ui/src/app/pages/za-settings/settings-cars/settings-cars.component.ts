@@ -11,6 +11,7 @@ import { ServerUser } from 'src/app/entities/user';
 import { CarService } from 'src/app/services/car/car.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
+import { ContactCenterCallComponent } from '../modals/contact-center-call/contact-center-call.component';
 import { CreateCarComponent } from '../modals/create-car/create-car.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsCarsStrings } from './settings-cars.strings';
@@ -40,18 +41,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   type: QueryCarTypes | '' = '';
 
   gridConfig!: GridConfigItem<ServerCar.Response>[];
-  gridActionsConfig: GridActionConfigItem<ServerCar.Response>[] = [{
-    title: '',
-    icon: 'pencil',
-    buttonClass: 'secondary',
-    disabled: () => this.carFieldConfigs.length === 0,
-    handler: (car) => this.updateCar(car)
-  }, {
-    title: '',
-    icon: 'times',
-    buttonClass: 'danger',
-    handler: (car) => this.deleteCar(car)
-  }]
+  gridActionsConfig!: GridActionConfigItem<ServerCar.Response>[];
 
   carFieldConfigs: ServerField.Response[] = [];
   carOwnerFieldConfigs: ServerField.Response[] = [];
@@ -93,6 +83,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     })
 
     this.gridConfig = this.getGridConfig();
+    this.gridActionsConfig = this.getGridActionsConfig();
+
   }
 
   ngOnDestroy() {
@@ -320,22 +312,48 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       name: 'ourLinks',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.ourLinks),
       available: () => this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
-    }, {
-      title: this.strings.nextAction,
-      name: 'nextAction',
-      getValue: (item) => '', // TODO! specific field???
-      available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
-    }, {
-      title: this.strings.dateOfLastStatusChange,
-      name: 'dateOfLastStatusChange',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfLastStatusChange),
-      available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
-    }
+    },
+    // {
+    //   title: this.strings.nextAction,
+    //   name: 'nextAction',
+    //   getValue: (item) => '', // TODO! specific field???
+    //   available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+    // }, {
+    //   title: this.strings.dateOfLastStatusChange,
+    //   name: 'dateOfLastStatusChange',
+    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfLastStatusChange),
+    //   available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+    // }
     ];
 
 
 
 
+
+    return configs.filter(config => !config.available || config.available());
+  }
+
+  private getGridActionsConfig(): GridActionConfigItem<ServerCar.Response>[] {
+    const configs: GridActionConfigItem<ServerCar.Response>[] = [{
+      title: '',
+      icon: 'pencil',
+      buttonClass: 'secondary',
+      disabled: () => this.carFieldConfigs.length === 0,
+      available: () => this.sessionService.isAdminOrHigher,
+      handler: (car) => this.updateCar(car),
+    }, {
+      title: '',
+      icon: 'times',
+      buttonClass: 'danger',
+      available: () => this.sessionService.isAdminOrHigher,
+      handler: (car) => this.deleteCar(car),
+    }, {
+      title: '',
+      icon: '',
+      buttonClass: 'mobile',
+      available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+      handler: (car) => this.contactCenterCall(car),
+    }];
 
     return configs.filter(config => !config.available || config.available());
   }
@@ -349,6 +367,20 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         carShootingUsers: this.carShootingUsers,
       },
       header: 'Новая машина',
+      width: '70%'
+    });
+  }
+
+  contactCenterCall(car: ServerCar.Response) {
+    console.log(car.id);
+    const ref = this.dialogService.open(ContactCenterCallComponent, {
+      data: {
+        carId: car.id,
+        // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
+        // contactCenterUsers: this.contactCenterUsers,
+        // carShootingUsers: this.carShootingUsers,
+      },
+      header: 'Звонок',
       width: '70%'
     });
   }

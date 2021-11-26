@@ -5,6 +5,7 @@ import { ServerRole } from 'src/app/entities/role';
 import { ClientService } from 'src/app/services/client/client.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { CreateCallBaseComponent } from '../modals/create-call-base/create-call-base.component';
+import { CreateCarComponent } from '../modals/create-car/create-car.component';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
 import { QueryCarTypes } from '../settings-cars/settings-cars.component';
@@ -115,6 +116,23 @@ export class ActionsService {
         });
       },
       visible: () => this.sessionService.isContactCenterChief,
+    }, {
+      label: 'Создать машину',
+      icon: 'pi pi-fw pi-mobile',
+      // routerLink: 'roles',
+      handler: () => {
+        const ref = this.dialogService.open(CreateCarComponent, {
+          header: 'Новая машина',
+          width: '40%',
+          data: {
+            // carFieldConfigs: this.carFieldConfigs,
+            // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
+            // contactCenterUsers: this.contactCenterUsers,
+            // carShootingUsers: this.carShootingUsers,
+          }
+        });
+      },
+      visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
     }, {
       label: 'Вся база обзвона',
       icon: 'pi pi-fw pi-mobile',

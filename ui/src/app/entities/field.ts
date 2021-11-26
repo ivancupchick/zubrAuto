@@ -51,6 +51,24 @@ export class FieldsUtils {
       : field.variants.split(',').find((variant, index) => `${fieldName}-${index}` === field.value) || ''
   }
 
+  static setDropdownValue(field: ServerField.Response, fieldValue: string): RealField.Response {
+    const newField: RealField.Response = {
+      ...field,
+      value: field.variants.split(',').map((variant, index) => ({ key: `${field.name}-${index}`, value: variant })).find((variantEntity) => variantEntity.value === fieldValue)?.key || ''
+    };
+
+    return newField;
+  }
+
+  static setFieldValue(field: ServerField.Response, fieldValue: string): RealField.Response {
+    const newField: RealField.Response = {
+      ...field,
+      value: fieldValue
+    };
+
+    return newField;
+  }
+
   static getFields(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[]): RealField.Response[] {
     return Array.isArray(entityOrFieldsArray)
     ? entityOrFieldsArray
@@ -102,28 +120,28 @@ export class FieldsUtils {
   }
 
   // need test work
-  static setFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string, fieldValue: any = null, fieldType?: FieldType): boolean {
-    const field = this.getField(entityOrFieldsArray, name);
-    if (field) {
-      field.value = fieldValue;
-      return true;
-    } else if (fieldType) {
-      const fields = this.getFields(entityOrFieldsArray);
-      fields.push({
-        id: 0,
-        name: name,
-        value: fieldValue,
-        type: fieldType,
-        flags: 0,
-        variants: '',
-        showUserLevel: 0,
-        domain: FieldDomains.Car
-      });
-      return true;
-    }
+  // static setFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string, fieldValue: any = null, fieldType?: FieldType): boolean {
+  //   const field = this.getField(entityOrFieldsArray, name);
+  //   if (field) {
+  //     field.value = fieldValue;
+  //     return true;
+  //   } else if (fieldType) {
+  //     const fields = this.getFields(entityOrFieldsArray);
+  //     fields.push({
+  //       id: 0,
+  //       name: name,
+  //       value: fieldValue,
+  //       type: fieldType,
+  //       flags: 0,
+  //       variants: '',
+  //       showUserLevel: 0,
+  //       domain: FieldDomains.Car
+  //     });
+  //     return true;
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 }
 
 export function getDomainName(domain: FieldDomains): string {
