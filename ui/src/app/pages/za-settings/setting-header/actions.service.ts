@@ -131,12 +131,19 @@ export class ActionsService {
       routerLink: 'cars',
       queryParams: { type: QueryCarTypes.myShootingBase },
       visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
-    }, {
-      label: 'Создать Анкету',
-      icon: 'pi pi-fw pi-camera',
-      routerLink: 'new-worksheet',
-      visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
-    }]
+    },
+    //  {
+    //   label: 'Создать Анкету',
+    //   icon: 'pi pi-fw pi-camera',
+    //   routerLink: 'new-worksheet',
+    //   visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+    // }, {
+    //   label: 'создать опросник продавца',
+    //   icon: 'pi pi-fw pi-camera',
+    //   routerLink: 'new-questionnaire',
+    //   visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+    // }
+    ]
   }
 
   getCustomerServiceActions(): ActionsItem[] {
