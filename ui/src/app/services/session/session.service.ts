@@ -18,7 +18,7 @@ export class SessionService {
   get isAdminOrHigher() {
     return ((this.user.roleLevel === ServerRole.System.Admin || this.user.roleLevel === ServerRole.System.SuperAdmin) && (this.selectedRole === ServerRole.System.Admin)) || false;
   }
-  private get isRealAdminOrHigher() {
+  get isRealAdminOrHigher() {
     return this.user.roleLevel === ServerRole.System.Admin || this.user.roleLevel === ServerRole.System.SuperAdmin || false;
   }
   get isContactCenter()        { return this.isCustomRole(ServerRole.Custom.contactCenter); }
