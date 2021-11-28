@@ -149,6 +149,12 @@ export class ActionsService {
       routerLink: 'cars',
       queryParams: { type: QueryCarTypes.myShootingBase },
       visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+    }, {
+      label: 'Вся база съёмок',
+      icon: 'pi pi-fw pi-camera',
+      routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.allShootingBase },
+      visible: () => this.sessionService.isCarShootingChief,
     },
     //  {
     //   label: 'Создать Анкету',
