@@ -22,8 +22,7 @@ export interface GridField {
   templateUrl: './settings-fields.component.html',
   styleUrls: ['./settings-fields.component.scss'],
   providers: [
-    DialogService,
-    FieldService
+    DialogService
   ]
 })
 export class SettingsFieldsComponent implements OnInit {
