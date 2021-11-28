@@ -146,7 +146,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           .filter(c => getCarStatus(c) === FieldNames.CarStatus.carShooting_InProgres
                     || getCarStatus(c) === FieldNames.CarStatus.carShooting_Refund
                     || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
-                    // || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
           );
         break;
       case QueryCarTypes.carsForSale:

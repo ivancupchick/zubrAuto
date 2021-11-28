@@ -87,7 +87,7 @@ export class TransformToCarShooting implements OnInit {
 
     this.loading = true;
 
-    this.carService.transformToCarShooting(this.carId, +this.shootingDate, 1, this.comment).subscribe(res => {
+    this.carService.transformToCarShooting(this.carId, +this.shootingDate, +this.selectedCarShootingUser, this.comment).subscribe(res => {
       this.loading = false;
 
       if (res) {
