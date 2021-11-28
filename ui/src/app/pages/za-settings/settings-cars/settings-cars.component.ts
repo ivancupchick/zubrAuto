@@ -334,7 +334,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   private getGridActionsConfig(): GridActionConfigItem<ServerCar.Response>[] {
-    const configs: GridActionConfigItem<ServerCar.Response>[] = [{
+    const configs: GridActionConfigItem<ServerCar.Response>[] = [
+    {
       title: '',
       icon: 'pencil',
       buttonClass: 'secondary',
@@ -347,11 +348,12 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       buttonClass: 'danger',
       available: () => this.sessionService.isAdminOrHigher,
       handler: (car) => this.deleteCar(car),
-    }, {
+    }, 
+    {
       title: '',
-      icon: '',
-      buttonClass: 'mobile',
-      available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+      icon: 'mobile',
+      buttonClass: 'secondary',
+      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
       handler: (car) => this.contactCenterCall(car),
     }];
 

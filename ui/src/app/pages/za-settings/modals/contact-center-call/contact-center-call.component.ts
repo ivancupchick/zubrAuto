@@ -59,9 +59,14 @@ export class ContactCenterCallComponent implements OnInit {
     this.loading = true;
 
     this.carService.contactCenterCall(this.carId, this.selectedStatus, this.comment).subscribe(res => {
-      alert('Статус изменен');
       this.loading = false;
-      this.ref.close(false);
+
+      if (res) {
+        alert('Статус изменен');
+        this.ref.close(true);
+      } else {
+        alert('Статус не изменен');
+      }
     }, e => {
       console.error(e);
       alert('Статус не изменен');
