@@ -83,6 +83,29 @@ export class CarService {
     }
   }
 
+  transformToCarShooting(id: number, shootingDate: number, carShootingSpecialistId: number, comment = '') {
+    const newStatus = FieldNames.CarStatus.carShooting_InProgres;
+
+    const shootingDateConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.shootingDate);
+    const carShootingSpecialistIdConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.carShootingSpecialistId);
+    const statusConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.status);
+    const commentConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.comment);
+
+    if (statusConfig && commentConfig && shootingDateConfig && carShootingSpecialistIdConfig) {
+      const shootingDateField = FieldsUtils.setFieldValue(shootingDateConfig, `${shootingDate}`);
+      const carShootingSpecialistIdField = FieldsUtils.setFieldValue(carShootingSpecialistIdConfig, `${carShootingSpecialistId}`);
+      const statusField = FieldsUtils.setDropdownValue(statusConfig, newStatus);
+      const commentField = FieldsUtils.setFieldValue(commentConfig, comment);
+
+      const car: ServerCar.UpdateRequest = {
+        fields: [statusField, commentField, shootingDateField, carShootingSpecialistIdField]
+      }
+      return this.updateCar(car, id)
+    } else {
+      return of(false)
+    }
+  }
+
   getCarFields() {
     return this.fieldService.getFieldsByDomain(FieldDomains.Car);
   }

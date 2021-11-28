@@ -22,6 +22,7 @@ import {ChipsModule} from 'primeng/chips';
 import {RadioButtonModule} from 'primeng/radiobutton';
 import {TabViewModule} from 'primeng/tabview';
 import {CheckboxModule} from 'primeng/checkbox';
+import {CalendarModule} from 'primeng/calendar';
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
 import { SettingsFieldsComponent } from './settings-fields/settings-fields.component';
@@ -56,6 +57,7 @@ import { CreateCallBaseComponent } from './modals/create-call-base/create-call-b
 import { NewWorksheetComponent } from './new-worksheet/new-worksheet.component';
 import { NewQuestionnaireComponent } from './new-questionnaire/new-questionnaire.component';
 import { ContactCenterCallComponent } from './modals/contact-center-call/contact-center-call.component';
+import { TransformToCarShooting } from './modals/transform-to-car-shooting/transform-to-car-shooting.component';
 
 
 
@@ -122,7 +124,8 @@ const routes: Routes = [{
     CreateCallBaseComponent,
     NewWorksheetComponent,
     NewQuestionnaireComponent,
-    ContactCenterCallComponent
+    ContactCenterCallComponent,
+    TransformToCarShooting
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -151,6 +154,7 @@ const routes: Routes = [{
     RadioButtonModule,
     TabViewModule,
     CheckboxModule,
+    CalendarModule,
     ModalsAuthModule,
     DynamicFormModule
   ],

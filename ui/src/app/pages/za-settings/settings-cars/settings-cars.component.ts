@@ -13,6 +13,7 @@ import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { ContactCenterCallComponent } from '../modals/contact-center-call/contact-center-call.component';
 import { CreateCarComponent } from '../modals/create-car/create-car.component';
+import { TransformToCarShooting } from '../modals/transform-to-car-shooting/transform-to-car-shooting.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsCarsStrings } from './settings-cars.strings';
 
@@ -334,8 +335,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   private getGridActionsConfig(): GridActionConfigItem<ServerCar.Response>[] {
-    const configs: GridActionConfigItem<ServerCar.Response>[] = [
-    {
+    const configs: GridActionConfigItem<ServerCar.Response>[] = [{
       title: '',
       icon: 'pencil',
       buttonClass: 'secondary',
@@ -348,13 +348,18 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       buttonClass: 'danger',
       available: () => this.sessionService.isAdminOrHigher,
       handler: (car) => this.deleteCar(car),
-    }, 
-    {
+    }, {
       title: '',
       icon: 'mobile',
       buttonClass: 'secondary',
       available: () => this.sessionService.isAdminOrHigher || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
       handler: (car) => this.contactCenterCall(car),
+    }, {
+      title: '',
+      icon: 'check',
+      buttonClass: 'primary',
+      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isContactCenterChief,
+      handler: (car) => this.transformToCarShooting(car),
     }];
 
     return configs.filter(config => !config.available || config.available());
@@ -384,6 +389,21 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       },
       header: 'Звонок',
       width: '70%'
+    });
+  }
+
+  transformToCarShooting(car: ServerCar.Response) {
+    console.log(car.id);
+    const ref = this.dialogService.open(TransformToCarShooting, {
+      data: {
+        carId: car.id,
+        // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
+        // contactCenterUsers: this.contactCenterUsers,
+        // carShootingUsers: this.carShootingUsers,
+      },
+      header: 'Звонок',
+      width: '70%',
+      height: '60%',
     });
   }
 }

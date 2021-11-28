@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerRole } from 'src/app/entities/role';
 import { CarService } from 'src/app/services/car/car.service';
+import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
@@ -28,6 +29,7 @@ export class CreateCallBaseComponent implements OnInit {
   constructor(
     private userService: UserService,
     private carService: CarService,
+    private sessionService: SessionService,
 
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig
@@ -42,7 +44,8 @@ export class CreateCallBaseComponent implements OnInit {
           { value: 'Никто', key: 'None' },
           ...users
             .filter(u => u.customRoleName === ServerRole.Custom.contactCenter
-                      || u.customRoleName === ServerRole.Custom.contactCenterChief)
+                      || u.customRoleName === ServerRole.Custom.contactCenterChief
+                      || (this.sessionService.isRealAdminOrHigher && (u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin)) )
             .map(u => ({ value: u.email, key: `${u.id}` }))
         ];
         this.loading = false;
