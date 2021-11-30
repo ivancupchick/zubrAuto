@@ -11,7 +11,8 @@ import { ServerUser } from 'src/app/entities/user';
 import { CarService } from 'src/app/services/car/car.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { ContactCenterCallComponent } from '../modals/contact-center-call/contact-center-call.component';
+import { ChangeCarStatusComponent } from '../modals/change-car-status/change-car-status.component';
+import { CreateCarFormComponent } from '../modals/create-car-form/create-car-form.component';
 import { CreateCarComponent } from '../modals/create-car/create-car.component';
 import { TransformToCarShooting } from '../modals/transform-to-car-shooting/transform-to-car-shooting.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
@@ -339,7 +340,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: () => this.carFieldConfigs.length === 0,
-      available: () => this.sessionService.isAdminOrHigher,
+      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
       handler: (car) => this.updateCar(car),
     }, {
       title: '',
@@ -359,6 +360,30 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       buttonClass: 'primary',
       available: () => this.sessionService.isAdminOrHigher || this.sessionService.isContactCenterChief,
       handler: (car) => this.transformToCarShooting(car),
+    }, {
+      title: '',
+      icon: 'id-card',
+      buttonClass: 'secondary',
+      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      handler: (car) => this.createOrEditCarForm(car),
+    }, {
+      title: '',
+      icon: 'camera',
+      buttonClass: 'secondary',
+      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      handler: (car) => this.uploadMedia(car),
+    }, {
+      title: '',
+      icon: 'caret-left',
+      buttonClass: 'danger',
+      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      handler: (car) => this.returnToContactCenter(car),
+    }, {
+      title: '',
+      icon: 'caret-right',
+      buttonClass: 'primary',
+      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      handler: (car) => this.transformToCustomerService(car),
     }];
 
     return configs.filter(config => !config.available || config.available());
@@ -378,13 +403,15 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   contactCenterCall(car: ServerCar.Response) {
-    console.log(car.id);
-    const ref = this.dialogService.open(ContactCenterCallComponent, {
+    const ref = this.dialogService.open(ChangeCarStatusComponent, {
       data: {
         carId: car.id,
-        // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
-        // contactCenterUsers: this.contactCenterUsers,
-        // carShootingUsers: this.carShootingUsers,
+        availableStatuses: [
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_InProgress
+        ],
       },
       header: 'Звонок',
       width: '70%'
@@ -392,7 +419,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   transformToCarShooting(car: ServerCar.Response) {
-    console.log(car.id);
     const ref = this.dialogService.open(TransformToCarShooting, {
       data: {
         carId: car.id,
@@ -403,6 +429,61 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Звонок',
       width: '70%',
       height: '60%',
+    });
+  }
+
+  createOrEditCarForm(car: ServerCar.Response) {
+    const ref = this.dialogService.open(CreateCarFormComponent, {
+      data: {
+        car: car,
+        // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
+        // contactCenterUsers: this.contactCenterUsers,
+        // carShootingUsers: this.carShootingUsers,
+      },
+      header: 'Анкета',
+      width: '90%',
+      height: '90%',
+    });
+  }
+
+  uploadMedia(car: ServerCar.Response) {
+    // const ref = this.dialogService.open(TransformToCarShooting, {
+    //   data: {
+    //     carId: car.id,
+    //     // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
+    //     // contactCenterUsers: this.contactCenterUsers,
+    //     // carShootingUsers: this.carShootingUsers,
+    //   },
+    //   header: 'Звонок',
+    //   width: '70%',
+    //   height: '60%',
+    // });
+  }
+
+  returnToContactCenter(car: ServerCar.Response) {
+    const ref = this.dialogService.open(ChangeCarStatusComponent, {
+      data: {
+        carId: car.id,
+        availableStatuses: [
+          FieldNames.CarStatus.contactCenter_Refund,
+        ],
+        commentIsRequired: true,
+      },
+      header: 'Вернуть отделу ОКЦ',
+      width: '70%',
+    });
+  }
+
+  transformToCustomerService(car: ServerCar.Response) {
+    const ref = this.dialogService.open(ChangeCarStatusComponent, {
+      data: {
+        carId: car.id,
+        availableStatuses: [
+          FieldNames.CarStatus.carShooting_Ready,
+        ],
+      },
+      header: 'Передать отделу ОРК',
+      width: '70%',
     });
   }
 }

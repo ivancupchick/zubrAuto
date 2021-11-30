@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TransformToCarShooting } from './transform-to-car-shooting.component';
+import { UploadCarMediaComponent } from './upload-car-media.component';
 
-describe('TransformToCarShooting', () => {
-  let component: TransformToCarShooting;
-  let fixture: ComponentFixture<TransformToCarShooting>;
+describe('UploadCarMediaComponent', () => {
+  let component: UploadCarMediaComponent;
+  let fixture: ComponentFixture<UploadCarMediaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TransformToCarShooting ]
+      declarations: [ UploadCarMediaComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TransformToCarShooting);
+    fixture = TestBed.createComponent(UploadCarMediaComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

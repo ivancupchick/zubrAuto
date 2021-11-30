@@ -1,6 +1,6 @@
 <div class="wrapper">
   <div class="content">
-    <div class="status-wrapper">
+    <div *ngIf="availableStatuses.length > 1" class="status-wrapper">
       <h5>Поменять статус на</h5>
       <p-dropdown [options]="statuses" [(ngModel)]="selectedStatus" placeholder="Выберите статус" optionLabel="value" optionValue="key"></p-dropdown>
     </div>

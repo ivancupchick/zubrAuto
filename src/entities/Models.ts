@@ -91,4 +91,11 @@ export namespace Models {
     sourceName: string;
     access: number;
   }
+
+  export const CAR_FORMS_TABLE_NAME = 'public.carForms';
+  export interface CarForm {
+    id: number;
+    carId: number;
+    content: string;
+  }
 }

@@ -3,6 +3,7 @@ import { FieldDomains, RealField } from "../entities/Field";
 import { FieldNames } from "../entities/FieldNames";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
+import carFormRepository from "../repositories/base/car-form.repository";
 import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
@@ -18,13 +19,14 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       cars,
       carFields,
       carOwners,
-      carOwnerFields
-
+      carOwnerFields,
+      carForms,
     ] = await Promise.all([
       carRepository.getAll(),
       fieldService.getFieldsByDomain(FieldDomains.Car),
       carOwnerRepository.getAll(),
       fieldService.getFieldsByDomain(FieldDomains.CarOwner),
+      carFormRepository.getAll(),
     ]);
 
     const [
@@ -41,16 +43,30 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       })
     ]);
 
-    const result: ServerCar.Response[] = cars.map(car => ({
-      id: car.id,
-      createdDate: car.createdDate,
-      ownerId: car.ownerId,
-      ownerNumber: carOwners.find(co => co.id === car.ownerId)?.number || '',
-      fields: [
-        ...getFieldsWithValues(carFields, carChaines, car.id),
-        ...getFieldsWithValues(carOwnerFields, carOwnerChaines, car.ownerId)
-      ]
-    }))
+    const result: ServerCar.Response[] = cars.map(car => {
+      const carForm = carForms.find(form => form.carId === car.id);
+      const workSheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
+
+      if (carForm && workSheetField) {
+        carChaines.forEach(ch => {
+          if (ch.fieldId === workSheetField.id && ch.sourceId === car.id && ch.sourceName === Models.CARS_TABLE_NAME) {
+            ch.value = carForm.content;
+          }
+        });
+      }
+
+      const carRealFields = getFieldsWithValues(carFields, carChaines, car.id)
+      return {
+        id: car.id,
+        createdDate: car.createdDate,
+        ownerId: car.ownerId,
+        ownerNumber: carOwners.find(co => co.id === car.ownerId)?.number || '',
+        fields: [
+          ...carRealFields,
+          ...getFieldsWithValues(carOwnerFields, carOwnerChaines, car.ownerId)
+        ]
+      }
+    });
 
     return result;
   }
@@ -197,7 +213,20 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       await carRepository.updateById(carId, carData as Partial<Models.Car>);
     }
 
-    await Promise.all(carFields.map(f => fieldChainRepository.update({
+    const worksheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
+
+    if (worksheetField && worksheetField.value) {
+      const carFormExist = await carFormRepository.findOne({ carId: [`${carId}`]});
+
+      if (carFormExist) {
+        await carFormRepository.updateById(carFormExist.id, { content: worksheetField.value });
+      } else {
+        await carFormRepository.create({ carId, content: worksheetField.value });
+      }
+    }
+
+    const cf = carFields.filter(f => f.name !== FieldNames.Car.worksheet);
+    await Promise.all(cf.map(f => fieldChainRepository.update({
       value: f.value
     }, {
       fieldId: [`${f.id}`],

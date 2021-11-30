@@ -1,0 +1,220 @@
+<div class="wrapper">
+  <div class="content">
+    <p-accordion>
+      <p-accordionTab header="Опросник продавца">
+        <div class="tab-wrapper questionnaire">
+          <form [formGroup]="carQuestionnaireForm">
+            <div *ngFor="let field of carQuestionnaireFields; trackBy: idTrackBy" class="form-field">
+              <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {
+                  form: carQuestionnaireForm,
+                  field: field
+                }
+              }"></ng-content>
+            </div>
+          </form>
+        </div>
+      </p-accordionTab>
+      <p-accordionTab header="Общее состояние и Стоимость авто">
+        <div class="tab-wrapper general-condition">
+          <form [formGroup]="generalConditionForm">
+            <div *ngFor="let field of generalConditionFields; trackBy: idTrackBy" class="form-field">
+              <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {
+                  form: generalConditionForm,
+                  field: field
+                }
+              }"></ng-content>
+            </div>
+          </form>
+        </div>
+      </p-accordionTab>
+      <p-accordionTab header="АКТ ОСМОТРА АВТОМОБИЛЯ С ПРОБЕГОМ">
+        <div class="tab-wrapper inspectionForm">
+          <form class="inspectionForm" [formGroup]="inspectionForm">
+            <div class="grid formgrid">
+              <div class="col-12 md:col-8"></div>
+              <div class="col-12 md:col-4">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.date}}"></ng-content>
+              </div>
+            </div>
+
+            <div class="grid formgrid independent-inputs">
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.name}}"></ng-content>
+              </div>
+
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.number}}"></ng-content>
+              </div>
+            </div>
+
+            <div class="grid formgrid independent-inputs">
+              <div class="col-12 md:col-12">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.vin}}"></ng-content>
+              </div>
+            </div>
+
+            <div class="grid formgrid list-inputs">
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.brandModel}}"></ng-content>
+              </div>
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.capacity}}"></ng-content>
+              </div>
+            </div>
+            <div class="grid formgrid list-inputs">
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.color}}"></ng-content>
+              </div>
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.power}}"></ng-content>
+              </div>
+            </div>
+            <div class="grid formgrid list-inputs">
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.seats}}"></ng-content>
+              </div>
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.fuel}}"></ng-content>
+              </div>
+            </div>
+            <div class="grid formgrid list-inputs">
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.year}}"></ng-content>
+              </div>
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.transmission}}"></ng-content>
+              </div>
+            </div>
+            <div class="grid formgrid list-inputs">
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.mileage}}"></ng-content>
+              </div>
+              <div class="col-12 md:col-6 special-field">
+                <ng-content *ngTemplateOutlet="checkboxFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.guarantee}}"></ng-content>
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.termGuarantee}}"></ng-content>
+              </div>
+            </div>
+            <div class="grid formgrid list-inputs">
+              <div class="col-12 md:col-6">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.driveType}}"></ng-content>
+              </div>
+              <div class="col-12 md:col-6 special-field">
+                <ng-content *ngTemplateOutlet="checkboxFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.stateInspection}}"></ng-content>
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.termStateInspection}}"></ng-content>
+              </div>
+            </div>
+            <div class="grid formgrid list-inputs">
+              <div class="col-12 md:col-6">
+              </div>
+              <div class="col-12 md:col-6 special-field">
+                <ng-content *ngTemplateOutlet="checkboxFieldTemplate; context: { '$implicit': {form: inspectionForm,field: inspectionFields.valueAddedTax}}"></ng-content>
+              </div>
+            </div>
+
+            <!-- car -->
+
+            <div class="grid formgrid">
+              <div class="col-12 md:col-12">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {
+                    form: inspectionForm,
+                    field: inspectionFields.engineCondition
+                  }
+                }"></ng-content>
+              </div>
+            </div>
+            <div class="grid formgrid">
+              <div class="col-12 md:col-12">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {
+                    form: inspectionForm,
+                    field: inspectionFields.interiorCondition
+                  }
+                }"></ng-content>
+              </div>
+            </div>
+            <div class="grid formgrid">
+              <div class="col-12 md:col-12">
+                <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {
+                    form: inspectionForm,
+                    field: inspectionFields.exteriorCondition
+                  }
+                }"></ng-content>
+              </div>
+            </div>
+
+            <!--  -->
+
+
+            <div class="grid formgrid">
+              <!--
+              <div class="col-12 md:col-4">
+                <div class="p-inputgroup">
+                  <button type="button" pButton pRipple label="Search"></button>
+                  <input type="text" pInputText placeholder="Keyword">
+                </div>
+              </div>
+
+              <div class="col-12 md:col-4">
+                <div class="p-inputgroup">
+                  <input type="text" pInputText placeholder="Keyword">
+                  <button type="button" pButton pRipple icon="pi pi-refresh" styleClass="p-button-warn"></button>
+                </div>
+              </div>
+
+              <div class="col-12 md:col-4">
+                <div class="p-inputgroup">
+                  <button type="button" pButton pRipple icon="pi pi-check" styleClass="p-button-success"></button>
+                  <input type="text" pInputText placeholder="Vote">
+                  <button type="button" pButton pRipple icon="pi pi-times" styleClass="p-button-danger"></button>
+                </div>
+              </div>
+              -->
+            </div>
+          </form>
+          <form [formGroup]="checkboxesForm">
+            <div class="grid formgrid">
+              <div *ngFor="let field of checkboxesFields" class="col-12 md:col-3">
+                <ng-content *ngTemplateOutlet="checkboxFieldTemplate; context: { '$implicit': {
+                    form: checkboxesForm,
+                    field: field
+                  }
+                }"></ng-content>
+              </div>
+            </div>
+          </form>
+        </div>
+      </p-accordionTab>
+    </p-accordion>
+  </div>
+</div>
+
+<div class="footer">
+  <button pButton icon="pi pi-save" [disabled]="formNotValid" type="button" [label]="'Готово'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button>
+  <button pButton icon="pi pi-times" type="button" label="Отмена" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
+</div>
+
+<za-spinner *ngIf="loading"></za-spinner>
+
+<ng-template #inputFieldTemplate let-formAndField>
+  <div class="p-inputgroup">
+    <label *ngIf="!formAndField.hideLabel" [for]="formAndField.field.id">{{ formAndField.field.title }}</label>
+    <input
+      type="text"
+      pInputText
+      name="formAndField.field.key"
+      [id]="formAndField.field.id"
+      [formControl]="formAndField.form.controls[formAndField.field.key]"
+    >
+  </div>
+</ng-template>
+
+<ng-template #checkboxFieldTemplate let-formAndField>
+  <div class="p-field-checkbox">
+    <p-checkbox
+      name="formAndField.field.key"
+      [binary]="true"
+      inputId="formAndField.field.id"
+      [formControl]="formAndField.form.controls[formAndField.field.key]"
+    ></p-checkbox>
+    <label *ngIf="!formAndField.hideLabel" for="formAndField.field.id">{{formAndField.field.title}}</label>
+  </div>
+</ng-template>

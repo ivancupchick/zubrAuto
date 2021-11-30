@@ -1,0 +1,68 @@
+.wrapper {
+  width: 100%;
+
+  .content {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+
+    p-accordion {
+      width: 100%;
+    }
+  }
+}
+
+.tab-wrapper.questionnaire, .tab-wrapper.general-condition {
+  form {
+    .form-field {
+      width: 100%;
+      display: flex;
+
+      label {
+        width: 20%;
+        // white-space:;
+      }
+
+      input {
+        flex: 1 1 auto;
+      }
+    }
+  }
+}
+
+.tab-wrapper.inspectionForm {
+  label {
+    padding: 10px 0;
+  }
+  form.inspectionForm {
+    .list-inputs {
+      label {
+        width: 30%;
+        display: flex;
+        align-items: center;
+      }
+
+      .special-field {
+        display: flex;
+
+        .p-field-checkbox {
+          width: 30%;
+          display: flex;
+
+          label {
+            width: 70%;
+            order: -1;
+          }
+        }
+
+        .p-inputgroup {
+          width: 70%;
+        }
+      }
+    }
+
+    .independent-inputs {
+      margin: 20px 0 ;
+    }
+  }
+}

@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
-import { ServerCar } from 'src/app/entities/car';
+import { RealCarForm, ServerCar } from 'src/app/entities/car';
 import { map } from 'rxjs/operators';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
-import { Constants } from 'src/app/entities/constants';
+import { Constants, StringHash } from 'src/app/entities/constants';
 import { FieldNames } from 'src/app/entities/FieldNames';
 
 const API = Constants.API.CARS;
@@ -66,7 +66,7 @@ export class CarService {
       }))
   }
 
-  contactCenterCall(id: number, newStatus: FieldNames.CarStatus, comment = '') {
+  changeCarStatus(id: number, newStatus: FieldNames.CarStatus, comment = '') {
     const statusConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.status);
     const commentConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.comment);
 
@@ -99,6 +99,23 @@ export class CarService {
 
       const car: ServerCar.UpdateRequest = {
         fields: [statusField, commentField, shootingDateField, carShootingSpecialistIdField]
+      }
+      return this.updateCar(car, id)
+    } else {
+      return of(false)
+    }
+  }
+
+  editCarForm(id: number, carForm: RealCarForm) {
+    const form = JSON.stringify(carForm);
+
+    const worksheetConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.worksheet);
+
+    if (worksheetConfig) {
+      const worksheetField = FieldsUtils.setFieldValue(worksheetConfig, form);
+
+      const car: ServerCar.UpdateRequest = {
+        fields: [worksheetField]
       }
       return this.updateCar(car, id)
     } else {
