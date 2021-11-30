@@ -134,6 +134,16 @@ CREATE TABLE "public.fieldAccesses" (
   OIDS=FALSE
 );
 
+CREATE TABLE "public.carForms" (
+	"id" serial NOT NULL,
+	"content" VARCHAR NOT NULL,
+	"carId" integer NOT NULL,
+  CONSTRAINT "carForms_pk" PRIMARY KEY ("id"),
+  FOREIGN KEY ("carId") REFERENCES "public.cars" ("id")
+) WITH (
+  OIDS=FALSE
+);
+
 /*
 	add column
 */

@@ -23,6 +23,8 @@ import {RadioButtonModule} from 'primeng/radiobutton';
 import {TabViewModule} from 'primeng/tabview';
 import {CheckboxModule} from 'primeng/checkbox';
 import {CalendarModule} from 'primeng/calendar';
+import {AccordionModule} from 'primeng/accordion';
+
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
 import { SettingsFieldsComponent } from './settings-fields/settings-fields.component';
@@ -56,8 +58,10 @@ import { SettingsHomeComponent } from './settings-home/settings-home.component';
 import { CreateCallBaseComponent } from './modals/create-call-base/create-call-base.component';
 import { NewWorksheetComponent } from './new-worksheet/new-worksheet.component';
 import { NewQuestionnaireComponent } from './new-questionnaire/new-questionnaire.component';
-import { ContactCenterCallComponent } from './modals/contact-center-call/contact-center-call.component';
 import { TransformToCarShooting } from './modals/transform-to-car-shooting/transform-to-car-shooting.component';
+import { CreateCarFormComponent } from './modals/create-car-form/create-car-form.component';
+import { UploadCarMediaComponent } from './modals/upload-car-media/upload-car-media.component';
+import { ChangeCarStatusComponent } from './modals/change-car-status/change-car-status.component';
 
 
 
@@ -124,8 +128,10 @@ const routes: Routes = [{
     CreateCallBaseComponent,
     NewWorksheetComponent,
     NewQuestionnaireComponent,
-    ContactCenterCallComponent,
-    TransformToCarShooting
+    TransformToCarShooting,
+    CreateCarFormComponent,
+    UploadCarMediaComponent,
+    ChangeCarStatusComponent
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -155,6 +161,7 @@ const routes: Routes = [{
     TabViewModule,
     CheckboxModule,
     CalendarModule,
+    AccordionModule,
     ModalsAuthModule,
     DynamicFormModule
   ],
