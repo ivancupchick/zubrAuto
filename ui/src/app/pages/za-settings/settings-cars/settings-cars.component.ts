@@ -25,6 +25,7 @@ export enum QueryCarTypes {
   allCallBase = 'all-call-base',
   myShootingBase = 'my-shooting-base',
   allShootingBase = 'all-shooting-base',
+  shootedBase = 'shooted-base',
   carsForSale = 'cars-for-sale',
 }
 
@@ -165,7 +166,13 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       case QueryCarTypes.carsForSale:
         this.sortedCars = this.rawCars
           .filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
-                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Refund
+                    // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
+                    // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
+          );
+        break;
+      case QueryCarTypes.shootedBase:
+        this.sortedCars = this.rawCars
+          .filter(c => getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
                     // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
                     // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
           );
@@ -397,7 +404,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: () => this.carFieldConfigs.length === 0,
-      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      available: () => this.sessionService.isAdminOrHigher
+                    || this.sessionService.isCarShooting
+                    || this.sessionService.isCarShootingChief
+                    || this.sessionService.isCustomerService
+                    || this.sessionService.isCustomerServiceChief,
       handler: (car) => this.updateCar(car),
     }, {
       title: '',
@@ -441,6 +452,51 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       buttonClass: 'primary',
       available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
       handler: (car) => this.transformToCustomerService(car),
+    }, {
+      title: '',
+      icon: 'caret-left',
+      buttonClass: 'danger',
+      available: () => this.type === QueryCarTypes.shootedBase && (
+           this.sessionService.isAdminOrHigher
+        || this.sessionService.isCustomerService
+        || this.sessionService.isCustomerServiceChief),
+      handler: (car) => this.returnToShootingCar(car),
+    }, {
+      title: '',
+      icon: 'caret-right',
+      buttonClass: 'primary',
+      available: () => this.type === QueryCarTypes.shootedBase && (
+          this.sessionService.isAdminOrHigher
+       || this.sessionService.isCustomerService
+       || this.sessionService.isCustomerServiceChief),
+      handler: (car) => this.transformToCustomerServiceAprooved(car),
+    }, {
+      title: '',
+      icon: 'pause',
+      buttonClass: 'primary',
+      available: () => this.type === QueryCarTypes.carsForSale && (
+          this.sessionService.isAdminOrHigher
+       || this.sessionService.isCustomerService
+       || this.sessionService.isCustomerServiceChief),
+      handler: (car) => this.transformToCustomerServicePause(car),
+    }, {
+      title: '',
+      icon: 'times',
+      buttonClass: 'danger',
+      available: () => this.type === QueryCarTypes.carsForSale && (
+          this.sessionService.isAdminOrHigher
+       || this.sessionService.isCustomerService
+       || this.sessionService.isCustomerServiceChief),
+      handler: (car) => this.transformToCustomerServiceDelete(car),
+    }, {
+      title: '',
+      icon: 'modile',
+      buttonClass: 'secondary',
+      available: () => this.type === QueryCarTypes.carsForSale && (
+          this.sessionService.isAdminOrHigher
+       || this.sessionService.isCustomerService
+       || this.sessionService.isCustomerServiceChief),
+      handler: (car) => this.сustomerServiceCall(car),
     }];
 
     return configs.filter(config => !config.available || config.available());
@@ -531,6 +587,20 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     });
   }
 
+  returnToShootingCar(car: ServerCar.Response) {
+    const ref = this.dialogService.open(ChangeCarStatusComponent, {
+      data: {
+        carId: car.id,
+        availableStatuses: [
+          FieldNames.CarStatus.carShooting_Refund,
+        ],
+        commentIsRequired: true,
+      },
+      header: 'Вернуть отделу ОСА',
+      width: '70%',
+    });
+  }
+
   transformToCustomerService(car: ServerCar.Response) {
     const ref = this.dialogService.open(ChangeCarStatusComponent, {
       data: {
@@ -542,5 +612,57 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Передать отделу ОРК',
       width: '70%',
     });
+  }
+
+  transformToCustomerServiceAprooved(car: ServerCar.Response) {
+    const ref = this.dialogService.open(ChangeCarStatusComponent, {
+      data: {
+        carId: car.id,
+        availableStatuses: [
+          FieldNames.CarStatus.customerService_InProgress,
+        ],
+      },
+      header: 'Подтвердить',
+      width: '70%',
+    });
+  }
+
+  transformToCustomerServicePause(car: ServerCar.Response) {
+    const ref = this.dialogService.open(ChangeCarStatusComponent, {
+      data: {
+        carId: car.id,
+        availableStatuses: [
+          FieldNames.CarStatus.customerService_OnPause,
+        ],
+      },
+      header: 'Пауза',
+      width: '70%',
+    });
+  }
+
+  transformToCustomerServiceDelete(car: ServerCar.Response) {
+    const ref = this.dialogService.open(ChangeCarStatusComponent, {
+      data: {
+        carId: car.id,
+        availableStatuses: [
+          FieldNames.CarStatus.customerService_OnDelete,
+        ],
+      },
+      header: 'Поставить на удаление',
+      width: '70%',
+    });
+  }
+
+  сustomerServiceCall(car: ServerCar.Response) {
+    // const ref = this.dialogService.open(ChangeCarStatusComponent, {
+    //   data: {
+    //     carId: car.id,
+    //     availableStatuses: [
+    //       FieldNames.CarStatus.customerService_OnDelete,
+    //     ],
+    //   },
+    //   header: 'Звонок клиенту',
+    //   width: '70%',
+    // });
   }
 }
