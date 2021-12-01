@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import * as moment from 'moment';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Subject, zip } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -298,29 +299,31 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.shootingDate,
       name: 'shootingDate',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate),
+      getValue: (item) => moment(new Date(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0))).format('DD/MM/YYYY'),
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
     }, {
       title: this.strings.shootingTime,
       name: 'shootingTime',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.shootingTime),
+      getValue: (item) => moment(new Date(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0))).format('HH:mm'),
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
-    }, {
-      title: this.strings.photos,
-      name: 'photos',
-      getValue: (item) => '', // TODO! specific fields
-      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
-    }, {
-      title: this.strings.photo360,
-      name: 'photo360',
-      getValue: (item) => '', // TODO! specific fields
-      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
-    }, {
-      title: this.strings.linkToVideo,
-      name: 'linkToVideo',
-      getValue: (item) => '', // TODO! specific fields
-      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
-    }, {
+    },
+    // {
+    //   title: this.strings.photos,
+    //   name: 'photos',
+    //   getValue: (item) => '', // TODO! specific fields
+    //   available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    // }, {
+    //   title: this.strings.photo360,
+    //   name: 'photo360',
+    //   getValue: (item) => '', // TODO! specific fields
+    //   available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    // }, {
+    //   title: this.strings.linkToVideo,
+    //   name: 'linkToVideo',
+    //   getValue: (item) => '', // TODO! specific fields
+    //   available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+    // },
+    {
       title: this.strings.ourLinks,
       name: 'ourLinks',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.ourLinks),

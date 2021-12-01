@@ -43,6 +43,7 @@ export class CreateCarComponent implements OnInit {
   carExcludeFields: FieldNames.Car[] = [
     // FieldNames.Car.date,
     'ownerNumber' as FieldNames.Car,
+    FieldNames.Car.worksheet,
     FieldNames.Car.contactCenterSpecialistId,
     FieldNames.Car.carShootingSpecialistId,
   ];

@@ -16,7 +16,7 @@
       <th *ngFor="let config of gridConfig">
         {{ config.title }}
       </th>
-      <th style="width:8rem"></th>
+      <th></th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-gridItem>
@@ -27,7 +27,7 @@
       <td *ngFor="let config of gridConfig">
         {{ config.getValue(gridItem) }}
       </td>
-      <td>
+      <td class="buttons">
         <button
           *ngFor="let actionConfig of actions"
           type="button"

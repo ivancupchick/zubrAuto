@@ -1,0 +1,31 @@
+p-table ::ng-deep {
+  td, th {
+    padding: 0.1rem 0.1rem !important;
+    text-align: center !important;
+  }
+
+  td:not(.buttons) {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  td.buttons {
+    white-space: nowrap;
+
+    button + button {
+      margin-left: 2px;
+    }
+
+    button {
+      width: 1.4rem;
+      height: 1.4rem;
+      padding: 0;
+
+      span.pi {
+        font-size: 1rem;
+      }
+    }
+  }
+}

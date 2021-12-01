@@ -34,7 +34,7 @@ export class DynamicFieldControlService {
         value: dbField.hasOwnProperty('value') ? dbField.value : '',
         key: dbField.name,
         label: 'Default title',
-        required: true, // TODO check required bit + user bit // rethink about it
+        required: false, // TODO check required bit + user bit // rethink about it
         order: 1,
         controlType: dbField.type,
         type: '',
