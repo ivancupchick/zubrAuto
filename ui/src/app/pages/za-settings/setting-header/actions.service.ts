@@ -172,15 +172,16 @@ export class ActionsService {
 
   getCustomerServiceActions(): ActionsItem[] {
     return [{
-      label: 'База съёмок',
+      label: 'База клиентов #1',
       icon: 'pi pi-fw pi-th-large',
       routerLink: 'cars',
-      queryParams: { type: QueryCarTypes.allShootingBase },
+      queryParams: { type: QueryCarTypes.shootedBase },
       visible: () => this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
     }, {
-      label: 'База клиентов',
+      label: 'База клиентов #2',
       icon: 'pi pi-fw pi-th-large',
-      routerLink: 'clients',
+      routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.carsForSale },
       visible: () => this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
     }]
   }
