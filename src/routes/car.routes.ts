@@ -14,6 +14,12 @@ router.route(`/${ Constants.API.CRUD }/:carId`)
     .put(carController.updateCar);
 
 router.route(`/${Constants.API.CREATE_CARS_BY_LINK}`)
-  .post(carController.createCarsByLink)
+  .post(carController.createCarsByLink);
+
+router.route(`/${Constants.API.IMAGES}/:carId`)
+  .get(carController.getImages);
+
+router.route(`/${Constants.API.IMAGES}/:carId`)
+  .put(carController.uploadImages);
 
 export default router;

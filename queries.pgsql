@@ -37,6 +37,7 @@ CREATE TABLE "public.files" (
 	"id" serial NOT NULL,
 	"url" VARCHAR(255) NOT NULL,
 	"type" integer NOT NULL,
+  "parent" integer,
 	CONSTRAINT "files_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 import { validationResult } from 'express-validator';
 import { ServerCar } from '../entities/Car';
 import { ApiError } from '../exceptions/api.error';
+import carImageService from '../services/car-image.service';
 import carService from '../services/car.service';
 import { BaseController } from './base.conroller';
 
@@ -101,6 +102,49 @@ class CarController {
       const body: ServerCar.CreateByLink = req.body;
       const cars = await carService.createCarsByLink(body);
       return res.json(cars);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getImages(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const id = +req.params.carId;
+
+      const result = await carImageService.getCarFiles(id)
+
+      // const body: ServerCar.CreateByLink = req.body;
+      // const cars = await carService.createCarsByLink(body);
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async uploadImages(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const id = +req.params.carId;
+      const file = Array.isArray(req.files.file)
+        ? req.files.file[0]
+        : req.files.file;
+      const metadata = req.body.metadata || '';
+      console.log(file);
+
+      const result = await carImageService.uploadCarImage(id, file, metadata);
+
+      return res.json(result);
     } catch (e) {
       next(e);
     }

@@ -14,6 +14,8 @@ import UserRoutes from './routes/user.routes'
 import AuthRoutes from './routes/auth.routes'
 import { errorMiddleware } from './middlewares/error.middleware';
 import { setHeaders } from './middlewares/set-headers.middleware';
+import fileUpload from 'express-fileupload';
+
 
 export class App {
   app: Application;
@@ -31,6 +33,7 @@ export class App {
   }
 
   private middlewares(routesHandler: () => void) {
+    this.app.use(fileUpload({}))
     this.app.use(express.json());
     this.app.use(cookieParser());
     if (process.env.NODE_ENV !== 'production') {
@@ -49,6 +52,7 @@ export class App {
 
   private routes = () => {
     this.app.use(express.static(process.cwd()+"/build/ui/zubr-auto/"));
+    this.app.use('/uploads/', express.static(process.cwd()+"/build/uploads/"));
     this.app.use(IndexRoutes);
     this.app.use('/cars', CarRoutes);
     this.app.use('/fields', FieldRoutes);
