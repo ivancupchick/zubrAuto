@@ -51,6 +51,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   contactCenterUsers: ServerUser.Response[] = [];
   carShootingUsers: ServerUser.Response[] = [];
 
+  availableStatuses: { key: FieldNames.CarStatus, value: FieldNames.CarStatus }[] = [];
+  selectedStatus: FieldNames.CarStatus | null = null;
+
   readonly strings = settingsCarsStrings;
 
   destroyed = new Subject();
@@ -115,26 +118,34 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       });
   }
 
-  private sortCars() {
+  sortCars() {
     switch (this.type) {
       case QueryCarTypes.myCallBase:
+        const availableStatuses = [
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_Deny,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+        ];
+        this.availableStatuses = availableStatuses.map(s => ({ key: s, value: s }))
         this.sortedCars = this.rawCars
           .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
-                       getCarStatus(c) === FieldNames.CarStatus.contactCenter_WaitingShooting
-                    || getCarStatus(c) === FieldNames.CarStatus.contactCenter_InProgress
-                    || getCarStatus(c) === FieldNames.CarStatus.contactCenter_Deny
-                    || getCarStatus(c) === FieldNames.CarStatus.contactCenter_MakingDecision
-                    || getCarStatus(c) === FieldNames.CarStatus.contactCenter_NoAnswer
+                       getCarStatus(c) === this.selectedStatus
           ));
         break;
       case QueryCarTypes.allCallBase:
+        const availableStatuses2 = [
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_Deny,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+        ];
+        this.availableStatuses = availableStatuses2.map(s => ({ key: s, value: s }))
+
         this.sortedCars = this.rawCars // FIX THIS
-          .filter(c => getCarStatus(c) === FieldNames.CarStatus.contactCenter_WaitingShooting
-                    || getCarStatus(c) === FieldNames.CarStatus.contactCenter_InProgress
-                    || getCarStatus(c) === FieldNames.CarStatus.contactCenter_Deny
-                    || getCarStatus(c) === FieldNames.CarStatus.contactCenter_MakingDecision
-                    || getCarStatus(c) === FieldNames.CarStatus.contactCenter_NoAnswer
-          );
+          .filter(c => getCarStatus(c) === this.selectedStatus);
         break;
       case QueryCarTypes.myShootingBase:
         this.sortedCars = this.rawCars

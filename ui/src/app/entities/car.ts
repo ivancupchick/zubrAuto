@@ -31,8 +31,8 @@ export import CarImage = ServerFile;
 export import ServerCarImage = serverCarImage;
 export import CarFormEnums = carForm;
 
-export function getCarStatus(car: ServerCar.Response): string {
-  return FieldsUtils.getDropdownValue(car, FieldNames.Car.status);
+export function getCarStatus(car: ServerCar.Response): FieldNames.CarStatus {
+  return FieldsUtils.getDropdownValue(car, FieldNames.Car.status) as FieldNames.CarStatus;
 }
 
 export type CarQuestionnaireHash = {
