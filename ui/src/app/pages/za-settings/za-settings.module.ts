@@ -24,6 +24,10 @@ import {TabViewModule} from 'primeng/tabview';
 import {CheckboxModule} from 'primeng/checkbox';
 import {CalendarModule} from 'primeng/calendar';
 import {AccordionModule} from 'primeng/accordion';
+import {CarouselModule} from 'primeng/carousel';
+import {ImageModule} from 'primeng/image';
+import {FileUploadModule} from 'primeng/fileupload';
+
 
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
@@ -162,6 +166,9 @@ const routes: Routes = [{
     CheckboxModule,
     CalendarModule,
     AccordionModule,
+    CarouselModule,
+    ImageModule,
+    FileUploadModule,
     ModalsAuthModule,
     DynamicFormModule
   ],

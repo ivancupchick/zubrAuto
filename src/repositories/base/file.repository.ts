@@ -2,28 +2,28 @@ import { Models } from "../../entities/Models";
 import { ExpressionHash, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from "../../utils/sql-queries";
 import { BaseRepository } from "./base.repository";
 
-class FieldRepository extends BaseRepository<Models.Field> {
+class FileRepository extends BaseRepository<Models.File> {
   constructor() {
-    super(Models.FIELDS_TABLE_NAME);
+    super(Models.FILES_TABLE_NAME);
   }
 
-  async updateById(id: number, item: Partial<Omit<Models.Field, 'id'>>): Promise<Models.Field> {
+  async updateById(id: number, item: Partial<Omit<Models.File, 'id'>>): Promise<Models.File> {
     const query = getUpdateByIdQuery(this.tableName, id, item, true)
 
     console.log(query)
 
-    const dbResult = await this.query<Models.Field>(query);
+    const dbResult = await this.query<Models.File>(query);
     return this.getOneRow(dbResult);
   }
 
-  async update(newValues: Partial<Omit<Models.Field, 'id'>>, expressionHash: ExpressionHash<Models.Field>): Promise<Models.Field> {
+  async update(newValues: Partial<Omit<Models.File, 'id'>>, expressionHash: ExpressionHash<Models.File>): Promise<Models.File> {
     const query = getUpdateByAndExpressionQuery(this.tableName, newValues, expressionHash, true)
 
     console.log(query)
 
-    const dbResult = await this.query<Models.Field>(query);
+    const dbResult = await this.query<Models.File>(query);
     return this.getOneRow(dbResult);
   }
 }
 
-export = new FieldRepository();
+export = new FileRepository();

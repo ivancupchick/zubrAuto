@@ -1,7 +1,10 @@
+import { ServerFile } from '../../../../src/entities/File'
 import { ServerCar } from '../../../../src/entities/Car'
+import { ServerCarImage as serverCarImage } from '../../../../src/entities/Car'
 import { CarFormEnums as carForm } from '../../../../src/entities/FieldNames';
 import { FieldsUtils } from './field';
 import { FieldNames } from './FieldNames';
+
 
 // export interface IOwner {
 //   ownerName: string;
@@ -24,6 +27,8 @@ import { FieldNames } from './FieldNames';
 // }
 
 export import ServerCar = ServerCar;
+export import CarImage = ServerFile;
+export import ServerCarImage = serverCarImage;
 export import CarFormEnums = carForm;
 
 export function getCarStatus(car: ServerCar.Response): string {

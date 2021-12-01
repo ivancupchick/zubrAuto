@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
-import { RealCarForm, ServerCar } from 'src/app/entities/car';
+import { CarImage, RealCarForm, ServerCar, ServerCarImage } from 'src/app/entities/car';
 import { map } from 'rxjs/operators';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
@@ -10,6 +10,10 @@ import { Constants, StringHash } from 'src/app/entities/constants';
 import { FieldNames } from 'src/app/entities/FieldNames';
 
 const API = Constants.API.CARS;
+
+export interface CarImageMetadata {
+
+}
 
 @Injectable()
 export class CarService {
@@ -63,6 +67,33 @@ export class CarService {
         console.log(result);
 
         return true;
+      }))
+  }
+
+  getCarsImages(id: number) {
+    return this.requestService.get<CarImage.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`)
+      .pipe(map(result => {
+        console.log(result);
+
+        return result;
+      }))
+  }
+
+  uploadCarImages(id: number, files: File, carImageMetadata: CarImageMetadata) {
+    const metadata = JSON.stringify(carImageMetadata);
+
+    const formData: FormData = new FormData();
+
+    formData.append('metadata', metadata);
+
+    for (let file of [files]) {
+      formData.append('file', (file as any), (file as any).name);
+    }
+
+    return this.requestService.put<any, FormData>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`, formData).pipe(map(result => {
+        console.log(result);
+
+        return result;
       }))
   }
 

@@ -42,20 +42,23 @@ export namespace Models {
     refreshToken: string; // required
   }
 
-  // export const FILE_CHAINS_TABLE_NAME = 'filesIds';
-  // export interface FileChain {
-  //   id: number;
-  //   sourceId: number;
-  //   fileId: number;
-  //   sourceName: string;
-  // }
+  export const FILE_CHAINS_TABLE_NAME = 'filesIds';
+  export interface FileChain {
+    id: number;
+    sourceId: number;
+    fileId: number;
+    sourceName: string;
+  }
 
-  // export const FILES_TABLE_NAME = 'public.files';
-  // export interface File {
-  //   id: number;
-  //   url: string;
-  //   type: number;
-  // }
+  export const FILES_TABLE_NAME = 'public.files';
+  export interface File {
+    id: number;
+    url: string;
+    type: number;
+    name: string;
+    parent: number;
+    fileMetadata: string;
+  }
 
   export const FIELD_CHAINS_TABLE_NAME = 'public.fieldIds';
   export interface FieldChain {

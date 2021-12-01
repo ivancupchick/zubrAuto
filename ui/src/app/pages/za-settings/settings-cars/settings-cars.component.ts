@@ -15,6 +15,7 @@ import { ChangeCarStatusComponent } from '../modals/change-car-status/change-car
 import { CreateCarFormComponent } from '../modals/create-car-form/create-car-form.component';
 import { CreateCarComponent } from '../modals/create-car/create-car.component';
 import { TransformToCarShooting } from '../modals/transform-to-car-shooting/transform-to-car-shooting.component';
+import { UploadCarMediaComponent } from '../modals/upload-car-media/upload-car-media.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsCarsStrings } from './settings-cars.strings';
 
@@ -447,17 +448,17 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   uploadMedia(car: ServerCar.Response) {
-    // const ref = this.dialogService.open(TransformToCarShooting, {
-    //   data: {
-    //     carId: car.id,
-    //     // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
-    //     // contactCenterUsers: this.contactCenterUsers,
-    //     // carShootingUsers: this.carShootingUsers,
-    //   },
-    //   header: 'Звонок',
-    //   width: '70%',
-    //   height: '60%',
-    // });
+    const ref = this.dialogService.open(UploadCarMediaComponent, {
+      data: {
+        car,
+        // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
+        // contactCenterUsers: this.contactCenterUsers,
+        // carShootingUsers: this.carShootingUsers,
+      },
+      header: 'Загрузка медиа файлов',
+      width: '90%',
+      height: '90%',
+    });
   }
 
   returnToContactCenter(car: ServerCar.Response) {

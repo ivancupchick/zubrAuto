@@ -15,3 +15,15 @@ export namespace ServerCar {
     userId: number;
   }
 }
+
+export namespace ServerCarImage {
+  type Entity = {
+    file: File;
+    metadata: string;
+  }
+
+  export type CreateRequest = Entity;
+  export type UpdateRequest = Partial<Entity>;
+  export type Response = Models.File & Entity;
+  export type IdResponse = Pick<Response, 'id'>
+}
