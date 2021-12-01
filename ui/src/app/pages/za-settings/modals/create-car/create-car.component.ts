@@ -19,7 +19,8 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
   styleUrls: ['./create-car.component.scss'],
   providers: [
     DynamicFieldControlService,
-    UserService
+    UserService,
+    CarService
   ]
 })
 export class CreateCarComponent implements OnInit {

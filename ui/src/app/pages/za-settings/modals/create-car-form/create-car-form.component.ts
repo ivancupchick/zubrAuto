@@ -28,7 +28,10 @@ function keys<T = any>(obj: T): Array<keyof typeof obj> {
 @Component({
   selector: 'za-create-car-form',
   templateUrl: './create-car-form.component.html',
-  styleUrls: ['./create-car-form.component.scss']
+  styleUrls: ['./create-car-form.component.scss'],
+  providers: [
+    CarService
+  ]
 })
 export class CreateCarFormComponent implements OnInit {
   readonly carFormStrings = CarFormEnumsStrings;

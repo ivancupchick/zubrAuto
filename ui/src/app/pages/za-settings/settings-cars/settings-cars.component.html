@@ -1,8 +1,16 @@
 <p></p>
 <p-toolbar>
     <div class="p-toolbar-group-left">
-        <span style="color: white">Туллбар</span>
-        <!-- <p-dropdown [autoDisplayFirst]="true" [options]="domains" [(ngModel)]="selectedDomain" (onChange)="onChangeDomain($event)" optionLabel="name" optionValue="code"></p-dropdown> -->
+        <span *ngIf="availableStatuses.length > 0" style="color: white">Cтатус</span>
+        <p-dropdown
+          *ngIf="availableStatuses.length > 0"
+          [autoDisplayFirst]="true"
+          [options]="availableStatuses"
+          [(ngModel)]="selectedStatus"
+          (onChange)="sortCars()"
+          optionLabel="key"
+          optionValue="value"
+        ></p-dropdown>
         <button pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
 
         <!-- <i class="pi pi-bars"></i> -->
