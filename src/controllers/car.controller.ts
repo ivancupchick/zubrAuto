@@ -136,9 +136,9 @@ class CarController {
       }
 
       const id = +req.params.carId;
-      const file = Array.isArray((req.files as any).file)
-        ? (req.files as any).file[0]
-        : (req.files as any).file;
+      const file = Array.isArray(((req as any).files as any).file)
+        ? ((req as any).files as any).file[0]
+        : ((req as any).files as any).file;
       const metadata = req.body.metadata || '';
       console.log(file);
 
