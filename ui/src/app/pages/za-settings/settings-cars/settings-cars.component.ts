@@ -267,15 +267,57 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         ? this.strings.trueCarPrice
         : this.strings.carOwnerPrice, // TODO!
       name: 'carOwnerPrice',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice),
+      getValue: (item) => `${FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice)}$`,
     }, {
       title: this.strings.commission,
       name: 'commission',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.commission),
+      getValue: (item) => {
+        const price = +(FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice) || 0);
+        let commission = 0;
+
+        if (price < 10000) {
+          commission = 400;
+        } else if (10000 <= price && price < 15000) {
+          commission = 500;
+        } else if (15000 <= price && price < 20000) {
+          commission = 600;
+        } else if (20000 <= price && price < 30000) {
+          commission = 700;
+        } else if (30000 <= price && price < 40000) {
+          commission = 800;
+        } else if (40000 <= price && price < 50000) {
+          commission = 900;
+        } else if (50000 <= price) {
+          commission = 1000;
+        }
+
+        return `${commission}$`;
+      },
     }, {
       title: this.strings.bargain,
       name: 'bargain',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.bargain),
+      getValue: (item) => {
+        const price = +(FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice) || 0);
+        let bargain = 0;
+
+        if (price < 10000) {
+          bargain = 200;
+        } else if (10000 <= price && price < 15000) {
+          bargain = 200;
+        } else if (15000 <= price && price < 20000) {
+          bargain = 200;
+        } else if (20000 <= price && price < 30000) {
+          bargain = 300;
+        } else if (30000 <= price && price < 40000) {
+          bargain = 500;
+        } else if (40000 <= price && price < 50000) {
+          bargain = 1000;
+        } else if (50000 <= price) {
+          bargain = 1000;
+        }
+
+        return `${bargain}$`;
+      },
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief
                     || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
                     || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
