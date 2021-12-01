@@ -34,6 +34,7 @@ class CarImageService {
       : await fileRepository.create({ name: `${car.id}`, type: ServerFile.Types.Folder, url: '', parent: -1, fileMetadata: '' });
 
     file.mv(path);
+    file.mv('build/' + path);
 
     const dbFile = {
       url: path,

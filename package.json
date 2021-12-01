@@ -4,10 +4,10 @@
   "description": "node server",
   "main": "build/index.bundle.js",
   "scripts": {
-    "start": "rimraf build && cd ui && npm run build && cd .. && cp -r uploads/ build/uploads/ && tsc && node ./build/index.js",
-    "build": "rimraf build && cd ui && npm run build --prod && cp -r uploads/ build/uploads/ && cd .. && tsc && webpack",
-    "dev": "rimraf build && tsc && cp -r uploads/ build/uploads/ && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\" \"cd ui && ng build --watch\"",
-    "dev-server": "rimraf build && tsc && cp -r uploads/ build/uploads/ && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\"",
+    "start": "rimraf build && cd ui && npm run build && cd .. && cp -r uploads/ build/ && tsc && node ./build/index.js",
+    "build": "rimraf build && cd ui && npm run build --prod && cp -r uploads/ build/ && cd .. && tsc && webpack",
+    "dev": "rimraf build && tsc && cp -r uploads/ build/ && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\" \"cd ui && ng build --watch\"",
+    "dev-server": "rimraf build && tsc && cp -r uploads/ build/ && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\"",
     "dev-ui": "cd ui && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
