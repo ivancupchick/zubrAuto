@@ -20,6 +20,50 @@ import { UploadCarMediaComponent } from '../modals/upload-car-media/upload-car-m
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsCarsStrings } from './settings-cars.strings';
 
+function calculateBargain(price: number) {
+  let bargain = 0;
+
+  if (price < 10000) {
+    bargain = 200;
+  } else if (10000 <= price && price < 15000) {
+    bargain = 200;
+  } else if (15000 <= price && price < 20000) {
+    bargain = 200;
+  } else if (20000 <= price && price < 30000) {
+    bargain = 300;
+  } else if (30000 <= price && price < 40000) {
+    bargain = 500;
+  } else if (40000 <= price && price < 50000) {
+    bargain = 1000;
+  } else if (50000 <= price) {
+    bargain = 1000;
+  }
+
+  return bargain;
+}
+
+function calculateComission(price: number) {
+  let commission = 0;
+
+  if (price < 10000) {
+    commission = 400;
+  } else if (10000 <= price && price < 15000) {
+    commission = 500;
+  } else if (15000 <= price && price < 20000) {
+    commission = 600;
+  } else if (20000 <= price && price < 30000) {
+    commission = 700;
+  } else if (30000 <= price && price < 40000) {
+    commission = 800;
+  } else if (40000 <= price && price < 50000) {
+    commission = 900;
+  } else if (50000 <= price) {
+    commission = 1000;
+  }
+
+  return commission;
+}
+
 export enum QueryCarTypes {
   myCallBase = 'my-call-base',
   allCallBase = 'all-call-base',
@@ -44,6 +88,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   rawCars: ServerCar.Response[] = [];
 
   type: QueryCarTypes | '' = '';
+
+  isSearchAvailable = true;
 
   gridConfig!: GridConfigItem<ServerCar.Response>[];
   gridActionsConfig!: GridActionConfigItem<ServerCar.Response>[];
@@ -120,7 +166,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       });
   }
 
-  sortCars() {
+  sortCars(searchText = '') {
     switch (this.type) {
       case QueryCarTypes.myCallBase:
         const availableStatuses = [
@@ -180,6 +226,12 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       default:
         this.sortedCars = this.rawCars;
     }
+
+    this.sortedCars = this.sortedCars.filter(car => {
+      const name = `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
+
+      return name.toLocaleLowerCase().indexOf(searchText.toLocaleLowerCase()) !== -1
+    })
   }
 
   private getGridConfig(): GridConfigItem<ServerCar.Response>[] {
@@ -280,50 +332,14 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       name: 'commission',
       getValue: (item) => {
         const price = +(FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice) || 0);
-        let commission = 0;
-
-        if (price < 10000) {
-          commission = 400;
-        } else if (10000 <= price && price < 15000) {
-          commission = 500;
-        } else if (15000 <= price && price < 20000) {
-          commission = 600;
-        } else if (20000 <= price && price < 30000) {
-          commission = 700;
-        } else if (30000 <= price && price < 40000) {
-          commission = 800;
-        } else if (40000 <= price && price < 50000) {
-          commission = 900;
-        } else if (50000 <= price) {
-          commission = 1000;
-        }
-
-        return `${commission}$`;
+        return `${calculateComission(price)}$`;
       },
     }, {
       title: this.strings.bargain,
       name: 'bargain',
       getValue: (item) => {
         const price = +(FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice) || 0);
-        let bargain = 0;
-
-        if (price < 10000) {
-          bargain = 200;
-        } else if (10000 <= price && price < 15000) {
-          bargain = 200;
-        } else if (15000 <= price && price < 20000) {
-          bargain = 200;
-        } else if (20000 <= price && price < 30000) {
-          bargain = 300;
-        } else if (30000 <= price && price < 40000) {
-          bargain = 500;
-        } else if (40000 <= price && price < 50000) {
-          bargain = 1000;
-        } else if (50000 <= price) {
-          bargain = 1000;
-        }
-
-        return `${bargain}$`;
+        return `${calculateBargain(price)}$`;
       },
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief
                     || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
@@ -331,7 +347,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.adPrice,
       name: 'adPrice',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.adPrice),
+      getValue: (item) => {
+        const price = +(FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice) || 0);
+
+        return `${calculateComission(price) + calculateBargain(price) + price}$`;
+      },
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief
                     || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
                     || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
@@ -432,7 +452,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '',
       icon: 'id-card',
       buttonClass: 'secondary',
-      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
       handler: (car) => this.createOrEditCarForm(car),
     }, {
       title: '',
@@ -549,6 +569,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     const ref = this.dialogService.open(CreateCarFormComponent, {
       data: {
         car: car,
+        readOnly: this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
         // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
         // contactCenterUsers: this.contactCenterUsers,
         // carShootingUsers: this.carShootingUsers,
@@ -664,5 +685,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     //   header: 'Звонок клиенту',
     //   width: '70%',
     // });
+  }
+
+  onSearch(v: Event) {
+    const inputTarget: HTMLInputElement = v.target as HTMLInputElement;
+    this.sortCars(inputTarget.value)
   }
 }

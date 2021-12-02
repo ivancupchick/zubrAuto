@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CarFormEnums, RealCarForm, ServerCar } from 'src/app/entities/car';
+import { CarFormEnums, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
 import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -39,6 +39,8 @@ export class CreateCarFormComponent implements OnInit {
   CarFormEnums = CarFormEnums;
   loading = false;
 
+  readOnly = false;
+
   get formNotValid() {
     return false;
   };
@@ -69,11 +71,19 @@ export class CreateCarFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.car = this.config.data.car;
+    this.readOnly = this.config.data.readOnly;
 
-    const worksheet = FieldsUtils.getFieldValue(this.car, FieldNames.Car.worksheet);
+    let worksheet: ICarForm | null;
+
+    try {
+      const worksheetSource = FieldsUtils.getFieldValue(this.car, FieldNames.Car.worksheet) || '';
+      worksheet = JSON.parse(worksheetSource)
+    } catch (error) {
+      worksheet = null;
+    }
 
     this.carForm = worksheet
-      ? new RealCarForm(JSON.parse(worksheet))
+      ? new RealCarForm(worksheet)
       : new RealCarForm(null);
 
     this.carQuestionnaireFields = keys(this.carForm.carQuestionnaire)
@@ -112,6 +122,10 @@ export class CreateCarFormComponent implements OnInit {
   }
 
   create() {
+    if (this.readOnly) {
+      this.ref.close(false);
+    }
+
     this.loading = true;
 
     for (const iterator of this.carQuestionnaireFields) {
