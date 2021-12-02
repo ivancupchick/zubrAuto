@@ -1,5 +1,17 @@
 <za-dynamic-form (changed)="setValidForm($event)" [fields]="dynamicFormFields"></za-dynamic-form>
 
+<div class="p-field p-col-12 p-md-4">
+  <span class="p-float-label access-wrapper">
+    <p-chips [disabled]="true" inputId="chips" class="p-inputwrapper-focus" [(ngModel)]="selectedCars">
+      <ng-template let-car pTemplate="item">
+        {{car.markModel}}
+      </ng-template>
+    </p-chips>
+    <label for="chips">Машины (через запятую)</label>
+    <button pButton icon="pi pi-pencil" type="button" (click)="openEditCars()"></button>
+  </span>
+</div>
+
 <za-spinner *ngIf="loading"></za-spinner>
 
 <div class="footer">

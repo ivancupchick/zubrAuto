@@ -7,7 +7,9 @@
   [showCurrentPageReport]="true"
   currentPageReportTemplate="Показ с {first} по {last} из {totalRecords}"
   [rowsPerPageOptions]="[10,25,50]"
-  [value]="gridData">
+  [value]="gridData"
+  (selectionChange)="onSelect($event)"
+>
   <ng-template pTemplate="header">
     <tr>
       <th style="width: 3rem">

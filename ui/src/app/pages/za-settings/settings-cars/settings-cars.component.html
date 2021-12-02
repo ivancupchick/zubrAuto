@@ -1,28 +1,27 @@
-<p></p>
 <p-toolbar>
-    <div class="p-toolbar-group-left">
-        <span *ngIf="availableStatuses.length > 0" style="color: white">Cтатус</span>
-        <p-dropdown
-          *ngIf="availableStatuses.length > 0"
-          [autoDisplayFirst]="true"
-          [options]="availableStatuses"
-          [(ngModel)]="selectedStatus"
-          (onChange)="sortCars()"
-          optionLabel="key"
-          optionValue="value"
-        ></p-dropdown>
-        <button pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
+  <div class="p-toolbar-group-left">
+    <span *ngIf="availableStatuses.length > 0" style="color: white">Cтатус</span>
+    <p-dropdown
+      *ngIf="availableStatuses.length > 0"
+      [autoDisplayFirst]="true"
+      [options]="availableStatuses"
+      [(ngModel)]="selectedStatus"
+      (onChange)="sortCars()"
+      optionLabel="key"
+      optionValue="value"
+    ></p-dropdown>
+    <button *ngIf="!isSelectCarModalMode" pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
 
-        <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>
+    <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>
 
-        <!-- <i class="pi pi-bars"></i> -->
-    </div>
+    <!-- <i class="pi pi-bars"></i> -->
+  </div>
 
-    <!-- <div class="p-toolbar-group-right">
-        <p-button icon="pi pi-search"></p-button>
-        <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
-        <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button>
-    </div> -->
+  <!-- <div class="p-toolbar-group-right">
+    <p-button icon="pi pi-search"></p-button>
+    <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
+    <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button>
+  </div> -->
 </p-toolbar>
 <p></p>
-<za-grid [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" ></za-grid>
+<za-grid [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" [selected]="selected" (onSelectEntity)="onSelectEntity($event)"></za-grid>

@@ -1,20 +1,24 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
-import { ServerField, FieldType, UIRealField } from 'src/app/entities/field';
+import { ServerField, FieldType, UIRealField, FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
+import { CarService } from 'src/app/services/car/car.service';
 import { ClientService } from 'src/app/services/client/client.service';
 import { settingsClientsStrings } from '../../settings-clients/settings-clients.strings';
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
 import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
+import { CarChip, SelectCarComponent } from '../select-car/select-car.component';
 
 @Component({
   selector: 'za-create-client',
   templateUrl: './create-client.component.html',
   styleUrls: ['./create-client.component.scss'],
   providers: [
-    DynamicFieldControlService
+    DynamicFieldControlService,
+    CarService,
   ]
 })
 export class CreateClientComponent implements OnInit {
@@ -22,6 +26,11 @@ export class CreateClientComponent implements OnInit {
 
   @Input() client: ServerClient.Response | undefined = undefined;
   @Input() fieldConfigs: ServerField.Response[] = [];
+
+  selectedCars: CarChip[] = [];
+  private originalCarChips: CarChip[] = [];
+  private selectedRealCars: ServerCar.Response[] = [];
+  private allCars: ServerCar.Response[] = [];
 
   formValid = false;
 
@@ -39,13 +48,14 @@ export class CreateClientComponent implements OnInit {
     private dfcs: DynamicFieldControlService,
 
     private ref: DynamicDialogRef,
-    private config: DynamicDialogConfig
+    private config: DynamicDialogConfig,
+    private dialogService: DialogService,
+    private carService: CarService,
   ) {
     this.client = this.config?.data?.client || undefined;
   }
 
   ngOnInit(): void {
-
     this.fieldConfigs = this.config.data.fieldConfigs;
 
     const formFields = this.dfcs.getDynamicFieldsFromDBFields(this.fieldConfigs
@@ -64,27 +74,62 @@ export class CreateClientComponent implements OnInit {
       }))
         .map(fc => this.updateFieldConfig(fc));
 
-    formFields.push(this.dfcs.getDynamicFieldFromOptions({
-      id: -1,
-      value: this.client?.carIds || '',
-      key: 'carIds',
-      label: settingsClientsStrings.carIds,
-      order: 1,
-      controlType: FieldType.Text,
-      readonly: true
-    }))
+    // formFields.push(this.dfcs.getDynamicFieldFromOptions({
+    //   id: -1,
+    //   value: this.client?.carIds || '',
+    //   key: 'carIds',
+    //   label: settingsClientsStrings.carIds,
+    //   order: 1,
+    //   controlType: FieldType.Text,
+    //   readonly: true
+    // }))
 
     this.dynamicFormFields = formFields;
+
+
+    this.loading = true;
+
+    this.carService.getCars().subscribe(cars => {
+      this.allCars = [...cars];
+
+      if (this.client) {
+        let carIds: number[] = [];
+
+        try {
+          carIds = this.client.carIds
+            ? this.client.carIds.split(',').map(a => +a) || []
+            : [];
+        } catch (error) {
+          carIds = [];
+        }
+
+        this.originalCarChips = carIds.map(id => {
+          const car = cars.find(c => c.id === id);
+          const markModel = car
+            ? `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
+            : '';
+
+          car && this.selectedRealCars.push(car);
+
+          return {
+            id,
+            markModel,
+          }
+        });
+
+        this.setCarsToForm(this.originalCarChips)
+      }
+
+      this.loading = false;
+    })
   }
 
   create() {
     this.loading = true;
 
-    console.log(this.dynamicForm.getValue());
-
     const fields = this.dynamicForm.getValue();
 
-    const carIds = fields.find(f => f.name === 'carIds')?.value || '';
+    const carIds = this.selectedCars.map(sc => sc.id).join(',');
     const client: ServerClient.CreateRequest = {
       carIds,
       fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
@@ -138,8 +183,41 @@ export class CreateClientComponent implements OnInit {
       case FieldNames.Client.tradeInAuto:
         field.label = settingsClientsStrings.tradeInAuto;
         break;
+      case FieldNames.Client.dealStatus:
+        field.label = settingsClientsStrings.dealStatus;
+        break;
     }
 
     return field;
+  }
+
+  openEditCars() {
+    console.log(this.selectedRealCars);
+    const ref = this.dialogService.open(SelectCarComponent, {
+      data: {
+        cars: this.selectedCars,
+        origignalCars: this.selectedRealCars,
+      },
+      header: 'Выбор машины',
+      width: '90%',
+      height: '90%',
+    }).onClose.subscribe((res: CarChip[] | boolean) => {
+      if (res !== false && Array.isArray(res)) {
+        // const deleteCars = this.originalCarChips.filter(oc => !res.find(r => r.id === oc.id));
+
+        const cars = [...res];
+        console.log(this.allCars);
+        console.log(this.selectedRealCars);
+        this.selectedRealCars = this.allCars.filter(ac => !!res.find(r => r.id === ac.id))
+
+        this.setCarsToForm(cars);
+      }
+    });
+  }
+
+  setCarsToForm(cars: CarChip[]) {
+    console.log(cars);
+    this.selectedCars = cars;
+    console.log(this.selectedCars);
   }
 }

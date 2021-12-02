@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 export interface GridConfigItem<GridItemType extends { id: number }> {
   title: string;
@@ -26,12 +26,20 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() gridConfig!: GridConfigItem<GridItemType>[];
   @Input() gridData!: GridItemType[];
   @Input() actions!: GridActionConfigItem<GridItemType>[];
+  @Input() selected: GridItemType[] = [];
+
+  @Output() onSelectEntity = new EventEmitter<GridItemType[]>();
 
   selectedKeys!: GridItemType[];
 
   constructor() { }
 
   ngOnInit(): void {
+    console.log(this.selected);
+    this.selectedKeys = [...this.selected];
   }
 
+  onSelect(c: any) {
+    this.onSelectEntity.emit(this.selectedKeys);
+  }
 }
