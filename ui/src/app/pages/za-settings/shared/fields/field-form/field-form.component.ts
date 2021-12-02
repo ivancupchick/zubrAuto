@@ -139,12 +139,9 @@ export class FieldFormComponent implements OnInit {
 
         const accesses = [...res, ...deleteAccesses.map(da => {
           return {
-            domainName: da.domainName,
-            sourceName: da.sourceName,
+            ...da,
             accessName: getAccessName(0),
             access: 0,
-            domain: da.domain,
-            sourceId: da.sourceId,
           }
         })]
 

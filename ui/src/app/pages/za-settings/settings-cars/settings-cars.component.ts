@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
 import { DialogService } from 'primeng/dynamicdialog';
@@ -89,6 +89,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   type: QueryCarTypes | '' = '';
 
+  @Input() isSelectCarModalMode = false;
+  @Input() selected: ServerCar.Response[] = [];
+  @Output() onSelectCar = new EventEmitter<ServerCar.Response[]>();
+
   isSearchAvailable = true;
 
   gridConfig!: GridConfigItem<ServerCar.Response>[];
@@ -109,7 +113,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   constructor(private carService: CarService, private dialogService: DialogService, private route: ActivatedRoute, private sessionService: SessionService, private userService: UserService) { }
 
   ngOnInit(): void {
-    this.type = this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || '';
+    this.type = !this.isSelectCarModalMode
+      ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
+      : QueryCarTypes.carsForSale;
+
     this.route.queryParams
       .pipe(
         takeUntil(this.destroyed)
@@ -690,5 +697,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   onSearch(v: Event) {
     const inputTarget: HTMLInputElement = v.target as HTMLInputElement;
     this.sortCars(inputTarget.value)
+  }
+
+  onSelectEntity(cars: ServerCar.Response[]) {
+    this.isSelectCarModalMode && this.onSelectCar.emit(cars);
   }
 }

@@ -120,7 +120,8 @@ export class SettingsClientsComponent implements OnInit {
         fieldConfigs: this.fieldConfigs
       },
       header: 'Новый клиент',
-      width: '70%'
+      width: '70%',
+      height: '90%',
     });
   }
 }
