@@ -13,6 +13,8 @@
         ></p-dropdown>
         <button pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
 
+        <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>
+
         <!-- <i class="pi pi-bars"></i> -->
     </div>
 
