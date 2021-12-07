@@ -2,8 +2,10 @@ import { ServerFile } from '../../../../src/entities/File'
 import { ServerCar } from '../../../../src/entities/Car'
 import { ServerCarImage as serverCarImage } from '../../../../src/entities/Car'
 import { CarFormEnums as carForm } from '../../../../src/entities/FieldNames';
+import { CarStatistic as carStatistic } from '../../../../src/entities/CarStatistic';
 import { FieldsUtils } from './field';
 import { FieldNames } from './FieldNames';
+
 
 
 // export interface IOwner {
@@ -30,6 +32,7 @@ export import ServerCar = ServerCar;
 export import CarImage = ServerFile;
 export import ServerCarImage = serverCarImage;
 export import CarFormEnums = carForm;
+export import CarStatistic = carStatistic
 
 export function getCarStatus(car: ServerCar.Response): FieldNames.CarStatus {
   return FieldsUtils.getDropdownValue(car, FieldNames.Car.status) as FieldNames.CarStatus;

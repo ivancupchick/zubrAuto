@@ -64,15 +64,6 @@ class CarImageService {
     console.log(result);
 
     return result.map(r => {
-      // const url = r.url.split('\\');
-      // const realUrl = url.join('//');
-      // console.log(realUrl);
-
-      // console.log(r.url.split('\\'));
-      // console.log(url);
-      // console.log(r.url);
-      console.log(r);
-
       return r;
     });
   }
@@ -84,72 +75,6 @@ class CarImageService {
       ? this.getFiles(parentFolder.id)
       : [];
   }
-
-  // async create(carImageData: ServerFile.CreateRequest) {
-  //   throw new Error("not implemented");
-
-  //   const carImage = await carImageRepository.create({
-  //     carIds: carImageData.carIds
-  //   });
-
-  //   await Promise.all(carImageData.fields.map(f => fieldChainService.createFieldChain({
-  //     sourceId: carImage.id,
-  //     fieldId: f.id,
-  //     value: f.value,
-  //     sourceName: Models.CLIENTS_TABLE_NAME
-  //   })))
-
-  //   return carImage;
-  // }
-
-  // async update(id: number, carImageData: ServerFile.CreateRequest) {
-  //   throw new Error("not implemented");
-
-  //   const carImage = await carImageRepository.updateById(id, {
-  //     carIds: carImageData.carIds
-  //   });
-
-  //   await Promise.all(carImageData.fields.map(f => fieldChainRepository.update({
-  //     value: f.value
-  //   }, {
-  //     fieldId: [f.id].map(c => `${c}`),
-  //     sourceId: [id].map(c => `${c}`),
-  //     sourceName: [Models.CLIENTS_TABLE_NAME]
-  //   })))
-
-  //   return carImage
-  // }
-
-  // async delete(id: number) {
-  //   throw new Error("not implemented");
-
-  //   const chaines = await fieldChainRepository.find({
-  //     sourceId: [`${id}`],
-  //     sourceName: [Models.CLIENTS_TABLE_NAME]
-  //   });
-  //   await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
-  //   const carImage = await carImageRepository.deleteById(id);
-  //   return carImage
-  // }
-
-  // async get(id: number): Promise<ServerFile.Response> {
-  //   throw new Error("not implemented");
-
-  //   const carImage = await carImageRepository.findById(id);
-  //   const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.CarImage);
-  //   const chaines = await fieldChainRepository.find({
-  //     sourceId: [`${id}`],
-  //     sourceName: [`${Models.CLIENTS_TABLE_NAME}`]
-  //   });
-
-  //   const result: ServerFile.Response = {
-  //     id: carImage.id,
-  //     carIds: carImage.carIds,
-  //     fields: getFieldsWithValues(relatedFields, chaines, carImage.id)
-  //   };
-
-  //   return result;
-  // }
 }
 
 export = new CarImageService();

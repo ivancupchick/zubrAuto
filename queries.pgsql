@@ -145,6 +145,19 @@ CREATE TABLE "public.carForms" (
   OIDS=FALSE
 );
 
+CREATE TABLE "public.carStatistic" (
+	"id" serial NOT NULL,
+	"content" VARCHAR,
+	"carId" integer NOT NULL,
+  "type" integer NOT NULL,
+  "date" integer NOT NULL,
+  CONSTRAINT "carStatistic_pk" PRIMARY KEY ("id"),
+  FOREIGN KEY ("carId") REFERENCES "public.cars" ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+
 /*
 	add column
 */

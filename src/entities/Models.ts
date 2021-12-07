@@ -101,4 +101,13 @@ export namespace Models {
     carId: number;
     content: string;
   }
+
+  export const CAR_STATISTIC_TABLE_NAME = 'public.carStatistic';
+  export interface CarStatistic {
+    id: number;
+    carId: number;
+    content: string;
+    type: number;
+    date: number;
+  }
 }

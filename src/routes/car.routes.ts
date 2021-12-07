@@ -5,13 +5,20 @@ import { Constants } from '../utils/constansts';
 const router = Router();
 
 router.route(`/${ Constants.API.CRUD }/`)
-    .get(carController.getAllCars)
-    .post(carController.createCar);
+  .get(carController.getAllCars)
+  .post(carController.createCar);
+
+router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CALL }`)
+  .post(carController.addCall);
+router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/:carId`)
+  .get(carController.getCarStatistic)
+  .post(carController.createCarShowing)
+  .put(carController.updateCarShowing);
 
 router.route(`/${ Constants.API.CRUD }/:carId`)
-    .get(carController.getCar)
-    .delete(carController.deleteCar)
-    .put(carController.updateCar);
+  .get(carController.getCar)
+  .delete(carController.deleteCar)
+  .put(carController.updateCar);
 
 router.route(`/${Constants.API.CREATE_CARS_BY_LINK}`)
   .post(carController.createCarsByLink);
