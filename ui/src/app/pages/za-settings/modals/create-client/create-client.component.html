@@ -1,6 +1,12 @@
+<div *ngIf="!client" class="p-field-checkbox col-12">
+  <p-checkbox [formControl]="isJustCall" [binary]="true" inputId="binary"></p-checkbox>
+  <label for="binary">Просто звонок по автомобилям...</label>
+</div>
+
+
 <za-dynamic-form (changed)="setValidForm($event)" [fields]="dynamicFormFields"></za-dynamic-form>
 
-<div class="p-field p-col-12 p-md-4">
+<div class="p-field col-12">
   <span class="p-float-label access-wrapper">
     <p-chips [disabled]="true" inputId="chips" class="p-inputwrapper-focus" [(ngModel)]="selectedCars">
       <ng-template let-car pTemplate="item">

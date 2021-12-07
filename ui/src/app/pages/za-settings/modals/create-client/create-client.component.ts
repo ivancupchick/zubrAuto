@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
@@ -32,7 +33,11 @@ export class CreateClientComponent implements OnInit {
   private selectedRealCars: ServerCar.Response[] = [];
   private allCars: ServerCar.Response[] = [];
 
+  @ViewChild(DynamicFormComponent) clientForm!: DynamicFormComponent;
+
   formValid = false;
+
+  isJustCall!: FormControl;
 
   dynamicFormFields: DynamicFieldBase<string>[] = [];
 
@@ -57,6 +62,17 @@ export class CreateClientComponent implements OnInit {
 
   ngOnInit(): void {
     this.fieldConfigs = this.config.data.fieldConfigs;
+
+    this.isJustCall = new FormControl(false);
+
+    this.isJustCall.valueChanges.subscribe((res: boolean) => {
+      if (res) {
+        this.clientForm.formGroup.disable();
+        this.formValid = true;
+      } else {
+        this.clientForm.formGroup.enable();
+      }
+    })
 
     const formFields = this.dfcs.getDynamicFieldsFromDBFields(this.fieldConfigs
       .filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
@@ -127,38 +143,60 @@ export class CreateClientComponent implements OnInit {
   create() {
     this.loading = true;
 
-    const fields = this.dynamicForm.getValue();
+    if (this.isJustCall.value) {
+      const carIds = this.selectedCars.map(sc => sc.id);
 
-    const carIds = this.selectedCars.map(sc => sc.id).join(',');
-    const client: ServerClient.CreateRequest = {
-      carIds,
-      fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
-    }
+      if (!carIds.length) {
+        this.loading = false;
+        alert('Вы не выбрали не одной машины...');
+        return;
+      }
 
-    const dateField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.date);
-
-    if (dateField && !this.client) {
-      client.fields.push({
-        id: dateField.id,
-        name: dateField.name,
-        value: (new Date()).getDate().toString()
+      this.carService.addCall(carIds).subscribe(result => {
+        if (result) {
+          alert('Звонки учтены');
+          this.loading = false;
+          this.ref.close(true);
+        } else {
+          this.loading = false;
+          alert('Звонки не учтены, нажмите F12, заскриньте красные ошибки в консоле и отправьте администратору.');
+        }
       })
     } else {
-      // TODO create right expression for this error
-      console.log("Сфотографируйте ошибку и отправьте покажите фото администратору");
-    }
+      const fields = this.dynamicForm.getValue();
 
-    const methodObs = this.client != undefined
-      ? this.clientService.updateClient(client, (this.client as ServerClient.Response).id)
-      : this.clientService.createClient(client)
-
-    methodObs.subscribe(result => {
-      if (result) {
-        this.ref.close(true);
-      } else {
-        alert(!!this.client ? 'Клиент не обновлён' : 'Клиент не создан');
+      const carIds = this.selectedCars.map(sc => sc.id).join(',');
+      const client: ServerClient.CreateRequest = {
+        carIds,
+        fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
       }
-    })
+
+      const dateField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.date);
+
+      if (dateField && !this.client) {
+        client.fields.push({
+          id: dateField.id,
+          name: dateField.name,
+          value: (new Date()).getDate().toString()
+        })
+      } else {
+        // TODO create right expression for this error
+        console.log("Сфотографируйте ошибку и отправьте покажите фото администратору");
+      }
+
+      const methodObs = this.client != undefined
+        ? this.clientService.updateClient(client, (this.client as ServerClient.Response).id)
+        : this.clientService.createClient(client)
+
+      methodObs.subscribe(result => {
+        if (result) {
+          this.ref.close(true);
+        } else {
+          this.loading = false;
+          alert(!!this.client ? 'Клиент не обновлён' : 'Клиент не создан');
+        }
+      })
+    }
   }
 
   cancel() {
