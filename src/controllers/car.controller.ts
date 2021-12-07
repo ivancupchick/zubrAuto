@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { validationResult } from 'express-validator';
 import { ServerCar } from '../entities/Car';
+import { CarStatistic } from '../entities/CarStatistic';
 import { ApiError } from '../exceptions/api.error';
 import carImageService from '../services/car-image.service';
+import carStatisticService from '../services/car-statistic.service';
 import carService from '../services/car.service';
 import { BaseController } from './base.conroller';
 
@@ -143,6 +145,80 @@ class CarController {
       console.log(file);
 
       const result = await carImageService.uploadCarImage(id, file, metadata);
+
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async addCall(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carIds = req.body.carIds
+
+      const result = await carStatisticService.addCall(carIds);
+
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async createCarShowing(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carId = +req.params.carId;
+      const carShowingContent: CarStatistic.ShowingContent = req.body.showingContent;
+
+      const result = await carStatisticService.createCarShowing(carId, carShowingContent);
+
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async updateCarShowing(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carId = +req.params.carId;
+      const carShowingContent: CarStatistic.ShowingContent = req.body.showingContent;
+
+      const result = await carStatisticService.updateCarShowing(carId, carShowingContent);
+
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getCarStatistic(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carId = +req.params.carId;
+
+      const result = await carStatisticService.getCarStatistic(carId);
 
       return res.json(result);
     } catch (e) {

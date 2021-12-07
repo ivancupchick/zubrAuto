@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
-import { CarImage, RealCarForm, ServerCar, ServerCarImage } from 'src/app/entities/car';
+import { CarImage, CarStatistic, RealCarForm, ServerCar } from 'src/app/entities/car';
 import { map } from 'rxjs/operators';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
@@ -160,5 +160,53 @@ export class CarService {
 
   getCarOwnersFields() {
     return this.fieldService.getFieldsByDomain(FieldDomains.CarOwner);
+  }
+
+  addCall(carIds: number[]) {
+    const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CALL }`;
+
+    return this.requestService
+      .post<any>(url, { carIds })
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  createCarShowing(carId: number, showingContent: CarStatistic.ShowingContent) {
+    const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/${carId}`;
+
+    return this.requestService
+      .post<any>(url, { showingContent })
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  updateCarShowing(carId: number, showingContent: CarStatistic.ShowingContent) {
+    const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/${carId}`;
+
+    return this.requestService
+      .put<any>(url, { showingContent })
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  getCarStatistic(carId: number) {
+    const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/${carId}`;
+
+    return this.requestService
+      .get<any>(url)
+      .pipe(map(result => {
+        console.log(result);
+
+        return result;
+      }))
   }
 }

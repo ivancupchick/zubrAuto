@@ -5,6 +5,7 @@ import { ICrudService } from "../entities/Types";
 import clientRepository from "../repositories/base/client.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
+import carStatisticService from "./car-statistic.service";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
 
@@ -36,6 +37,8 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     const client = await clientRepository.create({
       carIds: clientData.carIds
     });
+
+    await carStatisticService.addCall(clientData.carIds.split(',').map(id => +id));
 
     await Promise.all(clientData.fields.map(f => fieldChainService.createFieldChain({
       sourceId: client.id,
