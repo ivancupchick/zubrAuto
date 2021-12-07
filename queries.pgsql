@@ -150,7 +150,7 @@ CREATE TABLE "public.carStatistic" (
 	"content" VARCHAR,
 	"carId" integer NOT NULL,
   "type" integer NOT NULL,
-  "date" integer NOT NULL,
+  "date" bigint NOT NULL,
   CONSTRAINT "carStatistic_pk" PRIMARY KEY ("id"),
   FOREIGN KEY ("carId") REFERENCES "public.cars" ("id")
 ) WITH (
