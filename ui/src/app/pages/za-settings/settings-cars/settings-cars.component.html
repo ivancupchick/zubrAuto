@@ -2,6 +2,7 @@
   <div class="p-toolbar-group-left">
     <span *ngIf="availableStatuses.length > 0" style="color: white">Cтатус</span>
     <p-dropdown
+      appendTo="body"
       *ngIf="availableStatuses.length > 0"
       [autoDisplayFirst]="true"
       [options]="availableStatuses"

@@ -17,7 +17,7 @@
     </ul>
   </ng-template>
   <ng-template pTemplate="end">
-    <p-dropdown *ngIf="!!user && (user.roleLevel === ServerRole.System.SuperAdmin || user.roleLevel === ServerRole.System.Admin)" [autoDisplayFirst]="true" [options]="userRoles" [(ngModel)]="selectedRole" (onChange)="onChangeSelectedRole($event)" optionLabel="name" optionValue="code"></p-dropdown>
+    <p-dropdown appendTo="body" *ngIf="!!user && (user.roleLevel === ServerRole.System.SuperAdmin || user.roleLevel === ServerRole.System.Admin)" [autoDisplayFirst]="true" [options]="userRoles" [(ngModel)]="selectedRole" (onChange)="onChangeSelectedRole($event)" optionLabel="name" optionValue="code"></p-dropdown>
 
     <!-- <p-avatar image="assets/showcase/images/demo/avatar/asiyajavayant.png" styleClass="p-mr-2" size="large" shape="circle"></p-avatar> -->
     <!-- image="assets/showcase/images/demo/avatar/amyelsner.png" -->

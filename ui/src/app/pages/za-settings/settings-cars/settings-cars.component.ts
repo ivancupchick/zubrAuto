@@ -103,8 +103,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   contactCenterUsers: ServerUser.Response[] = [];
   carShootingUsers: ServerUser.Response[] = [];
 
-  availableStatuses: { key: FieldNames.CarStatus, value: FieldNames.CarStatus }[] = [];
-  selectedStatus: FieldNames.CarStatus | null = null;
+  availableStatuses: { key: FieldNames.CarStatus | 'Все', value: FieldNames.CarStatus | 'Все' }[] = [];
+  selectedStatus: FieldNames.CarStatus | 'Все' | null = 'Все';
 
   readonly strings = settingsCarsStrings;
 
@@ -123,6 +123,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       )
       .subscribe(params => {
         this.type = params.type || '';
+
+        this.setGridSettings();
         this.sortCars();
       })
 
@@ -143,9 +145,12 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       this.sortCars();
     })
 
+    this.setGridSettings();
+  }
+
+  setGridSettings() {
     this.gridConfig = this.getGridConfig();
     this.gridActionsConfig = this.getGridActionsConfig();
-
   }
 
   ngOnDestroy() {
@@ -183,10 +188,15 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_MakingDecision,
           FieldNames.CarStatus.contactCenter_NoAnswer,
         ];
-        this.availableStatuses = availableStatuses.map(s => ({ key: s, value: s }))
+        this.availableStatuses = [
+          {
+            key: 'Все', value: 'Все'
+          },
+          ...availableStatuses.map(s => ({ key: s, value: s }))
+        ];
         this.sortedCars = this.rawCars
           .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
-                       getCarStatus(c) === this.selectedStatus
+                       getCarStatus(c) === this.selectedStatus || 'Все' === this.selectedStatus
           ));
         break;
       case QueryCarTypes.allCallBase:
@@ -197,10 +207,13 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_MakingDecision,
           FieldNames.CarStatus.contactCenter_NoAnswer,
         ];
-        this.availableStatuses = availableStatuses2.map(s => ({ key: s, value: s }))
+        this.availableStatuses = [{
+          key: 'Все', value: 'Все'
+        },
+          ...availableStatuses2.map(s => ({ key: s, value: s }))]
 
         this.sortedCars = this.rawCars // FIX THIS
-          .filter(c => getCarStatus(c) === this.selectedStatus);
+          .filter(c => getCarStatus(c) === this.selectedStatus  || 'Все' === this.selectedStatus);
         break;
       case QueryCarTypes.myShootingBase:
         this.sortedCars = this.rawCars
