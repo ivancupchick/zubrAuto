@@ -37,6 +37,7 @@ export class ChangeCarStatusComponent implements OnInit {
   ngOnInit(): void {
     this.carId = this.config.data.carId;
     this.availableStatuses = this.config.data.availableStatuses;
+    this.comment = this.config.data.comment || '';
     this.commentIsRequired = this.config.data.commentIsRequired || false;
 
     if (this.availableStatuses.length > 1) {
