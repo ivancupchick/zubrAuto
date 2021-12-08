@@ -324,7 +324,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.worksheet,
       name: 'worksheet',
-      getValue: (item) => '', // TODO! specific fields? FieldsUtils.getFieldValue(item, FieldNames.Car.worksheet),
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.worksheet) ? 'Есть' : 'Нет',
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
     }, {
       title: this.strings.engine,
@@ -345,7 +345,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.driveType,
       name: 'driveType',
-      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.driveType).split(' ')[1],
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.driveType),
     }, {
       title: this.strings.mileage,
       name: 'mileage',
@@ -498,7 +498,13 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '',
       icon: 'id-card',
       buttonClass: 'secondary',
-      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
+      available: () => this.sessionService.isAdminOrHigher
+                    || this.sessionService.isCarShooting
+                    || this.sessionService.isCarShootingChief
+                    || this.sessionService.isCarSales
+                    || this.sessionService.isCarSalesChief
+                    || this.sessionService.isCustomerService
+                    || this.sessionService.isCustomerServiceChief,
       handler: (car) => this.createOrEditCarForm(car),
     }, {
       title: '',
@@ -556,7 +562,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       handler: (car) => this.transformToCustomerServiceDelete(car),
     }, {
       title: '',
-      icon: 'modile',
+      icon: 'mobile',
       buttonClass: 'secondary',
       available: () => this.type === QueryCarTypes.carsForSale && (
           this.sessionService.isAdminOrHigher
@@ -593,6 +599,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_WaitingShooting,
           FieldNames.CarStatus.contactCenter_InProgress
         ],
+        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
       },
       header: 'Звонок',
       width: '70%'
@@ -658,6 +665,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_Refund,
         ],
         commentIsRequired: true,
+        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
       },
       header: 'Вернуть отделу ОКЦ',
       width: '70%',
@@ -674,6 +682,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.carShooting_Refund,
         ],
         commentIsRequired: true,
+        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
       },
       header: 'Вернуть отделу ОСА',
       width: '70%',
@@ -683,12 +692,19 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   transformToCustomerService(car: ServerCar.Response) {
+    if (!FieldsUtils.getFieldValue(car, FieldNames.Car.worksheet)) {
+      alert('У авто нету анкеты!');
+      return;
+    }
+
+
     const ref = this.dialogService.open(ChangeCarStatusComponent, {
       data: {
         carId: car.id,
         availableStatuses: [
           FieldNames.CarStatus.carShooting_Ready,
         ],
+        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
       },
       header: 'Передать отделу ОРК',
       width: '70%',
@@ -704,6 +720,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         availableStatuses: [
           FieldNames.CarStatus.customerService_InProgress,
         ],
+        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
       },
       header: 'Подтвердить',
       width: '70%',
@@ -719,6 +736,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         availableStatuses: [
           FieldNames.CarStatus.customerService_OnPause,
         ],
+        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
       },
       header: 'Пауза',
       width: '70%',
@@ -734,6 +752,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         availableStatuses: [
           FieldNames.CarStatus.customerService_OnDelete,
         ],
+        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
       },
       header: 'Поставить на удаление',
       width: '70%',
@@ -749,6 +768,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     //     availableStatuses: [
     //       FieldNames.CarStatus.customerService_OnDelete,
     //     ],
+        // comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
     //   },
     //   header: 'Звонок клиенту',
     //   width: '70%',
