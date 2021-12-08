@@ -13,7 +13,7 @@
   <ng-template pTemplate="body" let-gridItem>
     <tr>
       <td>
-        <p-dropdown [options]="getAvailableAccesses(gridItem.sourceId)" [(ngModel)]="gridItem.sourceId" placeholder="Select" optionLabel="name" optionValue="id" (onChange)="onChangeRoleDropdown()"></p-dropdown>
+        <p-dropdown appendTo="body" [options]="getAvailableAccesses(gridItem.sourceId)" [(ngModel)]="gridItem.sourceId" placeholder="Select" optionLabel="name" optionValue="id" (onChange)="onChangeRoleDropdown()"></p-dropdown>
       </td>
       <td>
         <p-radioButton name="isNoAccess" [value]="1" [(ngModel)]="gridItem.access"></p-radioButton>
