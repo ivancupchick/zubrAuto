@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject, zip } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, tap } from 'rxjs/operators';
 import { getCarStatus, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -87,6 +87,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   sortedCars: ServerCar.Response[] = [];
   rawCars: ServerCar.Response[] = [];
 
+  loading = false;
+
   type: QueryCarTypes | '' = '';
 
   @Input() isSelectCarModalMode = false;
@@ -140,12 +142,34 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                     || u.customRoleName === ServerRole.Custom.carShootingChief);
       });
 
-    this.carService.getCars().subscribe((result) => {
-      this.rawCars = result;
-      this.sortCars();
-    })
+    this.getCars().subscribe();
 
     this.setGridSettings();
+  }
+
+  getCars() {
+    return this.carService.getCars().pipe(
+        tap((res => {
+          this.rawCars = [...res];
+          this.sortCars();
+        }))
+      )
+  }
+
+  subscribeOnCloseModalRef(ref: DynamicDialogRef) {
+    ref.onClose
+      .subscribe(res => {
+        if (res) {
+          this.loading = true;
+          this.carService.getCars().subscribe((result) => {
+            this.rawCars = result;
+            this.sortCars();
+          })
+          this.getCars().subscribe(() => {
+            this.loading = false;
+          });
+        }
+      })
   }
 
   setGridSettings() {
@@ -169,6 +193,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Редактировать машину',
       width: '70%'
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   deleteCar(car: ServerCar.Response) {
@@ -553,6 +579,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Новая машина',
       width: '70%'
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   contactCenterCall(car: ServerCar.Response) {
@@ -569,6 +597,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Звонок',
       width: '70%'
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   transformToCarShooting(car: ServerCar.Response) {
@@ -583,6 +613,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%',
       height: '60%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   createOrEditCarForm(car: ServerCar.Response) {
@@ -598,6 +630,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '90%',
       height: '90%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   uploadMedia(car: ServerCar.Response) {
@@ -612,6 +646,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '90%',
       height: '90%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   returnToContactCenter(car: ServerCar.Response) {
@@ -626,6 +662,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Вернуть отделу ОКЦ',
       width: '70%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   returnToShootingCar(car: ServerCar.Response) {
@@ -640,6 +678,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Вернуть отделу ОСА',
       width: '70%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   transformToCustomerService(car: ServerCar.Response) {
@@ -653,6 +693,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Передать отделу ОРК',
       width: '70%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   transformToCustomerServiceAprooved(car: ServerCar.Response) {
@@ -666,6 +708,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Подтвердить',
       width: '70%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   transformToCustomerServicePause(car: ServerCar.Response) {
@@ -679,6 +723,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Пауза',
       width: '70%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   transformToCustomerServiceDelete(car: ServerCar.Response) {
@@ -692,6 +738,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       header: 'Поставить на удаление',
       width: '70%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   сustomerServiceCall(car: ServerCar.Response) {
@@ -705,6 +753,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     //   header: 'Звонок клиенту',
     //   width: '70%',
     // });
+
+    // this.subscribeOnCloseModalRef(ref);
   }
 
   onSearch(v: Event) {

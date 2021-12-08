@@ -26,3 +26,5 @@
 </p-toolbar>
 <p></p>
 <za-grid [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" [selected]="selected" (onSelectEntity)="onSelectEntity($event)"></za-grid>
+
+<za-spinner *ngIf="loading"></za-spinner>
