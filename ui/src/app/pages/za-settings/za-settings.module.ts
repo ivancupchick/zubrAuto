@@ -67,6 +67,8 @@ import { CreateCarFormComponent } from './modals/create-car-form/create-car-form
 import { UploadCarMediaComponent } from './modals/upload-car-media/upload-car-media.component';
 import { ChangeCarStatusComponent } from './modals/change-car-status/change-car-status.component';
 import { SelectCarComponent } from './modals/select-car/select-car.component';
+import { ManageCarShowingComponent } from './modals/manage-car-showing/manage-car-showing.component';
+import { CreateCarShowingComponent } from './modals/create-car-showing/create-car-showing.component';
 
 
 
@@ -137,7 +139,9 @@ const routes: Routes = [{
     CreateCarFormComponent,
     UploadCarMediaComponent,
     ChangeCarStatusComponent,
-    SelectCarComponent
+    SelectCarComponent,
+    ManageCarShowingComponent,
+    CreateCarShowingComponent
   ],
   imports: [
     RouterModule.forChild(routes),

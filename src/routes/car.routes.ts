@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { body } from 'express-validator';
 import carController from '../controllers/car.controller';
 import { Constants } from '../utils/constansts';
 
@@ -13,7 +14,11 @@ router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CALL }`)
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/:carId`)
   .get(carController.getCarStatistic)
   .post(carController.createCarShowing)
-  .put(carController.updateCarShowing);
+  .put(
+    body('showingId').notEmpty().isNumeric(),
+    body('showingContent').notEmpty().isObject(),
+    carController.updateCarShowing
+  );
 
 router.route(`/${ Constants.API.CRUD }/:carId`)
   .get(carController.getCar)

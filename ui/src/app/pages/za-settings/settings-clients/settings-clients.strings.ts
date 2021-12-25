@@ -13,4 +13,5 @@ export const settingsClientsStrings: StringHash = {
   paymentType: 'Вид оплаты',
   tradeInAuto: 'Авто в зачет',
   dealStatus: 'Статус сделки',
+  comment: 'Коммент',
 }

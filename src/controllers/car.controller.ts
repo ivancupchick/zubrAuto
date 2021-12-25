@@ -198,9 +198,10 @@ class CarController {
       }
 
       const carId = +req.params.carId;
+      const carShowingId: number = req.body.showingId;
       const carShowingContent: CarStatistic.ShowingContent = req.body.showingContent;
 
-      const result = await carStatisticService.updateCarShowing(carId, carShowingContent);
+      const result = await carStatisticService.updateCarShowing(carShowingId, carId, carShowingContent);
 
       return res.json(result);
     } catch (e) {

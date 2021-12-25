@@ -34,6 +34,8 @@ export import ServerCarImage = serverCarImage;
 export import CarFormEnums = carForm;
 export import CarStatistic = carStatistic
 
+export type UICarStatistic = CarStatistic.CarShowingResponse & { car: ServerCar.Response };
+
 export function getCarStatus(car: ServerCar.Response): FieldNames.CarStatus {
   return FieldsUtils.getDropdownValue(car, FieldNames.Car.status) as FieldNames.CarStatus;
 }

@@ -1,0 +1,34 @@
+
+<!-- <form> -->
+  <div *ngIf="carsOptions.length > 1" class="cars-wrapper">
+    <h5>Выберите машину</h5>
+    <p-dropdown appendTo="body" [options]="carsOptions" [(ngModel)]="selectedCarId" placeholder="Выберите машину" optionLabel="value" optionValue="key"></p-dropdown>
+  </div>
+
+  <div *ngIf="carsOptions.length > 1" class="status-wrapper">
+    <h5>Выберите статус</h5>
+    <p-dropdown appendTo="body" [options]="statuses" [(ngModel)]="selectedStatus" placeholder="Выберите статус" optionLabel="value" optionValue="key"></p-dropdown>
+  </div>
+
+  <div class="status-wrapper">
+    <h5>Выберите дату и время показа</h5>
+    <p-calendar appendTo="body" [(ngModel)]="showingDate" [showTime]="true" hourFormat="24"></p-calendar>
+  </div>
+
+  <div class="comment-wrapper">
+    <h5>Комментарий</h5>
+    <input type="text" pInputText [(ngModel)]="showingComment">
+  </div>
+<!-- </form> -->
+
+<div class="footer">
+  <button
+    pButton
+    icon="pi pi-save"
+    type="button"
+    [label]="!!statiscticItem ? 'Редактировать' : 'Создать'"
+    (click)="create()"
+    class="p-mr-2 p-mb-2 p-button-success"
+  ></button>
+  <button pButton icon="pi pi-times" type="button" label="Отмена" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
+</div>
