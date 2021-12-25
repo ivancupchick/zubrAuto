@@ -15,7 +15,7 @@ export class ChangeCarStatusComponent implements OnInit {
   loading = false;
   statuses: { value: string, key: string }[] = [];
   selectedStatus: 'None' | FieldNames.CarStatus = 'None';
-  comment = '';
+  @Input() comment = '';
 
   get formNotValid() {
     // const link = this.link ? this.link.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi) : null;

@@ -1,18 +1,17 @@
 <p></p>
 <p-toolbar>
-    <div class="p-toolbar-group-left">
-        <span style="color: white">Туллбар</span>
-        <!-- <p-dropdown appendTo="body" [autoDisplayFirst]="true" [options]="domains" [(ngModel)]="selectedDomain" (onChange)="onChangeDomain($event)" optionLabel="name" optionValue="code"></p-dropdown> -->
-        <button pButton type="button" [disabled]="fieldConfigs.length === 0" label="Добавить клиента" icon="pi pi-plus" (click)="openNewClientWindow()"></button>
-
-        <!-- <i class="pi pi-bars"></i> -->
-    </div>
-
-    <!-- <div class="p-toolbar-group-right">
-        <p-button icon="pi pi-search"></p-button>
-        <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
-        <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button>
-    </div> -->
+  <div class="p-toolbar-group-left">
+    <button
+      pButton
+      type="button"
+      [disabled]="fieldConfigs.length === 0"
+      label="Добавить клиента"
+      icon="pi pi-plus"
+      (click)="openNewClientWindow()"
+    ></button>
+  </div>
 </p-toolbar>
 <p></p>
-<za-grid [gridConfig]="gridConfig" [gridData]="sortedClients" [actions]="gridActionsConfig" ></za-grid>
+<za-grid [gridConfig]="gridConfig" [gridData]="sortedClients" [actions]="gridActionsConfig"></za-grid>
+
+<za-spinner *ngIf="loading"></za-spinner>

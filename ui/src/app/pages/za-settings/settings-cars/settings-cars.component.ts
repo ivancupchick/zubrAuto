@@ -9,6 +9,7 @@ import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser } from 'src/app/entities/user';
+import { DateUtils } from 'src/app/entities/utils';
 import { CarService } from 'src/app/services/car/car.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
@@ -84,6 +85,10 @@ export enum QueryCarTypes {
   ]
 })
 export class SettingsCarsComponent implements OnInit, OnDestroy {
+  get addCarButtonAvailable() {
+    return !this.isSelectCarModalMode && !this.sessionService.isCarSales && !this.sessionService.isCarSalesChief
+  }
+
   sortedCars: ServerCar.Response[] = [];
   rawCars: ServerCar.Response[] = [];
 
@@ -161,10 +166,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       .subscribe(res => {
         if (res) {
           this.loading = true;
-          this.carService.getCars().subscribe((result) => {
-            this.rawCars = result;
-            this.sortCars();
-          })
+          // this.carService.getCars().subscribe((result) => {
+          //   this.rawCars = result;
+          //   this.sortCars();
+          // })
           this.getCars().subscribe(() => {
             this.loading = false;
           });
@@ -414,7 +419,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.shootingDate,
       name: 'shootingDate',
-      getValue: (item) => moment(new Date(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0))).format('DD/MM/YYYY'),
+      getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
     }, {
       title: this.strings.shootingTime,
@@ -618,7 +623,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       },
       header: 'Звонок',
       width: '70%',
-      height: '60%',
+      // height: '60%',
     });
 
     this.subscribeOnCloseModalRef(ref);

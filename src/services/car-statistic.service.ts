@@ -35,9 +35,9 @@ class CarStatisticService {
     return result;
   }
 
-  async updateCarShowing(carId: number, carShowingContent: CarStatistic.ShowingContent) {
+  async updateCarShowing(carShowingId: number, carId: number, carShowingContent: CarStatistic.ShowingContent) {
     if (!carShowingContent.date || !carShowingContent.status || !carShowingContent.clientId) {
-      throw new Error("Ошибка в параметрах создаваемого показа");
+      throw new Error("Ошибка в параметрах редактируемого показа");
     }
 
     const allCarShowings = await carStatisticRepository.find({ carId: [`${carId}`], type: [`${CarStatistic.Type.showing}`] });
@@ -45,7 +45,7 @@ class CarStatisticService {
     const carShowingExist = allCarShowings.find(cs => {
       const content: CarStatistic.ShowingContent = JSON.parse(cs.content);
 
-      return content.clientId === carShowingContent.clientId;
+      return cs.id === carShowingId && content.clientId === carShowingContent.clientId;
     })
 
     if (!carShowingExist) {
@@ -59,10 +59,17 @@ class CarStatisticService {
     return result;
   }
 
-  async getCarStatistic(carId: number): Promise<Models.CarStatistic[]> {
-    const statisticRecords = await carStatisticRepository.find({ carId: [`${carId}`] });
+  async getCarStatistic(carId: number): Promise<CarStatistic.CarShowingResponse[]> {
+    const statisticRecords = await carStatisticRepository.find({ carId: [`${carId}`], type: [`${CarStatistic.Type.showing}`] });
 
-    return statisticRecords;
+    const result = statisticRecords.map(r => {
+      return {
+        ...r,
+        content: JSON.parse(r.content)
+      }
+    })
+
+    return result;
   }
 }
 

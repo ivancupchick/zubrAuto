@@ -6,8 +6,11 @@ import { ClientService } from 'src/app/services/client/client.service';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsClientsStrings } from './settings-clients.strings';
 
-import {DialogService} from 'primeng/dynamicdialog';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
+import { SessionService } from 'src/app/services/session/session.service';
+import { ManageCarShowingComponent } from '../modals/manage-car-showing/manage-car-showing.component';
+import { tap } from 'rxjs/operators';
 
 
 @Component({
@@ -23,37 +26,38 @@ export class SettingsClientsComponent implements OnInit {
   sortedClients: ServerClient.Response[] = [];
   rawClients: ServerClient.Response[] = [];
 
+  loading = false;
+
   gridConfig!: GridConfigItem<ServerClient.Response>[];
-  gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [{
-    title: '',
-    icon: 'pencil',
-    buttonClass: 'secondary',
-    disabled: () => this.fieldConfigs.length === 0,
-    handler: (client) => this.updateClient(client)
-  }, {
-    title: '',
-    icon: 'times',
-    buttonClass: 'danger',
-    handler: (client) => this.deleteClient(client)
-  }]
+  gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
 
   fieldConfigs: ServerField.Response[] = [];
 
   readonly strings = settingsClientsStrings;
 
-  constructor(private clientService: ClientService, private dialogService: DialogService) { }
+  constructor(private clientService: ClientService, private dialogService: DialogService, private sessionService: SessionService) { }
 
   ngOnInit(): void {
+    this.loading = true;
+
     this.clientService.getClientFields().subscribe(result => {
       this.fieldConfigs = result;
     })
 
-    this.clientService.getClients().subscribe((result) => {
-      this.rawClients = result;
-      this.sortClients();
-    })
+    this.getClients().subscribe(() => {
+      this.loading = false;
+    });
 
-    this.gridConfig = [{
+    this.setGridSettings();
+  }
+
+  setGridSettings() {
+    this.gridConfig = this.getGridConfig();
+    this.gridActionsConfig = this.getGridActionsConfig();
+  }
+
+  getGridConfig(): GridConfigItem<ServerClient.Response>[] {
+    return [{
       title: this.strings.id,
       name: 'id',
       getValue: (item) => item.id,
@@ -92,6 +96,31 @@ export class SettingsClientsComponent implements OnInit {
     }];
   }
 
+  getGridActionsConfig(): GridActionConfigItem<ServerClient.Response>[] {
+    const configs: GridActionConfigItem<ServerClient.Response>[] = [{
+      title: '',
+      icon: 'pencil',
+      buttonClass: 'secondary',
+      disabled: () => this.fieldConfigs.length === 0,
+      handler: (client) => this.updateClient(client)
+    }, {
+      title: '',
+      icon: 'times',
+      buttonClass: 'danger',
+      handler: (client) => this.deleteClient(client),
+      disabled: () => true,
+      available: () => this.sessionService.isAdminOrHigher
+    }, {
+      title: '',
+      icon: 'pen',
+      buttonClass: 'success',
+      handler: (client) => this.checkShowing(client)
+    },
+    ];
+
+    return configs.filter(config => !config.available || config.available());
+  }
+
   updateClient(client: ServerClient.Response) {
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
@@ -121,7 +150,63 @@ export class SettingsClientsComponent implements OnInit {
       },
       header: 'Новый клиент',
       width: '70%',
-      height: '90%',
+      // height: '90%',
     });
+  }
+
+  // addShowing(client: ServerClient.Response) {
+  //   const ref = this.dialogService.open(ManageCarShowingComponent, {
+  //     data: {
+  //       clientId: client.id,
+  //       carIds: client.carIds.split(',').map(id => +id),
+  //       // availableStatuses: [
+  //       //   FieldNames.CarStatus.customerService_OnDelete,
+  //       // ],
+  //       comment: FieldsUtils.getFieldValue(client, FieldNames.Client.comment),
+  //       mode: 'add',
+  //     },
+  //     header: 'Добавить показ',
+  //     width: '70%',
+  //   });
+
+  //   this.subscribeOnCloseModalRef(ref);
+  // }
+
+  checkShowing(client: ServerClient.Response) {
+    const ref = this.dialogService.open(ManageCarShowingComponent, {
+      data: {
+        clientId: client.id,
+        carIds: client.carIds.split(',').map(id => +id),
+      },
+      header: 'Показы',
+      width: '70%',
+    });
+
+    this.subscribeOnCloseModalRef(ref);
+  }
+
+  getClients() {
+    return this.clientService.getClients().pipe(
+        tap((res => {
+          this.rawClients = [...res];
+          this.sortClients();
+        }))
+      );
+  }
+
+  subscribeOnCloseModalRef(ref: DynamicDialogRef) {
+    ref.onClose
+      .subscribe(res => {
+        if (res) {
+          this.loading = true;
+          // this.carService.getCars().subscribe((result) => {
+          //   this.rawCars = result;
+          //   this.sortCars();
+          // })
+          this.getClients().subscribe(() => {
+            this.loading = false;
+          });
+        }
+      })
   }
 }

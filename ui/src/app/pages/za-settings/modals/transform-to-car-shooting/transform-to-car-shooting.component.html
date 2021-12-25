@@ -1,8 +1,9 @@
 <div class="wrapper">
   <div class="content">
-    <div class="status-wrapper">
-      <h5>Поменять статус на</h5>
-      <p-calendar [(ngModel)]="shootingDate" [showTime]="true" hourFormat="24"></p-calendar>    </div>
+    <div class="date-wrapper">
+      <h5>Выберите дату</h5>
+      <p-calendar appendTo="body" [(ngModel)]="shootingDate" [showTime]="true" hourFormat="24"></p-calendar>
+    </div>
     <div class="comment-wrapper">
       <h5>Комментарий</h5>
       <input type="text" pInputText [(ngModel)]="comment">

@@ -1,3 +1,5 @@
+import { Models } from "./Models";
+
 export namespace CarStatistic {
   export enum Type {
     call,
@@ -16,4 +18,6 @@ export namespace CarStatistic {
     plan = 'Запланирован',
     success = 'Произведен',
   }
+
+  export type CarShowingResponse = Omit<Models.CarStatistic, 'content'> & { content: ShowingContent }
 }

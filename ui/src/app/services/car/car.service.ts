@@ -186,11 +186,11 @@ export class CarService {
       }))
   }
 
-  updateCarShowing(carId: number, showingContent: CarStatistic.ShowingContent) {
+  updateCarShowing(carId: number, showingId: number, showingContent: CarStatistic.ShowingContent) {
     const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/${carId}`;
 
     return this.requestService
-      .put<any>(url, { showingContent })
+      .put<any>(url, { showingContent, showingId })
       .pipe(map(result => {
         console.log(result);
 
@@ -202,7 +202,7 @@ export class CarService {
     const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/${carId}`;
 
     return this.requestService
-      .get<any>(url)
+      .get<CarStatistic.CarShowingResponse[]>(url)
       .pipe(map(result => {
         console.log(result);
 

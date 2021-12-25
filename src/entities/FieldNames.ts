@@ -8,6 +8,7 @@ export namespace FieldNames {
     paymentType = 'payment-type',
     tradeInAuto = 'trade-in-auto',
     dealStatus = 'deal-status',
+    comment = 'comment',
   }
 
   export enum Car {
