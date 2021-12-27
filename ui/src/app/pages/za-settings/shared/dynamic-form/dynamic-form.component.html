@@ -1,5 +1,5 @@
-<form class="p-fluid p-grid" [formGroup]="formGroup" autocomplete="nope">
-  <div *ngFor="let field of fields" class="p-field p-col-12 p-md-4">
+<form class="p-fluid grid formgrid" [formGroup]="formGroup" autocomplete="nope">
+  <div *ngFor="let field of fields" class="p-field col-4">
     <za-primitive-form-field [field]="field" [form]="formGroup"></za-primitive-form-field>
   </div>
 </form>

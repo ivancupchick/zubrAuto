@@ -54,7 +54,7 @@ export class DynamicFormComponent implements OnInit {
     //   }, {})
     // );
 
-    this.changed.emit(!this.formGroup.pristine);
+    // this.changed.emit(!this.formGroup.pristine);
 
     this.formGroup.valueChanges.subscribe(data => {
       this.valid = this.formGroup.valid;

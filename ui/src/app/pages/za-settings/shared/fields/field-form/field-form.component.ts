@@ -64,7 +64,8 @@ export class FieldFormComponent implements OnInit {
       type: [ this.field ? this.field.type : FieldType.Text, Validators.required],
       variants: [ this.field ? this.field.variants : ''],
       accesses: [ this.originalAccesses ],
-      isSystem: [ this.field ? FlagField.Is(this.field, FlagField.Flags.System) : false ]
+      isSystem: [ this.field ? FlagField.Is(this.field, FlagField.Flags.System) : false ],
+      isVirtual: [ this.field ? FlagField.Is(this.field, FlagField.Flags.Virtual) : false ],
     });
 
     this.formGroup.valueChanges.subscribe(data => {
@@ -112,6 +113,12 @@ export class FieldFormComponent implements OnInit {
       FlagField.setFlagOn(field, FlagField.Flags.System);
     } else {
       FlagField.setFlagOff(field, FlagField.Flags.System);
+    }
+
+    if (this.formGroup.controls['isVirtual'].value) {
+      FlagField.setFlagOn(field, FlagField.Flags.Virtual);
+    } else {
+      FlagField.setFlagOff(field, FlagField.Flags.Virtual);
     }
 
     return field;

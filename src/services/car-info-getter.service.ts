@@ -304,6 +304,7 @@ class CarInfoGetter {
       case FieldNames.Car.mark: return PropertyName.brand;
       case FieldNames.Car.model: return PropertyName.model;
       case FieldNames.Car.driveType: return PropertyName.drive_type;
+      case FieldNames.Car.bodyType: return PropertyName.body_type
       case FieldNames.Car.engine: return PropertyName.engine_type;
       case FieldNames.Car.engineCapacity: return PropertyName.engine_capacity;
       case FieldNames.Car.mileage: return PropertyName.mileage_km;

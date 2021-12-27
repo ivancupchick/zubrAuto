@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DialogService } from 'primeng/dynamicdialog';
 import { zip } from 'rxjs';
-import { ServerField } from 'src/app/entities/field';
+import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { StringHash } from 'src/app/entities/constants';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser } from 'src/app/entities/user';
@@ -10,6 +10,7 @@ import { UserService } from 'src/app/services/user/user.service';
 import { CreateUserComponent } from '../modals/create-user/create-user.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsUsersStrings } from './settings-users.strings';
+import { FieldNames } from '../../../../../../src/entities/FieldNames';
 
 @Component({
   selector: 'za-settings-users',
@@ -22,6 +23,8 @@ import { settingsUsersStrings } from './settings-users.strings';
   ]
 })
 export class SettingsUsersComponent implements OnInit {
+  readonly strings = settingsUsersStrings;
+
   sortedUsers: ServerUser.Response[] = [];
   rawUsers: ServerUser.Response[] = [];
 
@@ -62,6 +65,10 @@ export class SettingsUsersComponent implements OnInit {
       title: 'id',
       name: 'id',
       getValue: (item) => item.id,
+    }, {
+      title: this.strings.name,
+      name: 'name',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.User.name),
     }, {
       title: 'Электронная почта',
       name: 'email',

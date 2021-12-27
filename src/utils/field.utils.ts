@@ -5,6 +5,7 @@ import { BitHelper } from "./bit.utils";
 export namespace FlagField {
   export enum Flags {
     System = 1,
+    Virtual = 2,
   }
 
   export function setFlagOn(v: { flags: number }, bit: Flags) {

@@ -13,17 +13,19 @@ import { Constants } from 'src/app/entities/constants';
   providedIn: 'root'
 })
 export class FieldService {
-  allFields: ServerField.Response[] = [];
+  private allFields: ServerField.Response[] = [];
 
   constructor(private requestService: RequestService) { }
 
   getFields(): Observable<ServerField.Response[]> {
-    return this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`)
-      .pipe(
-        tap(result => {
-          this.allFields = result;
-        })
-      )
+    return this.allFields.length > 0
+      ? of(this.allFields)
+      : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`)
+        .pipe(
+          tap(result => {
+            this.allFields = result;
+          })
+        )
   }
 
   createField(value: ServerField.CreateRequest): Observable<boolean> {

@@ -132,7 +132,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.type = params.type || '';
 
         this.setGridSettings();
-        this.sortCars();
+
+        this.getCars().subscribe();
       })
 
     zip(this.carService.getCarFields(), this.carService.getCarOwnersFields(), this.userService.getUsers())
@@ -343,6 +344,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: this.strings.transmission,
       name: 'transmission',
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.transmission),
+    }, {
+      title: this.strings.bodyType,
+      name: 'body-type',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.bodyType),
     }, {
       title: this.strings.color,
       name: 'color',

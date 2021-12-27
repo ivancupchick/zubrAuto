@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { UIRealField } from 'src/app/entities/field';
+import { FieldsUtils, FlagField, UIRealField } from 'src/app/entities/field';
 import { DynamicFieldBase, DynamicFieldOptions } from './dynamic-fields/dynamic-field-base';
 
 
@@ -28,19 +28,24 @@ export class DynamicFieldControlService {
   }
 
   getDynamicFieldsFromDBFields(dbFields: UIRealField[]) {
-    const fields: DynamicFieldBase<string>[] = dbFields.map(dbField => {
-      return new DynamicFieldBase<string>({
-        id: dbField.id,
-        value: dbField.hasOwnProperty('value') ? dbField.value : '',
-        key: dbField.name,
-        label: 'Default title',
-        required: false, // TODO check required bit + user bit // rethink about it
-        order: 1,
-        controlType: dbField.type,
-        type: '',
-        variants: dbField.variants
+
+
+    const fields: DynamicFieldBase<string>[] = dbFields
+      .filter(dbField => !FlagField.Is(dbField, FlagField.Flags.Virtual))
+      .map(dbField => {
+        return new DynamicFieldBase<string>({
+          id: dbField.id,
+          value: dbField.hasOwnProperty('value') ? dbField.value : '',
+          key: dbField.name,
+          label: 'Default title',
+          required: false, // TODO check required bit + user bit // rethink about it
+          readonly: FlagField.Is(dbField, FlagField.Flags.System),
+          order: 1,
+          controlType: dbField.type,
+          type: '',
+          variants: dbField.variants
+        });
       });
-    });
 
     return fields;
   }
