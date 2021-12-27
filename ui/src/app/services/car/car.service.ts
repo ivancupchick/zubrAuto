@@ -3,7 +3,7 @@ import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
 import { CarImage, CarStatistic, RealCarForm, ServerCar } from 'src/app/entities/car';
-import { map } from 'rxjs/operators';
+import { concatMap, map, mergeMap } from 'rxjs/operators';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
 import { Constants, StringHash } from 'src/app/entities/constants';
@@ -98,60 +98,74 @@ export class CarService {
   }
 
   changeCarStatus(id: number, newStatus: FieldNames.CarStatus, comment = '') {
-    const statusConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.status);
-    const commentConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.comment);
+    return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
+      concatMap(allFields => {
+        const statusConfig = allFields.find(field => field.name === FieldNames.Car.status);
+        const commentConfig = allFields.find(field => field.name === FieldNames.Car.comment);
 
-    if (statusConfig && commentConfig) {
-      const statusField = FieldsUtils.setDropdownValue(statusConfig, newStatus);
-      const commentField = FieldsUtils.setFieldValue(commentConfig, comment);
+        if (statusConfig && commentConfig) {
+          const statusField = FieldsUtils.setDropdownValue(statusConfig, newStatus);
+          const commentField = FieldsUtils.setFieldValue(commentConfig, comment);
 
-      const car: ServerCar.UpdateRequest = {
-        fields: [statusField, commentField]
-      }
-      return this.updateCar(car, id)
-    } else {
-      return of(false)
-    }
+          const car: ServerCar.UpdateRequest = {
+            fields: [statusField, commentField]
+          }
+          return this.updateCar(car, id)
+        } else {
+          return of(false)
+        }
+      })
+    )
+
+
   }
 
   transformToCarShooting(id: number, shootingDate: number, carShootingSpecialistId: number, comment = '') {
-    const newStatus = FieldNames.CarStatus.carShooting_InProgres;
+      return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
+        concatMap(allFields => {
+          const newStatus = FieldNames.CarStatus.carShooting_InProgres;
 
-    const shootingDateConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.shootingDate);
-    const carShootingSpecialistIdConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.carShootingSpecialistId);
-    const statusConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.status);
-    const commentConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.comment);
+          const shootingDateConfig = allFields.find(field => field.name === FieldNames.Car.shootingDate);
+          const carShootingSpecialistIdConfig = allFields.find(field => field.name === FieldNames.Car.carShootingSpecialistId);
+          const statusConfig = allFields.find(field => field.name === FieldNames.Car.status);
+          const commentConfig = allFields.find(field => field.name === FieldNames.Car.comment);
 
-    if (statusConfig && commentConfig && shootingDateConfig && carShootingSpecialistIdConfig) {
-      const shootingDateField = FieldsUtils.setFieldValue(shootingDateConfig, `${shootingDate}`);
-      const carShootingSpecialistIdField = FieldsUtils.setFieldValue(carShootingSpecialistIdConfig, `${carShootingSpecialistId}`);
-      const statusField = FieldsUtils.setDropdownValue(statusConfig, newStatus);
-      const commentField = FieldsUtils.setFieldValue(commentConfig, comment);
+          if (statusConfig && commentConfig && shootingDateConfig && carShootingSpecialistIdConfig) {
+            const shootingDateField = FieldsUtils.setFieldValue(shootingDateConfig, `${shootingDate}`);
+            const carShootingSpecialistIdField = FieldsUtils.setFieldValue(carShootingSpecialistIdConfig, `${carShootingSpecialistId}`);
+            const statusField = FieldsUtils.setDropdownValue(statusConfig, newStatus);
+            const commentField = FieldsUtils.setFieldValue(commentConfig, comment);
 
-      const car: ServerCar.UpdateRequest = {
-        fields: [statusField, commentField, shootingDateField, carShootingSpecialistIdField]
-      }
-      return this.updateCar(car, id)
-    } else {
-      return of(false)
-    }
+            const car: ServerCar.UpdateRequest = {
+              fields: [statusField, commentField, shootingDateField, carShootingSpecialistIdField]
+            }
+            return this.updateCar(car, id)
+          } else {
+            return of(false)
+          }
+        })
+      );
   }
 
   editCarForm(id: number, carForm: RealCarForm) {
-    const form = JSON.stringify(carForm);
+    return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
+      concatMap(allFields => {
+        const form = JSON.stringify(carForm);
 
-    const worksheetConfig = this.fieldService.allFields.find(field => field.name === FieldNames.Car.worksheet);
+        const worksheetConfig = allFields.find(field => field.name === FieldNames.Car.worksheet);
 
-    if (worksheetConfig) {
-      const worksheetField = FieldsUtils.setFieldValue(worksheetConfig, form);
+        if (worksheetConfig) {
+          const worksheetField = FieldsUtils.setFieldValue(worksheetConfig, form);
 
-      const car: ServerCar.UpdateRequest = {
-        fields: [worksheetField]
-      }
-      return this.updateCar(car, id)
-    } else {
-      return of(false)
-    }
+          const car: ServerCar.UpdateRequest = {
+            fields: [worksheetField]
+          }
+          return this.updateCar(car, id)
+        } else {
+          return of(false)
+        }
+      })
+    );
   }
 
   getCarFields() {

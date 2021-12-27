@@ -28,6 +28,14 @@
   </div>
 
   <div class="p-field p-col-12 p-md-4">
+    <div class="p-field-checkbox">
+      <p-checkbox name="isVirtual" inputId="isVirtual" [binary]="true" formControlName="isVirtual"></p-checkbox>
+      <label for="isVirtual">Это виртуальный филд</label>
+    </div>
+  </div>
+
+
+  <div class="p-field p-col-12 p-md-4">
     <span class="p-float-label access-wrapper">
       <p-chips inputId="chips" class="p-inputwrapper-focus" formControlName="accesses">
         <ng-template let-item pTemplate="item">

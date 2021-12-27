@@ -2,11 +2,6 @@
   [(selection)]="selectedKeys"
   dataKey="id"
   styleClass="p-datatable-sm p-datatable-gridlines"
-  [paginator]="true"
-  [rows]="10"
-  [showCurrentPageReport]="true"
-  currentPageReportTemplate="Показ с {first} по {last} из {totalRecords}"
-  [rowsPerPageOptions]="[10,25,50]"
   [value]="gridData"
   (selectionChange)="onSelect($event)"
 >

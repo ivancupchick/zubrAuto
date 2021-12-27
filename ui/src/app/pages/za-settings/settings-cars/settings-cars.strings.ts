@@ -22,7 +22,7 @@ export const settingsCarsStrings = {
   trueCarPrice: 'Цена на руки',
   commission: 'Комиссия',
   comment: 'Комментарии',
-  // dateOfLastStatusChange: 'Дата действия',
+  dateOfLastStatusChange: 'Дата последнего изменения статуса',
   worksheet: 'Анкета',
   bargain: 'Торг',
   adPrice: 'Цена на сайте',
@@ -36,6 +36,7 @@ export const settingsCarsStrings = {
   photos: 'Фото',
   photo360: 'Фото 360',
   linkToVideo: 'Ссылка на видео',
+  bodyType: 'Тип кузова',
 
   // nextAction: 'Следующее действие',
 };

@@ -8,5 +8,5 @@ export const settingsUsersStrings = {
   carSales: 'Сотрудник ОПА',
   carSalesChief: 'Начальник ОПА',
 
-  name: 'Имя'
+  name: 'ФИО'
 };

@@ -46,6 +46,8 @@ export class CreateCarComponent implements OnInit {
     FieldNames.Car.worksheet,
     FieldNames.Car.contactCenterSpecialistId,
     FieldNames.Car.carShootingSpecialistId,
+    FieldNames.Car.bargain,
+    FieldNames.Car.commission
   ];
 
   carOwnerExcludeFields: FieldNames.CarOwner[] = [
@@ -260,6 +262,13 @@ export class CreateCarComponent implements OnInit {
       case FieldNames.Car.adPrice:
         field.label = settingsCarsStrings.adPrice;
         break;
+      case FieldNames.Car.bodyType:
+        field.label = settingsCarsStrings.bodyType;
+        break;
+      case FieldNames.Car.dateOfLastStatusChange:
+        field.label = settingsCarsStrings.dateOfLastStatusChange;
+        break;
+
     }
 
     return field;
