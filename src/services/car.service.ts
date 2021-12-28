@@ -8,10 +8,12 @@ import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
 import fieldRepository from "../repositories/base/field.repository";
+import userRepository from "../repositories/base/user.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
 import carInfoGetterService from "./car-info-getter.service";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
+import userService from "./user.service";
 
 class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.UpdateRequest, ServerCar.Response, ServerCar.IdResponse> {
   async getAll() {
@@ -30,8 +32,8 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     ]);
 
     const [
-      carChaines,
-      carOwnerChaines
+      allCarChaines,
+      allCarOwnerChaines
     ] = await Promise.all([
       await fieldChainRepository.find({
         sourceId: cars.map(c => `${c.id}`),
@@ -43,19 +45,41 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       })
     ]);
 
+    const allUsers = await userService.getAll();
+
     const result: ServerCar.Response[] = cars.map(car => {
       const carForm = carForms.find(form => form.carId === car.id);
       const workSheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
 
+
+      const userIdField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId);
+      const userIdValue = allCarChaines.find(ch => ch.fieldId === userIdField.id && ch.sourceId === car.id && ch.sourceName === Models.CARS_TABLE_NAME);
+
+
+      // const userIdField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId)
+      // const userIdValue = carChaines.find(f => f.fieldId === userIdField.id);
+      console.log(`${allUsers[0].id} === ${+(userIdValue || {}).value}`)
+      const user = allUsers.find(dbUser => dbUser.id === +(userIdValue || {}).value);
+      const userField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialist);
+
       if (carForm && workSheetField) {
-        carChaines.forEach(ch => {
+        allCarChaines.forEach(ch => {
           if (ch.fieldId === workSheetField.id && ch.sourceId === car.id && ch.sourceName === Models.CARS_TABLE_NAME) {
             ch.value = carForm.content;
           }
         });
       }
 
-      const carRealFields = getFieldsWithValues(carFields, carChaines, car.id)
+      if (user && userField) {
+        allCarChaines.forEach(ch => {
+          if (ch.fieldId === userField.id && ch.sourceId === car.id && ch.sourceName === Models.CARS_TABLE_NAME) {
+            ch.value = JSON.stringify(user);
+          }
+        });
+      }
+
+
+      const carRealFields = getFieldsWithValues(carFields, allCarChaines, car.id)
       return {
         id: car.id,
         createdDate: car.createdDate,
@@ -63,7 +87,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
         ownerNumber: carOwners.find(co => co.id === car.ownerId)?.number || '',
         fields: [
           ...carRealFields,
-          ...getFieldsWithValues(carOwnerFields, carOwnerChaines, car.ownerId)
+          ...getFieldsWithValues(carOwnerFields, allCarOwnerChaines, car.ownerId)
         ]
       }
     });

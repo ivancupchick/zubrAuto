@@ -38,6 +38,7 @@ export namespace FieldNames {
     source = "source",
     statistic = 'statistic',
     bodyType = 'body-type',
+    contactCenterSpecialist = 'contact-center-specialist',
   }
 
   export enum CarStatus {
