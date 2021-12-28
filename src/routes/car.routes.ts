@@ -11,6 +11,8 @@ router.route(`/${ Constants.API.CRUD }/`)
 
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CALL }`)
   .post(carController.addCall);
+router.route(`/${ Constants.API.STATISTIC }/:carId`)
+  .get(carController.getAllCarStatistic)
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/:carId`)
   .get(carController.getCarStatistic)
   .post(carController.createCarShowing)

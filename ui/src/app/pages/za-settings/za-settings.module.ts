@@ -27,6 +27,7 @@ import {AccordionModule} from 'primeng/accordion';
 import {CarouselModule} from 'primeng/carousel';
 import {ImageModule} from 'primeng/image';
 import {FileUploadModule} from 'primeng/fileupload';
+import {ChartModule} from 'primeng/chart';
 
 
 
@@ -69,6 +70,7 @@ import { ChangeCarStatusComponent } from './modals/change-car-status/change-car-
 import { SelectCarComponent } from './modals/select-car/select-car.component';
 import { ManageCarShowingComponent } from './modals/manage-car-showing/manage-car-showing.component';
 import { CreateCarShowingComponent } from './modals/create-car-showing/create-car-showing.component';
+import { CustomerServiceCallComponent } from './modals/customer-service-call/customer-service-call.component';
 
 
 
@@ -141,7 +143,8 @@ const routes: Routes = [{
     ChangeCarStatusComponent,
     SelectCarComponent,
     ManageCarShowingComponent,
-    CreateCarShowingComponent
+    CreateCarShowingComponent,
+    CustomerServiceCallComponent
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -175,6 +178,7 @@ const routes: Routes = [{
     CarouselModule,
     ImageModule,
     FileUploadModule,
+    ChartModule,
     ModalsAuthModule,
     DynamicFormModule
   ],

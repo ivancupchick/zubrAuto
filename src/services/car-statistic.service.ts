@@ -59,7 +59,7 @@ class CarStatisticService {
     return result;
   }
 
-  async getCarStatistic(carId: number): Promise<CarStatistic.CarShowingResponse[]> {
+  async getCarShowingStatistic(carId: number): Promise<CarStatistic.CarShowingResponse[]> {
     const statisticRecords = await carStatisticRepository.find({ carId: [`${carId}`], type: [`${CarStatistic.Type.showing}`] });
 
     const result = statisticRecords.map(r => {
@@ -70,6 +70,27 @@ class CarStatisticService {
     })
 
     return result;
+  }
+
+  async getAllCarStatistic(carId: number): Promise<(CarStatistic.CarShowingResponse | CarStatistic.BaseResponse)[]> {
+    const statisticRecords = await carStatisticRepository.find({ carId: [`${carId}`] });
+
+    const showingStatistics = statisticRecords.filter(rec => rec.type === CarStatistic.Type.showing).map(r => {
+      return {
+        ...r,
+        content: JSON.parse(r.content) as CarStatistic.ShowingContent
+      }
+    }).filter(r => r.content.status !== CarStatistic.ShowingStatus.cancel).map(r => {
+      if (r.content.status === CarStatistic.ShowingStatus.success) {
+        r.date = r.content.date;
+      }
+
+      return r;
+    });
+
+    const callStatistics = statisticRecords.filter(rec => rec.type === CarStatistic.Type.call);
+
+    return [...showingStatistics, ...callStatistics];
   }
 }
 

@@ -4,6 +4,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerCar } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
+import { QueryCarTypes } from '../../settings-cars/settings-cars.component';
 
 export interface CarChip {
   id: number;
@@ -16,6 +17,7 @@ export interface CarChip {
   styleUrls: ['./select-car.component.scss']
 })
 export class SelectCarComponent implements OnInit {
+  QueryCarTypes = QueryCarTypes;
   loading = false;
 
   @Input() cars: CarChip[] = [];

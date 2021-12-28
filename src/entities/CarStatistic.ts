@@ -19,5 +19,6 @@ export namespace CarStatistic {
     success = 'Произведен',
   }
 
-  export type CarShowingResponse = Omit<Models.CarStatistic, 'content'> & { content: ShowingContent }
+  export type BaseResponse = Omit<Models.CarStatistic, 'type'> & { type: CarStatistic.Type };
+  export type CarShowingResponse = Omit<BaseResponse, 'content'> & { content: ShowingContent }
 }
