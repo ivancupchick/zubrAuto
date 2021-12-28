@@ -290,7 +290,18 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     const configs: GridConfigItem<ServerCar.Response>[] = [{
       title: this.strings.id,
       name: 'id',
-      getValue: (item) => item.id, // TODO! ,
+      getValue: (item) => {
+        const user = FieldsUtils.getFieldValue(item, FieldNames.Car.contactCenterSpecialist);
+
+
+        const contactCenterSpecialist: ServerUser.Response = JSON.parse(user || '{}');
+        const contactCenterSpecialistName = FieldsUtils.getFieldValue(contactCenterSpecialist, FieldNames.User.name);
+
+        console.log(contactCenterSpecialist);
+        console.log(contactCenterSpecialistName);
+
+        return `${item.id} ${(contactCenterSpecialistName || '').split(' ').map(word => word[0]).join('')}`;
+      }, // TODO! ,
     }, {
       title: this.strings.date,
       name: 'CreatedDate',
