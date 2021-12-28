@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { zip } from 'rxjs';
-import { ServerCar, UICarStatistic } from 'src/app/entities/car';
+import { ServerCar, UICarShowingStatistic } from 'src/app/entities/car';
 import { BDModels } from 'src/app/entities/constants';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -21,15 +21,15 @@ import { CreateCarShowingComponent } from '../create-car-showing/create-car-show
 export class ManageCarShowingComponent implements OnInit {
   loading = false;
 
-  gridConfig!: GridConfigItem<UICarStatistic>[];
-  gridActionsConfig: GridActionConfigItem<UICarStatistic>[] = [];
+  gridConfig!: GridConfigItem<UICarShowingStatistic>[];
+  gridActionsConfig: GridActionConfigItem<UICarShowingStatistic>[] = [];
 
 
   @Input() carIds!: number[];
   @Input() clientId!: number;
 
   cars: ServerCar.Response[] = [];
-  carStatistics: UICarStatistic[] = [];
+  carStatistics: UICarShowingStatistic[] = [];
 
   constructor(
     private ref: DynamicDialogRef,
@@ -52,9 +52,9 @@ export class ManageCarShowingComponent implements OnInit {
       // `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
       console.log(this.carIds);
 
-      zip(...this.carIds.map(id => this.carService.getCarStatistic(id)))
+      zip(...this.carIds.map(id => this.carService.getShowingCarStatistic(id)))
         .subscribe(statistics => {
-          const result: UICarStatistic[] = [];
+          const result: UICarShowingStatistic[] = [];
 
           statistics.forEach(carStatistics => {
             const car = clientCars.find(car => car.id === (carStatistics[0] || {}).carId);
@@ -96,7 +96,7 @@ export class ManageCarShowingComponent implements OnInit {
     this.gridActionsConfig = this.getGridActionsConfig();
   }
 
-  getGridConfig(): GridConfigItem<UICarStatistic>[] {
+  getGridConfig(): GridConfigItem<UICarShowingStatistic>[] {
     return [{
       title: 'Машина',
       name: 'carName',
@@ -120,8 +120,8 @@ export class ManageCarShowingComponent implements OnInit {
     }];
   }
 
-  getGridActionsConfig(): GridActionConfigItem<UICarStatistic>[] {
-    const configs: GridActionConfigItem<UICarStatistic>[] = [{
+  getGridActionsConfig(): GridActionConfigItem<UICarShowingStatistic>[] {
+    const configs: GridActionConfigItem<UICarShowingStatistic>[] = [{
       title: '',
       icon: 'pencil',
       buttonClass: 'secondary',
@@ -144,7 +144,7 @@ export class ManageCarShowingComponent implements OnInit {
     });
   }
 
-  updateStatisticItem(item: UICarStatistic) {
+  updateStatisticItem(item: UICarShowingStatistic) {
     const ref = this.dialogService.open(CreateCarShowingComponent, {
       data: {
         statiscticItem: item,

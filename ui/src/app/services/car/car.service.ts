@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
-import { CarImage, CarStatistic, RealCarForm, ServerCar } from 'src/app/entities/car';
+import { CarImage, CarStatistic, RealCarForm, ServerCar, UICarStatistic } from 'src/app/entities/car';
 import { concatMap, map, mergeMap } from 'rxjs/operators';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
@@ -212,7 +212,7 @@ export class CarService {
       }))
   }
 
-  getCarStatistic(carId: number) {
+  getShowingCarStatistic(carId: number) {
     const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/${carId}`;
 
     return this.requestService
@@ -222,5 +222,31 @@ export class CarService {
 
         return result;
       }))
+  }
+
+  // Observable<UICarStatistic[]>
+  getAllCarStatistic(carId: number) {
+    const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${carId}`;
+
+    return this.requestService
+      .get<(CarStatistic.CarShowingResponse | CarStatistic.BaseResponse)[]>(url)
+      .pipe(
+        map(result => {
+          console.log(result);
+
+          return result.map(record => {
+            const item: UICarStatistic.Item = {
+              date: new Date(+record.date),
+              type: record.type === CarStatistic.Type.call
+                ? UICarStatistic.StatisticType.Call
+                : (record.content as CarStatistic.ShowingContent).status === CarStatistic.ShowingStatus.success
+                  ? UICarStatistic.StatisticType.SuccessShowing
+                  : UICarStatistic.StatisticType.PlanShowing
+            }
+
+            return item;
+          });
+        }
+      ))
   }
 }

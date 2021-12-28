@@ -16,6 +16,7 @@ import { UserService } from 'src/app/services/user/user.service';
 import { ChangeCarStatusComponent } from '../modals/change-car-status/change-car-status.component';
 import { CreateCarFormComponent } from '../modals/create-car-form/create-car-form.component';
 import { CreateCarComponent } from '../modals/create-car/create-car.component';
+import { CustomerServiceCallComponent } from '../modals/customer-service-call/customer-service-call.component';
 import { TransformToCarShooting } from '../modals/transform-to-car-shooting/transform-to-car-shooting.component';
 import { UploadCarMediaComponent } from '../modals/upload-car-media/upload-car-media.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
@@ -94,7 +95,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   loading = false;
 
-  type: QueryCarTypes | '' = '';
+  @Input() type: QueryCarTypes | '' = '';
 
   @Input() isSelectCarModalMode = false;
   @Input() selected: ServerCar.Response[] = [];
@@ -124,12 +125,16 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
       : QueryCarTypes.carsForSale;
 
+    console.log(this.type);
+
     this.route.queryParams
       .pipe(
         takeUntil(this.destroyed)
       )
       .subscribe(params => {
-        this.type = params.type || '';
+        this.type = !this.isSelectCarModalMode
+          ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
+          : QueryCarTypes.carsForSale;
 
         this.setGridSettings();
 
@@ -296,9 +301,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
         const contactCenterSpecialist: ServerUser.Response = JSON.parse(user || '{}');
         const contactCenterSpecialistName = FieldsUtils.getFieldValue(contactCenterSpecialist, FieldNames.User.name);
-
-        console.log(contactCenterSpecialist);
-        console.log(contactCenterSpecialistName);
 
         return `${item.id} ${(contactCenterSpecialistName || '').split(' ').map(word => word[0]).join('')}`;
       }, // TODO! ,
@@ -783,19 +785,15 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   сustomerServiceCall(car: ServerCar.Response) {
-    // const ref = this.dialogService.open(ChangeCarStatusComponent, {
-    //   data: {
-    //     carId: car.id,
-    //     availableStatuses: [
-    //       FieldNames.CarStatus.customerService_OnDelete,
-    //     ],
-        // comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
-    //   },
-    //   header: 'Звонок клиенту',
-    //   width: '70%',
-    // });
+    const ref = this.dialogService.open(CustomerServiceCallComponent, {
+      data: {
+        car: car,
+      },
+      header: 'Звонок клиенту',
+      width: '95%',
+    });
 
-    // this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(ref);
   }
 
   onSearch(v: Event) {

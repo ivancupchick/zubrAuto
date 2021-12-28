@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ServerCar } from 'src/app/entities/car';
+import { getCarStatus, ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
 import { ServerField, FieldType, UIRealField, FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -106,7 +106,10 @@ export class CreateClientComponent implements OnInit {
     this.loading = true;
 
     this.carService.getCars().subscribe(cars => {
-      this.allCars = [...cars];
+      this.allCars = cars.filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
+      // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
+      // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
+);
 
       if (this.client) {
         let carIds: number[] = [];

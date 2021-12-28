@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CarStatistic, ServerCar, UICarStatistic } from 'src/app/entities/car';
+import { CarStatistic, ServerCar, UICarShowingStatistic } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
@@ -18,7 +18,7 @@ export class CreateCarShowingComponent implements OnInit {
   loading = false;
 
   // formGroup!: FormGroup;
-  @Input() statiscticItem: UICarStatistic | null = null;
+  @Input() statiscticItem: UICarShowingStatistic | null = null;
   @Input() cars: ServerCar.Response[] = [];
   @Input() clientId!: number;
 

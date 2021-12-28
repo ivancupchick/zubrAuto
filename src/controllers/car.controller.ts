@@ -219,7 +219,25 @@ class CarController {
 
       const carId = +req.params.carId;
 
-      const result = await carStatisticService.getCarStatistic(carId);
+      const result = await carStatisticService.getCarShowingStatistic(carId);
+
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async getAllCarStatistic(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carId = +req.params.carId;
+
+      const result = await carStatisticService.getCarShowingStatistic(carId);
 
       return res.json(result);
     } catch (e) {
