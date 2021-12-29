@@ -1,19 +1,55 @@
 <p-toolbar>
   <div class="p-toolbar-group-left">
-    <span *ngIf="availableStatuses.length > 0" style="color: white">Cтатус</span>
-    <p-dropdown
-      appendTo="body"
-      *ngIf="availableStatuses.length > 0"
-      [autoDisplayFirst]="true"
-      [options]="availableStatuses"
-      [(ngModel)]="selectedStatus"
-      (onChange)="sortCars()"
-      optionLabel="key"
-      optionValue="value"
-    ></p-dropdown>
     <button *ngIf="addCarButtonAvailable" pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
 
     <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>
+
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <span *ngIf="availableStatuses.length > 0" style="color: white; margin-bottom: 2px;">Cтатус</span>
+      <p-dropdown
+        appendTo="body"
+        *ngIf="availableStatuses.length > 0"
+        [autoDisplayFirst]="true"
+        [options]="availableStatuses"
+        [(ngModel)]="selectedStatus"
+        (onChange)="sortCars()"
+        optionLabel="label"
+        optionValue="value"
+      ></p-dropdown>
+    </div>
+
+
+
+    <div *ngFor="let filter of filters" style="display: flex; flex-direction: column; align-items: flex-start;">
+      <ng-container *ngIf="filter.type === FieldTypes.Dropdown">
+        <!-- <span style="color: white; margin-bottom: 2px;">{{filter.title}}</span> -->
+        <p-dropdown
+          appendTo="body"
+          [autoDisplayFirst]="true"
+          [options]="filter.variants || []"
+          (onChange)="changeFilter(filter.name, $event)"
+          optionLabel="label"
+          optionValue="value"
+        ></p-dropdown>
+      </ng-container>
+
+      <ng-container *ngIf="filter.type === FieldTypes.Text">
+        <!-- <span style="color: white; margin-bottom: 2px;">{{filter.title}}</span> -->
+
+        <input type="text" (change)="changeFilter(filter.name, transformFormInputEvent($event))" pInputText [placeholder]="filter.title"/>
+      </ng-container>
+
+      <ng-container *ngIf="filter.type === FieldTypes.Number">
+        <span style="color: white; margin-bottom: 10px;">{{filter.title}} {{(filter.values[0] === filter.min ? 'Все' : filter.values[0]) + ' - ' + (filter.values[1] === filter.max ? 'Все' : filter.values[1])}}</span>
+        <p-slider
+          [min]="filter.min" [max]="filter.max"
+          [(ngModel)]="filter.values"
+          [step]="filter.step"
+          [range]="true"
+          (onChange)="changeNumberRangeFilter(filter.name, $event)"
+        ></p-slider>
+      </ng-container>
+    </div>
 
     <!-- <i class="pi pi-bars"></i> -->
   </div>
