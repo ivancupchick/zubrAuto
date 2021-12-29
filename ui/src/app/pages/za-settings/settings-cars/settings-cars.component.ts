@@ -6,7 +6,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject, zip } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { getCarStatus, ServerCar } from 'src/app/entities/car';
-import { FieldsUtils, ServerField } from 'src/app/entities/field';
+import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser } from 'src/app/entities/user';
@@ -22,6 +22,24 @@ import { TransformToCarShooting } from '../modals/transform-to-car-shooting/tran
 import { UploadCarMediaComponent } from '../modals/upload-car-media/upload-car-media.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsCarsStrings } from './settings-cars.strings';
+
+type UIFilter = {
+  title: string;
+  name: string;
+} & (
+  {
+    type: FieldType.Text;
+  } | {
+    type: FieldType.Dropdown;
+    variants?: { label: string | 'Все', value: string | 'Все' }[]
+  } | {
+    type: FieldType.Number;
+    values: [number, number],
+    max: number;
+    min: number;
+    step: number;
+  }
+)
 
 function calculateBargain(price: number) {
   let bargain = 0;
@@ -87,6 +105,7 @@ export enum QueryCarTypes {
   ]
 })
 export class SettingsCarsComponent implements OnInit, OnDestroy {
+  FieldTypes = FieldType;
   get addCarButtonAvailable() {
     return !this.isSelectCarModalMode && !this.sessionService.isCarSales && !this.sessionService.isCarSalesChief
   }
@@ -112,12 +131,15 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   contactCenterUsers: ServerUser.Response[] = [];
   carShootingUsers: ServerUser.Response[] = [];
 
-  availableStatuses: { key: FieldNames.CarStatus | 'Все', value: FieldNames.CarStatus | 'Все' }[] = [];
+  availableStatuses: { label: FieldNames.CarStatus | 'Все', value: FieldNames.CarStatus | 'Все' }[] = [];
   selectedStatus: FieldNames.CarStatus | 'Все' | null = 'Все';
 
   readonly strings = settingsCarsStrings;
 
   destroyed = new Subject();
+
+  filters: UIFilter[] = []
+  selectedFilters: { name: string, value: string }[] = [];
 
   constructor(private carService: CarService, private dialogService: DialogService, private route: ActivatedRoute, private sessionService: SessionService, private userService: UserService) { }
 
@@ -152,6 +174,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.carShootingUsers = users
           .filter(u => u.customRoleName === ServerRole.Custom.carShooting
                     || u.customRoleName === ServerRole.Custom.carShootingChief);
+
+        this.generateFilters();
       });
 
     this.getCars().subscribe();
@@ -163,6 +187,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     return this.carService.getCars().pipe(
         tap((res => {
           this.rawCars = [...res];
+          this.generateFilters();
           this.sortCars();
         }))
       )
@@ -228,9 +253,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         ];
         this.availableStatuses = [
           {
-            key: 'Все', value: 'Все'
+            label: 'Все', value: 'Все'
           },
-          ...availableStatuses.map(s => ({ key: s, value: s }))
+          ...availableStatuses.map(s => ({ label: s, value: s }))
         ];
         this.sortedCars = this.rawCars
           .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
@@ -246,9 +271,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_NoAnswer,
         ];
         this.availableStatuses = [{
-          key: 'Все', value: 'Все'
+          label: 'Все', value: 'Все'
         },
-          ...availableStatuses2.map(s => ({ key: s, value: s }))]
+          ...availableStatuses2.map(s => ({ label: s, value: s }))]
 
         this.sortedCars = this.rawCars // FIX THIS
           .filter(c => getCarStatus(c) === this.selectedStatus  || 'Все' === this.selectedStatus);
@@ -290,6 +315,36 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
       return name.toLocaleLowerCase().indexOf(searchText.toLocaleLowerCase()) !== -1
     })
+
+    this.selectedFilters.forEach(filter => {
+      const value = JSON.parse(filter.value);
+      const filterConfig = this.filters.find(f => f.name === filter.name);
+
+      if (filterConfig?.type === FieldType.Dropdown && value !== 'Все') {
+        this.sortedCars = this.sortedCars.filter(car => {
+          const name = FieldsUtils.getFieldValue(car, filterConfig.name);
+
+          return name === value;
+        })
+      }
+
+      if (filterConfig?.type === FieldType.Text && value !== '') {
+        this.sortedCars = this.sortedCars.filter(car => {
+          const v = FieldsUtils.getFieldStringValue(car, filterConfig.name) || '';
+
+          return v.toLocaleLowerCase().indexOf((value || '').toLocaleLowerCase()) !== -1
+        })
+      }
+
+      if (filterConfig?.type === FieldType.Number && value !== '') {
+        this.sortedCars = this.sortedCars.filter(car => {
+          const v = FieldsUtils.getFieldNumberValue(car, filterConfig.name) || '';
+          const values = value as [number, number]
+
+          return v >= values[0] && v <= values[1];
+        })
+      }
+    });
   }
 
   private getGridConfig(): GridConfigItem<ServerCar.Response>[] {
@@ -807,6 +862,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   onSearch(v: Event) {
     const inputTarget: HTMLInputElement = v.target as HTMLInputElement;
+
     this.sortCars(inputTarget.value)
   }
 
@@ -814,4 +870,92 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.isSelectCarModalMode && this.onSelectCar.emit(cars);
   }
 
+  private generateFilters() {
+    const transmissionField = this.carFieldConfigs.find(config => config.name === FieldNames.Car.transmission);
+
+    if (!transmissionField) {
+      console.log('Поля не найдены в carFieldConfigs')
+      return;
+    }
+
+    const createVariants = (field: ServerField.Response) => {
+      return (new UIRealField(
+        field,
+        'd'
+      )).variants.map(variant => ({ label: variant.value, value: variant.key }))
+    }
+
+    this.filters = [{
+      title: this.strings.transmission,
+      name: FieldNames.Car.transmission,
+      type: FieldType.Dropdown,
+      variants: [{
+          label: 'Коробка передач', value: 'Все'
+        },
+        ...createVariants(transmissionField)
+      ]
+    }, {
+      title: this.strings.bodyType,
+      name: FieldNames.Car.bodyType,
+      type: FieldType.Text
+    }, {
+      title: this.strings.mileage,
+      name: FieldNames.Car.mileage,
+      type: FieldType.Number,
+      values: [0, 300000],
+      max: 300000,
+      min: 0,
+      step: 10000,
+    }, ];
+  }
+
+  changeFilter(fieldName: string, e: { originalEvent: PointerEvent | Event, value: string }) {
+    console.log(e);
+
+    const index = this.selectedFilters.findIndex(filter => filter.name === fieldName);
+
+
+    if (index !== -1) {
+      this.selectedFilters[index].value = JSON.stringify(e.value);
+    } else {
+      this.selectedFilters.push({
+        name: fieldName,
+        value: JSON.stringify(e.value),
+      })
+    }
+
+    this.sortCars();
+  }
+
+  changeNumberRangeFilter(fieldName: string, e: { values: [number, number] }) {
+    console.log(e);
+
+    const index = this.selectedFilters.findIndex(filter => filter.name === fieldName);
+    const filterConfig = this.filters.find(f => f.name === fieldName);
+    let value = e.values;
+
+    if (filterConfig?.type === this.FieldTypes.Number && value[1] === filterConfig.max) {
+      value = [e.values[0], 99999999999]
+    }
+
+    if (index !== -1) {
+      this.selectedFilters[index].value = JSON.stringify(value);
+    } else {
+      this.selectedFilters.push({
+        name: fieldName,
+        value: JSON.stringify(value),
+      })
+    }
+
+    this.sortCars();
+  }
+
+  transformFormInputEvent(e: Event): { originalEvent: PointerEvent | Event, value: string } {
+    const inputTarget: HTMLInputElement = e.target as HTMLInputElement;
+
+    return {
+      originalEvent: e,
+      value: inputTarget.value
+    }
+  }
 }

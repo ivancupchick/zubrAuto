@@ -271,7 +271,7 @@ class CarInfoGetter {
           return '';
         }
 
-        return `${FieldNames.Car.transmission}-${variantId}`;
+        return `${FieldNames.Car.driveType}-${variantId}`;
       }
       case FieldNames.Car.linkToAd: {
         return car.publicUrl;

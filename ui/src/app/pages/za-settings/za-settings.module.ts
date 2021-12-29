@@ -29,6 +29,7 @@ import {ImageModule} from 'primeng/image';
 import {FileUploadModule} from 'primeng/fileupload';
 import {ChartModule} from 'primeng/chart';
 import {TimelineModule} from 'primeng/timeline';
+import {SliderModule} from 'primeng/slider';
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
 import { SettingsFieldsComponent } from './settings-fields/settings-fields.component';
@@ -179,6 +180,7 @@ const routes: Routes = [{
     FileUploadModule,
     ChartModule,
     TimelineModule,
+    SliderModule,
     ModalsAuthModule,
     DynamicFormModule
   ],
