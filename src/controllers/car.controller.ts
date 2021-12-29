@@ -170,6 +170,44 @@ class CarController {
     }
   }
 
+  async addCustomerCall(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carId = +req.params.carId;
+
+      const result = await carStatisticService.addCustomerCall(carId);
+
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async addCustomerDiscount(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carId = +req.params.carId;
+      const discount = +req.body.discount
+      const amount = +req.body.amount
+
+      const result = await carStatisticService.addCustomerDiscount(carId, discount, amount);
+
+      return res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async createCarShowing(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
@@ -237,7 +275,7 @@ class CarController {
 
       const carId = +req.params.carId;
 
-      const result = await carStatisticService.getCarShowingStatistic(carId);
+      const result = await carStatisticService.getAllCarStatistic(carId);
 
       return res.json(result);
     } catch (e) {

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { zip } from 'rxjs';
-import { ServerCar, UICarShowingStatistic } from 'src/app/entities/car';
+import { CarStatistic, ServerCar, UICarShowingStatistic } from 'src/app/entities/car';
 import { BDModels } from 'src/app/entities/constants';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -62,8 +62,10 @@ export class ManageCarShowingComponent implements OnInit {
             if (!car) {
               return;
             }
+            
+            const statistics: (CarStatistic.CarShowingResponse & { content: CarStatistic.ShowingContent })[] = carStatistics.filter(statistic => statistic.type === CarStatistic.Type.showing) as any;
 
-            carStatistics.forEach(statistic => {
+            statistics.forEach(statistic => {
 
               if (!car) {
                 console.error('path: ui/src/app/pages/za-settings/modals/manage-car-showing/manage-car-showing.component.ts : 61');

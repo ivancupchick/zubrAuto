@@ -1,4 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { SortEvent } from 'primeng/api';
+import { FieldsUtils } from 'src/app/entities/field';
 
 export interface GridConfigItem<GridItemType extends { id: number }> {
   title: string;
@@ -41,5 +43,32 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
   onSelect(c: any) {
     this.onSelectEntity.emit(this.selectedKeys);
+  }
+
+  customSort(event: SortEvent) {
+    const fieldName = event.field;
+
+    if (!event.order || !fieldName) {
+      return;
+    }
+
+    (event.data as GridItemType[]).sort((data1, data2) => {
+        let value1 = +(FieldsUtils.getFieldValue(data1 as any, fieldName) as string);
+        let value2 = +(FieldsUtils.getFieldValue(data2 as any, fieldName) as string);
+        let result = null;
+
+        if (value1 == null && value2 != null)
+            result = -1;
+        else if (value1 != null && value2 == null)
+            result = 1;
+        else if (value1 == null && value2 == null)
+            result = 0;
+        // else if (typeof value1 === 'string' && typeof value2 === 'string')
+        //     result = value1.localeCompare(value2);
+        else
+            result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
+
+        return ((event.order || 0) * result);
+    });
   }
 }

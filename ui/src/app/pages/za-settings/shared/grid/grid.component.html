@@ -4,15 +4,23 @@
   styleClass="p-datatable-sm p-datatable-gridlines"
   [value]="gridData"
   (selectionChange)="onSelect($event)"
+  (sortFunction)="customSort($event)" 
+  [customSort]="true"
 >
   <ng-template pTemplate="header">
     <tr>
       <th style="width: 3rem">
         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
       </th>
-      <th *ngFor="let config of gridConfig">
-        {{ config.title }}
-      </th>
+      <ng-container *ngFor="let config of gridConfig">
+        <th *ngIf="config.sortable && config.sortable()" [pSortableColumn]="config.name">
+          {{ config.title }} <p-sortIcon [field]="config.name"></p-sortIcon>
+        </th>
+        <th *ngIf="!config.sortable || !config.sortable()">
+          {{ config.title }}
+        </th>
+      </ng-container>
+      
       <th></th>
     </tr>
   </ng-template>

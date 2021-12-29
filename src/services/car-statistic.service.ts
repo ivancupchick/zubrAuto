@@ -1,6 +1,10 @@
 import { Models } from "../entities/Models";
 import carStatisticRepository from "../repositories/base/car-statistic.repository";
 import { CarStatistic } from "../entities/CarStatistic";
+import fieldRepository from "../repositories/base/field.repository";
+import { FieldNames } from "../entities/FieldNames";
+import fieldChainRepository from "../repositories/base/field-chain.repository";
+import { ApiError } from "../exceptions/api.error";
 
 class CarStatisticService {
   async addCall(carIds: number[]) {
@@ -88,9 +92,60 @@ class CarStatisticService {
       return r;
     });
 
-    const callStatistics = statisticRecords.filter(rec => rec.type === CarStatistic.Type.call);
+    const discountStatistics = statisticRecords.filter(rec => rec.type === CarStatistic.Type.customerDiscount).map(r => {
+      return {
+        ...r,
+        content: JSON.parse(r.content) as CarStatistic.DiscountContent
+      }
+    })
 
-    return [...showingStatistics, ...callStatistics];
+    const callStatistics = statisticRecords.filter(rec => rec.type === CarStatistic.Type.call || rec.type === CarStatistic.Type.customerCall);
+
+    return [...showingStatistics, ...callStatistics, ...discountStatistics];
+  }
+
+  async addCustomerCall(carId: number) {
+    const timestamp = +(new Date());
+    await carStatisticRepository.create({
+      carId: carId,
+      type: CarStatistic.Type.customerCall,
+      date: timestamp,
+      content: ''
+    })
+
+    const fieldConfig = await fieldRepository.findOne({ name: [`${FieldNames.Car.dateOfLastCustomerCall}`] })
+    await fieldChainRepository.update({ value: `${timestamp}` }, { 
+      fieldId: [`${fieldConfig.id}`], 
+      sourceId: [`${carId}`],
+      sourceName: [`${Models.CARS_TABLE_NAME}`]
+    })
+
+    return { carId };
+  }
+
+  async addCustomerDiscount(carId: number, discount: number, amount: number) {
+    const fieldConfig = await fieldRepository.findOne({ name: [`${FieldNames.Car.carOwnerPrice}`] });
+    const fieldChain = await fieldChainRepository.findOne({ 
+      fieldId: [`${fieldConfig.id}`], 
+      sourceId: [`${carId}`],
+      sourceName: [`${Models.CARS_TABLE_NAME}`]
+    });
+
+    if (amount !== +fieldChain.value) {
+      throw ApiError.BadRequest(`Цена из запроса и цена из машины не сходяться.`); // Error codes
+    }
+
+    const timestamp = +(new Date());
+    await carStatisticRepository.create({
+      carId: carId,
+      type: CarStatistic.Type.customerDiscount,
+      date: timestamp,
+      content: JSON.stringify({ amount, discount })
+    })
+
+    await fieldChainRepository.updateById(fieldChain.id, { value: `${+fieldChain.value - discount}` })
+
+    return { carId };
   }
 }
 

@@ -188,6 +188,30 @@ export class CarService {
       }))
   }
 
+  addCustomerCall(carId: number) {
+    const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_CALL }/${carId}`;
+
+    return this.requestService
+      .post<any>(url, {})
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  addCustomerDiscount(carId: number, discount: number, amount: number) {
+    const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_DISCOUNT }/${carId}`;
+
+    return this.requestService
+      .post<any>(url, { discount, amount })
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
   createCarShowing(carId: number, showingContent: CarStatistic.ShowingContent) {
     const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/${carId}`;
 
@@ -232,16 +256,32 @@ export class CarService {
       .get<(CarStatistic.CarShowingResponse | CarStatistic.BaseResponse)[]>(url)
       .pipe(
         map(result => {
-          console.log(result);
-
           return result.map(record => {
+            let type = UICarStatistic.StatisticType.None;
+
+            switch (record.type) {
+              case CarStatistic.Type.call:
+                type = UICarStatistic.StatisticType.Call
+                break;
+              case CarStatistic.Type.customerDiscount:
+                type = UICarStatistic.StatisticType.Discount
+                break;
+              case CarStatistic.Type.showing:
+                const content = record.content as CarStatistic.ShowingContent;
+                if (content.status === CarStatistic.ShowingStatus.success) {
+                  type = UICarStatistic.StatisticType.SuccessShowing;
+                }
+
+                if (content.status === CarStatistic.ShowingStatus.plan) {
+                  type = UICarStatistic.StatisticType.PlanShowing;
+                }
+                break;
+            }
+
             const item: UICarStatistic.Item = {
               date: new Date(+record.date),
-              type: record.type === CarStatistic.Type.call
-                ? UICarStatistic.StatisticType.Call
-                : (record.content as CarStatistic.ShowingContent).status === CarStatistic.ShowingStatus.success
-                  ? UICarStatistic.StatisticType.SuccessShowing
-                  : UICarStatistic.StatisticType.PlanShowing
+              type,
+              content: record.content
             }
 
             return item;

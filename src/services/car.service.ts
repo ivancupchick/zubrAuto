@@ -55,10 +55,6 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       const userIdField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId);
       const userIdValue = allCarChaines.find(ch => ch.fieldId === userIdField.id && ch.sourceId === car.id && ch.sourceName === Models.CARS_TABLE_NAME);
 
-
-      // const userIdField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId)
-      // const userIdValue = carChaines.find(f => f.fieldId === userIdField.id);
-      console.log(`${allUsers[0].id} === ${+(userIdValue || {}).value}`)
       const user = allUsers.find(dbUser => dbUser.id === +(userIdValue || {}).value);
       const userField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialist);
 

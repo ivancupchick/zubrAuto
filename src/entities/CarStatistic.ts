@@ -3,7 +3,9 @@ import { Models } from "./Models";
 export namespace CarStatistic {
   export enum Type {
     call,
-    showing
+    showing,
+    customerCall,
+    customerDiscount
   }
 
   export interface ShowingContent {
@@ -13,6 +15,12 @@ export namespace CarStatistic {
     clientId: number;
   }
 
+  export interface DiscountContent {
+    amount: number;
+    discount: number;
+  }
+
+
   export enum ShowingStatus {
     cancel = 'Отмена',
     plan = 'Запланирован',
@@ -20,5 +28,5 @@ export namespace CarStatistic {
   }
 
   export type BaseResponse = Omit<Models.CarStatistic, 'type'> & { type: CarStatistic.Type };
-  export type CarShowingResponse = Omit<BaseResponse, 'content'> & { content: ShowingContent }
+  export type CarShowingResponse = Omit<BaseResponse, 'content'> & { content: string | ShowingContent | DiscountContent }
 }

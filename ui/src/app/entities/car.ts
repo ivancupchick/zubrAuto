@@ -34,17 +34,22 @@ export import ServerCarImage = serverCarImage;
 export import CarFormEnums = carForm;
 export import CarStatistic = carStatistic
 
-export type UICarShowingStatistic = CarStatistic.CarShowingResponse & { car: ServerCar.Response };
+export type UICarShowingStatistic = Omit<CarStatistic.CarShowingResponse, 'content'>
+  & { content: carStatistic.ShowingContent } 
+  & { car: ServerCar.Response };
 export namespace UICarStatistic {
   export type Item = {
     type: StatisticType;
     date: Date;
+    content: CarStatistic.CarShowingResponse["content"];
   }
 
   export enum StatisticType {
     Call,
     SuccessShowing,
-    PlanShowing
+    PlanShowing,
+    Discount,
+    None
   }
 }
 
