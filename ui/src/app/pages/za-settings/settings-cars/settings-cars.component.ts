@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
+import { SortEvent } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject, zip } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
@@ -167,10 +168,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       )
   }
 
-  subscribeOnCloseModalRef(ref: DynamicDialogRef) {
+  subscribeOnCloseModalRef(ref: DynamicDialogRef, force = false) {
     ref.onClose
       .subscribe(res => {
-        if (res) {
+        if (res || force) {
           this.loading = true;
           // this.carService.getCars().subscribe((result) => {
           //   this.rawCars = result;
@@ -438,12 +439,20 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: this.strings.shootingDate,
       name: 'shootingDate',
       getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
-      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+      available: () => this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
     }, {
       title: this.strings.shootingTime,
       name: 'shootingTime',
       getValue: (item) => moment(new Date(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0))).format('HH:mm'),
-      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
+      available: () => this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+    }, {
+      title: this.strings.dateOfLastCustomerCall,
+      name: FieldNames.Car.dateOfLastCustomerCall,
+      getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfLastCustomerCall) || 0)),
+      available: () => this.type === QueryCarTypes.carsForSale && (
+        this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
+      ),
+      sortable: () => true
     },
     // {
     //   title: this.strings.photos,
@@ -793,7 +802,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '95%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(ref, true);
   }
 
   onSearch(v: Event) {
@@ -804,4 +813,5 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   onSelectEntity(cars: ServerCar.Response[]) {
     this.isSelectCarModalMode && this.onSelectCar.emit(cars);
   }
+
 }

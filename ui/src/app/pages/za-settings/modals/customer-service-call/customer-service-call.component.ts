@@ -1,7 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import * as moment from 'moment';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ServerCar, UICarStatistic } from 'src/app/entities/car';
+import { ServerCar, UICarStatistic, CarStatistic } from 'src/app/entities/car';
+import { FieldsUtils } from 'src/app/entities/field';
+import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 
 @Component({
@@ -19,6 +21,12 @@ export class CustomerServiceCallComponent implements OnInit {
 
   @Input() car!: ServerCar.Response;
 
+  discount: string = '';
+
+  allStatistics: UICarStatistic.Item[] = [];
+
+  discountTimeLine: { date: string, text: string }[] = [];
+
   get formNotValid() {
     // const link = this.link ? this.link.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi) : null;
 
@@ -35,156 +43,200 @@ export class CustomerServiceCallComponent implements OnInit {
   ngOnInit(): void {
     this.car = this.config.data.car;
 
+    this.fetchStatistics();
+  }
+
+  fetchStatistics() {
     this.carService.getAllCarStatistic(this.car.id).subscribe(result => {
-      const lastThirtyDays = [...new Array(30)].map((i, idx) => moment().startOf("day").subtract(idx, "days"));
+      console.log(result);
 
-      const getCountyByType = (type: UICarStatistic.StatisticType, date: Date, statistic: UICarStatistic.Item[]): number => {
-        return statistic.filter(r => {
-          return r.type === type && r.date.getDate() === date.getDate() && date.getMonth() === r.date.getMonth()
-        }).length
-      }
+      this.allStatistics = result;
 
-      const last7Days = lastThirtyDays.filter((item, i) => i < 7).reverse();
-      const last14Days = lastThirtyDays.filter((item, i) => i < 14).reverse();
-      const last30Days = lastThirtyDays.filter((item, i) => i < 30).reverse();
+      const mainStatisticsTypes = [
+        UICarStatistic.StatisticType.Call,
+        UICarStatistic.StatisticType.PlanShowing,
+        UICarStatistic.StatisticType.SuccessShowing,
+      ];
+      this.setMainStatistics(
+        result.filter(item => mainStatisticsTypes.includes(item.type))
+      );
 
-      this.statisticsTab = [{
-        title: 'За 7 дней',
-        data: {
-          labels: last7Days.map(item => item.format('DD/MM')),
-            datasets: [
-                {
-                    label: 'Звонки',
-                    data: last7Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.Call, momentDate.toDate(), result)),
-                    fill: false,
-                    borderColor: '#42A5F5',
-                    tension: .4
-                }, {
-                    label: 'Запланированы показы',
-                    data: last7Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.PlanShowing, momentDate.toDate(), result)),
-                    fill: false,
-                    borderColor: '#FFA726',
-                    tension: .4
-                }, {
-                  label: 'Сделанные показы',
-                  data: last7Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.SuccessShowing, momentDate.toDate(), result)),
-                  fill: false,
-                  borderColor: '#ebedef',
-                  tension: .4
-              }
-            ]
-        },
-        options: {
-          // plugins: {
-          //     legend: {
-          //         labels: {
-          //             color: '#495057'
-          //         }
-          //     }
-          // },
-          // scales: {
-          //     x: {
-          //         ticks: {
-          //             color: '#495057'
-          //         },
-          //         grid: {
-          //             color: '#ebedef'
-          //         }
-          //     },
-          //     y: {
-          //         ticks: {
-          //             color: '#495057'
-          //         },
-          //         grid: {
-          //             color: '#ebedef'
-          //         }
-          //     }
-          // }
-        },
-      }, {
-        title: 'За 14 дней',
-        data: {
-          labels: last14Days.map(item => item.format('DD/MM')),
-            datasets: [
-                {
-                    label: 'Звонки',
-                    data: last14Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.Call, momentDate.toDate(), result)),
-                    fill: false,
-                    borderColor: '#42A5F5',
-                    tension: .4
-                }, {
-                    label: 'Запланированы показы',
-                    data: last14Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.PlanShowing, momentDate.toDate(), result)),
-                    fill: false,
-                    borderColor: '#FFA726',
-                    tension: .4
-                }, {
-                  label: 'Сделанные показы',
-                  data: last14Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.SuccessShowing, momentDate.toDate(), result)),
-                  fill: false,
-                  borderColor: '#ebedef',
-                  tension: .4
-              }
-            ]
-        },
-        options: {
-
-        },
-      }, {
-        title: 'За 30 дней',
-        data: {
-          labels: last30Days.map(item => item.format('DD/MM')),
-            datasets: [
-                {
-                    label: 'Звонки',
-                    data: last30Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.Call, momentDate.toDate(), result)),
-                    fill: false,
-                    borderColor: '#42A5F5',
-                    tension: .4
-                }, {
-                    label: 'Запланированы показы',
-                    data: last30Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.PlanShowing, momentDate.toDate(), result)),
-                    fill: false,
-                    borderColor: '#FFA726',
-                    tension: .4
-                }, {
-                  label: 'Сделанные показы',
-                  data: last30Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.SuccessShowing, momentDate.toDate(), result)),
-                  fill: false,
-                  borderColor: '#ebedef',
-                  tension: .4
-              }
-            ]
-        },
-        options: {
-
-        },
-      }]
+      this.setDiscountStatistics(
+        result.filter(item => item.type === UICarStatistic.StatisticType.Discount)
+      );
     })
   }
 
+  setDiscountStatistics(statistics: UICarStatistic.Item[]) {
+    console.log(statistics);
+    this.discountTimeLine = [
+      ...statistics.map(statistic => {
+        return {
+          text: `Цена до уценки ${(statistic.content as CarStatistic.DiscountContent).amount}, Уценка ${(statistic.content as CarStatistic.DiscountContent).discount}`, 
+          date: `${moment(new Date(+statistic.date)).format('DD/MM/YYYY HH:mm')}`
+        }
+      })
+      ,
+      // {status: 'Processing', date: '15/10/2020 14:00', icon: PrimeIcons.COG, color: '#673AB7'},
+      // {status: 'Shipped', date: '15/10/2020 16:15', icon: PrimeIcons.ENVELOPE, color: '#FF9800'},
+      // {status: 'Delivered', date: '16/10/2020 10:00', icon: PrimeIcons.CHECK, color: '#607D8B'}
+    ];
+  }
+
+  setMainStatistics(statistics: UICarStatistic.Item[]) {
+    const lastThirtyDays = [...new Array(30)].map((i, idx) => moment().startOf("day").subtract(idx, "days"));
+
+    const getCountyByType = (type: UICarStatistic.StatisticType, date: Date, statistic: UICarStatistic.Item[]): number => {
+      return statistic.filter(r => {
+        return r.type === type && r.date.getDate() === date.getDate() && date.getMonth() === r.date.getMonth()
+      }).length
+    }
+
+    const last7Days = lastThirtyDays.filter((item, i) => i < 7).reverse();
+    const last14Days = lastThirtyDays.filter((item, i) => i < 14).reverse();
+    const last30Days = lastThirtyDays.filter((item, i) => i < 30).reverse();
+
+    this.statisticsTab = [{
+      title: 'За 7 дней',
+      data: {
+        labels: last7Days.map(item => item.format('DD/MM')),
+          datasets: [
+              {
+                  label: 'Звонки',
+                  data: last7Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.Call, momentDate.toDate(), statistics)),
+                  fill: false,
+                  borderColor: '#42A5F5',
+                  tension: .4
+              }, {
+                  label: 'Запланированы показы',
+                  data: last7Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.PlanShowing, momentDate.toDate(), statistics)),
+                  fill: false,
+                  borderColor: '#FFA726',
+                  tension: .4
+              }, {
+                label: 'Сделанные показы',
+                data: last7Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.SuccessShowing, momentDate.toDate(), statistics)),
+                fill: false,
+                borderColor: '#ebedef',
+                tension: .4
+            }
+          ]
+      },
+      options: {
+
+      },
+    }, {
+      title: 'За 14 дней',
+      data: {
+        labels: last14Days.map(item => item.format('DD/MM')),
+          datasets: [
+              {
+                  label: 'Звонки',
+                  data: last14Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.Call, momentDate.toDate(), statistics)),
+                  fill: false,
+                  borderColor: '#42A5F5',
+                  tension: .4
+              }, {
+                  label: 'Запланированы показы',
+                  data: last14Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.PlanShowing, momentDate.toDate(), statistics)),
+                  fill: false,
+                  borderColor: '#FFA726',
+                  tension: .4
+              }, {
+                label: 'Сделанные показы',
+                data: last14Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.SuccessShowing, momentDate.toDate(), statistics)),
+                fill: false,
+                borderColor: '#ebedef',
+                tension: .4
+            }
+          ]
+      },
+      options: {
+
+      },
+    }, {
+      title: 'За 30 дней',
+      data: {
+        labels: last30Days.map(item => item.format('DD/MM')),
+          datasets: [
+              {
+                  label: 'Звонки',
+                  data: last30Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.Call, momentDate.toDate(), statistics)),
+                  fill: false,
+                  borderColor: '#42A5F5',
+                  tension: .4
+              }, {
+                  label: 'Запланированы показы',
+                  data: last30Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.PlanShowing, momentDate.toDate(), statistics)),
+                  fill: false,
+                  borderColor: '#FFA726',
+                  tension: .4
+              }, {
+                label: 'Сделанные показы',
+                data: last30Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.SuccessShowing, momentDate.toDate(), statistics)),
+                fill: false,
+                borderColor: '#ebedef',
+                tension: .4
+            }
+          ]
+      },
+      options: {
+
+      },
+    }]
+  }
+
   save() {
-    // if (this.selectedStatus === 'None') {
-    //   return;
-    // }
+    this.loading = true;
 
-    // this.loading = true;
+    this.carService.addCustomerCall(this.car.id).subscribe(res => {
+      this.loading = false;
 
-    // this.carService.changeCarStatus(this.carId, this.selectedStatus, this.comment).subscribe(res => {
-    //   this.loading = false;
-
-    //   if (res) {
-    //     alert('Статус изменен');
-    //     this.ref.close(true);
-    //   } else {
-    //     alert('Статус не изменен');
-    //   }
-    // }, e => {
-    //   console.error(e);
-    //   alert('Статус не изменен');
-    //   this.loading = false;
-    // })
+      if (res) {
+        alert('Звонок записан');
+        this.ref.close(true);
+      } else {
+        alert('Звонок не записан');
+      }
+    }, e => {
+      console.error(e);
+      alert('Звонок не записан');
+      this.loading = false;
+    })
     this.ref.close(false);
+  }
+
+  makeDiscount() {
+    this.loading = true;
+
+    const discount = Number(this.discount);
+
+    if (!discount) {
+      alert('Величина уценка должна быть числом');
+      return;
+    }
+
+    const amount = FieldsUtils.getFieldNumberValue(this.car, FieldNames.Car.carOwnerPrice)
+
+    if (!amount) {
+      alert('У автомобиля нет цены');
+      return;
+    }
+
+    this.carService.addCustomerDiscount(this.car.id, discount, amount).subscribe(res => {
+      this.loading = false;
+
+      if (res) {
+        alert('Уценка совершена');
+        this.fetchStatistics();
+      } else {
+        alert('Уценка не совершена');
+      }
+    }, e => {
+      console.error(e);
+      this.loading = false;
+    })
+    // this.ref.close(false);
   }
 
   cancel() {

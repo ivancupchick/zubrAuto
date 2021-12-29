@@ -11,6 +11,8 @@ export namespace Constants {
     CREATE_CARS_BY_LINK = 'createCarsByLink',
     IMAGES = 'images',
     ADD_CALL = 'addCall',
+    ADD_CUSTOMER_CALL = 'addCustomerCall',
+    ADD_CUSTOMER_DISCOUNT = 'addCustomerDiscount',
     CAR_SHOWING = 'carShowing',
   };
 }

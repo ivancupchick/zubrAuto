@@ -27,6 +27,7 @@ export namespace FieldNames {
     commission = 'commission',
     comment = 'comment',
     dateOfLastStatusChange = 'date-of-last-status-change',
+    dateOfLastCustomerCall = 'date-of-last-customer-call',
     worksheet = 'worksheet',
     bargain = 'bargain',
     adPrice = 'ad-price',

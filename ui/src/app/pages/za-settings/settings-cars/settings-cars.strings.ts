@@ -37,6 +37,7 @@ export const settingsCarsStrings = {
   photo360: 'Фото 360',
   linkToVideo: 'Ссылка на видео',
   bodyType: 'Тип кузова',
+  dateOfLastCustomerCall: 'Дата последнего звонка'
 
   // nextAction: 'Следующее действие',
 };
