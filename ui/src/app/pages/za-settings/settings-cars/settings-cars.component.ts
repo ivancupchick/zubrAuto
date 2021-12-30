@@ -29,12 +29,17 @@ type UIFilter = {
 } & (
   {
     type: FieldType.Text;
+    value: string;
+    defaultValue: string;
   } | {
     type: FieldType.Dropdown;
+    value: string;
+    defaultValue: string;
     variants?: { label: string | 'Все', value: string | 'Все' }[]
   } | {
     type: FieldType.Number;
     values: [number, number],
+    defaultValues: [number, number];
     max: number;
     min: number;
     step: number;
@@ -115,6 +120,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   loading = false;
 
+  searchText = '';
+
   @Input() type: QueryCarTypes | '' = '';
 
   @Input() isSelectCarModalMode = false;
@@ -184,8 +191,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   getCars() {
+    this.loading = true;
     return this.carService.getCars().pipe(
         tap((res => {
+          this.loading = false;
           this.rawCars = [...res];
           this.generateFilters();
           this.sortCars();
@@ -197,14 +206,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     ref.onClose
       .subscribe(res => {
         if (res || force) {
-          this.loading = true;
           // this.carService.getCars().subscribe((result) => {
           //   this.rawCars = result;
           //   this.sortCars();
           // })
-          this.getCars().subscribe(() => {
-            this.loading = false;
-          });
+          this.getCars().subscribe();
         }
       })
   }
@@ -241,8 +247,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       });
   }
 
-  sortCars(searchText = '') {
-    console.log(this.selectedStatus);
+  sortCars() {
     switch (this.type) {
       case QueryCarTypes.myCallBase:
         const availableStatuses = [
@@ -309,7 +314,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.sortedCars = this.sortedCars.filter(car => {
       const name = `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
 
-      return name.toLocaleLowerCase().indexOf(searchText.toLocaleLowerCase()) !== -1
+      return name.toLocaleLowerCase().indexOf(this.searchText.toLocaleLowerCase()) !== -1
     })
 
     this.selectedFilters.forEach(filter => {
@@ -563,19 +568,19 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '',
       icon: 'times',
       buttonClass: 'danger',
-      available: () => this.sessionService.isAdminOrHigher,
+      available: () => (this.sessionService.isAdminOrHigher) && !this.isSelectCarModalMode,
       handler: (car) => this.deleteCar(car),
     }, {
       title: '',
       icon: 'mobile',
       buttonClass: 'secondary',
-      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+      available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief) && !this.isSelectCarModalMode,
       handler: (car) => this.contactCenterCall(car),
     }, {
       title: '',
       icon: 'check',
       buttonClass: 'primary',
-      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isContactCenterChief,
+      available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isContactCenterChief) && !this.isSelectCarModalMode,
       handler: (car) => this.transformToCarShooting(car),
     }, {
       title: '',
@@ -593,25 +598,25 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '',
       icon: 'camera',
       buttonClass: 'secondary',
-      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
       handler: (car) => this.uploadMedia(car),
     }, {
       title: '',
       icon: 'caret-left',
       buttonClass: 'danger',
-      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
       handler: (car) => this.returnToContactCenter(car),
     }, {
       title: '',
       icon: 'caret-right',
       buttonClass: 'primary',
-      available: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+      available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
       handler: (car) => this.transformToCustomerService(car),
     }, {
       title: '',
       icon: 'caret-left',
       buttonClass: 'danger',
-      available: () => this.type === QueryCarTypes.shootedBase && (
+      available: () => this.type === QueryCarTypes.shootedBase && !this.isSelectCarModalMode && (
            this.sessionService.isAdminOrHigher
         || this.sessionService.isCustomerService
         || this.sessionService.isCustomerServiceChief),
@@ -620,7 +625,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '',
       icon: 'caret-right',
       buttonClass: 'primary',
-      available: () => this.type === QueryCarTypes.shootedBase && (
+      available: () => this.type === QueryCarTypes.shootedBase && !this.isSelectCarModalMode && (
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
@@ -629,7 +634,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '',
       icon: 'pause',
       buttonClass: 'primary',
-      available: () => this.type === QueryCarTypes.carsForSale && (
+      available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
@@ -638,7 +643,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '',
       icon: 'times',
       buttonClass: 'danger',
-      available: () => this.type === QueryCarTypes.carsForSale && (
+      available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
@@ -647,12 +652,14 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '',
       icon: 'mobile',
       buttonClass: 'secondary',
-      available: () => this.type === QueryCarTypes.carsForSale && (
+      available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
       handler: (car) => this.сustomerServiceCall(car),
     }];
+
+
 
     return configs.filter(config => !config.available || config.available());
   }
@@ -859,7 +866,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   onSearch(v: Event) {
     const inputTarget: HTMLInputElement = v.target as HTMLInputElement;
 
-    this.sortCars(inputTarget.value)
+    this.searchText = inputTarget?.value || '';
+
+    this.sortCars();
   }
 
   onSelectEntity(cars: ServerCar.Response[]) {
@@ -868,8 +877,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   private generateFilters() {
     const transmissionField = this.carFieldConfigs.find(config => config.name === FieldNames.Car.transmission);
+    const engineField = this.carFieldConfigs.find(config => config.name === FieldNames.Car.engine);
+    const driveTypeField = this.carFieldConfigs.find(config => config.name === FieldNames.Car.driveType);
 
-    if (!transmissionField) {
+    if (!transmissionField || !engineField || !driveTypeField) {
       console.log('Поля не найдены в carFieldConfigs')
       return;
     }
@@ -882,40 +893,105 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }
 
     this.filters = [{
-      title: this.strings.transmission,
-      name: FieldNames.Car.transmission,
-      type: FieldType.Dropdown,
-      variants: [{
-          label: 'Коробка передач', value: 'Все'
-        },
-        ...createVariants(transmissionField)
-      ]
-    }, {
-      title: this.strings.bodyType,
-      name: FieldNames.Car.bodyType,
-      type: FieldType.Text
-    }, {
       title: this.strings.mileage,
       name: FieldNames.Car.mileage,
       type: FieldType.Number,
       values: [0, 300000],
+      defaultValues: [0, 300000],
       max: 300000,
       min: 0,
       step: 10000,
-    }, ];
+    }, {
+      title: this.strings.transmission,
+      name: FieldNames.Car.transmission,
+      type: FieldType.Dropdown,
+      value: 'Все',
+      defaultValue: 'Все',
+      variants: [{
+          label: 'Все', value: 'Все'
+        },
+        ...createVariants(transmissionField)
+      ]
+    }, {
+      title: this.strings.color,
+      name: FieldNames.Car.color,
+      type: FieldType.Text,
+      value: '',
+      defaultValue: '',
+    }, {
+      title: this.strings.engineCapacity,
+      name: FieldNames.Car.engineCapacity,
+      type: FieldType.Number,
+      values: [1.0, 5.0],
+      defaultValues: [1.0, 5.0],
+      max: 5.0,
+      min: 1.0,
+      step: 0.1,
+    }, {
+      title: this.strings.driveType,
+      name: FieldNames.Car.driveType,
+      type: FieldType.Dropdown,
+      value: 'Все',
+      defaultValue: 'Все',
+      variants: [{
+          label: 'Все', value: 'Все'
+        },
+        ...createVariants(driveTypeField)
+      ]
+    }, {
+      title: this.strings.bodyType,
+      name: FieldNames.Car.bodyType,
+      type: FieldType.Text,
+      value: '',
+      defaultValue: '',
+    }, {
+      title: this.strings.year,
+      name: FieldNames.Car.year,
+      type: FieldType.Number,
+      values: [1990, (new Date()).getFullYear()],
+      defaultValues:  [1990, (new Date()).getFullYear()],
+      max: (new Date()).getFullYear(),
+      min: 1990,
+      step: 1,
+    }, {
+      title: this.strings.engine,
+      name: FieldNames.Car.engine,
+      type: FieldType.Dropdown,
+      value: 'Все',
+      defaultValue: 'Все',
+      variants: [{
+          label: 'Все', value: 'Все'
+        },
+        ...createVariants(engineField)
+      ]
+    }, {
+      title: this.strings.carOwnerPrice,
+      name: FieldNames.Car.carOwnerPrice,
+      type: FieldType.Number,
+      values: [5000, 50000],
+      defaultValues:  [5000, 50000],
+      max: 50000,
+      min: 5000,
+      step: 500,
+    } ];
   }
 
-  changeFilter(fieldName: string, e: { originalEvent: PointerEvent | Event, value: string }) {
-    console.log(e);
+  changeFilter(filterConfig: UIFilter, e: { originalEvent: PointerEvent | Event, value: string }) {
+    const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
 
-    const index = this.selectedFilters.findIndex(filter => filter.name === fieldName);
-
+    if (filterConfig.type === this.FieldTypes.Number) {
+      return;
+    }
 
     if (index !== -1) {
-      this.selectedFilters[index].value = JSON.stringify(e.value);
-    } else {
+      if (filterConfig.defaultValue === e.value) {
+        this.selectedFilters.splice(index, 1);
+      } else {
+        this.selectedFilters[index].value = JSON.stringify(e.value);
+      }
+    } else if (filterConfig.defaultValue !== e.value) {
       this.selectedFilters.push({
-        name: fieldName,
+        name: filterConfig.name,
         value: JSON.stringify(e.value),
       })
     }
@@ -923,22 +999,32 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.sortCars();
   }
 
-  changeNumberRangeFilter(fieldName: string, e: { values: [number, number] }) {
-    console.log(e);
+  changeNumberRangeFilter(filterConfig: UIFilter, e: { values: [number, number] }) {
+    const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
 
-    const index = this.selectedFilters.findIndex(filter => filter.name === fieldName);
-    const filterConfig = this.filters.find(f => f.name === fieldName);
+    if (filterConfig.type !== this.FieldTypes.Number) {
+      return;
+    }
+
     let value = e.values;
 
     if (filterConfig?.type === this.FieldTypes.Number && value[1] === filterConfig.max) {
       value = [e.values[0], 99999999999]
     }
 
+    if (filterConfig?.type === this.FieldTypes.Number && value[0] === filterConfig.min) {
+      value = [-9999999, value[1]]
+    }
+
     if (index !== -1) {
-      this.selectedFilters[index].value = JSON.stringify(value);
-    } else {
+      if (filterConfig.defaultValues[0] === e.values[0] && filterConfig.defaultValues[1] === e.values[1]) {
+        this.selectedFilters.splice(index, 1);
+      } else {
+        this.selectedFilters[index].value = JSON.stringify(value);
+      }
+    } else if (!(filterConfig.defaultValues[0] === e.values[0] && filterConfig.defaultValues[1] === e.values[1])) {
       this.selectedFilters.push({
-        name: fieldName,
+        name: filterConfig.name,
         value: JSON.stringify(value),
       })
     }

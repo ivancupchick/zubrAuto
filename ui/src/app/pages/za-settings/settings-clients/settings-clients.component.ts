@@ -112,7 +112,7 @@ export class SettingsClientsComponent implements OnInit {
       available: () => this.sessionService.isAdminOrHigher
     }, {
       title: '',
-      icon: 'pen',
+      icon: 'list',
       buttonClass: 'success',
       handler: (client) => this.checkShowing(client)
     },

@@ -4,3 +4,23 @@
     justify-content: space-around;
   }
 }
+
+:host {
+  .container {
+    padding: 0;
+  }
+
+  .footer {
+    border-top: 0;
+    text-align: right;
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .footer button {
+    margin: 0 .5rem 0 0;
+    width: auto;
+  }
+}
