@@ -30,6 +30,8 @@ import {FileUploadModule} from 'primeng/fileupload';
 import {ChartModule} from 'primeng/chart';
 import {TimelineModule} from 'primeng/timeline';
 import {SliderModule} from 'primeng/slider';
+import {MultiSelectModule} from 'primeng/multiselect';
+import {OverlayPanelModule} from 'primeng/overlaypanel';
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
 import { SettingsFieldsComponent } from './settings-fields/settings-fields.component';
@@ -181,6 +183,8 @@ const routes: Routes = [{
     ChartModule,
     TimelineModule,
     SliderModule,
+    MultiSelectModule,
+    OverlayPanelModule,
     ModalsAuthModule,
     DynamicFormModule
   ],

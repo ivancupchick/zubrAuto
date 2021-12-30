@@ -131,8 +131,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   contactCenterUsers: ServerUser.Response[] = [];
   carShootingUsers: ServerUser.Response[] = [];
 
-  availableStatuses: { label: FieldNames.CarStatus | 'Все', value: FieldNames.CarStatus | 'Все' }[] = [];
-  selectedStatus: FieldNames.CarStatus | 'Все' | null = 'Все';
+  availableStatuses: { label: FieldNames.CarStatus, value: FieldNames.CarStatus }[] = [];
+  selectedStatus: (FieldNames.CarStatus)[] = [];
 
   readonly strings = settingsCarsStrings;
 
@@ -242,6 +242,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   sortCars(searchText = '') {
+    console.log(this.selectedStatus);
     switch (this.type) {
       case QueryCarTypes.myCallBase:
         const availableStatuses = [
@@ -252,14 +253,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_NoAnswer,
         ];
         this.availableStatuses = [
-          {
-            label: 'Все', value: 'Все'
-          },
           ...availableStatuses.map(s => ({ label: s, value: s }))
         ];
         this.sortedCars = this.rawCars
           .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
-                       getCarStatus(c) === this.selectedStatus || 'Все' === this.selectedStatus
+                        this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0
           ));
         break;
       case QueryCarTypes.allCallBase:
@@ -270,13 +268,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_MakingDecision,
           FieldNames.CarStatus.contactCenter_NoAnswer,
         ];
-        this.availableStatuses = [{
-          label: 'Все', value: 'Все'
-        },
+        this.availableStatuses = [
           ...availableStatuses2.map(s => ({ label: s, value: s }))]
 
         this.sortedCars = this.rawCars // FIX THIS
-          .filter(c => getCarStatus(c) === this.selectedStatus  || 'Все' === this.selectedStatus);
+          .filter(c => this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0);
         break;
       case QueryCarTypes.myShootingBase:
         this.sortedCars = this.rawCars
