@@ -29,47 +29,53 @@
       ></p-multiSelect>
     </div>
 
-
-
-    <div *ngFor="let filter of filters" style="display: flex; flex-direction: column; align-items: flex-start;">
-      <ng-container *ngIf="filter.type === FieldTypes.Dropdown">
-        <!-- <span style="color: white; margin-bottom: 2px;">{{filter.title}}</span> -->
-        <p-dropdown
-          appendTo="body"
-          [autoDisplayFirst]="true"
-          [options]="filter.variants || []"
-          (onChange)="changeFilter(filter.name, $event)"
-          optionLabel="label"
-          optionValue="value"
-        ></p-dropdown>
-      </ng-container>
-
-      <ng-container *ngIf="filter.type === FieldTypes.Text">
-        <!-- <span style="color: white; margin-bottom: 2px;">{{filter.title}}</span> -->
-
-        <input type="text" (change)="changeFilter(filter.name, transformFormInputEvent($event))" pInputText [placeholder]="filter.title"/>
-      </ng-container>
-
-      <ng-container *ngIf="filter.type === FieldTypes.Number">
-        <span style="color: white; margin-bottom: 10px;">{{filter.title}} {{(filter.values[0] === filter.min ? 'Все' : filter.values[0]) + ' - ' + (filter.values[1] === filter.max ? 'Все' : filter.values[1])}}</span>
-        <p-slider
-          [min]="filter.min" [max]="filter.max"
-          [(ngModel)]="filter.values"
-          [step]="filter.step"
-          [range]="true"
-          (onChange)="changeNumberRangeFilter(filter.name, $event)"
-        ></p-slider>
-      </ng-container>
-    </div>
-
     <!-- <i class="pi pi-bars"></i> -->
   </div>
 
-  <!-- <div class="p-toolbar-group-right">
-    <p-button icon="pi pi-search"></p-button>
+  <div class="p-toolbar-group-right">
+    <!-- <p-button icon="pi pi-search"></p-button>
     <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
-    <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button>
-  </div> -->
+    <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button> -->
+
+    <p-button [label]="selectedFilters.length > 0 ? selectedFilters.length + ' фильтров выбрано' : 'Фильтры'" icon="pi pi-filter" (click)="op.toggle($event)"></p-button>
+    <p-overlayPanel #op [showCloseIcon]="true" [style]="{width: '550px', padding: '10px'}">
+      <ng-template pTemplate>
+        <div class="p-fluid grid formgrid">
+          <div *ngFor="let filter of filters" class="p-field col-4" style="display: flex; flex-direction: column; align-items: flex-start; padding: 10px">
+            <ng-container *ngIf="filter.type === FieldTypes.Dropdown">
+              <span style="color: white; margin-bottom: 2px;">{{filter.title}}</span>
+              <p-dropdown
+                appendTo="body"
+                [autoDisplayFirst]="true"
+                [options]="filter.variants || []"
+                [(ngModel)]="filter.value"
+                (onChange)="changeFilter(filter, $event)"
+                optionLabel="label"
+                optionValue="value"
+              ></p-dropdown>
+            </ng-container>
+
+            <ng-container *ngIf="filter.type === FieldTypes.Text">
+              <span style="color: white; margin-bottom: 2px;">{{filter.title}}</span>
+
+              <input type="text"  [(ngModel)]="filter.value" (change)="changeFilter(filter, transformFormInputEvent($event))" pInputText [placeholder]="'Все'"/>
+            </ng-container>
+
+            <ng-container *ngIf="filter.type === FieldTypes.Number">
+              <span style="color: white; margin-bottom: 10px;">{{filter.title}} {{(filter.values[0] === filter.min ? 'Все' : filter.values[0]) + ' - ' + (filter.values[1] === filter.max ? 'Все' : filter.values[1])}}</span>
+              <p-slider
+                [min]="filter.min" [max]="filter.max"
+                [(ngModel)]="filter.values"
+                [step]="filter.step"
+                [range]="true"
+                (onChange)="changeNumberRangeFilter(filter, $event)"
+              ></p-slider>
+            </ng-container>
+          </div>
+        </div>
+      </ng-template>
+    </p-overlayPanel>
+  </div>
 </p-toolbar>
 <p></p>
 <za-grid [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" [selected]="selected" (onSelectEntity)="onSelectEntity($event)"></za-grid>
