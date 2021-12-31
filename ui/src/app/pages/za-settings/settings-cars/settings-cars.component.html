@@ -43,7 +43,7 @@
         <div class="p-fluid grid formgrid">
           <div *ngFor="let filter of filters" class="p-field col-4" style="display: flex; flex-direction: column; align-items: flex-start; padding: 10px">
             <ng-container *ngIf="filter.type === FieldTypes.Dropdown">
-              <span style="color: white; margin-bottom: 2px;">{{filter.title}}</span>
+              <span style="margin-bottom: 2px;">{{filter.title}}</span>
               <p-dropdown
                 appendTo="body"
                 [autoDisplayFirst]="true"
@@ -56,13 +56,13 @@
             </ng-container>
 
             <ng-container *ngIf="filter.type === FieldTypes.Text">
-              <span style="color: white; margin-bottom: 2px;">{{filter.title}}</span>
+              <span style="margin-bottom: 2px;">{{filter.title}}</span>
 
               <input type="text"  [(ngModel)]="filter.value" (change)="changeFilter(filter, transformFormInputEvent($event))" pInputText [placeholder]="'Все'"/>
             </ng-container>
 
             <ng-container *ngIf="filter.type === FieldTypes.Number">
-              <span style="color: white; margin-bottom: 10px;">{{filter.title}} {{(filter.values[0] === filter.min ? 'Все' : filter.values[0]) + ' - ' + (filter.values[1] === filter.max ? 'Все' : filter.values[1])}}</span>
+              <span style="margin-bottom: 10px;">{{filter.title}} {{(filter.values[0] === filter.min ? 'Все' : filter.values[0]) + ' - ' + (filter.values[1] === filter.max ? 'Все' : filter.values[1])}}</span>
               <p-slider
                 [min]="filter.min" [max]="filter.max"
                 [(ngModel)]="filter.values"
