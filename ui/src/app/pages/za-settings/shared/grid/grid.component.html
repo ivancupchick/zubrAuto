@@ -24,7 +24,7 @@
         </th>
       </ng-container>
 
-      <th></th>
+      <!-- <th></th> -->
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-gridItem>
@@ -35,7 +35,7 @@
       <td *ngFor="let config of gridConfig">
         {{ config.getValue(gridItem) }}
       </td>
-      <td class="buttons">
+      <!-- <td class="buttons">
         <button
           *ngFor="let actionConfig of actions"
           type="button"
@@ -46,9 +46,9 @@
           class="p-button-{{actionConfig.buttonClass}}"
           (click)="actionConfig.handler(gridItem)"
         >
-          <!-- {{ actionConfig?.title }} -->
+          {{ actionConfig?.title }}
         </button>
-      </td>
+      </td> -->
     </tr>
   </ng-template>
   <!-- <ng-template pTemplate="paginatorleft">

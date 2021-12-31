@@ -9,5 +9,15 @@ p-menubar {
     .p-menuitem {
       white-space: nowrap;
     }
+
+    .p-menubar-end {
+      display: flex;
+      align-items: center;
+
+
+      & > * +  * {
+        margin-left: 5px;
+      }
+    }
   }
 }
