@@ -155,8 +155,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
       : QueryCarTypes.carsForSale;
 
-    console.log(this.type);
-
     this.route.queryParams
       .pipe(
         takeUntil(this.destroyed)
@@ -243,7 +241,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   deleteCar(car: ServerCar.Response) {
     this.carService.deleteCar(car.id)
       .subscribe(res => {
-        console.log(res);
       });
   }
 
@@ -554,7 +551,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   private getGridActionsConfig(): GridActionConfigItem<ServerCar.Response>[] {
     const configs: GridActionConfigItem<ServerCar.Response>[] = [{
-      title: '',
+      title: 'Редактировать',
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: () => this.carFieldConfigs.length === 0,
@@ -565,25 +562,25 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                     || this.sessionService.isCustomerServiceChief,
       handler: (car) => this.updateCar(car),
     }, {
-      title: '',
+      title: 'Удалить',
       icon: 'times',
       buttonClass: 'danger',
       available: () => (this.sessionService.isAdminOrHigher) && !this.isSelectCarModalMode,
       handler: (car) => this.deleteCar(car),
     }, {
-      title: '',
+      title: '[ОКЦ]Звонок',
       icon: 'mobile',
       buttonClass: 'secondary',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief) && !this.isSelectCarModalMode,
       handler: (car) => this.contactCenterCall(car),
     }, {
-      title: '',
+      title: 'Передать в ОСА',
       icon: 'check',
       buttonClass: 'primary',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isContactCenterChief) && !this.isSelectCarModalMode,
       handler: (car) => this.transformToCarShooting(car),
     }, {
-      title: '',
+      title: 'Анкета',
       icon: 'id-card',
       buttonClass: 'secondary',
       available: () => this.sessionService.isAdminOrHigher
@@ -595,25 +592,25 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                     || this.sessionService.isCustomerServiceChief,
       handler: (car) => this.createOrEditCarForm(car),
     }, {
-      title: '',
+      title: 'Загрузить/Редактировать Медиа',
       icon: 'camera',
       buttonClass: 'secondary',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
       handler: (car) => this.uploadMedia(car),
     }, {
-      title: '',
+      title: 'Вернуть в ОКЦ',
       icon: 'caret-left',
       buttonClass: 'danger',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
       handler: (car) => this.returnToContactCenter(car),
     }, {
-      title: '',
+      title: 'Передать в ОРК',
       icon: 'caret-right',
       buttonClass: 'primary',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
       handler: (car) => this.transformToCustomerService(car),
     }, {
-      title: '',
+      title: 'Вернуть в ОСА',
       icon: 'caret-left',
       buttonClass: 'danger',
       available: () => this.type === QueryCarTypes.shootedBase && !this.isSelectCarModalMode && (
@@ -622,7 +619,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         || this.sessionService.isCustomerServiceChief),
       handler: (car) => this.returnToShootingCar(car),
     }, {
-      title: '',
+      title: 'Подтвердить правильность',
       icon: 'caret-right',
       buttonClass: 'primary',
       available: () => this.type === QueryCarTypes.shootedBase && !this.isSelectCarModalMode && (
@@ -631,7 +628,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
        || this.sessionService.isCustomerServiceChief),
       handler: (car) => this.transformToCustomerServiceAprooved(car),
     }, {
-      title: '',
+      title: 'Поставить на паузу',
       icon: 'pause',
       buttonClass: 'primary',
       available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
@@ -640,7 +637,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
        || this.sessionService.isCustomerServiceChief),
       handler: (car) => this.transformToCustomerServicePause(car),
     }, {
-      title: '',
+      title: 'Поставить на удаление',
       icon: 'times',
       buttonClass: 'danger',
       available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
@@ -649,7 +646,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
        || this.sessionService.isCustomerServiceChief),
       handler: (car) => this.transformToCustomerServiceDelete(car),
     }, {
-      title: '',
+      title: '[ОРК] Звонок',
       icon: 'mobile',
       buttonClass: 'secondary',
       available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (

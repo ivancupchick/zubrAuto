@@ -48,8 +48,6 @@ export class CustomerServiceCallComponent implements OnInit {
 
   fetchStatistics() {
     this.carService.getAllCarStatistic(this.car.id).subscribe(result => {
-      console.log(result);
-
       this.allStatistics = result;
 
       const mainStatisticsTypes = [
@@ -68,11 +66,10 @@ export class CustomerServiceCallComponent implements OnInit {
   }
 
   setDiscountStatistics(statistics: UICarStatistic.Item[]) {
-    console.log(statistics);
     this.discountTimeLine = [
       ...statistics.map(statistic => {
         return {
-          text: `Цена до уценки ${(statistic.content as CarStatistic.DiscountContent).amount}, Уценка ${(statistic.content as CarStatistic.DiscountContent).discount}`, 
+          text: `Цена до уценки ${(statistic.content as CarStatistic.DiscountContent).amount}, Уценка ${(statistic.content as CarStatistic.DiscountContent).discount}`,
           date: `${moment(new Date(+statistic.date)).format('DD/MM/YYYY HH:mm')}`
         }
       })

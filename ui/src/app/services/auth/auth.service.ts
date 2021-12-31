@@ -21,7 +21,6 @@ export class AuthService {
   registration(email: string, password: string) {
     return this.requestService.post<ServerAuth.AuthGetResponse>(`${environment.serverUrl}/${API}/${'registration'}`, { email, password })
       .pipe(map(res => {
-        console.log(res);
         return res;
       }))
   }
@@ -29,7 +28,6 @@ export class AuthService {
   logout() {
     return this.requestService.post<boolean>(`${environment.serverUrl}/${API}/${'logout'}`, {})
       .pipe(map(res => {
-        console.log(res);
         return res;
       }))
   }
@@ -38,7 +36,6 @@ export class AuthService {
     return this.requestService.get<ServerAuth.AuthGetResponse>(`${environment.serverUrl}/${API}/${'refresh'}`)
       .pipe(
         map(res => {
-          console.log(res);
           return res;
         })
       )

@@ -105,7 +105,6 @@ export class UploadCarMediaComponent implements OnInit {
   }
 
   getImageUrl(image: CarImage.Response) {
-    console.log(image.url);
     return `${image.url}`;
   }
 
@@ -115,7 +114,6 @@ export class UploadCarMediaComponent implements OnInit {
     }
 
     this.carService.uploadCarImages(this.car.id, this.uplo, '').subscribe(res => {
-      console.log(res);
       this.uploadCarImages();
     })
   }

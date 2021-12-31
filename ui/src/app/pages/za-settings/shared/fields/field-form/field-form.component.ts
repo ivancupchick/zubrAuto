@@ -57,8 +57,6 @@ export class FieldFormComponent implements OnInit {
   ngOnInit(): void {
     this.loading = true;
 
-    console.log(FlagField.Is(this.field || 0, FlagField.Flags.System));
-
     this.formGroup = this.fb.group({
       name: [ this.field ? this.field.name : '', Validators.required],
       type: [ this.field ? this.field.type : FieldType.Text, Validators.required],

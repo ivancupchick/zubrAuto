@@ -59,8 +59,6 @@ export class CreateRoleComponent implements OnInit {
   create() {
     this.loading = true;
 
-    console.log(this.dynamicForm.getValue());
-
     const fields = this.dynamicForm.getValue();
 
     const systemName = fields.find(f => f.name === 'systemName')?.value || '';

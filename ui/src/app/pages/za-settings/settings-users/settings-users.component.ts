@@ -11,6 +11,7 @@ import { CreateUserComponent } from '../modals/create-user/create-user.component
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsUsersStrings } from './settings-users.strings';
 import { FieldNames } from '../../../../../../src/entities/FieldNames';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'za-settings-users',
@@ -25,18 +26,20 @@ import { FieldNames } from '../../../../../../src/entities/FieldNames';
 export class SettingsUsersComponent implements OnInit {
   readonly strings = settingsUsersStrings;
 
+  loading = false;
+
   sortedUsers: ServerUser.Response[] = [];
   rawUsers: ServerUser.Response[] = [];
 
   gridConfig!: GridConfigItem<ServerUser.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerUser.Response>[] = [{
-    title: '',
+    title: 'Редактировать',
     icon: 'pencil',
     buttonClass: 'secondary',
     disabled: () => this.fieldConfigs.length === 0,
     handler: (user) => this.updateUser(user)
   }, {
-    title: '',
+    title: 'Удалить',
     icon: 'times',
     buttonClass: 'danger',
     handler: (user) => this.deleteUser(user)
@@ -56,10 +59,7 @@ export class SettingsUsersComponent implements OnInit {
         this.roles = roles;
       })
 
-    this.userService.getUsers().subscribe((result) => {
-      this.rawUsers = result;
-      this.sortUsers();
-    })
+    this.getUsers().subscribe();
 
     this.gridConfig = [{
       title: 'id',
@@ -94,17 +94,36 @@ export class SettingsUsersComponent implements OnInit {
       header: 'Редактировать пользователя',
       width: '70%'
     });
+
+    ref.onClose.subscribe(res => {
+      if (res) {
+        this.getUsers().subscribe();
+      }
+    })
   }
 
   deleteUser(user: ServerUser.Response) {
     this.userService.deleteUser(user.id)
       .subscribe(res => {
-        console.log(res);
+        if (res) {
+          this.getUsers().subscribe();
+        }
       });
   }
 
   private sortUsers() {
     this.sortedUsers = this.rawUsers;
+  }
+
+  private getUsers() {
+    this.loading = true;
+    return this.userService.getUsers().pipe(
+      tap((result) => {
+        this.loading = false;
+        this.rawUsers = result;
+        this.sortUsers();
+      })
+    )
   }
 
   openNewUserWindow() {
@@ -116,6 +135,12 @@ export class SettingsUsersComponent implements OnInit {
       header: 'Новый пользователь',
       width: '70%'
     });
+
+    ref.onClose.subscribe(res => {
+      if (res) {
+        this.getUsers().subscribe();
+      }
+    })
   }
 
   getRoleName(roleLevel: number): string {

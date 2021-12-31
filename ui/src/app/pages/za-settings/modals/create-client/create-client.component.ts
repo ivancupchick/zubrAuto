@@ -215,7 +215,6 @@ export class CreateClientComponent implements OnInit {
       field.label = settingsClientsStrings[field.key];
     }
 
-    console.log(field.key);
 
     switch (field.key) {
       case FieldNames.Client.paymentType:
@@ -233,7 +232,6 @@ export class CreateClientComponent implements OnInit {
   }
 
   openEditCars() {
-    console.log(this.selectedRealCars);
     const ref = this.dialogService.open(SelectCarComponent, {
       data: {
         cars: this.selectedCars,
@@ -247,8 +245,7 @@ export class CreateClientComponent implements OnInit {
         // const deleteCars = this.originalCarChips.filter(oc => !res.find(r => r.id === oc.id));
 
         const cars = [...res];
-        console.log(this.allCars);
-        console.log(this.selectedRealCars);
+
         this.selectedRealCars = this.allCars.filter(ac => !!res.find(r => r.id === ac.id))
 
         this.setCarsToForm(cars);
@@ -257,8 +254,6 @@ export class CreateClientComponent implements OnInit {
   }
 
   setCarsToForm(cars: CarChip[]) {
-    console.log(cars);
     this.selectedCars = cars;
-    console.log(this.selectedCars);
   }
 }

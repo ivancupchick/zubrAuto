@@ -20,12 +20,12 @@ export class SettingsRolesComponent implements OnInit {
 
   gridConfig!: GridConfigItem<ServerRole.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerRole.Response>[] = [{
-    title: '',
+    title: 'Редактировать',
     icon: 'pencil',
     buttonClass: 'secondary',
     handler: (role) => this.updateRole(role)
   }, {
-    title: '',
+    title: 'Удалить',
     icon: 'times',
     buttonClass: 'danger',
     handler: (role) => this.deleteRole(role)
@@ -96,7 +96,6 @@ export class SettingsRolesComponent implements OnInit {
   deleteRole(role: ServerRole.Response) {
     this.roleService.deleteRole(role.id)
       .subscribe(res => {
-        console.log(res);
       });
   }
 

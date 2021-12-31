@@ -50,7 +50,6 @@ export class ManageCarShowingComponent implements OnInit {
       this.cars = clientCars;
 
       // `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
-      console.log(this.carIds);
 
       zip(...this.carIds.map(id => this.carService.getShowingCarStatistic(id)))
         .subscribe(statistics => {
@@ -62,7 +61,7 @@ export class ManageCarShowingComponent implements OnInit {
             if (!car) {
               return;
             }
-            
+
             const statistics: (CarStatistic.CarShowingResponse & { content: CarStatistic.ShowingContent })[] = carStatistics.filter(statistic => statistic.type === CarStatistic.Type.showing) as any;
 
             statistics.forEach(statistic => {
@@ -124,7 +123,7 @@ export class ManageCarShowingComponent implements OnInit {
 
   getGridActionsConfig(): GridActionConfigItem<UICarShowingStatistic>[] {
     const configs: GridActionConfigItem<UICarShowingStatistic>[] = [{
-      title: '',
+      title: 'Редактировать',
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: () => false,

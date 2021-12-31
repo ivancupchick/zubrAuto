@@ -53,7 +53,7 @@ export class SelectAccessComponent implements OnInit {
 
   gridData: GridItemType[] = [];
   gridActions: GridActionConfigItem<GridItemType>[] = [{
-    title: '',
+    title: 'Удалить',
     icon: 'times',
     buttonClass: 'danger',
     // disabled: () => this.carFieldConfigs.length === 0,
