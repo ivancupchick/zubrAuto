@@ -1,18 +1,18 @@
 <p-contextMenu #cm appendTo="body" [model]="contextActions"></p-contextMenu>
 
 <p-table responsiveLayout="scroll"
-  [(selection)]="selectedKeys"
+  [(selection)]="selectedKeys" (selectionChange)="onSelect($event)"
   [(contextMenuSelection)]="contextSelectedItem" [contextMenu]="cm"
   dataKey="id"
-  styleClass="p-datatable-sm p-datatable-gridlines"
+  styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
   [value]="gridData"
-  (selectionChange)="onSelect($event)"
   (sortFunction)="customSort($event)"
   [customSort]="true"
+  [selectionMode]="checkboxMode ? 'multiple' : 'single'"
 >
   <ng-template pTemplate="header">
     <tr>
-      <th style="width: 3rem">
+      <th *ngIf="checkboxMode" style="width: 3rem">
         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
       </th>
       <ng-container *ngFor="let config of gridConfig">
@@ -28,8 +28,8 @@
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-gridItem>
-    <tr [pContextMenuRow]="gridItem">
-      <td>
+    <tr [pContextMenuRow]="gridItem" [pSelectableRow]="gridItem">
+      <td *ngIf="checkboxMode">
         <p-tableCheckbox [value]="gridItem"></p-tableCheckbox>
       </td>
       <td *ngFor="let config of gridConfig">

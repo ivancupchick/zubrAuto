@@ -29,6 +29,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() gridData!: GridItemType[];
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
+  @Input() checkboxMode = false;
 
   contextSelectedItem!: GridItemType;
   contextActions: MenuItem[] = []
