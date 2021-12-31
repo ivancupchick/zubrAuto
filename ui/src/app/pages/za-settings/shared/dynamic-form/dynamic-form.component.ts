@@ -41,7 +41,6 @@ export class DynamicFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.formGroup = this.dfcs.toFormGroup(this.fields);
-    console.log(this.fields);
 
     // this.formGroup = this.fb.group(
     //   this.dataConfig.reduce<FormGroupCreationObj>((prevValue, curValue) => {

@@ -153,7 +153,6 @@ export class CreateCarComponent implements OnInit {
 
     this.carOwnerDynamicFormFields = carOwnerFormFields;
     this.carDynamicFormFields = carFormFields;
-    console.log(carFormFields);
   }
 
   create() {

@@ -1,10 +1,13 @@
+<p-contextMenu #cm appendTo="body" [model]="contextActions"></p-contextMenu>
+
 <p-table responsiveLayout="scroll"
   [(selection)]="selectedKeys"
+  [(contextMenuSelection)]="contextSelectedItem" [contextMenu]="cm"
   dataKey="id"
   styleClass="p-datatable-sm p-datatable-gridlines"
   [value]="gridData"
   (selectionChange)="onSelect($event)"
-  (sortFunction)="customSort($event)" 
+  (sortFunction)="customSort($event)"
   [customSort]="true"
 >
   <ng-template pTemplate="header">
@@ -20,12 +23,12 @@
           {{ config.title }}
         </th>
       </ng-container>
-      
+
       <th></th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-gridItem>
-    <tr>
+    <tr [pContextMenuRow]="gridItem">
       <td>
         <p-tableCheckbox [value]="gridItem"></p-tableCheckbox>
       </td>
@@ -43,7 +46,7 @@
           class="p-button-{{actionConfig.buttonClass}}"
           (click)="actionConfig.handler(gridItem)"
         >
-          {{ actionConfig?.title }}
+          <!-- {{ actionConfig?.title }} -->
         </button>
       </td>
     </tr>

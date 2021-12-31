@@ -98,23 +98,23 @@ export class SettingsClientsComponent implements OnInit {
 
   getGridActionsConfig(): GridActionConfigItem<ServerClient.Response>[] {
     const configs: GridActionConfigItem<ServerClient.Response>[] = [{
-      title: '',
+      title: 'Редактировать',
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: () => this.fieldConfigs.length === 0,
       handler: (client) => this.updateClient(client)
     }, {
-      title: '',
+      title: 'Удалить',
       icon: 'times',
       buttonClass: 'danger',
       handler: (client) => this.deleteClient(client),
-      disabled: () => true,
+      disabled: () => !this.sessionService.isAdminOrHigher,
       available: () => this.sessionService.isAdminOrHigher
     }, {
-      title: '',
+      title: 'Показы',
       icon: 'list',
       buttonClass: 'success',
-      handler: (client) => this.checkShowing(client)
+      handler: (client) => this.manageCarShowings(client)
     },
     ];
 
@@ -135,7 +135,6 @@ export class SettingsClientsComponent implements OnInit {
   deleteClient(client: ServerClient.Response) {
     this.clientService.deleteClient(client.id)
       .subscribe(res => {
-        console.log(res);
       });
   }
 
@@ -172,7 +171,7 @@ export class SettingsClientsComponent implements OnInit {
   //   this.subscribeOnCloseModalRef(ref);
   // }
 
-  checkShowing(client: ServerClient.Response) {
+  manageCarShowings(client: ServerClient.Response) {
     const ref = this.dialogService.open(ManageCarShowingComponent, {
       data: {
         clientId: client.id,

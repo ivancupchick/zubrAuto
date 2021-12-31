@@ -60,31 +60,9 @@ export class TransformToCarShooting implements OnInit {
         ];
         this.loading = false;
       }, () => { this.loading = false; })
-
-    // const availableStatuses = [
-    //   FieldNames.CarStatus.contactCenter_MakingDecision,
-    //   FieldNames.CarStatus.contactCenter_NoAnswer,
-    //   FieldNames.CarStatus.contactCenter_WaitingShooting,
-    //   FieldNames.CarStatus.contactCenter_InProgress
-    // ]
-
-    // this.statuses = [
-    //   { value: 'Никто', key: 'None' },
-    //   ...availableStatuses
-    //     .map(carStatus => ({ value: carStatus, key: carStatus }))
-    // ];
   }
 
-  // onInput(v: any) {
-  //   console.log(+v);
-  //   console.log(+this.shootingDate)
-  // }
-
   create() {
-    // if (this.selectedStatus === 'None') {
-    //   return;
-    // }
-
     this.loading = true;
 
     this.carService.transformToCarShooting(this.carId, +this.shootingDate, +this.selectedCarShootingUser, this.comment).subscribe(res => {

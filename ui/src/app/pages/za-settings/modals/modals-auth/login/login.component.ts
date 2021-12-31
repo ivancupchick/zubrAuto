@@ -66,7 +66,6 @@ export class LoginComponent implements OnInit {
     this.loading = true;
 
     const fields = this.dynamicForm.getValue();
-    console.log(this.dynamicForm.getValue());
     const email = fields.find(f => f.name === 'email')?.value || '';
     const password = fields.find(f => f.name === 'password')?.value || '';
 

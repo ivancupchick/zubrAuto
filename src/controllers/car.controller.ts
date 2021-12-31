@@ -142,7 +142,6 @@ class CarController {
         ? ((req as any).files as any).file[0]
         : ((req as any).files as any).file;
       const metadata = req.body.metadata || '';
-      console.log(file);
 
       const result = await carImageService.uploadCarImage(id, file, metadata);
 

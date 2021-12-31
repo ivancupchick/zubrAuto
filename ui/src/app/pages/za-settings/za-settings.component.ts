@@ -19,8 +19,6 @@ export class ZASettingsComponent implements OnInit {
 
   }
 
-  ngOnInit(): void {
-    console.log(this.user);
-  }
+  ngOnInit(): void {}
 
 }

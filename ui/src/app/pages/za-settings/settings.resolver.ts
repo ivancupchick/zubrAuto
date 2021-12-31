@@ -22,7 +22,8 @@ export class SettingsResolver implements Resolve<ServerAuth.IPayload | null> {
         return null;
       }),
       catchError((err: any, c) => {
-        console.log(err);
+        // TODO: Add notification of server errors
+
         return of(null);
       })
     );

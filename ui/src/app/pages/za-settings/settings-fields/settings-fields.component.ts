@@ -112,7 +112,6 @@ export class SettingsFieldsComponent implements OnInit {
   }
 
   onChangeDomain(v: any) {
-    console.log(v);
     this.sortFields();
   }
 

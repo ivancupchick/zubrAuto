@@ -51,6 +51,7 @@ export class CreateUserComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const creationValidators = !this.user ? [Validators.required] : [];
 
     this.fieldConfigs = this.config.data.fieldConfigs;
     this.customRoles = this.config.data.roles;
@@ -79,7 +80,7 @@ export class CreateUserComponent implements OnInit {
       order: 1,
       variants: [],
       controlType: FieldType.Text,
-      validators: [Validators.email, Validators.required]
+      validators: [...[Validators.email], ...creationValidators]
     }));
     formFields.push(this.dfcs.getDynamicFieldFromOptions({
       id: -1,
@@ -89,7 +90,7 @@ export class CreateUserComponent implements OnInit {
       order: 1,
       variants: [],
       type: 'password',
-      validators: [Validators.required], // Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/)
+      validators: [...[], ...creationValidators], // Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/)
       controlType: FieldType.Text,
     }))
     formFields.push(this.dfcs.getDynamicFieldFromOptions({
@@ -122,13 +123,16 @@ export class CreateUserComponent implements OnInit {
   create() {
     this.loading = true;
 
-    console.log(this.dynamicForm.getValue());
-
     const fields = this.dynamicForm.getValue();
 
     const email = fields.find(f => f.name === 'email')?.value || '';
     const password = fields.find(f => f.name === 'password')?.value || '';
     const roleLevel = +(fields.find(f => f.name === 'roleLevel')?.value || '');
+
+    if (!this.user && (!email || !password)) {
+      alert('Email или Пароль не введен');
+      return;
+    }
 
     const user: ServerUser.CreateRequest = {
       email,
@@ -139,9 +143,9 @@ export class CreateUserComponent implements OnInit {
     }
 
     const userForUpdate: ServerUser.UpdateRequest = {
-      email,
+      email: email || this.user?.email,
       isActivated: true,
-      roleLevel,
+      roleLevel: roleLevel || this.user?.roleLevel,
       fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.User))
     }
 
@@ -174,8 +178,6 @@ export class CreateUserComponent implements OnInit {
     if ((settingsUsersStrings as StringHash)[field.key]) {
       field.label = (settingsUsersStrings as StringHash)[field.key] || 'Default Title';
     }
-
-    console.log(field.key);
 
     switch (field.key) {
       case FieldNames.User.name:

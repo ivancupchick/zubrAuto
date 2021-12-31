@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { SortEvent } from 'primeng/api';
+import { MenuItem, SortEvent } from 'primeng/api';
 import { FieldsUtils } from 'src/app/entities/field';
 
 export interface GridConfigItem<GridItemType extends { id: number }> {
@@ -11,7 +11,7 @@ export interface GridConfigItem<GridItemType extends { id: number }> {
 }
 
 export interface GridActionConfigItem<GridItemType extends { id: number }> {
-  title?: string;
+  title: string;
   icon: string;
   buttonClass: string;
   disabled?: () => boolean;
@@ -30,6 +30,9 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
 
+  contextSelectedItem!: GridItemType;
+  contextActions: MenuItem[] = []
+
   @Output() onSelectEntity = new EventEmitter<GridItemType[]>();
 
   selectedKeys!: GridItemType[];
@@ -37,8 +40,13 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   constructor() { }
 
   ngOnInit(): void {
-    console.log(this.selected);
     this.selectedKeys = [...this.selected];
+
+    this.contextActions = this.actions.map(action => ({
+      label: action.title,
+      icon: `pi pi-fw pi-${action.icon}`,
+      command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem)
+    }))
   }
 
   onSelect(c: any) {
