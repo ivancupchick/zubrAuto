@@ -568,7 +568,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       available: () => (this.sessionService.isAdminOrHigher) && !this.isSelectCarModalMode,
       handler: (car) => this.deleteCar(car),
     }, {
-      title: '[ОКЦ]Звонок',
+      title: '[ОКЦ] Звонок',
       icon: 'mobile',
       buttonClass: 'secondary',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief) && !this.isSelectCarModalMode,
@@ -592,7 +592,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                     || this.sessionService.isCustomerServiceChief,
       handler: (car) => this.createOrEditCarForm(car),
     }, {
-      title: 'Загрузить/Редактировать Медиа',
+      title: 'Медиа',
       icon: 'camera',
       buttonClass: 'secondary',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
