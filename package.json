@@ -4,14 +4,15 @@
   "description": "node server",
   "main": "build/index.bundle.js",
   "scripts": {
-    "start": "tsc && cp -r uploads/ build/ && node ./build/index.js",
-    "build": "tsc && cp -r uploads/ build/ && webpack",
-    "dev": "tsc && cp -r uploads/ build/ && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\" \"cd ui && ng build --watch\"",
-    "dev-server": "tsc && cp -r uploads/ build/ && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\"",
+    "start": "tsc && node ./build/index.js",
+    "build": "tsc && webpack",
+    "dev": "tsc && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\" \"cd ui && ng build --watch\"",
+    "dev-server": "tsc && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\"",
     "dev-ui": "cd ui && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "aws-sdk": "^2.1050.0",
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",

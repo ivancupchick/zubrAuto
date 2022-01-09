@@ -49,32 +49,20 @@ export class UploadCarMediaComponent implements OnInit {
   ngOnInit(): void {
     this.car = this.config.data.car;
 
-    this.uploadCarImages();
-    // this.availableStatuses = this.config.data.availableStatuses;
-    // this.commentIsRequired = this.config.data.commentIsRequired || false;
-
-    // if (this.availableStatuses.length > 1) {
-    //   this.selectedStatus = 'None';
-
-    //   this.statuses = [
-    //     { value: 'Никто', key: 'None' },
-    //     ...this.availableStatuses
-    //       .map(carStatus => ({ value: carStatus, key: carStatus }))
-    //   ];
-    // } else {
-    //   this.selectedStatus = this.availableStatuses[0];
-    //   this.statuses = this.availableStatuses
-    //     .map(carStatus => ({ value: carStatus, key: carStatus }));
-    // }
+    this.getImages();
   }
 
-  uploadCarImages() {
-    this.carService.getCarsImages(this.car.id).subscribe(images => {
-      this.images = images.map(image => {
-        image.url = environment.serverUrl+'/'+image.url;
-        return image;
-      });
-    })
+  getImages() {
+    this.loading = true;
+    this.carService.getCarsImages(this.car.id)
+      .subscribe(images => {
+        this.images = images.map(image => {
+          // image.url = environment.serverUrl+'/'+image.url;
+          return image;
+        });
+
+        this.loading = false;
+      })
   }
 
   create() {
@@ -98,6 +86,7 @@ export class UploadCarMediaComponent implements OnInit {
     //   alert('Статус не изменен');
     //   this.loading = false;
     // })
+    this.ref.close(true);
   }
 
   cancel() {
@@ -114,7 +103,7 @@ export class UploadCarMediaComponent implements OnInit {
     }
 
     this.carService.uploadCarImages(this.car.id, this.uplo, '').subscribe(res => {
-      this.uploadCarImages();
+      this.getImages();
     })
   }
 }

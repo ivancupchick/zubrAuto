@@ -42,7 +42,7 @@ export namespace Models {
     refreshToken: string; // required
   }
 
-  export const FILE_CHAINS_TABLE_NAME = 'filesIds';
+  export const FILE_CHAINS_TABLE_NAME = 'public.filesIds';
   export interface FileChain {
     id: number;
     sourceId: number;
