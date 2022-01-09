@@ -137,19 +137,45 @@ class CarController {
         throw ApiError.BadRequest('Ошибка при валидации', errors.array());
       }
 
-      const id = +req.params.carId;
+      const id = +req.body.carId;
       const file = Array.isArray(((req as any).files as any).file)
         ? ((req as any).files as any).file[0]
         : ((req as any).files as any).file;
-      const metadata = req.body.metadata || '';
+      const metadata = req.body.metadata || '{}';
 
       const result = await carImageService.uploadCarImage(id, file, metadata);
 
       return res.json(result);
     } catch (e) {
+      console.log(e);
       next(e);
     }
   }
+
+  // async uploadImages(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     const errors = validationResult(req);
+
+  //     if (!errors.isEmpty()) {
+  //       throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+  //     }
+
+  //     // const file = Array.isArray(((req as any).files as any).file)
+  //     //   ? ((req as any).files as any).file[0]
+  //     //   : ((req as any).files as any).file;
+
+  //     const file = req.file;
+  //     const metadata = req.body.metadata || '{}';
+  //     const id = +req.body.carId;
+
+
+  //     const result = await carImageService.uploadCarImage(id, file, metadata);
+
+  //     return res.json(result);
+  //   } catch (e) {
+  //     next(e);
+  //   }
+  // }
 
   async addCall(req: Request, res: Response, next: NextFunction) {
     try {

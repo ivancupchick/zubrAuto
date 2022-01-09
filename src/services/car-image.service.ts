@@ -1,67 +1,70 @@
 import { ICrudService } from "../entities/Types";
-import fs from 'fs';
 import carRepository from "../repositories/base/car.repository";
 import fileRepository from "../repositories/base/file.repository";
 import { Models } from "../entities/Models";
 import { ServerFile } from "../entities/File";
 import { UploadedFile } from "express-fileupload";
+import s3Service from "./s3.service";
+import fileChainRepository from "../repositories/base/file-chain.repository";
 
-
-const relative_path = '../../';
-const IMAGES_PATH = 'uploads/';
-const imageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
 
 // implements ICrudService<ServerFile.CreateRequest, ServerFile.UpdateRequest, ServerFile.Response, ServerFile.IdResponse>
 
 class CarImageService {
-  async uploadCarImage(carId: number, file: UploadedFile, fileMetadata: string): Promise<ServerFile.IdResponse> {
-    const extension = file.name.split('.').pop();
-    const path = IMAGES_PATH + `${file.name}`;
+  async uploadCarImage(carId: number, file: UploadedFile, fileMetadata: string): Promise<any> {
+    // const extension = file.name.split('.').pop();
 
+    const imageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
     if (!imageTypes.includes(file.mimetype)) {
       throw new Error("Это не картинка");
     }
 
-    if (fs.existsSync(path)) {
-      throw new Error("Картинка уже существует");
-    }
 
-    const car = await carRepository.findById(carId);
+    const res = await s3Service.uploadFile(file);
 
-    const carFolderExist = await fileRepository.findOne({ name: [`${car.id}`], type: [`${ServerFile.Types.Folder}`] });
-    const parent = carFolderExist
-      ? carFolderExist
-      : await fileRepository.create({ name: `${car.id}`, type: ServerFile.Types.Folder, url: '', parent: -1, fileMetadata: '' });
-
-    file.mv(path);
-    file.mv('build/' + path);
+    let metadata = {};
+    (metadata as any).s3Information = res;
 
     const dbFile = {
-      url: path,
+      url: res.Location,
       type: ServerFile.Types.Image,
       name: file.name,
-      parent: parent.id,
-      fileMetadata,
+      parent: 0,
+      fileMetadata: JSON.stringify(metadata),
     }
 
     const result = await fileRepository.create(dbFile);
 
+    await fileChainRepository.create({
+      sourceId: carId,
+      sourceName: Models.CARS_TABLE_NAME,
+      fileId: result.id
+    });
+
     return result;
   }
 
-  async getFiles(parent: number = null): Promise<ServerFile.Response[]> {
-  const [
-      files
+  async getFiles(sourceId: number = null): Promise<ServerFile.Response[]> {
+    const fileChainesExpression = {
+      sourceName: [`${Models.CARS_TABLE_NAME}`]
+    }
+
+    if (sourceId) {
+      (fileChainesExpression as any).sourceId = [`${sourceId}`];
+    }
+
+    const [
+      files,
+      fileChaines
     ] = await Promise.all([
       fileRepository.getAll(),
+      fileChainRepository.find(fileChainesExpression),
     ]);
 
-    const result = files
-      .filter(file => (!parent && !file.parent) ||
-                      (parent && file.parent === parent)
-      );
+    const fileIds = fileChaines.map(fileChain => fileChain.fileId);
 
-    console.log(result);
+    const result = files
+      .filter(file => fileIds.includes(file.id));
 
     return result.map(r => {
       return r;
@@ -69,11 +72,13 @@ class CarImageService {
   }
 
   async getCarFiles(carId: number): Promise<ServerFile.Response[]> {
-    const parentFolder = await fileRepository.findOne({ name: [`${carId}`], type: [`${ServerFile.Types.Folder}`] });
+    try {
+      return await this.getFiles(carId);
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
 
-    return parentFolder
-      ? this.getFiles(parentFolder.id)
-      : [];
   }
 }
 

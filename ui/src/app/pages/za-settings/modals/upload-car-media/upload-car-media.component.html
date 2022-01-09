@@ -15,10 +15,10 @@
 
       <p-carousel [value]="images" [numVisible]="3" [numScroll]="3" [circular]="false" [responsiveOptions]="responsiveOptions">
         <ng-template pTemplate="header">
-          <h5>Basic</h5>
+          <h5>Уже загруженные фото</h5>
         </ng-template>
         <ng-template let-image pTemplate="item">
-          <p-image [src]="getImageUrl(image)" [alt]="image.name" width="250" [preview]="true"></p-image>
+          <p-image [src]="getImageUrl(image)" [alt]="image.name" width="250" [preview]="true" appendTo="body"></p-image>
 
           <!-- <div class="image-item">
             <div class="image-item-content">

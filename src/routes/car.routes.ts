@@ -12,18 +12,18 @@ router.route(`/${ Constants.API.CRUD }/:carId`)
   .get(carController.getCar)
   .delete(carController.deleteCar)
   .put(carController.updateCar);
-  
+
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_CALL }/:carId`)
   .post(
     carController.addCustomerCall
-  ); 
+  );
 
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_DISCOUNT }/:carId`)
   .post(
     body('amount').isNumeric(),
     body('discount').isNumeric(),
     carController.addCustomerDiscount
-  ); 
+  );
 
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CALL }`)
   .post(carController.addCall);
@@ -46,7 +46,9 @@ router.route(`/${Constants.API.CREATE_CARS_BY_LINK}`)
 router.route(`/${Constants.API.IMAGES}/:carId`)
   .get(carController.getImages);
 
-router.route(`/${Constants.API.IMAGES}/:carId`)
-  .put(carController.uploadImages);
+router.route(`/${Constants.API.IMAGES}`)
+  .post(
+    carController.uploadImages
+  );
 
 export default router;

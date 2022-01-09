@@ -85,12 +85,13 @@ export class CarService {
     const formData: FormData = new FormData();
 
     formData.append('metadata', metadata);
+    formData.append('carId', `${id}`);
 
     for (let file of [files]) {
       formData.append('file', (file as any), (file as any).name);
     }
 
-    return this.requestService.put<any, FormData>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`, formData).pipe(map(result => {
+    return this.requestService.post<any, FormData>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }`, formData).pipe(map(result => {
         console.log(result);
 
         return result;
