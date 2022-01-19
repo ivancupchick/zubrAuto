@@ -116,24 +116,26 @@ export class ActionsService {
         });
       },
       visible: () => this.sessionService.isContactCenterChief,
-    }, {
-      label: 'Создать машину',
-      icon: 'pi pi-fw pi-mobile',
-      // routerLink: 'roles',
-      handler: () => {
-        const ref = this.dialogService.open(CreateCarComponent, {
-          header: 'Новая машина',
-          width: '40%',
-          data: {
-            // carFieldConfigs: this.carFieldConfigs,
-            // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
-            // contactCenterUsers: this.contactCenterUsers,
-            // carShootingUsers: this.carShootingUsers,
-          }
-        });
-      },
-      visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
-    }, {
+    },
+    // {
+    //   label: 'Создать машину',
+    //   icon: 'pi pi-fw pi-mobile',
+    //   // routerLink: 'roles',
+    //   handler: () => {
+    //     const ref = this.dialogService.open(CreateCarComponent, {
+    //       header: 'Новая машина',
+    //       width: '40%',
+    //       data: {
+    //         // carFieldConfigs: this.carFieldConfigs,
+    //         // carOwnerFieldConfigs: this.carOwnerFieldConfigs,
+    //         // contactCenterUsers: this.contactCenterUsers,
+    //         // carShootingUsers: this.carShootingUsers,
+    //       }
+    //     });
+    //   },
+    //   visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+    // },
+    {
       label: 'Вся база обзвона',
       icon: 'pi pi-fw pi-mobile',
       routerLink: 'cars',

@@ -45,6 +45,8 @@ export class ManageCarShowingComponent implements OnInit {
     this.clientId = this.config.data.clientId;
     this.loading = true;
 
+    this.setGridSettings();
+
     this.carService.getCars().subscribe(cars => {
       const clientCars = cars.filter(car => this.carIds.includes(car.id));
       this.cars = clientCars;
@@ -127,6 +129,7 @@ export class ManageCarShowingComponent implements OnInit {
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: () => false,
+      available: () => true,
       handler: (item) => this.updateStatisticItem(item)
     }];
 

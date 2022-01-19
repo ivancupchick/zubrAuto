@@ -9,6 +9,21 @@
       icon="pi pi-plus"
       (click)="openNewClientWindow()"
     ></button>
+
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <p-multiSelect
+        appendTo="body"
+        *ngIf="availableStatuses.length > 0"
+        [options]="availableStatuses"
+        [(ngModel)]="selectedStatus"
+        placeholder="Статус сделки"
+        optionLabel="label"
+        optionValue="value"
+        (onPanelHide)="sortClients()"
+        selectedItemsLabel="{0} статусов выбрано"
+        [maxSelectedLabels]="1"
+      ></p-multiSelect>
+    </div>
   </div>
 </p-toolbar>
 <p></p>

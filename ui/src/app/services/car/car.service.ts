@@ -79,7 +79,7 @@ export class CarService {
       }))
   }
 
-  uploadCarImages(id: number, files: File, carImageMetadata: CarImageMetadata) {
+  uploadCarImages(id: number, files: File[], carImageMetadata: CarImageMetadata) {
     const metadata = JSON.stringify(carImageMetadata);
 
     const formData: FormData = new FormData();
@@ -87,9 +87,9 @@ export class CarService {
     formData.append('metadata', metadata);
     formData.append('carId', `${id}`);
 
-    for (let file of [files]) {
-      formData.append('file', (file as any), (file as any).name);
-    }
+    files.forEach((file, i) => {
+      formData.append(`file`, (file as any), (file as any).name);
+    })
 
     return this.requestService.post<any, FormData>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }`, formData).pipe(map(result => {
         console.log(result);

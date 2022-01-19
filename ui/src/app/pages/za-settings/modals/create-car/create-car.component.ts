@@ -2,7 +2,7 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerCar } from 'src/app/entities/car';
 import { StringHash } from 'src/app/entities/constants';
-import { FieldType, ServerField, UIRealField } from 'src/app/entities/field';
+import { FieldsUtils, FieldType, RealField, ServerField, UIRealField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser } from 'src/app/entities/user';
@@ -35,10 +35,12 @@ export class CreateCarComponent implements OnInit {
 
   carDynamicFormFields: DynamicFieldBase<string>[] = [];
   carOwnerDynamicFormFields: DynamicFieldBase<string>[] = [];
+  ourLinksDynamicFormFields: DynamicFieldBase<string>[] = [];
 
 
   @ViewChild('carForm', { read: DynamicFormComponent }) carDynamicForm!: DynamicFormComponent;
   @ViewChild('carOwnerForm', { read: DynamicFormComponent }) carOwnerDynamicForm!: DynamicFormComponent;
+  @ViewChild('ourLinksForm', { read: DynamicFormComponent }) ourLinksDynamicForm!: DynamicFormComponent;
 
   carExcludeFields: FieldNames.Car[] = [
     // FieldNames.Car.date,
@@ -47,7 +49,8 @@ export class CreateCarComponent implements OnInit {
     FieldNames.Car.contactCenterSpecialistId,
     FieldNames.Car.carShootingSpecialistId,
     FieldNames.Car.bargain,
-    FieldNames.Car.commission
+    FieldNames.Car.commission,
+    FieldNames.Car.ourLinks,
   ];
 
   carOwnerExcludeFields: FieldNames.CarOwner[] = [
@@ -151,8 +154,37 @@ export class CreateCarComponent implements OnInit {
       })
     )
 
+    const ourLinks: [string, string, string] = this.car ? (FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.ourLinks) || ',,')?.split(',') as any : ['', '', ''];
+    const ourLinksField = this.carFieldConfigs.find(c => c.name === FieldNames.Car.ourLinks) as ServerField.Response;
+
     this.carOwnerDynamicFormFields = carOwnerFormFields;
     this.carDynamicFormFields = carFormFields;
+
+    const ourLinksDynamicFormFields = [
+      this.dfcs.getDynamicFieldFromOptions({
+        id: ourLinksField.id,
+        value: ourLinks[0] || '',
+        key: 'ourLinks0',
+        label: 'av.by',
+        order: 1,
+        controlType: FieldType.Text
+      }), this.dfcs.getDynamicFieldFromOptions({
+        id: -2,
+        value:  ourLinks[1] || '',
+        key: 'ourLinks1',
+        label: 'abw.by',
+        order: 1,
+        controlType: FieldType.Text
+      }), this.dfcs.getDynamicFieldFromOptions({
+        id: -1,
+        value:  ourLinks[2] || '',
+        key: 'ourLinks2',
+        label: 'ab.onliner.by',
+        order: 1,
+        controlType: FieldType.Text
+      })
+    ]
+    this.ourLinksDynamicFormFields = ourLinksDynamicFormFields;
   }
 
   create() {
@@ -169,6 +201,15 @@ export class CreateCarComponent implements OnInit {
       ...carFields.filter(fc => !this.carExcludeFields.includes(fc.name as FieldNames.Car)),
       ...carOwnerFields.filter(fc => !this.carOwnerExcludeFields.includes(fc.name as FieldNames.CarOwner))
     ];
+
+    const ourLinks = this.ourLinksDynamicForm.getAllValue();
+
+    const ourLinksField: RealField.Request = {
+      id: ourLinks[0].id,
+      value: ourLinks.map(l => l.value).join(',')
+    }
+
+    fields.push(ourLinksField);
 
     if (contactCenterUser) {
       fields.push(contactCenterUser);

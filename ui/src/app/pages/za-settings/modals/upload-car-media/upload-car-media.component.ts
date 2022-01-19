@@ -1,5 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FileUpload } from 'primeng/fileupload';
 import { CarImage, ServerCar } from 'src/app/entities/car';
 import { CarService } from 'src/app/services/car/car.service';
 import { environment } from 'src/environments/environment';
@@ -21,7 +22,7 @@ export class UploadCarMediaComponent implements OnInit {
     return false
   }
 
-  uplo!: File;
+  uplo: File[] = [];
 
   responsiveOptions = [{
     breakpoint: '1024px',
@@ -38,6 +39,8 @@ export class UploadCarMediaComponent implements OnInit {
   }];
 
   @Input() car!: ServerCar.Response;
+
+  @ViewChild(FileUpload) fileUpload!: FileUpload;
 
   constructor(
     private ref: DynamicDialogRef,
@@ -98,12 +101,16 @@ export class UploadCarMediaComponent implements OnInit {
   }
 
   uploadNewImage({ files }: { files: File[]}) {
-    for (let file of files) {
-      this.uplo = file;
-    }
+    this.uplo = files;
+
+    this.loading = true;
 
     this.carService.uploadCarImages(this.car.id, this.uplo, '').subscribe(res => {
       this.getImages();
+
+      this.fileUpload.clear();
+
+      this.loading = false;
     })
   }
 }
