@@ -14,7 +14,7 @@ export interface GridActionConfigItem<GridItemType extends { id: number }> {
   title: string;
   icon: string;
   buttonClass: string;
-  disabled?: () => boolean;
+  disabled?: (item: GridItemType) => boolean;
   available?: () => boolean;
   handler: (item: GridItemType) => void; // TODO a
 }
@@ -46,7 +46,8 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
     this.contextActions = this.actions.map(action => ({
       label: action.title,
       icon: `pi pi-fw pi-${action.icon}`,
-      command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem)
+      command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem),
+      disabled: !!action.disabled && action.disabled(this.contextSelectedItem)
     }))
   }
 

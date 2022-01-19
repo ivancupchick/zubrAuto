@@ -5,18 +5,20 @@ import { SortEvent } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Subject, zip } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
-import { getCarStatus, ServerCar } from 'src/app/entities/car';
+import { getCarStatus, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser } from 'src/app/entities/user';
 import { DateUtils } from 'src/app/entities/utils';
 import { CarService } from 'src/app/services/car/car.service';
+import { ClientService } from 'src/app/services/client/client.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { ChangeCarStatusComponent } from '../modals/change-car-status/change-car-status.component';
 import { CreateCarFormComponent } from '../modals/create-car-form/create-car-form.component';
 import { CreateCarComponent } from '../modals/create-car/create-car.component';
+import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { CustomerServiceCallComponent } from '../modals/customer-service-call/customer-service-call.component';
 import { TransformToCarShooting } from '../modals/transform-to-car-shooting/transform-to-car-shooting.component';
 import { UploadCarMediaComponent } from '../modals/upload-car-media/upload-car-media.component';
@@ -111,7 +113,8 @@ export enum QueryCarTypes {
   providers: [
     DialogService,
     CarService,
-    UserService
+    UserService,
+    ClientService
   ]
 })
 export class SettingsCarsComponent implements OnInit, OnDestroy {
@@ -150,12 +153,25 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   destroyed = new Subject();
 
+  clientFieldConfigs: ServerField.Response[] = [];
+
   filters: UIFilter[] = []
   selectedFilters: { name: string, value: string }[] = [];
 
-  constructor(private carService: CarService, private dialogService: DialogService, private route: ActivatedRoute, private sessionService: SessionService, private userService: UserService) { }
+  constructor(
+    private carService: CarService,
+    private dialogService: DialogService,
+    private route: ActivatedRoute,
+    private sessionService: SessionService,
+    private userService: UserService,
+    private clientService: ClientService
+  ) { }
 
   ngOnInit(): void {
+    this.clientService.getClientFields().subscribe(result => {
+      this.clientFieldConfigs = result;
+    })
+
     this.type = !this.isSelectCarModalMode
       ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
       : QueryCarTypes.carsForSale;
@@ -171,7 +187,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
         this.setGridSettings();
 
-        this.getCars().subscribe();
+        this.getCars(true).subscribe();
       })
 
     zip(this.carService.getCarFields(), this.carService.getCarOwnersFields(), this.userService.getUsers())
@@ -188,19 +204,19 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.generateFilters();
       });
 
-    this.getCars().subscribe();
+    this.getCars(true).subscribe();
 
     this.setGridSettings();
   }
 
-  getCars() {
+  getCars(first = false) {
     this.loading = true;
     return this.carService.getCars().pipe(
         tap((res => {
           this.loading = false;
           this.rawCars = [...res];
           this.generateFilters();
-          this.sortCars();
+          this.sortCars(first);
         }))
       )
   }
@@ -250,7 +266,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       });
   }
 
-  sortCars() {
+  sortCars(first = false) {
     switch (this.type) {
       case QueryCarTypes.myCallBase:
         const availableStatuses = [
@@ -259,14 +275,25 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_Deny,
           FieldNames.CarStatus.contactCenter_MakingDecision,
           FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_Refund,
         ];
         this.availableStatuses = [
           ...availableStatuses.map(s => ({ label: s, value: s }))
         ];
+
+        if (first) {
+          this.selectedStatus = [
+            FieldNames.CarStatus.contactCenter_InProgress,
+            FieldNames.CarStatus.contactCenter_MakingDecision,
+            FieldNames.CarStatus.contactCenter_NoAnswer,
+            FieldNames.CarStatus.contactCenter_Refund,
+          ]
+        }
+
         this.sortedCars = this.rawCars
           .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
                         this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0
-          ));
+          ) && availableStatuses.includes(getCarStatus(c)));
         break;
       case QueryCarTypes.allCallBase:
         const availableStatuses2 = [
@@ -275,12 +302,25 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_Deny,
           FieldNames.CarStatus.contactCenter_MakingDecision,
           FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_Refund,
         ];
         this.availableStatuses = [
-          ...availableStatuses2.map(s => ({ label: s, value: s }))]
+          ...availableStatuses2.map(s => ({ label: s, value: s }))
+        ]
+
+        if (first) {
+          this.selectedStatus = [
+            FieldNames.CarStatus.contactCenter_InProgress,
+            FieldNames.CarStatus.contactCenter_MakingDecision,
+            FieldNames.CarStatus.contactCenter_NoAnswer,
+            FieldNames.CarStatus.contactCenter_Refund
+          ]
+        }
 
         this.sortedCars = this.rawCars // FIX THIS
-          .filter(c => this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0);
+          .filter(c => (this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0) && (
+            availableStatuses2.includes(getCarStatus(c))
+          ));
         break;
       case QueryCarTypes.myShootingBase:
         this.sortedCars = this.rawCars
@@ -303,9 +343,17 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.customerService_OnDelete,
           FieldNames.CarStatus.customerService_Sold,
         ];
+
         this.availableStatuses = [
           ...availableStatuses3.map(s => ({ label: s, value: s }))
         ];
+
+        if (first) {
+          this.selectedStatus = [
+            FieldNames.CarStatus.customerService_InProgress,
+            FieldNames.CarStatus.customerService_OnPause,
+          ]
+        }
 
         this.sortedCars = this.rawCars
           .filter(c => (availableStatuses3.includes(getCarStatus(c))) && (
@@ -378,7 +426,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       getValue: (item) => {
         const user = FieldsUtils.getFieldValue(item, FieldNames.Car.contactCenterSpecialist);
 
-
         const contactCenterSpecialist: ServerUser.Response = JSON.parse(user || '{}');
         const contactCenterSpecialistName = FieldsUtils.getFieldValue(contactCenterSpecialist, FieldNames.User.name);
 
@@ -399,11 +446,12 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
     } : {
       title: this.strings.shootingDate,
-      name: 'shootingDate',
+      name: FieldNames.Car.shootingDate,
       getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
-      available: () => true // this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+      available: () => true, // this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+      sortable: () => true
     }, {
-      title: this.strings.source,
+      title: 'Ист',
       name: 'source',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.source),
       available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
@@ -428,14 +476,26 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.worksheet,
       name: 'worksheet',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.worksheet) ? 'Есть' : 'Нет',
+      getValue: (item) => {
+        let worksheet: ICarForm | null;
+        try {
+          const worksheetSource = FieldsUtils.getFieldValue(item, FieldNames.Car.worksheet) || '';
+          worksheet = JSON.parse(worksheetSource)
+        } catch (error) {
+          worksheet = null;
+        }
+
+        const form = new RealCarForm(worksheet);
+
+        return form.getValidation() ? 'Есть' : 'Нет'
+      },
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
     }, {
       title: this.strings.engine,
       name: 'engine',
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.engine),
     }, {
-      title: this.strings.engineCapacity,
+      title: 'О-м',
       name: 'engineCapacity',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.engineCapacity),
     }, {
@@ -482,7 +542,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       name: 'carOwnerPrice',
       getValue: (item) => `${FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice)}$`,
     }, {
-      title: this.strings.commission,
+      title: 'Комис',
       name: 'commission',
       getValue: (item) => {
         const price = +(FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice) || 0);
@@ -497,10 +557,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       },
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief
                     || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
-                    || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
+                    || this.sessionService.isCarSales || this.sessionService.isCarSalesChief
+                    || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
     }, {
       title: this.strings.adPrice,
-      name: 'adPrice',
+      name: FieldNames.Car.carOwnerPrice,
       getValue: (item) => {
         const price = +(FieldsUtils.getFieldValue(item, FieldNames.Car.carOwnerPrice) || 0);
 
@@ -509,6 +570,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief
                     || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
                     || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
+      sortable: () => true
     }, {
       title: this.strings.status,
       name: 'status',
@@ -521,9 +583,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
     }, {
       title: this.strings.shootingDate,
-      name: 'shootingDate',
+      name: FieldNames.Car.shootingDate,
       getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
       available: () => this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+      sortable: () => true
     }, {
       title: this.strings.shootingTime,
       name: 'shootingTime',
@@ -585,7 +648,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: 'Редактировать',
       icon: 'pencil',
       buttonClass: 'secondary',
-      disabled: () => this.carFieldConfigs.length === 0,
+      disabled: () => false,
       available: () => this.sessionService.isAdminOrHigher
                     || this.sessionService.isCarShooting
                     || this.sessionService.isCarShootingChief
@@ -623,6 +686,21 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                     || this.sessionService.isCustomerServiceChief,
       handler: (car) => this.createOrEditCarForm(car),
     }, {
+      title: 'Создать клиента',
+      icon: 'pi pi-fw pi-mobile',
+      buttonClass: 'secondary',
+      handler: (car) => {
+        const ref = this.dialogService.open(CreateClientComponent, {
+          data: {
+            predefinedCar: car,
+            fieldConfigs: this.clientFieldConfigs,
+          },
+          header: 'Новый клиент',
+          width: '70%',
+        });
+      },
+      available: () => this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
+    }, {
       title: 'Медиа',
       icon: 'camera',
       buttonClass: 'secondary',
@@ -640,6 +718,19 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       buttonClass: 'primary',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
       handler: (car) => this.transformToCustomerService(car),
+      disabled: (car) => {
+        let worksheet: ICarForm | null;
+        try {
+          const worksheetSource = FieldsUtils.getFieldValue(car, FieldNames.Car.worksheet) || '';
+          worksheet = JSON.parse(worksheetSource)
+        } catch (error) {
+          worksheet = null;
+        }
+
+        const form = new RealCarForm(worksheet);
+
+        return !form.getValidation();
+      },
     }, {
       title: 'Вернуть в ОСА',
       icon: 'caret-left',
@@ -901,6 +992,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   onSelectEntity(cars: ServerCar.Response[]) {
+    console.log(cars);
     this.isSelectCarModalMode && this.onSelectCar.emit(cars);
   }
 

@@ -11,6 +11,9 @@ import { CreateClientComponent } from '../modals/create-client/create-client.com
 import { SessionService } from 'src/app/services/session/session.service';
 import { ManageCarShowingComponent } from '../modals/manage-car-showing/manage-car-showing.component';
 import { tap } from 'rxjs/operators';
+import { CarService } from 'src/app/services/car/car.service';
+import { ServerCar } from 'src/app/entities/car';
+import { ServerUser } from 'src/app/entities/user';
 
 
 @Component({
@@ -19,7 +22,8 @@ import { tap } from 'rxjs/operators';
   styleUrls: ['./settings-clients.component.scss'],
   providers: [
     DialogService,
-    ClientService
+    ClientService,
+    CarService
   ]
 })
 export class SettingsClientsComponent implements OnInit {
@@ -27,6 +31,8 @@ export class SettingsClientsComponent implements OnInit {
   rawClients: ServerClient.Response[] = [];
 
   loading = false;
+
+  allCars: ServerCar.Response[] = [];
 
   gridConfig!: GridConfigItem<ServerClient.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
@@ -38,10 +44,16 @@ export class SettingsClientsComponent implements OnInit {
   availableStatuses: { label: FieldNames.DealStatus, value: FieldNames.DealStatus }[] = [];
   selectedStatus: FieldNames.DealStatus[] = [];
 
-  constructor(private clientService: ClientService, private dialogService: DialogService, private sessionService: SessionService) { }
+  constructor(private clientService: ClientService, private dialogService: DialogService, private sessionService: SessionService, private carService: CarService) { }
 
   ngOnInit(): void {
     this.loading = true;
+
+    this.carService.getCars().subscribe(cars => {
+      this.allCars = cars;
+
+      this.setGridSettings();
+    })
 
     this.clientService.getClientFields().subscribe(result => {
       this.fieldConfigs = result;
@@ -57,11 +69,14 @@ export class SettingsClientsComponent implements OnInit {
       ...availableStatuses.map(s => ({ label: s, value: s }))
     ];
 
+    this.selectedStatus = [
+      FieldNames.DealStatus.InProgress,
+      FieldNames.DealStatus.OnDeposit,
+    ];
+
     this.getClients().subscribe(() => {
       this.loading = false;
     });
-
-    this.setGridSettings();
   }
 
   setGridSettings() {
@@ -97,7 +112,18 @@ export class SettingsClientsComponent implements OnInit {
     }, {
       title: this.strings.carIds,
       name: 'carIds',
-      getValue: (item) => item.carIds,
+      getValue: (item) => {
+        const needCars = this.allCars.filter(c => item.carIds.includes(`${c.id}`));
+
+        return needCars.map(c => {
+          const user = FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialist);
+
+          const contactCenterSpecialist: ServerUser.Response = JSON.parse(user || '{}');
+          const contactCenterSpecialistName = FieldsUtils.getFieldValue(contactCenterSpecialist, FieldNames.User.name);
+
+          return `${c.id} ${(contactCenterSpecialistName || '').split(' ').map(word => word[0]).join('')}`;
+        })
+      },
     }, {
       title: this.strings.paymentType,
       name: 'paymentType',
@@ -114,7 +140,7 @@ export class SettingsClientsComponent implements OnInit {
       title: 'Редактировать',
       icon: 'pencil',
       buttonClass: 'secondary',
-      disabled: () => this.fieldConfigs.length === 0,
+      disabled: () => false,
       handler: (client) => this.updateClient(client)
     }, {
       title: 'Удалить',

@@ -26,7 +26,7 @@
           *ngFor="let actionConfig of gridActions"
           type="button"
           pButton
-          [disabled]="actionConfig.disabled ? actionConfig.disabled() : false"
+          [disabled]="actionConfig.disabled ? actionConfig.disabled(gridItem) : false"
           pRipple
           icon="pi pi-{{actionConfig.icon}}"
           class="p-button-{{actionConfig.buttonClass}}"

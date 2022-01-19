@@ -33,6 +33,7 @@ export import CarImage = ServerFile;
 export import ServerCarImage = serverCarImage;
 export import CarFormEnums = carForm;
 export import CarStatistic = carStatistic
+import { StringHash } from './constants';
 
 export type UICarShowingStatistic = Omit<CarStatistic.CarShowingResponse, 'content'>
   & { content: carStatistic.ShowingContent }
@@ -88,12 +89,45 @@ export class RealCarForm implements ICarForm {
   exteriorInspection!: ExteriorInspectionHash;
   checkboxes!: CheckboxesHash;
 
-  constructor(carForm: ICarForm | null) {
+  constructor(carForm: ICarForm | null, car?: ServerCar.Response) {
     this.carQuestionnaire = carForm?.carQuestionnaire || CarFormEnumsFactory.createCarQuestionnaire();
     this.generalCondition = carForm?.generalCondition || CarFormEnumsFactory.createGeneralCondition();
-    this.inspection = carForm?.inspection || CarFormEnumsFactory.createInspection();
+    this.inspection = carForm?.inspection || CarFormEnumsFactory.createInspection(car);
     this.exteriorInspection = carForm?.exteriorInspection || CarFormEnumsFactory.createExteriorInspection();
     this.checkboxes = carForm?.checkboxes || CarFormEnumsFactory.createCheckboxes();
+  }
+
+  getValidation(): boolean {
+    let valid = true;
+
+    const checkValid = (object: StringHash) => Object.keys(object).forEach(c => {
+      const exludeList: string[] = [
+        CarFormEnums.Inspection.stateInspection,
+        CarFormEnums.Inspection.valueAddedTax,
+        CarFormEnums.Inspection.guarantee,
+        CarFormEnums.Inspection.guarantee,
+        'bodyCondition'
+      ]
+
+      if (exludeList.includes(c)) {
+        return;
+      }
+
+      if (
+            object[c] === ''
+        || (c === 'fuelСonsumption' && object[c] === 'Город: ? Смешанный: ? Трасса: ? ')
+        || exludeList.includes(c)
+      ) {
+        valid = false;
+      }
+    })
+
+    checkValid(this.carQuestionnaire);
+    checkValid(this.generalCondition);
+    checkValid(this.inspection);
+    checkValid(this.exteriorInspection);
+
+    return valid;
   }
 }
 
@@ -148,28 +182,28 @@ abstract class CarFormEnumsFactory {
     }
   }
 
-  static createInspection(): InspectionHash {
+  static createInspection(car?: ServerCar.Response): InspectionHash {
     return {
       date: '',
-      name: '',
-      number: '',
+      name: car ? FieldsUtils.getFieldStringValue(car, FieldNames.CarOwner.name) || '' : '',
+      number: car ? `${car.ownerNumber}` || '' : '',
       vin: '',
-      brandModel: '',
-      capacity: '',
-      color: '',
+      brandModel: car ? `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}` : '',
+      capacity:car ?  `${((FieldsUtils.getFieldNumberValue(car, FieldNames.Car.engineCapacity) || 0) * 1000) || ''}` : '',
+      color: car ? FieldsUtils.getFieldStringValue(car, FieldNames.Car.color) || '' : '',
       power: '',
       seats: '',
-      fuel: '',
-      year: '',
-      transmission: '',
-      mileage: '',
+      fuel: car ? FieldsUtils.getDropdownValue(car, FieldNames.Car.engine) || '' : '',
+      year: car ? FieldsUtils.getFieldStringValue(car, FieldNames.Car.year) || '' : '',
+      transmission: car ? FieldsUtils.getDropdownValue(car, FieldNames.Car.transmission) || '' : '',
+      mileage: car ? FieldsUtils.getFieldStringValue(car, FieldNames.Car.mileage) || '' : '',
       guarantee: '',
       termGuarantee: '',
-      driveType: '',
+      driveType: car ? FieldsUtils.getDropdownValue(car, FieldNames.Car.driveType) || '' : '',
       stateInspection: '',
       termStateInspection: '',
       valueAddedTax: '',
-      bodyCondition: '',
+      // bodyCondition: '',
       engineCondition: '',
       interiorCondition: '',
       exteriorCondition: '',

@@ -25,6 +25,7 @@ import { CarChip, SelectCarComponent } from '../select-car/select-car.component'
 export class CreateClientComponent implements OnInit {
   loading = false;
 
+  @Input() predefinedCar: ServerCar.Response | undefined = undefined;
   @Input() client: ServerClient.Response | undefined = undefined;
   @Input() fieldConfigs: ServerField.Response[] = [];
 
@@ -58,6 +59,7 @@ export class CreateClientComponent implements OnInit {
     private carService: CarService,
   ) {
     this.client = this.config?.data?.client || undefined;
+    this.predefinedCar = this.config?.data?.predefinedCar || undefined;
   }
 
   ngOnInit(): void {
@@ -90,16 +92,6 @@ export class CreateClientComponent implements OnInit {
       }))
         .map(fc => this.updateFieldConfig(fc));
 
-    // formFields.push(this.dfcs.getDynamicFieldFromOptions({
-    //   id: -1,
-    //   value: this.client?.carIds || '',
-    //   key: 'carIds',
-    //   label: settingsClientsStrings.carIds,
-    //   order: 1,
-    //   controlType: FieldType.Text,
-    //   readonly: true
-    // }))
-
     this.dynamicFormFields = formFields;
 
 
@@ -109,7 +101,7 @@ export class CreateClientComponent implements OnInit {
       this.allCars = cars.filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
       // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
       // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
-);
+      );
 
       if (this.client) {
         let carIds: number[] = [];
@@ -135,6 +127,15 @@ export class CreateClientComponent implements OnInit {
             markModel,
           }
         });
+
+        this.setCarsToForm(this.originalCarChips)
+      } else if (this.predefinedCar) {
+        this.selectedRealCars.push(this.predefinedCar)
+
+        this.originalCarChips = [{
+          id: this.predefinedCar.id,
+          markModel: `${FieldsUtils.getFieldValue(this.predefinedCar, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(this.predefinedCar, FieldNames.Car.model)}`,
+        }];
 
         this.setCarsToForm(this.originalCarChips)
       }

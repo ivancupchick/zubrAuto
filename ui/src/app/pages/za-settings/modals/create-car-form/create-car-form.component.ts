@@ -83,8 +83,8 @@ export class CreateCarFormComponent implements OnInit {
     }
 
     this.carForm = worksheet
-      ? new RealCarForm(worksheet)
-      : new RealCarForm(null);
+      ? new RealCarForm(worksheet, this.car)
+      : new RealCarForm(null, this.car);
 
     this.carQuestionnaireFields = keys(this.carForm.carQuestionnaire)
       .map(field => ({ title: this.carFormStrings.CarQuestionnaire[field], key: field, id: `carQuestionnaire-${field}` }));
