@@ -144,7 +144,7 @@ export namespace CarFormEnums {
     stateInspection = 'stateInspection',
     termStateInspection = 'termStateInspection',
     valueAddedTax = 'valueAddedTax',
-    bodyCondition = 'bodyCondition',
+    // bodyCondition = 'bodyCondition',
     engineCondition = 'engineCondition',
     interiorCondition = 'interiorCondition',
     exteriorCondition = 'exteriorCondition',

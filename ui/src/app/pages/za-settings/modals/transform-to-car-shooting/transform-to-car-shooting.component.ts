@@ -19,7 +19,7 @@ export class TransformToCarShooting implements OnInit {
   get formNotValid() {
     // const link = this.link ? this.link.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi) : null;
 
-    return this.selectedCarShootingUser === 'None';
+    return false;
   };
 
   comment = '';
