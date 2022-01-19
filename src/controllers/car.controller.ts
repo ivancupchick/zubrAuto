@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { UploadedFile } from 'express-fileupload';
+import { FileArray, UploadedFile } from 'express-fileupload';
 import { validationResult } from 'express-validator';
 import { ServerCar } from '../entities/Car';
 import { CarStatistic } from '../entities/CarStatistic';
@@ -138,9 +138,11 @@ class CarController {
         throw ApiError.BadRequest('Ошибка при валидации', errors.array());
       }
 
-      let files: UploadedFile[] = Array.isArray(req.files['file'])
-        ? req.files['file']
-        : [req.files['file']];
+      const file = ((req as any).files as FileArray)['file'];
+
+      let files: UploadedFile[] = Array.isArray(file)
+        ? file
+        : [file];
 
       const id = +req.body.carId;
       const metadata = req.body.metadata || '{}';
