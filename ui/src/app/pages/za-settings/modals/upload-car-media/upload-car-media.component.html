@@ -1,45 +1,47 @@
 <div class="wrapper">
   <div class="content">
-    <!-- <div *ngIf="availableStatuses.length > 1" class="status-wrapper">
-      <h5>Поменять статус на</h5>
-      <p-dropdown appendTo="body" [options]="statuses" [(ngModel)]="selectedStatus" placeholder="Выберите статус" optionLabel="value" optionValue="key"></p-dropdown>
-    </div> -->
-    <div class="comment-wrapper">
-      <h5>Ссылка на видео</h5>
-      <input type="text" pInputText [(ngModel)]="link">
-    </div>
-    <div class="images-wrapper">
-      <div class="card">
-        <p-fileUpload name="myfile[]" [customUpload]="true" [multiple]="true"  (uploadHandler)="uploadNewImage($event)"></p-fileUpload>
-      </div>
+    <p-tabView>
+      <p-tabPanel header="Видео">
+        <div class="comment-wrapper">
+          <h5>Ссылка на видео</h5>
+          <input type="text" pInputText [(ngModel)]="link">
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="Фотографии">
+        <div class="images-wrapper">
+          <div class="card">
+            <p-fileUpload name="myfile[]" chooseLabel="Выбрать фото" uploadLabel="Загрузить все фото" cancelLabel="Отмена" [showCancelButton]="false" [customUpload]="true" [multiple]="true" (uploadHandler)="uploadNewImage($event)"></p-fileUpload>
+          </div>
 
-      <p-carousel [value]="images" [numVisible]="3" [numScroll]="3" [circular]="false" [responsiveOptions]="responsiveOptions">
-        <ng-template pTemplate="header">
-          <h5>Уже загруженные фото</h5>
-        </ng-template>
-        <ng-template let-image pTemplate="item">
-          <p-image [src]="getImageUrl(image)" [alt]="image.name" width="250" [preview]="true" appendTo="body"></p-image>
+          <p-carousel [value]="images" [numVisible]="3" [numScroll]="3" [circular]="false" [responsiveOptions]="responsiveOptions">
+            <ng-template pTemplate="header">
+              <h5>Уже загруженные фото</h5>
+            </ng-template>
+            <ng-template let-image pTemplate="item">
+              <p-image [src]="getImageUrl(image)" [alt]="image.name" width="250" [preview]="true" appendTo="body"></p-image>
 
-          <!-- <div class="image-item">
-            <div class="image-item-content">
-              <div class="p-mb-3">
-                <img [src]="getImageUrl(image)" [alt]="product.name" class="product-image" />
-              </div>
-              <div>
-                <h4 class="p-mb-1">{{product.name}}</h4>
-                <h6 class="p-mt-0 p-mb-3">${{product.price}}</h6>
-                <span [class]="'product-badge status-'+product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span>
-                <div class="car-buttons p-mt-5">
-                  <p-button type="button" styleClass="p-button p-button-rounded p-mr-2" icon="pi pi-search"></p-button>
-                  <p-button type="button" styleClass="p-button-success p-button-rounded p-mr-2" icon="pi pi-star-fill"></p-button>
-                  <p-button type="button" styleClass="p-button-help p-button-rounded" icon="pi pi-cog"></p-button>
+              <!-- <div class="image-item">
+                <div class="image-item-content">
+                  <div class="p-mb-3">
+                    <img [src]="getImageUrl(image)" [alt]="product.name" class="product-image" />
+                  </div>
+                  <div>
+                    <h4 class="p-mb-1">{{product.name}}</h4>
+                    <h6 class="p-mt-0 p-mb-3">${{product.price}}</h6>
+                    <span [class]="'product-badge status-'+product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span>
+                    <div class="car-buttons p-mt-5">
+                      <p-button type="button" styleClass="p-button p-button-rounded p-mr-2" icon="pi pi-search"></p-button>
+                      <p-button type="button" styleClass="p-button-success p-button-rounded p-mr-2" icon="pi pi-star-fill"></p-button>
+                      <p-button type="button" styleClass="p-button-help p-button-rounded" icon="pi pi-cog"></p-button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div> -->
-        </ng-template>
-      </p-carousel>
-    </div>
+              </div> -->
+            </ng-template>
+          </p-carousel>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
   </div>
 </div>
 

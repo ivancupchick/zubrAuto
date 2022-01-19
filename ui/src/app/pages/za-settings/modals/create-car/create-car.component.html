@@ -2,6 +2,8 @@
 <za-dynamic-form #carOwnerForm (changed)="setValidForm($event, 'carOwnerFormValid')" [fields]="carOwnerDynamicFormFields"></za-dynamic-form>
 <h1>Форма машины</h1>
 <za-dynamic-form #carForm (changed)="setValidForm($event, 'carFormValid')" [fields]="carDynamicFormFields"></za-dynamic-form>
+<h1>Наши объявления</h1>
+<za-dynamic-form #ourLinksForm (changed)="setValidForm($event, 'carFormValid')" [fields]="ourLinksDynamicFormFields"></za-dynamic-form>
 
 <div class="footer">
   <button pButton icon="pi pi-save" [disabled]="!carFormValid || !carOwnerFormValid" type="button" [label]="!!car ? 'Редактировать' : 'Создать'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button>

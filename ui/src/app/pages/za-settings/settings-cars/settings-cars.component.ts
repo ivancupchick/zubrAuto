@@ -35,7 +35,7 @@ type UIFilter = {
     type: FieldType.Dropdown;
     value: string;
     defaultValue: string;
-    variants?: { label: string | 'Все', value: string | 'Все' }[]
+    variants: { label: string | 'Все', value: string | 'Все' }[]
   } | {
     type: FieldType.Number;
     values: [number, number],
@@ -43,6 +43,11 @@ type UIFilter = {
     max: number;
     min: number;
     step: number;
+  } | {
+    type: FieldType.Multiselect;
+    value: string[];
+    defaultValue: string[];
+    variants: { label: string, value: string }[]
   }
 )
 
@@ -52,17 +57,17 @@ function calculateBargain(price: number) {
   if (price < 10000) {
     bargain = 200;
   } else if (10000 <= price && price < 15000) {
-    bargain = 200;
-  } else if (15000 <= price && price < 20000) {
-    bargain = 200;
-  } else if (20000 <= price && price < 30000) {
     bargain = 300;
-  } else if (30000 <= price && price < 40000) {
+  } else if (15000 <= price && price < 20000) {
+    bargain = 400;
+  } else if (20000 <= price && price < 30000) {
     bargain = 500;
+  } else if (30000 <= price && price < 40000) {
+    bargain = 700;
   } else if (40000 <= price && price < 50000) {
     bargain = 1000;
   } else if (50000 <= price) {
-    bargain = 1000;
+    bargain = 1500;
   }
 
   return bargain;
@@ -241,6 +246,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   deleteCar(car: ServerCar.Response) {
     this.carService.deleteCar(car.id)
       .subscribe(res => {
+        this.getCars().subscribe();
       });
   }
 
@@ -291,8 +297,20 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           );
         break;
       case QueryCarTypes.carsForSale:
+        const availableStatuses3 = [
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+          FieldNames.CarStatus.customerService_OnDelete,
+          FieldNames.CarStatus.customerService_Sold,
+        ];
+        this.availableStatuses = [
+          ...availableStatuses3.map(s => ({ label: s, value: s }))
+        ];
+
         this.sortedCars = this.rawCars
-          .filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
+          .filter(c => (availableStatuses3.includes(getCarStatus(c))) && (
+            this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0
+          )
                     // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
                     // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
           );
@@ -323,6 +341,14 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           const name = FieldsUtils.getFieldValue(car, filterConfig.name);
 
           return name === value;
+        })
+      }
+
+      if (filterConfig?.type === FieldType.Multiselect && value.length !== 0) {
+        this.sortedCars = this.sortedCars.filter(car => {
+          const fieldValue = FieldsUtils.getFieldValue(car, filterConfig.name);
+
+          return value.includes(fieldValue);
         })
       }
 
@@ -358,19 +384,24 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
         return `${item.id} ${(contactCenterSpecialistName || '').split(' ').map(word => word[0]).join('')}`;
       }, // TODO! ,
-    }, {
+    }, this.type !== QueryCarTypes.carsForSale ? {
       title: this.strings.date,
       name: 'CreatedDate',
       getValue: (item) => {
         try {
           const date = new Date(+item.createdDate);
-          return date instanceof Date ? `${date.getDay()}/${date.getMonth()}/${date.getFullYear()}` : ''
+          return date instanceof Date ? DateUtils.getFormatedDate(+item.createdDate) : ''
         } catch (error) {
           console.error(error);
           return item.createdDate
         }
       },
       available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+    } : {
+      title: this.strings.shootingDate,
+      name: 'shootingDate',
+      getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
+      available: () => true // this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
     }, {
       title: this.strings.source,
       name: 'source',
@@ -414,7 +445,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.bodyType,
       name: 'body-type',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.bodyType),
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.bodyType),
     }, {
       title: this.strings.color,
       name: 'color',
@@ -526,7 +557,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     {
       title: this.strings.ourLinks,
       name: 'ourLinks',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.ourLinks),
+      getValue: (item) => (FieldsUtils.getFieldValue(item, FieldNames.Car.ourLinks) || '')?.split(',').filter(l => l).length,
       available: () => this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
     },
     // {
@@ -683,6 +714,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         availableStatuses: [
           FieldNames.CarStatus.contactCenter_MakingDecision,
           FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_Deny,
           FieldNames.CarStatus.contactCenter_WaitingShooting,
           FieldNames.CarStatus.contactCenter_InProgress
         ],
@@ -854,7 +886,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         car: car,
       },
       header: 'Звонок клиенту',
-      width: '95%',
+      width: '70%',
     });
 
     this.subscribeOnCloseModalRef(ref, true);
@@ -876,8 +908,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     const transmissionField = this.carFieldConfigs.find(config => config.name === FieldNames.Car.transmission);
     const engineField = this.carFieldConfigs.find(config => config.name === FieldNames.Car.engine);
     const driveTypeField = this.carFieldConfigs.find(config => config.name === FieldNames.Car.driveType);
+    const bodyTypeField = this.carFieldConfigs.find(config => config.name === FieldNames.Car.bodyType);
 
-    if (!transmissionField || !engineField || !driveTypeField) {
+    if (!transmissionField || !engineField || !driveTypeField || !bodyTypeField) {
       console.log('Поля не найдены в carFieldConfigs')
       return;
     }
@@ -901,12 +934,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.transmission,
       name: FieldNames.Car.transmission,
-      type: FieldType.Dropdown,
-      value: 'Все',
-      defaultValue: 'Все',
-      variants: [{
-          label: 'Все', value: 'Все'
-        },
+      type: FieldType.Multiselect,
+      value: [],
+      defaultValue: [],
+      variants: [
         ...createVariants(transmissionField)
       ]
     }, {
@@ -927,20 +958,21 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.driveType,
       name: FieldNames.Car.driveType,
-      type: FieldType.Dropdown,
-      value: 'Все',
-      defaultValue: 'Все',
-      variants: [{
-          label: 'Все', value: 'Все'
-        },
+      type: FieldType.Multiselect,
+      value: [],
+      defaultValue: [],
+      variants: [
         ...createVariants(driveTypeField)
       ]
     }, {
       title: this.strings.bodyType,
       name: FieldNames.Car.bodyType,
-      type: FieldType.Text,
-      value: '',
-      defaultValue: '',
+      type: FieldType.Multiselect,
+      value: [],
+      defaultValue: [],
+      variants: [
+        ...createVariants(bodyTypeField)
+      ]
     }, {
       title: this.strings.year,
       name: FieldNames.Car.year,
@@ -953,12 +985,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.engine,
       name: FieldNames.Car.engine,
-      type: FieldType.Dropdown,
-      value: 'Все',
-      defaultValue: 'Все',
-      variants: [{
-          label: 'Все', value: 'Все'
-        },
+      type: FieldType.Multiselect,
+      value: [],
+      defaultValue: [],
+      variants: [
         ...createVariants(engineField)
       ]
     }, {
@@ -974,6 +1004,29 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   changeFilter(filterConfig: UIFilter, e: { originalEvent: PointerEvent | Event, value: string }) {
+    const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
+
+    if (filterConfig.type === this.FieldTypes.Number) {
+      return;
+    }
+
+    if (index !== -1) {
+      if (filterConfig.defaultValue === e.value) {
+        this.selectedFilters.splice(index, 1);
+      } else {
+        this.selectedFilters[index].value = JSON.stringify(e.value);
+      }
+    } else if (filterConfig.defaultValue !== e.value) {
+      this.selectedFilters.push({
+        name: filterConfig.name,
+        value: JSON.stringify(e.value),
+      })
+    }
+
+    this.sortCars();
+  }
+
+  changeMultiselectFilter(filterConfig: UIFilter, e: { originalEvent: PointerEvent | Event, value: string[], itemValue: string }) {
     const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
 
     if (filterConfig.type === this.FieldTypes.Number) {

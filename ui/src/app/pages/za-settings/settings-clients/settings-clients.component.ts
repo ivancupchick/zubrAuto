@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ServerClient } from 'src/app/entities/client';
+import { getClientStatus, ServerClient } from 'src/app/entities/client';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ClientService } from 'src/app/services/client/client.service';
@@ -35,6 +35,9 @@ export class SettingsClientsComponent implements OnInit {
 
   readonly strings = settingsClientsStrings;
 
+  availableStatuses: { label: FieldNames.DealStatus, value: FieldNames.DealStatus }[] = [];
+  selectedStatus: FieldNames.DealStatus[] = [];
+
   constructor(private clientService: ClientService, private dialogService: DialogService, private sessionService: SessionService) { }
 
   ngOnInit(): void {
@@ -43,6 +46,16 @@ export class SettingsClientsComponent implements OnInit {
     this.clientService.getClientFields().subscribe(result => {
       this.fieldConfigs = result;
     })
+
+    const availableStatuses = [
+      FieldNames.DealStatus.Deny,
+      FieldNames.DealStatus.InProgress,
+      FieldNames.DealStatus.OnDeposit,
+      FieldNames.DealStatus.Sold,
+    ];
+    this.availableStatuses = [
+      ...availableStatuses.map(s => ({ label: s, value: s }))
+    ];
 
     this.getClients().subscribe(() => {
       this.loading = false;
@@ -88,7 +101,7 @@ export class SettingsClientsComponent implements OnInit {
     }, {
       title: this.strings.paymentType,
       name: 'paymentType',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.paymentType),
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.paymentType),
     }, {
       title: this.strings.tradeInAuto,
       name: 'tradeInAuto',
@@ -138,8 +151,10 @@ export class SettingsClientsComponent implements OnInit {
       });
   }
 
-  private sortClients() {
-    this.sortedClients = this.rawClients;
+  sortClients() {
+    this.sortedClients = this.rawClients.filter(c =>
+      this.selectedStatus.includes(getClientStatus(c)) || this.selectedStatus.length === 0
+    );
   }
 
   openNewClientWindow() {

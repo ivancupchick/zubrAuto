@@ -262,6 +262,17 @@ class CarInfoGetter {
 
         return `${FieldNames.Car.transmission}-${variantId}`;
       }
+      case FieldNames.Car.bodyType: {
+        const value = `${car.properties.find(property => property.name === this.getPropertyName(name))?.value || ''}`;
+        const bodyType = value; // this.convertTransmission(value);
+        const variantId = fieldConfig.variants.split(',').findIndex(variant => variant === bodyType);
+
+        if (variantId === -1) {
+          return '';
+        }
+
+        return `${FieldNames.Car.bodyType}-${variantId}`;
+      }
       case FieldNames.Car.driveType: {
         const value = `${car.properties.find(property => property.name === this.getPropertyName(name))?.value || ''}`;
         const driveType = this.convertDriveType(value);
@@ -349,8 +360,8 @@ class CarInfoGetter {
     switch (value) {
       case 'передний привод': return 'Передний';
       case 'задний привод': return 'Задний';
-      case 'подключаемый полный привод': return 'Полный привод';
-      case 'постоянный полный привод': return 'Полный привод';
+      case 'подключаемый полный привод': return 'Полный';
+      case 'постоянный полный привод': return 'Полный';
     }
 
     return value;

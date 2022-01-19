@@ -187,7 +187,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     }
 
     const car = await carRepository.create({
-      createdDate: (new Date()).getTime().toString(),
+      createdDate: `${(new Date()).getTime()}`,
       ownerId
     });
     await Promise.all(carFields.map(f => fieldChainService.createFieldChain({

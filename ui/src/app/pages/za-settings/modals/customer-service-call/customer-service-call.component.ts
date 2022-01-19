@@ -81,7 +81,17 @@ export class CustomerServiceCallComponent implements OnInit {
   }
 
   setMainStatistics(statistics: UICarStatistic.Item[]) {
+    const dates = statistics.map(st => st.date.getTime()) ;
+    const minDate = dates.length > 0 ? Math.min(...dates) : (new Date()).getTime();
+
+    const date1 = (new Date(minDate)).getTime();
+    const date2 = (new Date()).getTime();
+    const diffTime = Math.abs(date2 - date1);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+
     const lastThirtyDays = [...new Array(30)].map((i, idx) => moment().startOf("day").subtract(idx, "days"));
+    const last365Days = [...new Array(diffDays)].map((i, idx) => moment().startOf("day").subtract(idx, "days")).reverse();
 
     const getCountyByType = (type: UICarStatistic.StatisticType, date: Date, statistic: UICarStatistic.Item[]): number => {
       return statistic.filter(r => {
@@ -180,7 +190,36 @@ export class CustomerServiceCallComponent implements OnInit {
       options: {
 
       },
-    }]
+    }, diffDays > 30 ? {
+      title: `За ${diffDays} дн(я/ей)`,
+      data: {
+        labels: last365Days.map(item => item.format('DD/MM')),
+          datasets: [
+              {
+                  label: 'Звонки',
+                  data: last365Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.Call, momentDate.toDate(), statistics)),
+                  fill: false,
+                  borderColor: '#42A5F5',
+                  tension: .4
+              }, {
+                  label: 'Запланированы показы',
+                  data: last365Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.PlanShowing, momentDate.toDate(), statistics)),
+                  fill: false,
+                  borderColor: '#FFA726',
+                  tension: .4
+              }, {
+                label: 'Сделанные показы',
+                data: last365Days.map(momentDate => getCountyByType(UICarStatistic.StatisticType.SuccessShowing, momentDate.toDate(), statistics)),
+                fill: false,
+                borderColor: '#ebedef',
+                tension: .4
+            }
+          ]
+      },
+      options: {
+
+      },
+    } : null].filter(r => !!r) as { title: string, data: any, options: any }[];
   }
 
   save() {

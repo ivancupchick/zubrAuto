@@ -35,7 +35,7 @@ export import CarFormEnums = carForm;
 export import CarStatistic = carStatistic
 
 export type UICarShowingStatistic = Omit<CarStatistic.CarShowingResponse, 'content'>
-  & { content: carStatistic.ShowingContent } 
+  & { content: carStatistic.ShowingContent }
   & { car: ServerCar.Response };
 export namespace UICarStatistic {
   export type Item = {
@@ -178,17 +178,17 @@ abstract class CarFormEnumsFactory {
 
   static createExteriorInspection(): ExteriorInspectionHash {
     return {
-      rightFrontFender: '',
-      rightFrontDoor: '',
-      rightRearDoor: '',
-      rightRearFender: '',
-      leftFrontFender: '',
-      leftFrontDoor: '',
-      leftRearDoor: '',
-      leftRearFender: '',
-      hood: '',
-      roof: '',
-      trunk: '',
+      rightFrontFender: '0, X',
+      rightFrontDoor: '0, X',
+      rightRearDoor: '0, X',
+      rightRearFender: '0, X',
+      leftFrontFender: '0, X',
+      leftFrontDoor: '0, X',
+      leftRearDoor: '0, X',
+      leftRearFender: '0, X',
+      hood: '0, X',
+      roof: '0, X',
+      trunk: '0, X',
     }
   }
 
