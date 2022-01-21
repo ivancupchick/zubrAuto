@@ -123,9 +123,13 @@ export class RealCarForm implements ICarForm {
     })
 
     checkValid(this.carQuestionnaire);
+    // console.log(valid);
     checkValid(this.generalCondition);
+    // console.log(valid);
     checkValid(this.inspection);
+    // console.log(valid);
     checkValid(this.exteriorInspection);
+    // console.log(valid);
 
     return valid;
   }

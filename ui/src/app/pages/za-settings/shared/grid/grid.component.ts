@@ -43,12 +43,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   ngOnInit(): void {
     this.selectedKeys = [...this.selected];
 
-    this.contextActions = this.actions.map(action => ({
-      label: action.title,
-      icon: `pi pi-fw pi-${action.icon}`,
-      command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem),
-      disabled: !!action.disabled && action.disabled(this.contextSelectedItem)
-    }))
+    this.updateActions();
   }
 
   onSelect(c: any) {
@@ -80,5 +75,20 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
         return ((event.order || 0) * result);
     });
+  }
+
+  onShow(e: any) {
+    this.updateActions();
+
+    console.log(e);
+  }
+
+  updateActions() {
+    this.contextActions = this.actions.map(action => ({
+      label: action.title,
+      icon: `pi pi-fw pi-${action.icon}`,
+      command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem),
+      disabled: !!action.disabled && action.disabled(this.contextSelectedItem)
+    }))
   }
 }
