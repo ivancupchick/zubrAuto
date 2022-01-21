@@ -727,6 +727,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           worksheet = null;
         }
 
+        console.log(worksheet);
+
         const form = new RealCarForm(worksheet);
 
         return !form.getValidation();

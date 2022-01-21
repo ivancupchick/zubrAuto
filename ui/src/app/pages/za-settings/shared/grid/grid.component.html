@@ -1,4 +1,4 @@
-<p-contextMenu #cm appendTo="body" [model]="contextActions"></p-contextMenu>
+<p-contextMenu #cm appendTo="body" [model]="contextActions" (onShow)="onShow($event)"></p-contextMenu>
 
 <p-table responsiveLayout="scroll"
   [(selection)]="selectedKeys" (selectionChange)="onSelect($event)"
