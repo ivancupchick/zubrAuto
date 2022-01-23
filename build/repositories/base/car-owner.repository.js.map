@@ -1,1 +1,0 @@
-{"version":3,"file":"car-owner.repository.js","sourceRoot":"","sources":["../../../src/repositories/base/car-owner.repository.ts"],"names":[],"mappings":";AAAA,kDAA+C;AAC/C,uDAAmD;AAEnD,MAAM,kBAAmB,SAAQ,gCAA+B;IAC9D;QACE,KAAK,CAAC,eAAM,CAAC,qBAAqB,CAAC,CAAC;IACtC,CAAC;CACF;AAED,iBAAS,IAAI,kBAAkB,EAAE,CAAC"}

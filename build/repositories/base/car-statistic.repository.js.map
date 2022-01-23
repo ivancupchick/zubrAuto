@@ -1,1 +1,0 @@
-{"version":3,"file":"car-statistic.repository.js","sourceRoot":"","sources":["../../../src/repositories/base/car-statistic.repository.ts"],"names":[],"mappings":";AAAA,kDAA+C;AAC/C,uDAAmD;AAEnD,MAAM,sBAAuB,SAAQ,gCAAmC;IACtE;QACE,KAAK,CAAC,eAAM,CAAC,wBAAwB,CAAC,CAAC;IACzC,CAAC;CACF;AAED,iBAAS,IAAI,sBAAsB,EAAE,CAAC"}
