@@ -33,6 +33,7 @@ import {SliderModule} from 'primeng/slider';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {OverlayPanelModule} from 'primeng/overlaypanel';
 import {ContextMenuModule} from 'primeng/contextmenu';
+import {EditorModule} from 'primeng/editor';
 
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
@@ -75,6 +76,7 @@ import { SelectCarComponent } from './modals/select-car/select-car.component';
 import { ManageCarShowingComponent } from './modals/manage-car-showing/manage-car-showing.component';
 import { CreateCarShowingComponent } from './modals/create-car-showing/create-car-showing.component';
 import { CustomerServiceCallComponent } from './modals/customer-service-call/customer-service-call.component';
+import { CompleteClientDealComponent } from './modals/complete-client-deal/complete-client-deal.component';
 
 
 
@@ -148,7 +150,8 @@ const routes: Routes = [{
     SelectCarComponent,
     ManageCarShowingComponent,
     CreateCarShowingComponent,
-    CustomerServiceCallComponent
+    CustomerServiceCallComponent,
+    CompleteClientDealComponent
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -188,6 +191,7 @@ const routes: Routes = [{
     MultiSelectModule,
     OverlayPanelModule,
     ContextMenuModule,
+    EditorModule,
     ModalsAuthModule,
     DynamicFormModule
   ],

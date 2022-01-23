@@ -1,4 +1,8 @@
 export namespace CarFormEnumsStrings {
+  export enum AdditionalStrings {
+    description = 'Описание',
+  }
+
   export enum CarQuestionnaire {
     country = 'Страна производства автомобиля?',
     firstSaleCountry = 'Страна первой продажи (Где покупал первый владелец?)',

@@ -98,6 +98,51 @@ export class CarService {
       }))
   }
 
+  uploadCarImage360(id: number, file: File, carImageMetadata: CarImageMetadata) {
+    const metadata = JSON.stringify(carImageMetadata);
+
+    const formData: FormData = new FormData();
+
+    formData.append('metadata', metadata);
+    formData.append('carId', `${id}`);
+
+    formData.append(`file`, (file as any), (file as any).name);
+
+    return this.requestService.post<any, FormData>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGE360 }`, formData).pipe(map(result => {
+        console.log(result);
+
+        return result;
+      }))
+  }
+
+  uploadCarStateImages(id: number, files: File[], carImageMetadata: CarImageMetadata) {
+    const metadata = JSON.stringify(carImageMetadata);
+
+    const formData: FormData = new FormData();
+
+    formData.append('metadata', metadata);
+    formData.append('carId', `${id}`);
+
+    files.forEach((file, i) => {
+      formData.append(`file`, (file as any), (file as any).name);
+    })
+
+    return this.requestService.post<any, FormData>(`${environment.serverUrl}/${API}/${ Constants.API.STATE_IMAGES }`, formData).pipe(map(result => {
+        console.log(result);
+
+        return result;
+      }))
+  }
+
+  deleteCarImage(carId: number, imageId: number): Observable<boolean> {
+    return this.requestService.delete<any>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${carId}/${imageId}`)
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
   changeCarStatus(id: number, newStatus: FieldNames.CarStatus, comment = '') {
     return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
       concatMap(allFields => {
@@ -117,8 +162,25 @@ export class CarService {
         }
       })
     )
+  }
 
+  selectMainPhoto(carId: number, photoId: number) {
+    return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
+      concatMap(allFields => {
+        const mainPhotoIdConfig = allFields.find(field => field.name === FieldNames.Car.mainPhotoId);
 
+        if (mainPhotoIdConfig) {
+          const statusField = FieldsUtils.setFieldValue(mainPhotoIdConfig, `${photoId}`);
+
+          const car: ServerCar.UpdateRequest = {
+            fields: [statusField]
+          }
+          return this.updateCar(car, carId)
+        } else {
+          return of(false)
+        }
+      })
+    )
   }
 
   transformToCarShooting(id: number, shootingDate: number, carShootingSpecialistId: number, comment = '') {

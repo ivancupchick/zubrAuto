@@ -46,9 +46,21 @@ router.route(`/${Constants.API.CREATE_CARS_BY_LINK}`)
 router.route(`/${Constants.API.IMAGES}/:carId`)
   .get(carController.getImages);
 
+router.route(`/${Constants.API.IMAGES}/:carId/:imageId`)
+  .delete(carController.deleteCarImage);
+
 router.route(`/${Constants.API.IMAGES}`)
   .post(
     carController.uploadImages
   );
+router.route(`/${Constants.API.STATE_IMAGES}`)
+  .post(
+    carController.uploadStateImages
+  );
+router.route(`/${Constants.API.IMAGE360}`)
+  .post(
+    carController.uploadImage360
+  );
+
 
 export default router;

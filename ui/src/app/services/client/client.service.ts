@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServerClient } from 'src/app/entities/client';
+import { Constants } from 'src/app/entities/constants';
 import { FieldDomains } from 'src/app/entities/field';
 import { environment } from 'src/environments/environment';
 import { FieldService } from '../field/field.service';
@@ -49,6 +50,15 @@ export class ClientService {
 
   deleteClient(id: number): Observable<boolean> {
     return this.requestService.delete<any>(`${environment.serverUrl}/${API}/${id}`)
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
+  completeDeal(clientId: number, carId: number): Observable<boolean> {
+    return this.requestService.post<any>(`${environment.serverUrl}/${API}/${Constants.API.COMPLETE_DEAL}`, { clientId, carId })
       .pipe(map(result => {
         console.log(result);
 

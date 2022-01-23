@@ -14,6 +14,7 @@ import { tap } from 'rxjs/operators';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { ServerUser } from 'src/app/entities/user';
+import { CompleteClientDealComponent } from '../modals/complete-client-deal/complete-client-deal.component';
 
 
 @Component({
@@ -116,13 +117,8 @@ export class SettingsClientsComponent implements OnInit {
         const needCars = this.allCars.filter(c => item.carIds.includes(`${c.id}`));
 
         return needCars.map(c => {
-          const user = FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialist);
-
-          const contactCenterSpecialist: ServerUser.Response = JSON.parse(user || '{}');
-          const contactCenterSpecialistName = FieldsUtils.getFieldValue(contactCenterSpecialist, FieldNames.User.name);
-
-          return `${c.id} ${(contactCenterSpecialistName || '').split(' ').map(word => word[0]).join('')}`;
-        })
+          return `${FieldsUtils.getFieldValue(c, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(c, FieldNames.Car.model)}`;
+        }).join(', ')
       },
     }, {
       title: this.strings.paymentType,
@@ -132,6 +128,10 @@ export class SettingsClientsComponent implements OnInit {
       title: this.strings.tradeInAuto,
       name: 'tradeInAuto',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.tradeInAuto),
+    }, {
+      title: this.strings.dealStatus,
+      name: 'dealStatus',
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
     }];
   }
 
@@ -154,7 +154,12 @@ export class SettingsClientsComponent implements OnInit {
       icon: 'list',
       buttonClass: 'success',
       handler: (client) => this.manageCarShowings(client)
-    },
+    }, {
+      title: 'Завершить сделку',
+      icon: 'check-circle',
+      buttonClass: 'success',
+      handler: (client) => this.completeDeal(client)
+    }
     ];
 
     return configs.filter(config => !config.available || config.available());
@@ -220,6 +225,20 @@ export class SettingsClientsComponent implements OnInit {
       },
       header: 'Показы',
       width: '70%',
+    });
+
+    this.subscribeOnCloseModalRef(ref);
+  }
+
+  completeDeal(client: ServerClient.Response) {
+    const ref = this.dialogService.open(CompleteClientDealComponent, {
+      data: {
+        client: client,
+        cars: this.allCars.filter(c => client.carIds.includes(`${c.id}`)),
+      },
+      header: 'Завершить сделку',
+      width: '70%',
+      height: '50%',
     });
 
     this.subscribeOnCloseModalRef(ref);

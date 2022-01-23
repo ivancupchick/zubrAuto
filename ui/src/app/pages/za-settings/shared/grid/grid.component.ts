@@ -5,7 +5,7 @@ import { FieldsUtils } from 'src/app/entities/field';
 export interface GridConfigItem<GridItemType extends { id: number }> {
   title: string;
   name: string;
-  getValue: ((item: GridItemType) => string) | ((item: GridItemType) => any);
+  getValue: ((item: GridItemType) => string | number);
   available?: () => boolean;
   sortable?: () => boolean; // TODO!
 }
@@ -52,14 +52,17 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
   customSort(event: SortEvent) {
     const fieldName = event.field;
+    const gridConfig = this.gridConfig.find(gd => gd.name === fieldName)
 
-    if (!event.order || !fieldName) {
+    if (!event.order || !fieldName || !gridConfig || !event.data) {
+      console.error('sorting not working on this field')
       return;
     }
 
     (event.data as GridItemType[]).sort((data1, data2) => {
-        let value1 = +(FieldsUtils.getFieldValue(data1 as any, fieldName) as string);
-        let value2 = +(FieldsUtils.getFieldValue(data2 as any, fieldName) as string);
+        let value1 = gridConfig.getValue(data1);
+        let value2 = gridConfig.getValue(data2);
+
         let result = null;
 
         if (value1 == null && value2 != null)
@@ -68,8 +71,8 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
             result = 1;
         else if (value1 == null && value2 == null)
             result = 0;
-        // else if (typeof value1 === 'string' && typeof value2 === 'string')
-        //     result = value1.localeCompare(value2);
+        else if (typeof value1 === 'string' && typeof value2 === 'string')
+            result = value1.localeCompare(value2);
         else
             result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
 
@@ -79,8 +82,6 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
   onShow(e: any) {
     this.updateActions();
-
-    console.log(e);
   }
 
   updateActions() {

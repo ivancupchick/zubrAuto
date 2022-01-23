@@ -22,6 +22,7 @@ export class SelectCarComponent implements OnInit {
 
   @Input() cars: CarChip[] = [];
   @Input() origignalCars: ServerCar.Response[] = [];
+  @Input() carsToSelect: ServerCar.Response[] = [];
 
   selectedCars: ServerCar.Response[] = [];
 
@@ -36,6 +37,7 @@ export class SelectCarComponent implements OnInit {
     this.cars = [...this.config.data.cars];
     this.selectedCars = [...this.config.data.origignalCars];
     this.origignalCars = [...this.config.data.origignalCars];
+    this.carsToSelect = [...this.config.data.carsToSelect];
   }
 
   save() {
