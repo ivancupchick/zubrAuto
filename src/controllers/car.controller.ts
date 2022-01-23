@@ -130,6 +130,25 @@ class CarController {
     }
   }
 
+  async deleteCarImage(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carId = +req.params.carId;
+      const imageId = +req.params.imageId;
+
+      const result = await carImageService.deleteCarImage(carId, imageId)
+;
+      return res.json(true);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async uploadImages(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
@@ -148,6 +167,58 @@ class CarController {
       const metadata = req.body.metadata || '{}';
 
       const result = await carImageService.uploadCarImage(id, files, metadata);
+
+      return res.json(result);
+    } catch (e) {
+      console.log(e);
+      next(e);
+    }
+  }
+
+  async uploadStateImages(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const file = ((req as any).files as FileArray)['file'];
+
+      let files: UploadedFile[] = Array.isArray(file)
+        ? file
+        : [file];
+
+      const id = +req.body.carId;
+      const metadata = req.body.metadata || '{}';
+
+      const result = await carImageService.uploadCarStateImages(id, files, metadata);
+
+      return res.json(result);
+    } catch (e) {
+      console.log(e);
+      next(e);
+    }
+  }
+
+  async uploadImage360(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const file = ((req as any).files as FileArray)['file'];
+
+      let files: UploadedFile[] = Array.isArray(file)
+        ? file
+        : [file];
+
+      const id = +req.body.carId;
+      const metadata = req.body.metadata || '{}';
+
+      const result = await carImageService.uploadCarImage360(id, files[0], metadata);
 
       return res.json(result);
     } catch (e) {

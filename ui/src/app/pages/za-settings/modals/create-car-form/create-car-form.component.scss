@@ -12,6 +12,14 @@
   }
 }
 
+p-editor.ng-invalid::ng-deep > div {
+  border: red 1px solid;
+}
+
+p-accordiontab.invalid::ng-deep .p-accordion-header {
+  border: red 1px solid;
+}
+
 .tab-wrapper.questionnaire, .tab-wrapper.general-condition {
   form {
     .form-field {

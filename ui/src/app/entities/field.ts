@@ -94,29 +94,48 @@ export class FieldsUtils {
     return null;
   }
 
-  static getFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string | null {
+  static getFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
     const field = this.getField(entityOrFieldsArray, name);
+
+    if (field == null) {
+      console.error(`${name} did not found`)
+    }
 
     if (field && (field.value || field.value === '')) {
       return field.value;
     }
 
-    return null;
+    return '';
   }
 
   static getFieldBooleanValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): boolean {
     const field = this.getField(entityOrFieldsArray, name);
+
+    if (field == null) {
+      console.error(`${name} did not found`)
+    }
+
     return (!!field && !!+field.value);
   }
 
-  static getFieldNumberValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): number | null {
+  static getFieldNumberValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): number {
     const field = this.getField(entityOrFieldsArray, name);
-    return field && field.value ? +field.value : null;
+
+    if (field == null) {
+      console.error(`${name} did not found`)
+    }
+
+    return field && field.value ? +field.value : 0;
   }
 
-  static getFieldStringValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string | null {
+  static getFieldStringValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
     const field = this.getField(entityOrFieldsArray, name);
-    return field && field.value != null ? field.value + '' : null;
+
+    // if (field == null) {
+    //   console.error(`${name} did not found`)
+    // }
+
+    return field && field.value != null ? field.value + '' : '';
   }
 
   // need test work

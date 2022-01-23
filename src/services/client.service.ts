@@ -1,5 +1,6 @@
 import { ServerClient } from "../entities/Client";
 import { FieldDomains } from "../entities/Field";
+import { FieldNames } from "../entities/FieldNames";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
 import clientRepository from "../repositories/base/client.repository";
@@ -91,6 +92,41 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     };
 
     return result;
+  }
+
+  async completeDeal(clientId: number, carId: number) {
+    const [
+      clientFields,
+      carFields,
+    ] = await Promise.all([
+      fieldService.getFieldsByDomain(FieldDomains.Client),
+      fieldService.getFieldsByDomain(FieldDomains.Car),
+    ]);
+
+    const clientStatusField = clientFields.find(cf => cf.name === FieldNames.Client.dealStatus);
+    const carStatusField = carFields.find(cf => cf.name === FieldNames.Car.status);
+
+    const [
+      clientStatusChain,
+      carStatusChain,
+    ] = await Promise.all([
+      fieldChainRepository.findOne({ fieldId: [`${clientStatusField.id}`], sourceId: [`${clientId}`], sourceName: [`${Models.CLIENTS_TABLE_NAME}`] }),
+      fieldChainRepository.findOne({ fieldId: [`${carStatusField.id}`], sourceId: [`${carId}`], sourceName: [`${Models.CARS_TABLE_NAME}`] }),
+    ]);
+
+    const clientStatusIndex = clientStatusField.variants.split(',').findIndex(v => v === FieldNames.DealStatus.Sold);
+    const carStatusIndex = carStatusField.variants.split(',').findIndex(v => v === FieldNames.CarStatus.customerService_Sold);
+    const clientStatus = `${FieldNames.Client.dealStatus}-${clientStatusIndex !== -1 ? clientStatusIndex : 0}`;
+    const carStatus = `${FieldNames.Car.status}-${carStatusIndex !== -1 ? carStatusIndex : 0}`;
+
+    const res = await Promise.all([
+      fieldChainService.updateFieldChain(clientStatusChain.id, { value: clientStatus}),
+      fieldChainService.updateFieldChain(carStatusChain.id, { value: carStatus}),
+    ]);
+
+    // TODO Delete all related carShowings
+
+    return res;
   }
 }
 

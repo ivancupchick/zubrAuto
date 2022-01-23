@@ -10,7 +10,7 @@
       <p-tabPanel header="Фотографии">
         <div class="images-wrapper">
           <div class="card">
-            <p-fileUpload name="myfile[]" chooseLabel="Выбрать фото" uploadLabel="Загрузить все фото" cancelLabel="Отмена" [showCancelButton]="false" [customUpload]="true" [multiple]="true" (uploadHandler)="uploadNewImage($event)"></p-fileUpload>
+            <p-fileUpload #imagesFileUpload name="myfile[]" chooseLabel="Выбрать фото" uploadLabel="Загрузить все фото" cancelLabel="Отмена" [showCancelButton]="false" [customUpload]="true" [multiple]="true" (uploadHandler)="uploadNewImage($event)"></p-fileUpload>
           </div>
 
           <p-carousel [value]="images" [numVisible]="3" [numScroll]="3" [circular]="false" [responsiveOptions]="responsiveOptions">
@@ -18,7 +18,16 @@
               <h5>Уже загруженные фото</h5>
             </ng-template>
             <ng-template let-image pTemplate="item">
-              <p-image [src]="getImageUrl(image)" [alt]="image.name" width="250" [preview]="true" appendTo="body"></p-image>
+              <div class="accordion-wrapper">
+                <p-image [src]="getImageUrl(image)" [alt]="image.name" width="250" [preview]="true" appendTo="body"></p-image>
+
+                <div class="car-buttons">
+                  <!-- <p-button type="button" styleClass="p-button p-button-rounded p-mr-2" icon="pi pi-search"></p-button> -->
+                  <p-button [disabled]="mainPhotoId === image.id" type="button" styleClass="p-button-help" icon="pi pi-check" label="Выбрать главной" (onClick)="selectMainPhoto(image)"></p-button>
+                  <p-button type="button" styleClass="p-button-danger" icon="pi pi-times" label="Удалить" (onClick)="deletePhoto(image)"></p-button>
+                </div>
+              </div>
+
 
               <!-- <div class="image-item">
                 <div class="image-item-content">
@@ -37,6 +46,39 @@
                   </div>
                 </div>
               </div> -->
+            </ng-template>
+          </p-carousel>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel header="Фото 360">
+        <div class="images-360-wrapper">
+          <div class="card">
+            <p-fileUpload #image360FileUpload name="image360[]" chooseLabel="Выбрать фото" uploadLabel="Загрузить фото" cancelLabel="Отмена" [showCancelButton]="false" [customUpload]="true" [multiple]="false" (uploadHandler)="uploadImage360($event)"></p-fileUpload>
+          </div>
+
+          <h5>Фото 360 загружено: {{ image360Uploaded ? 'Да' : 'Нет' }}</h5>
+        </div>
+      </p-tabPanel>
+
+      <p-tabPanel header="Фото тех-паспорта">
+        <div class="state-images-wrapper">
+          <div class="card">
+            <p-fileUpload #imagesStateFileUpload name="statefile[]" chooseLabel="Выбрать фото" uploadLabel="Загрузить все фото" cancelLabel="Отмена" [showCancelButton]="false" [customUpload]="true" [multiple]="true" (uploadHandler)="uploadStateImages($event)"></p-fileUpload>
+          </div>
+
+          <p-carousel [value]="stateImages" [numVisible]="3" [numScroll]="3" [circular]="false" [responsiveOptions]="responsiveOptions">
+            <ng-template pTemplate="header">
+              <h5>Уже загруженные фото тех-паспорта</h5>
+            </ng-template>
+            <ng-template let-image pTemplate="item">
+              <div class="accordion-wrapper">
+                <p-image [src]="getImageUrl(image)" [alt]="image.name" width="250" [preview]="true" appendTo="body"></p-image>
+
+                <div class="car-buttons">
+                  <!-- <p-button type="button" styleClass="p-button p-button-rounded p-mr-2" icon="pi pi-search"></p-button> -->
+                  <p-button type="button" styleClass="p-button-danger" icon="pi pi-times" label="Удалить" (onClick)="deletePhoto(image)"></p-button>
+                </div>
+              </div>
             </ng-template>
           </p-carousel>
         </div>

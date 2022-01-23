@@ -80,6 +80,7 @@ export interface ICarForm {
   inspection: InspectionHash,
   exteriorInspection: ExteriorInspectionHash,
   checkboxes: CheckboxesHash,
+  description: string,
 }
 
 export class RealCarForm implements ICarForm {
@@ -88,6 +89,7 @@ export class RealCarForm implements ICarForm {
   inspection!: InspectionHash;
   exteriorInspection!: ExteriorInspectionHash;
   checkboxes!: CheckboxesHash;
+  description!: string;
 
   constructor(carForm: ICarForm | null, car?: ServerCar.Response) {
     this.carQuestionnaire = carForm?.carQuestionnaire || CarFormEnumsFactory.createCarQuestionnaire();
@@ -95,6 +97,7 @@ export class RealCarForm implements ICarForm {
     this.inspection = carForm?.inspection || CarFormEnumsFactory.createInspection(car);
     this.exteriorInspection = carForm?.exteriorInspection || CarFormEnumsFactory.createExteriorInspection();
     this.checkboxes = carForm?.checkboxes || CarFormEnumsFactory.createCheckboxes();
+    this.description = carForm?.description || '';
   }
 
   getValidation(): boolean {
@@ -103,9 +106,10 @@ export class RealCarForm implements ICarForm {
     const checkValid = (object: StringHash) => Object.keys(object).forEach(c => {
       const exludeList: string[] = [
         CarFormEnums.Inspection.stateInspection,
+        CarFormEnums.Inspection.termStateInspection,
         CarFormEnums.Inspection.valueAddedTax,
         CarFormEnums.Inspection.guarantee,
-        CarFormEnums.Inspection.guarantee,
+        CarFormEnums.Inspection.termGuarantee,
         'bodyCondition'
       ]
 
@@ -115,7 +119,7 @@ export class RealCarForm implements ICarForm {
 
       if (
             object[c] === ''
-        || (c === 'fuelСonsumption' && object[c] === 'Город: ? Смешанный: ? Трасса: ? ')
+        // || (c === 'fuelСonsumption' && object[c] === 'Город: ? Смешанный: ? Трасса: ? ')
         || exludeList.includes(c)
       ) {
         valid = false;
@@ -130,6 +134,10 @@ export class RealCarForm implements ICarForm {
     // console.log(valid);
     checkValid(this.exteriorInspection);
     // console.log(valid);
+
+    if (this.description === '') {
+      return false;
+    }
 
     return valid;
   }

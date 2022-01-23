@@ -1,7 +1,10 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FileUpload } from 'primeng/fileupload';
+import { tap } from 'rxjs/operators';
 import { CarImage, ServerCar } from 'src/app/entities/car';
+import { FieldsUtils } from 'src/app/entities/field';
+import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 import { environment } from 'src/environments/environment';
 
@@ -17,10 +20,15 @@ export class UploadCarMediaComponent implements OnInit {
   loading = false;
   link: string = '';
   images: CarImage.Response[] = [];
+  stateImages: CarImage.Response[] = [];
+
+  mainPhotoId: number | undefined= undefined;
 
   get formNotValid() {
     return false
   }
+
+  image360Uploaded = false;
 
   uplo: File[] = [];
 
@@ -40,7 +48,9 @@ export class UploadCarMediaComponent implements OnInit {
 
   @Input() car!: ServerCar.Response;
 
-  @ViewChild(FileUpload) fileUpload!: FileUpload;
+  @ViewChild('imagesFileUpload', { read: FileUpload }) fileUpload!: FileUpload;
+  @ViewChild('image360FileUpload', { read: FileUpload }) image360FileUpload!: FileUpload;
+  @ViewChild('imagesStateFileUpload', { read: FileUpload }) imagesStateFileUpload!: FileUpload;
 
   constructor(
     private ref: DynamicDialogRef,
@@ -50,22 +60,29 @@ export class UploadCarMediaComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.car = this.config.data.car;
+    this.setCar(this.config.data.car)
+  }
 
-    this.getImages();
+  setCar(car: ServerCar.Response) {
+    this.car = car;
+
+    this.mainPhotoId = FieldsUtils.getFieldNumberValue(this.car, FieldNames.Car.mainPhotoId);
+
+    this.getImages().subscribe();
   }
 
   getImages() {
     this.loading = true;
-    this.carService.getCarsImages(this.car.id)
-      .subscribe(images => {
-        this.images = images.map(image => {
-          // image.url = environment.serverUrl+'/'+image.url;
-          return image;
-        });
+    return this.carService.getCarsImages(this.car.id)
+      .pipe(
+        tap(images => {
+          this.images = images.filter(image => image.type === CarImage.Types.Image);
+          this.image360Uploaded = !!images.find(image => image.type === CarImage.Types.Image360);
+          this.stateImages = images.filter(image => image.type === CarImage.Types.StateImage)
 
-        this.loading = false;
-      })
+          this.loading = false;
+        })
+      )
   }
 
   create() {
@@ -106,11 +123,72 @@ export class UploadCarMediaComponent implements OnInit {
     this.loading = true;
 
     this.carService.uploadCarImages(this.car.id, this.uplo, '').subscribe(res => {
-      this.getImages();
+      this.getImages().subscribe();
 
       this.fileUpload.clear();
+    })
+  }
 
+  uploadImage360({ files }: { files: File[]}) {
+    this.uplo = files;
+
+    this.loading = true;
+
+    this.carService.uploadCarImage360(this.car.id, this.uplo[0], '').subscribe(res => {
+      this.image360FileUpload.clear();
+
+      this.getImages().subscribe();
+    }, e => {
+      console.log(e);
       this.loading = false;
+    })
+  }
+
+  uploadStateImages({ files }: { files: File[]}) {
+    this.uplo = files;
+
+    this.loading = true;
+
+    this.carService.uploadCarStateImages(this.car.id, this.uplo, '').subscribe(res => {
+      this.getImages().subscribe();
+
+      this.fileUpload.clear();
+    })
+  }
+
+  selectMainPhoto(image: CarImage.Response) {
+    this.loading = true;
+    this.carService.selectMainPhoto(this.car.id, image.id).subscribe(res => {
+      this.getImages().subscribe();
+      this.carService.getCar(this.car.id).subscribe(car => {
+        this.setCar(car);
+
+        this.loading = false;
+      }, e => {
+        this.loading = false;
+        console.error(e);
+      })
+    }, e => {
+      this.loading = false;
+      console.error(e);
+    })
+  }
+
+  deletePhoto(image: CarImage.Response) {
+    this.loading = true;
+    this.carService.deleteCarImage(this.car.id, image.id).subscribe(res => {
+      this.getImages().subscribe();
+      this.carService.getCar(this.car.id).subscribe(car => {
+        this.setCar(car);
+
+        this.loading = false;
+      }, e => {
+        this.loading = false;
+        console.error(e);
+      })
+    }, e => {
+      this.loading = false;
+      console.error(e);
     })
   }
 }

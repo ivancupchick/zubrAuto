@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CarFormEnums, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
 import { StringHash } from 'src/app/entities/constants';
@@ -52,12 +52,14 @@ export class CreateCarFormComponent implements OnInit {
   public inspectionForm!: FormGroup;
   public exteriorInspectionForm!: FormGroup;
   public checkboxesForm!: FormGroup;
+  public descriptionForm!: FormGroup;
 
   public carQuestionnaireFields!: CarFormField<CarFormEnums.CarQuestionnaire>[];
   public generalConditionFields!: CarFormField<CarFormEnums.GeneralCondition>[];
   public inspectionFields!: FieldObject<CarFormEnums.Inspection>;
   public exteriorInspectionFields!: FieldObject<CarFormEnums.ExteriorInspection>;
   public checkboxesFields!: CarFormField<CarFormEnums.Checkboxes>[];
+  public descriptionField!: CarFormField;
 
   private carForm!: RealCarForm;
 
@@ -107,6 +109,7 @@ export class CreateCarFormComponent implements OnInit {
     this.checkboxesFields = keys(this.carForm.checkboxes)
       .map(field => ({ title: this.carFormStrings.Checkboxes[field], key: field, id: `checkboxes-${field}` }));
 
+    this.descriptionField = { title: this.carFormStrings.AdditionalStrings.description, key: 'description', id: `description` }
 
     // this.checkboxesFields =  keys(this.carForm.checkboxes).reduce((previos, field) => {
     //   return {...previos,
@@ -115,10 +118,74 @@ export class CreateCarFormComponent implements OnInit {
     // }, {} as FieldObject<CarFormEnums.Checkboxes>)
 
     this.carQuestionnaireForm = this.fb.group( this.carForm.carQuestionnaire );
+    for (const key in this.carQuestionnaireForm.controls) {
+      if (Object.prototype.hasOwnProperty.call(this.carQuestionnaireForm.controls, key)) {
+        const element = this.carQuestionnaireForm.controls[key];
+        element.setValidators(Validators.required);
+        element.markAsTouched();
+        element.markAsDirty();
+      }
+    }
+
     this.generalConditionForm = this.fb.group( this.carForm.generalCondition );
+    for (const key in this.generalConditionForm.controls) {
+      if (Object.prototype.hasOwnProperty.call(this.generalConditionForm.controls, key)) {
+        const element = this.generalConditionForm.controls[key];
+        element.setValidators(Validators.required);
+        element.markAsTouched();
+        element.markAsDirty();
+      }
+    }
+
     this.inspectionForm = this.fb.group( this.carForm.inspection );
+    for (const key in this.inspectionForm.controls) {
+      if (Object.prototype.hasOwnProperty.call(this.inspectionForm.controls, key)) {
+        const element = this.inspectionForm.controls[key];
+        const excluseFields: string[] = [
+          CarFormEnums.Inspection.guarantee,
+          CarFormEnums.Inspection.termGuarantee,
+          CarFormEnums.Inspection.stateInspection,
+          CarFormEnums.Inspection.termStateInspection,
+          CarFormEnums.Inspection.valueAddedTax,
+          'bodyCondition',
+        ]
+        if (!excluseFields.includes(key)) {
+          element.setValidators(Validators.required);
+          element.markAsTouched();
+          element.markAsDirty();
+        }
+      }
+    }
+
     this.exteriorInspectionForm = this.fb.group( this.carForm.exteriorInspection );
+    for (const key in this.exteriorInspectionForm.controls) {
+      if (Object.prototype.hasOwnProperty.call(this.exteriorInspectionForm.controls, key)) {
+        const element = this.exteriorInspectionForm.controls[key];
+        element.setValidators([Validators.required]);
+        element.markAsTouched();
+        element.markAsDirty();
+      }
+    }
+
     this.checkboxesForm = this.fb.group( this.carForm.checkboxes );
+    // for (const key in this.checkboxesForm.controls) {
+    //   if (Object.prototype.hasOwnProperty.call(this.checkboxesForm.controls, key)) {
+    //     const element = this.checkboxesForm.controls[key];
+    //     element.setValidators(Validators.required);
+    //     element.markAsTouched();
+    //     element.markAsDirty();
+    //   }
+    // }
+
+    this.descriptionForm = this.fb.group({ description: this.carForm.description });
+    for (const key in this.descriptionForm.controls) {
+      if (Object.prototype.hasOwnProperty.call(this.descriptionForm.controls, key)) {
+        const element = this.descriptionForm.controls[key];
+        element.setValidators(Validators.required);
+        element.markAsTouched();
+        element.markAsDirty();
+      }
+    }
   }
 
   create() {
@@ -170,6 +237,11 @@ export class CreateCarFormComponent implements OnInit {
       if (!control.pristine) {
         this.carForm.checkboxes[iterator.key] = control.value;
       }
+    }
+
+    const descriptionControl = this.descriptionForm.controls['description'];
+    if (!descriptionControl.pristine) {
+      this.carForm.description = descriptionControl.value;
     }
 
     this.carService.editCarForm(this.car.id, this.carForm).subscribe(res => {

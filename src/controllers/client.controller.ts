@@ -84,6 +84,22 @@ class ClientConntroller {
       next(e);
     }
   }
+
+  async completeDeal(req: Request<any, any, {clientId: number, carId: number}>, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
+      }
+
+      const {clientId, carId} = req.body;
+      const client = await clientService.completeDeal(clientId, carId);
+
+      return res.json(client);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export = new ClientConntroller();

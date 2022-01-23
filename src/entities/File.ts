@@ -12,5 +12,7 @@ export namespace ServerFile {
     Folder,
     File,
     Image,
+    Image360,
+    StateImage,
   }
 }

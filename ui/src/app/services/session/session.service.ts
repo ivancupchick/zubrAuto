@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerAuth, ServerUser } from 'src/app/entities/user';
@@ -11,6 +11,7 @@ export class SessionService {
 
   private selectedRole: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin = ServerRole.System.Admin;
   userSubj = new BehaviorSubject<ServerAuth.IPayload | null>(null);
+  roleSubj = new Subject<ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin>();
 
   private get user() {
     return this.userSubj.getValue() || {} as ServerAuth.IPayload;
@@ -88,5 +89,7 @@ export class SessionService {
 
   setCustomRole(role: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin) {
     this.selectedRole = role;
+
+    this.roleSubj.next(role);
   }
 }

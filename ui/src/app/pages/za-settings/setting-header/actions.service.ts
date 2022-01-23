@@ -145,18 +145,20 @@ export class ActionsService {
   }
 
   getCarShootingActions(): ActionsItem[] {
-    return [{
-      label: 'Моя база съёмок',
-      icon: 'pi pi-fw pi-camera',
-      routerLink: 'cars',
-      queryParams: { type: QueryCarTypes.myShootingBase },
-      visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
-    }, {
+    return [
+    // {
+    //   label: 'Моя база съёмок',
+    //   icon: 'pi pi-fw pi-camera',
+    //   routerLink: 'cars',
+    //   queryParams: { type: QueryCarTypes.myShootingBase },
+    //   visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
+    // },
+    {
       label: 'Вся база съёмок',
       icon: 'pi pi-fw pi-camera',
       routerLink: 'cars',
       queryParams: { type: QueryCarTypes.allShootingBase },
-      visible: () => this.sessionService.isCarShootingChief,
+      visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
     },
     //  {
     //   label: 'Создать Анкету',

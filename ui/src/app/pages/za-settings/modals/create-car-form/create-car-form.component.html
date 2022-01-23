@@ -1,7 +1,7 @@
 <div class="wrapper">
   <div class="content">
     <p-accordion>
-      <p-accordionTab header="Толщиномер">
+      <p-accordionTab [ngClass]="{invalid: exteriorInspectionForm.invalid}" header="Толщиномер">
         <div class="tab-wrapper carWeightInspection">
           <form class="carWeightInspectionForm" [formGroup]="exteriorInspectionForm">
             <ng-content *ngTemplateOutlet="inputFieldTemplate; context: { '$implicit': {form: exteriorInspectionForm, field: exteriorInspectionFields.rightFrontFender}}"></ng-content>
@@ -31,7 +31,7 @@
           </form> -->
         </div>
       </p-accordionTab>
-      <p-accordionTab header="Акт осмотра автомобиля с пробегом">
+      <p-accordionTab [ngClass]="{invalid: inspectionForm.invalid}" header="Акт осмотра автомобиля с пробегом">
         <div class="tab-wrapper inspectionForm">
           <form class="inspectionForm" [formGroup]="inspectionForm">
             <div class="grid formgrid">
@@ -187,7 +187,7 @@
           </form>
         </div>
       </p-accordionTab>
-      <p-accordionTab header="Общее состояние и Стоимость авто">
+      <p-accordionTab [ngClass]="{invalid: generalConditionForm.invalid}" header="Общее состояние и Стоимость авто">
         <div class="tab-wrapper general-condition">
           <form [formGroup]="generalConditionForm" class="grid formgrid">
             <div *ngFor="let field of generalConditionFields; trackBy: idTrackBy" class="col-12 md:col-6 form-field">
@@ -200,7 +200,7 @@
           </form>
         </div>
       </p-accordionTab>
-      <p-accordionTab header="Опросник продавца">
+      <p-accordionTab [ngClass]="{invalid: carQuestionnaireForm.invalid}" header="Опросник продавца">
         <div class="tab-wrapper questionnaire">
           <form [formGroup]="carQuestionnaireForm" class="grid formgrid">
             <div *ngFor="let field of carQuestionnaireFields; trackBy: idTrackBy" class="col-12 md:col-6 form-field">
@@ -211,6 +211,11 @@
               }"></ng-content>
             </div>
           </form>
+        </div>
+      </p-accordionTab>
+      <p-accordionTab [ngClass]="{invalid: descriptionForm.invalid}" header="Описание">
+        <div class="tab-wrapper description" [formGroup]="descriptionForm">
+          <p-editor formControlName="description" [style]="{'height':'500px'}"></p-editor>
         </div>
       </p-accordionTab>
     </p-accordion>
