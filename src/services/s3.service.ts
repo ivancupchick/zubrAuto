@@ -1,8 +1,5 @@
-import request from 'request-promise';
-import { ServerCar } from '../entities/Car';
-import { RealField, ServerField } from '../entities/Field';
 import S3 from 'aws-sdk/clients/s3';
-import fs from 'fs';
+import sharp from 'sharp';
 import { UploadedFile } from 'express-fileupload';
 import dotenv from 'dotenv';
 
@@ -29,10 +26,12 @@ class S3Service {
   }
 
   async uploadFile(file: UploadedFile) {
+    const compressedBuffer = await sharp(file.data).jpeg({ quality: 20 }).toBuffer(); // TODO: test!
+
     const timestamp = (new Date()).getTime().toString();
     const uploadParams = {
       Bucket: bucketName,
-      Body: file.data,
+      Body: compressedBuffer,
       Key: `${timestamp}-${file.name}`
     }
 

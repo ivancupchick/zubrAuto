@@ -1,5 +1,3 @@
-import { ICrudService } from "../entities/Types";
-import carRepository from "../repositories/base/car.repository";
 import fileRepository from "../repositories/base/file.repository";
 import { Models } from "../entities/Models";
 import { ServerFile } from "../entities/File";
