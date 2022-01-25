@@ -29,6 +29,7 @@ export class UploadCarMediaComponent implements OnInit {
   }
 
   image360Uploaded = false;
+  image360: CarImage.Response | undefined = undefined;
 
   uplo: File[] = [];
 
@@ -66,6 +67,8 @@ export class UploadCarMediaComponent implements OnInit {
   setCar(car: ServerCar.Response) {
     this.car = car;
 
+    this.link = FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.linkToVideo);
+
     this.mainPhotoId = FieldsUtils.getFieldNumberValue(this.car, FieldNames.Car.mainPhotoId);
 
     this.getImages().subscribe();
@@ -78,6 +81,7 @@ export class UploadCarMediaComponent implements OnInit {
         tap(images => {
           this.images = images.filter(image => image.type === CarImage.Types.Image);
           this.image360Uploaded = !!images.find(image => image.type === CarImage.Types.Image360);
+          this.image360 = images.find(image => image.type === CarImage.Types.Image360);
           this.stateImages = images.filter(image => image.type === CarImage.Types.StateImage)
 
           this.loading = false;
@@ -178,6 +182,23 @@ export class UploadCarMediaComponent implements OnInit {
     this.loading = true;
     this.carService.deleteCarImage(this.car.id, image.id).subscribe(res => {
       this.getImages().subscribe();
+      this.carService.getCar(this.car.id).subscribe(car => {
+        this.setCar(car);
+
+        this.loading = false;
+      }, e => {
+        this.loading = false;
+        console.error(e);
+      })
+    }, e => {
+      this.loading = false;
+      console.error(e);
+    })
+  }
+
+  saveLink() {
+    this.loading = true;
+    this.carService.saveVideo(this.car.id, this.link).subscribe(res => {
       this.carService.getCar(this.car.id).subscribe(car => {
         this.setCar(car);
 

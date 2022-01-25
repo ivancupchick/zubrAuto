@@ -5,6 +5,10 @@
         <div class="comment-wrapper">
           <h5>Ссылка на видео</h5>
           <input type="text" pInputText [(ngModel)]="link">
+
+          <div class="car-buttons">
+            <p-button [disabled]="link === ''" type="button" styleClass="p-button-help" icon="pi pi-save" label="Сохранить ссылку" (onClick)="saveLink()"></p-button>
+          </div>
         </div>
       </p-tabPanel>
       <p-tabPanel header="Фотографии">
@@ -55,6 +59,9 @@
           <div class="card">
             <p-fileUpload #image360FileUpload name="image360[]" chooseLabel="Выбрать фото" uploadLabel="Загрузить фото" cancelLabel="Отмена" [showCancelButton]="false" [customUpload]="true" [multiple]="false" (uploadHandler)="uploadImage360($event)"></p-fileUpload>
           </div>
+
+          <p-image *ngIf="image360" [src]="getImageUrl(image360)" [alt]="image360.name" width="250" [preview]="true" appendTo="body"></p-image>
+
 
           <h5>Фото 360 загружено: {{ image360Uploaded ? 'Да' : 'Нет' }}</h5>
         </div>

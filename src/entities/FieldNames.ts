@@ -40,7 +40,8 @@ export namespace FieldNames {
     statistic = 'statistic',
     bodyType = 'body-type',
     contactCenterSpecialist = 'contact-center-specialist',
-    mainPhotoId = 'main-photo-id'
+    mainPhotoId = 'main-photo-id',
+    linkToVideo = 'link-to-video',
   }
 
   export enum CarStatus {
