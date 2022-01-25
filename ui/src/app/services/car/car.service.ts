@@ -164,6 +164,28 @@ export class CarService {
     )
   }
 
+  saveVideo(carId: number, link = '') {
+    console.log(link);
+    return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
+      concatMap(allFields => {
+        const linkConfig = allFields.find(field => field.name === FieldNames.Car.linkToVideo);
+
+        console.log(linkConfig);
+
+        if (linkConfig) {
+          const linkField = FieldsUtils.setFieldValue(linkConfig, link);
+
+          const car: ServerCar.UpdateRequest = {
+            fields: [linkField]
+          }
+          return this.updateCar(car, carId)
+        } else {
+          return of(false)
+        }
+      })
+    )
+  }
+
   selectMainPhoto(carId: number, photoId: number) {
     return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
       concatMap(allFields => {
