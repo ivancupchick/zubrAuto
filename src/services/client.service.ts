@@ -20,10 +20,10 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       fieldService.getFieldsByDomain(FieldDomains.Client)
     ]);
 
-    const chaines = await fieldChainRepository.find({
+    const chaines = clients.length > 0 ? await fieldChainRepository.find({
       sourceId: clients.map(c => `${c.id}`),
       sourceName: [`${Models.CLIENTS_TABLE_NAME}`]
-    });
+    }) : [];
 
     const result: ServerClient.Response[] = clients.map(client => ({
       id: client.id,
