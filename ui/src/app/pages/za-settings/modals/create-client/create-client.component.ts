@@ -90,7 +90,7 @@ export class CreateClientComponent implements OnInit {
 
         return newField;
       }))
-        .map(fc => this.updateFieldConfig(fc));
+        .map(fc => this.updateFieldConfig(fc)).map(f => { f.required = true; return f; });
 
     this.dynamicFormFields = formFields;
 
@@ -181,7 +181,7 @@ export class CreateClientComponent implements OnInit {
         client.fields.push({
           id: dateField.id,
           name: dateField.name,
-          value: (new Date()).getDate().toString()
+          value: `${+(new Date())}`
         })
       } else {
         // TODO create right expression for this error

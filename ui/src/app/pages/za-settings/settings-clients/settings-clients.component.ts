@@ -15,6 +15,7 @@ import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { ServerUser } from 'src/app/entities/user';
 import { CompleteClientDealComponent } from '../modals/complete-client-deal/complete-client-deal.component';
+import { DateUtils } from 'src/app/entities/utils';
 
 
 @Component({
@@ -93,7 +94,16 @@ export class SettingsClientsComponent implements OnInit {
     }, {
       title: this.strings.date,
       name: 'date',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.date),
+      getValue: (item) => {
+        const timestamp = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date);
+        try {
+          const date = new Date(timestamp);
+          return date instanceof Date ? DateUtils.getFormatedDate(timestamp) : ''
+        } catch (error) {
+          console.error(error);
+          return timestamp
+        }
+      },
     }, {
       title: this.strings.source,
       name: 'source',
@@ -114,7 +124,7 @@ export class SettingsClientsComponent implements OnInit {
       title: this.strings.carIds,
       name: 'carIds',
       getValue: (item) => {
-        const needCars = this.allCars.filter(c => item.carIds.includes(`${c.id}`));
+        const needCars = this.allCars.filter(c => item.carIds.split(',').map(id => +id).includes(c.id));
 
         return needCars.map(c => {
           return `${FieldsUtils.getFieldValue(c, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(c, FieldNames.Car.model)}`;
