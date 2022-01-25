@@ -26,6 +26,8 @@ export class App {
     this.app = express();
     this.settings();
     this.middlewares(this.routes);
+
+    process.setMaxListeners(Infinity);
   }
 
   private settings() {
@@ -51,8 +53,10 @@ export class App {
   }
 
   private routes = () => {
-    this.app.use(express.static(process.cwd()+"/build/ui/zubr-auto/"));
-    this.app.use('/uploads/', express.static(process.cwd()+"/build/uploads/"));
+    const string = process.env.NODE_ENV !== 'production' ? "/build" : ""
+
+    this.app.use(express.static(process.cwd()+string+"/ui/zubr-auto/"));
+    this.app.use('/uploads/', express.static(process.cwd()+string+"/uploads/"));
     this.app.use(IndexRoutes);
     this.app.use('/cars', CarRoutes);
     this.app.use('/fields', FieldRoutes);
