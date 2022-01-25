@@ -1,3 +1,4 @@
+import { OkPacket } from "mysql2";
 import { Models } from "../../entities/Models";
 import { ExpressionHash, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from "../../utils/sql-queries";
 import { BaseRepository } from "./base.repository";
@@ -12,17 +13,19 @@ class FileRepository extends BaseRepository<Models.File> {
 
     console.log(query)
 
-    const dbResult = await this.query<Models.File>(query);
-    return this.getOneRow(dbResult);
+    const dbResult = await this.query<OkPacket>(query);
+
+    return await this.findById(id);
   }
 
-  async update(newValues: Partial<Omit<Models.File, 'id'>>, expressionHash: ExpressionHash<Models.File>): Promise<Models.File> {
+  async update(newValues: Partial<Omit<Models.File, 'id'>>, expressionHash: ExpressionHash<Models.File>): Promise<Models.File[]> {
     const query = getUpdateByAndExpressionQuery(this.tableName, newValues, expressionHash, true)
 
     console.log(query)
 
-    const dbResult = await this.query<Models.File>(query);
-    return this.getOneRow(dbResult);
+    const dbResult = await this.query<OkPacket>(query);
+
+    return await this.find(expressionHash);
   }
 }
 

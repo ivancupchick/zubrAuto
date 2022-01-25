@@ -2,21 +2,19 @@
 	CREATE
 */
 
+CREATE TABLE "public.carOwners" (
+	"id" serial NOT NULL,
+	CONSTRAINT "carOwners_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
 CREATE TABLE "public.cars" (
 	"id" serial NOT NULL,
 	"createdDate" VARCHAR(255) NOT NULL,
 	"ownerId" integer NOT NULL,
 	CONSTRAINT "cars_pk" PRIMARY KEY ("id"),
   FOREIGN KEY ("ownerId") REFERENCES "public.carOwners" ("id")
-) WITH (
-  OIDS=FALSE
-);
-
-
-
-CREATE TABLE "public.carOwners" (
-	"id" serial NOT NULL,
-	CONSTRAINT "carOwners_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
 );

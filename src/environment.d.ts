@@ -16,6 +16,14 @@ declare global {
       AWS_BUCKET_REGION: string;
       AWS_ACCESS_KEY: string;
       AWS_SECRET_KEY: string;
+      ON_PROD: string;
+      DB_HOST: string;
+      DB_USERNAME: string;
+      DB_PASSWORD: string;
+      DB_DATABASE: string;
+      DB_SSH_HOST: string;
+      DB_SSH_PASSPHRASE: string;
+      DB_SSH_USER: string;
     }
   }
 }
