@@ -98,7 +98,7 @@ export class FieldsUtils {
     const field = this.getField(entityOrFieldsArray, name);
 
     if (field == null) {
-      console.error(`${name} did not found`)
+      // console.error(`${name} did not found`)
     }
 
     if (field && (field.value || field.value === '')) {
@@ -112,7 +112,7 @@ export class FieldsUtils {
     const field = this.getField(entityOrFieldsArray, name);
 
     if (field == null) {
-      console.error(`${name} did not found`)
+      // console.error(`${name} did not found`)
     }
 
     return (!!field && !!+field.value);
@@ -122,7 +122,7 @@ export class FieldsUtils {
     const field = this.getField(entityOrFieldsArray, name);
 
     if (field == null) {
-      console.error(`${name} did not found`)
+      // console.error(`${name} did not found`)
     }
 
     return field && field.value ? +field.value : 0;
