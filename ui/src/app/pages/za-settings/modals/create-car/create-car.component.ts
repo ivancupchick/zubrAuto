@@ -7,6 +7,7 @@ import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser } from 'src/app/entities/user';
 import { CarService } from 'src/app/services/car/car.service';
+import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { settingsCarsStrings } from '../../settings-cars/settings-cars.strings';
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
@@ -51,6 +52,10 @@ export class CreateCarComponent implements OnInit {
     FieldNames.Car.bargain,
     FieldNames.Car.commission,
     FieldNames.Car.ourLinks,
+    FieldNames.Car.linkToVideo,
+    FieldNames.Car.shootingDate,
+    FieldNames.Car.shootingTime,
+    FieldNames.Car.adPrice,
   ];
 
   carOwnerExcludeFields: FieldNames.CarOwner[] = [
@@ -65,7 +70,8 @@ export class CreateCarComponent implements OnInit {
     private dfcs: DynamicFieldControlService,
 
     private ref: DynamicDialogRef,
-    private config: DynamicDialogConfig
+    private config: DynamicDialogConfig,
+    private sessionService: SessionService,
   ) {
     this.car = this.config?.data?.car || undefined;
   }
@@ -80,6 +86,14 @@ export class CreateCarComponent implements OnInit {
   }
 
   generateForm() {
+    if (!this.sessionService.isAdminOrHigher) {
+      this.carExcludeFields.push(...[
+        FieldNames.Car.source,
+        FieldNames.Car.status,
+        FieldNames.Car.dateOfLastStatusChange
+      ]);
+    }
+
     const carOwnerFormFields = this.dfcs.getDynamicFieldsFromDBFields(this.carOwnerFieldConfigs
       .filter(fc => !this.carOwnerExcludeFields.includes(fc.name as FieldNames.CarOwner))
       .map(fc => {
@@ -123,68 +137,71 @@ export class CreateCarComponent implements OnInit {
       })
     );
 
-    const contactCenterField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.contactCenterSpecialistId);
-    carFormFields.push(
-      this.dfcs.getDynamicFieldFromOptions({
-        id: contactCenterField?.id || -1,
-        value: this.car?.fields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId)?.value || 'None',
-        key: FieldNames.Car.contactCenterSpecialistId,
-        label: settingsCarsStrings.contactCenterSpecialistId,
-        order: 1,
-        controlType: FieldType.Dropdown,
-        variants: [
-          { value: 'Никто', key: 'None' },
-          ...this.contactCenterUsers.map(u => ({ key: `${u.id}`, value: u.email }))
-        ]
-      })
-    )
-    const carShootingField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.carShootingSpecialistId);
-    carFormFields.push(
-      this.dfcs.getDynamicFieldFromOptions({
-        id: carShootingField?.id || -1,
-        value: this.car?.fields.find(f => f.name === FieldNames.Car.carShootingSpecialistId)?.value || 'None',
-        key: FieldNames.Car.carShootingSpecialistId,
-        label: settingsCarsStrings.carShootingSpecialistId,
-        order: 1,
-        controlType: FieldType.Dropdown,
-        variants: [
-          { value: 'Никто', key: 'None' },
-          ...this.carShootingUsers.map(u => ({ key: `${u.id}`, value: u.email }))
-        ]
-      })
-    )
+    if (this.sessionService.isAdminOrHigher) {
+      const contactCenterField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.contactCenterSpecialistId);
+      carFormFields.push(
+        this.dfcs.getDynamicFieldFromOptions({
+          id: contactCenterField?.id || -1,
+          value: this.car?.fields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId)?.value || 'None',
+          key: FieldNames.Car.contactCenterSpecialistId,
+          label: settingsCarsStrings.contactCenterSpecialistId,
+          order: 1,
+          controlType: FieldType.Dropdown,
+          variants: [
+            { value: 'Никто', key: 'None' },
+            ...this.contactCenterUsers.map(u => ({ key: `${u.id}`, value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name) || u.email}` }))
+          ]
+        })
+      )
+      const carShootingField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.carShootingSpecialistId);
+      carFormFields.push(
+        this.dfcs.getDynamicFieldFromOptions({
+          id: carShootingField?.id || -1,
+          value: this.car?.fields.find(f => f.name === FieldNames.Car.carShootingSpecialistId)?.value || 'None',
+          key: FieldNames.Car.carShootingSpecialistId,
+          label: settingsCarsStrings.carShootingSpecialistId,
+          order: 1,
+          controlType: FieldType.Dropdown,
+          variants: [
+            { value: 'Никто', key: 'None' },
+            ...this.carShootingUsers.map(u => ({ key: `${u.id}`, value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name) || u.email}` }))
+          ]
+        })
+      )
+    }
 
-    const ourLinks: [string, string, string] = this.car ? (FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.ourLinks) || ',,')?.split(',') as any : ['', '', ''];
-    const ourLinksField = this.carFieldConfigs.find(c => c.name === FieldNames.Car.ourLinks) as ServerField.Response;
+
+    // const ourLinks: [string, string, string] = this.car ? (FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.ourLinks) || ',,')?.split(',') as any : ['', '', ''];
+    // const ourLinksField = this.carFieldConfigs.find(c => c.name === FieldNames.Car.ourLinks) as ServerField.Response;
 
     this.carOwnerDynamicFormFields = carOwnerFormFields;
     this.carDynamicFormFields = carFormFields;
 
-    const ourLinksDynamicFormFields = [
-      this.dfcs.getDynamicFieldFromOptions({
-        id: ourLinksField.id,
-        value: ourLinks[0] || '',
-        key: 'ourLinks0',
-        label: 'av.by',
-        order: 1,
-        controlType: FieldType.Text
-      }), this.dfcs.getDynamicFieldFromOptions({
-        id: -2,
-        value:  ourLinks[1] || '',
-        key: 'ourLinks1',
-        label: 'abw.by',
-        order: 1,
-        controlType: FieldType.Text
-      }), this.dfcs.getDynamicFieldFromOptions({
-        id: -1,
-        value:  ourLinks[2] || '',
-        key: 'ourLinks2',
-        label: 'ab.onliner.by',
-        order: 1,
-        controlType: FieldType.Text
-      })
-    ]
-    this.ourLinksDynamicFormFields = ourLinksDynamicFormFields;
+  //   const ourLinksDynamicFormFields = [
+  //     this.dfcs.getDynamicFieldFromOptions({
+  //       id: ourLinksField.id,
+  //       value: ourLinks[0] || '',
+  //       key: 'ourLinks0',
+  //       label: 'av.by',
+  //       order: 1,
+  //       controlType: FieldType.Text
+  //     }), this.dfcs.getDynamicFieldFromOptions({
+  //       id: -2,
+  //       value:  ourLinks[1] || '',
+  //       key: 'ourLinks1',
+  //       label: 'abw.by',
+  //       order: 1,
+  //       controlType: FieldType.Text
+  //     }), this.dfcs.getDynamicFieldFromOptions({
+  //       id: -1,
+  //       value:  ourLinks[2] || '',
+  //       key: 'ourLinks2',
+  //       label: 'ab.onliner.by',
+  //       order: 1,
+  //       controlType: FieldType.Text
+  //     })
+  //   ]
+  //   this.ourLinksDynamicFormFields = ourLinksDynamicFormFields;
   }
 
   create() {
@@ -202,14 +219,14 @@ export class CreateCarComponent implements OnInit {
       ...carOwnerFields.filter(fc => !this.carOwnerExcludeFields.includes(fc.name as FieldNames.CarOwner))
     ];
 
-    const ourLinks = this.ourLinksDynamicForm.getAllValue();
+    // const ourLinks = this.ourLinksDynamicForm.getAllValue();
 
-    const ourLinksField: RealField.Request = {
-      id: ourLinks[0].id,
-      value: ourLinks.map(l => l.value).join(',')
-    }
+    // const ourLinksField: RealField.Request = {
+    //   id: ourLinks[0].id,
+    //   value: ourLinks.map(l => l.value).join(',')
+    // }
 
-    fields.push(ourLinksField);
+    // fields.push(ourLinksField);
 
     if (contactCenterUser) {
       fields.push(contactCenterUser);

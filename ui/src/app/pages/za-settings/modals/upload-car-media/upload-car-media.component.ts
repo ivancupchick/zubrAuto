@@ -2,7 +2,7 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FileUpload } from 'primeng/fileupload';
 import { tap } from 'rxjs/operators';
-import { CarImage, ServerCar } from 'src/app/entities/car';
+import { ServerFile, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
@@ -19,8 +19,8 @@ import { environment } from 'src/environments/environment';
 export class UploadCarMediaComponent implements OnInit {
   loading = false;
   link: string = '';
-  images: CarImage.Response[] = [];
-  stateImages: CarImage.Response[] = [];
+  images: ServerFile.Response[] = [];
+  stateImages: ServerFile.Response[] = [];
 
   mainPhotoId: number | undefined= undefined;
 
@@ -28,8 +28,7 @@ export class UploadCarMediaComponent implements OnInit {
     return false
   }
 
-  image360Uploaded = false;
-  image360: CarImage.Response | undefined = undefined;
+  image360: ServerFile.Response | undefined = undefined;
 
   uplo: File[] = [];
 
@@ -79,10 +78,9 @@ export class UploadCarMediaComponent implements OnInit {
     return this.carService.getCarsImages(this.car.id)
       .pipe(
         tap(images => {
-          this.images = images.filter(image => image.type === CarImage.Types.Image);
-          this.image360Uploaded = !!images.find(image => image.type === CarImage.Types.Image360);
-          this.image360 = images.find(image => image.type === CarImage.Types.Image360);
-          this.stateImages = images.filter(image => image.type === CarImage.Types.StateImage)
+          this.images = images.filter(image => image.type === ServerFile.Types.Image);
+          this.image360 = images.find(image => image.type === ServerFile.Types.Image360);
+          this.stateImages = images.filter(image => image.type === ServerFile.Types.StateImage)
 
           this.loading = false;
         })
@@ -117,7 +115,7 @@ export class UploadCarMediaComponent implements OnInit {
     this.ref.close(false);
   }
 
-  getImageUrl(image: CarImage.Response) {
+  getImageUrl(image: ServerFile.Response) {
     return `${image.url}`;
   }
 
@@ -160,7 +158,7 @@ export class UploadCarMediaComponent implements OnInit {
     })
   }
 
-  selectMainPhoto(image: CarImage.Response) {
+  selectMainPhoto(image: ServerFile.Response) {
     this.loading = true;
     this.carService.selectMainPhoto(this.car.id, image.id).subscribe(res => {
       this.getImages().subscribe();
@@ -178,7 +176,7 @@ export class UploadCarMediaComponent implements OnInit {
     })
   }
 
-  deletePhoto(image: CarImage.Response) {
+  deletePhoto(image: ServerFile.Response) {
     this.loading = true;
     this.carService.deleteCarImage(this.car.id, image.id).subscribe(res => {
       this.getImages().subscribe();

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
-import { CarImage, CarStatistic, RealCarForm, ServerCar, UICarStatistic } from 'src/app/entities/car';
+import { ServerFile, CarStatistic, RealCarForm, ServerCar, UICarStatistic } from 'src/app/entities/car';
 import { concatMap, map, mergeMap } from 'rxjs/operators';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
@@ -71,7 +71,7 @@ export class CarService {
   }
 
   getCarsImages(id: number) {
-    return this.requestService.get<CarImage.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`)
+    return this.requestService.get<ServerFile.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`)
       .pipe(map(result => {
         console.log(result);
 

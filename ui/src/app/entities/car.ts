@@ -1,5 +1,5 @@
-import { ServerFile } from '../../../../src/entities/File'
-import { ServerCar } from '../../../../src/entities/Car'
+import { ServerFile as serverFile } from '../../../../src/entities/File'
+import { ServerCar as serverCar } from '../../../../src/entities/Car'
 import { ServerCarImage as serverCarImage } from '../../../../src/entities/Car'
 import { CarFormEnums as carForm } from '../../../../src/entities/FieldNames';
 import { CarStatistic as carStatistic } from '../../../../src/entities/CarStatistic';
@@ -28,8 +28,8 @@ import { FieldNames } from './FieldNames';
 //   fields: IField[];
 // }
 
-export import ServerCar = ServerCar;
-export import CarImage = ServerFile;
+export import ServerCar = serverCar;
+export import ServerFile = serverFile;
 export import ServerCarImage = serverCarImage;
 export import CarFormEnums = carForm;
 export import CarStatistic = carStatistic

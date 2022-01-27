@@ -1,5 +1,5 @@
 import { Models } from "../entities/Models";
-import { RealField } from "../entities/Field";
+import { RealField, ServerField } from "../entities/Field";
 import { BitHelper } from "./bit.utils";
 
 export namespace FlagField {
@@ -43,4 +43,125 @@ export const getFieldsWithValues = (chainedFields: Models.Field[], chaines: Mode
         value: chaines.find(c => c.fieldId === cf.id && c.sourceId === sourceId)?.value || ''
       }
     })
+}
+
+export class FieldsUtils {
+  static getDropdownValue(entity: RealField.With.Response, fieldName: string) {
+    const field = entity.fields.find(f => f.name === fieldName);
+
+    return !field
+      ? ''
+      : field.variants.split(',').find((variant, index) => `${fieldName}-${index}` === field.value) || ''
+  }
+
+  static setDropdownValue(field: ServerField.Response, fieldValue: string): RealField.Response {
+    const newField: RealField.Response = {
+      ...field,
+      value: field.variants.split(',').map((variant, index) => ({ key: `${field.name}-${index}`, value: variant })).find((variantEntity) => variantEntity.value === fieldValue)?.key || ''
+    };
+
+    return newField;
+  }
+
+  static setFieldValue(field: ServerField.Response, fieldValue: string): RealField.Response {
+    const newField: RealField.Response = {
+      ...field,
+      value: fieldValue
+    };
+
+    return newField;
+  }
+
+  static getFields(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[]): RealField.Response[] {
+    return Array.isArray(entityOrFieldsArray)
+    ? entityOrFieldsArray
+    : entityOrFieldsArray.fields;
+  }
+
+  static getField(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): RealField.Response | null {
+    if (!name || !entityOrFieldsArray) {
+      return null;
+    }
+
+    const fields = this.getFields(entityOrFieldsArray)
+
+    if (!fields || fields.length < 1) {
+      return null;
+    }
+
+    for (const field of fields) {
+      if (field.name === name) {
+        return field;
+      }
+    }
+    return null;
+  }
+
+  static getFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
+    const field = this.getField(entityOrFieldsArray, name);
+
+    if (field == null) {
+      // console.error(`${name} did not found`)
+    }
+
+    if (field && (field.value || field.value === '')) {
+      return field.value;
+    }
+
+    return '';
+  }
+
+  static getFieldBooleanValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): boolean {
+    const field = this.getField(entityOrFieldsArray, name);
+
+    if (field == null) {
+      // console.error(`${name} did not found`)
+    }
+
+    return (!!field && !!+field.value);
+  }
+
+  static getFieldNumberValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): number {
+    const field = this.getField(entityOrFieldsArray, name);
+
+    if (field == null) {
+      // console.error(`${name} did not found`)
+    }
+
+    return field && field.value ? +field.value : 0;
+  }
+
+  static getFieldStringValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
+    const field = this.getField(entityOrFieldsArray, name);
+
+    // if (field == null) {
+    //   console.error(`${name} did not found`)
+    // }
+
+    return field && field.value != null ? field.value + '' : '';
+  }
+
+  // need test work
+  // static setFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string, fieldValue: any = null, fieldType?: FieldType): boolean {
+  //   const field = this.getField(entityOrFieldsArray, name);
+  //   if (field) {
+  //     field.value = fieldValue;
+  //     return true;
+  //   } else if (fieldType) {
+  //     const fields = this.getFields(entityOrFieldsArray);
+  //     fields.push({
+  //       id: 0,
+  //       name: name,
+  //       value: fieldValue,
+  //       type: fieldType,
+  //       flags: 0,
+  //       variants: '',
+  //       showUserLevel: 0,
+  //       domain: FieldDomains.Car
+  //     });
+  //     return true;
+  //   }
+
+  //   return false;
+  // }
 }

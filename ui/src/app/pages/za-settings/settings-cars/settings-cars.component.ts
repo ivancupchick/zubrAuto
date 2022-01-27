@@ -3,9 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
 import { SortEvent } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { of, Subject, zip } from 'rxjs';
-import { takeUntil, tap } from 'rxjs/operators';
-import { getCarStatus, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
+import { Observable, of, Subject, zip } from 'rxjs';
+import { map, takeUntil, tap } from 'rxjs/operators';
+import { ServerFile, getCarStatus, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
@@ -226,10 +226,20 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.carOwnerFieldConfigs = carOwnerFieldConfigs;
         this.contactCenterUsers = users
           .filter(u => u.customRoleName === ServerRole.Custom.contactCenter
-                    || u.customRoleName === ServerRole.Custom.contactCenterChief);
+                    || u.customRoleName === ServerRole.Custom.contactCenterChief
+                    || (
+                      (
+                        u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
+                      )
+                    ));
         this.carShootingUsers = users
           .filter(u => u.customRoleName === ServerRole.Custom.carShooting
-                    || u.customRoleName === ServerRole.Custom.carShootingChief);
+                    || u.customRoleName === ServerRole.Custom.carShootingChief
+                    || (
+                      (
+                        u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
+                      )
+                    ));
 
         this.contactCenterUserOptions = this.contactCenterUsers.map(u => ({
           label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name),
@@ -852,21 +862,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       buttonClass: 'primary',
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief) && !this.isSelectCarModalMode,
       handler: (car) => this.transformToCustomerService(car),
-      disabled: (car) => {
-        let worksheet: ICarForm | null;
-        try {
-          const worksheetSource = FieldsUtils.getFieldStringValue(car, FieldNames.Car.worksheet) || '';
-          worksheet = JSON.parse(worksheetSource)
-        } catch (error) {
-          worksheet = null;
-        }
-
-        console.log(worksheet);
-
-        const form = new RealCarForm(worksheet);
-
-        return !form.getValidation();
-      },
     }, {
       title: 'Вернуть в ОСА',
       icon: 'caret-left',
@@ -877,7 +872,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         || this.sessionService.isCustomerServiceChief),
       handler: (car) => this.returnToShootingCar(car),
     }, {
-      title: 'Подтвердить правильность',
+      title: 'Опубликовать машину',
       icon: 'caret-right',
       buttonClass: 'primary',
       available: () => this.type === QueryCarTypes.shootedBase && !this.isSelectCarModalMode && (
@@ -1049,41 +1044,57 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   transformToCustomerService(car: ServerCar.Response) {
-    if (!FieldsUtils.getFieldValue(car, FieldNames.Car.worksheet)) {
-      alert('У авто нету анкеты!');
-      return;
-    }
+    this.loading = true;
 
+    this.validatePublish(car).subscribe(res => {
+      if (res) {
+        const ref = this.dialogService.open(ChangeCarStatusComponent, {
+          data: {
+            carId: car.id,
+            availableStatuses: [
+              FieldNames.CarStatus.carShooting_Ready,
+            ],
+            comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
+          },
+          header: 'Передать отделу ОРК',
+          width: '70%',
+        });
 
-    const ref = this.dialogService.open(ChangeCarStatusComponent, {
-      data: {
-        carId: car.id,
-        availableStatuses: [
-          FieldNames.CarStatus.carShooting_Ready,
-        ],
-        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
-      },
-      header: 'Передать отделу ОРК',
-      width: '70%',
+        this.subscribeOnCloseModalRef(ref);
+      }
+    }, err => {
+      alert('Произошла ошибка, запомните шаги которые привели к такой ситуации, сообщите администарутору.')
+      console.error(err);
+    }, () => {
+      this.loading = false;
     });
-
-    this.subscribeOnCloseModalRef(ref);
   }
 
   transformToCustomerServiceAprooved(car: ServerCar.Response) {
-    const ref = this.dialogService.open(ChangeCarStatusComponent, {
-      data: {
-        carId: car.id,
-        availableStatuses: [
-          FieldNames.CarStatus.customerService_InProgress,
-        ],
-        comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
-      },
-      header: 'Подтвердить',
-      width: '70%',
-    });
+    this.loading = true;
 
-    this.subscribeOnCloseModalRef(ref);
+    this.validatePublish(car).subscribe(res => {
+      if (res) {
+        const ref = this.dialogService.open(ChangeCarStatusComponent, {
+          data: {
+            carId: car.id,
+            availableStatuses: [
+              FieldNames.CarStatus.customerService_InProgress,
+            ],
+            comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
+          },
+          header: 'Опубликовать',
+          width: '70%',
+        });
+
+        this.subscribeOnCloseModalRef(ref);
+      }
+    }, err => {
+      alert('Произошла ошибка, запомните шаги которые привели к такой ситуации, сообщите администарутору.')
+      console.error(err);
+    }, () => {
+      this.loading = false;
+    });
   }
 
   transformToCustomerServicePause(car: ServerCar.Response, isReverse = false) {
@@ -1332,5 +1343,47 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       originalEvent: e,
       value: inputTarget.value
     }
+  }
+
+  private validatePublish(car: ServerCar.Response): Observable<boolean> {
+    if (!FieldsUtils.getFieldValue(car, FieldNames.Car.worksheet)) {
+      alert('У авто нету анкеты!');
+      return of(false);
+    }
+
+    let worksheet: ICarForm | null;
+    try {
+      const worksheetSource = FieldsUtils.getFieldStringValue(car, FieldNames.Car.worksheet) || '';
+      worksheet = JSON.parse(worksheetSource)
+    } catch (error) {
+      worksheet = null;
+    }
+
+    console.log(worksheet);
+
+    const form = new RealCarForm(worksheet);
+
+    if (!form.getValidation()) {
+      alert('Анкета не заполнена!');
+      return of(false);
+    }
+
+    return this.carService.getCarsImages(car.id)
+      .pipe(
+        map(images => {
+          const carImages = images.filter(image => image.type === ServerFile.Types.Image);
+          const image360 = images.find(image => image.type === ServerFile.Types.Image360);
+          const stateImages = images.filter(image => image.type === ServerFile.Types.StateImage)
+
+          if (!carImages.length || !image360 || !stateImages.length) {
+            !carImages.length && alert('У машины нету фотографий.');
+            !image360 && alert('У машины нету фото 360.');
+            !stateImages.length && alert('У машины нету фотографий техпаспорта.');
+            return false
+          }
+
+          return true;
+        })
+      );
   }
 }

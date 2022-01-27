@@ -63,7 +63,7 @@
           <p-image *ngIf="image360" [src]="getImageUrl(image360)" [alt]="image360.name" width="250" [preview]="true" appendTo="body"></p-image>
 
 
-          <h5>Фото 360 загружено: {{ image360Uploaded ? 'Да' : 'Нет' }}</h5>
+          <h5>Фото 360 загружено: {{ !!image360 ? 'Да' : 'Нет' }}</h5>
         </div>
       </p-tabPanel>
 
