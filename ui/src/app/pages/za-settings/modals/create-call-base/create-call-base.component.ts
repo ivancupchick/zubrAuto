@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FieldsUtils } from 'src/app/entities/field';
+import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { CarService } from 'src/app/services/car/car.service';
 import { SessionService } from 'src/app/services/session/session.service';
@@ -46,7 +48,7 @@ export class CreateCallBaseComponent implements OnInit {
             .filter(u => u.customRoleName === ServerRole.Custom.contactCenter
                       || u.customRoleName === ServerRole.Custom.contactCenterChief
                       || (this.sessionService.isRealAdminOrHigher && (u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin)) )
-            .map(u => ({ value: u.email, key: `${u.id}` }))
+            .map(u => ({ value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name)}`, key: `${u.id}` }))
         ];
         this.loading = false;
       }, () => { this.loading = false; })
