@@ -30,6 +30,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
+  @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
 
   contextSelectedItem!: GridItemType;
   contextActions: MenuItem[] = []

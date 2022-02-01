@@ -19,6 +19,46 @@
       ></p-multiSelect>
     </div>
 
+    <div *ngIf="onSelectContactUserAvailable && contactCenterUserOptions.length > 0 " style="display: flex; flex-direction: column; align-items: center;">
+      <p-multiSelect
+        appendTo="body"
+        [options]="contactCenterUserOptions"
+        [(ngModel)]="selectedContactCenterUsers"
+        placeholder="Сотрудник ОКЦ"
+        optionLabel="label"
+        optionValue="key"
+        (onPanelHide)="sortCars()"
+        selectedItemsLabel="{0} сотрудников выбрано"
+        [maxSelectedLabels]="1"
+      ></p-multiSelect>
+    </div>
+
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <!-- <label for="range">Дата создания</label> -->
+      <p-calendar
+        dateFormat="dd/mm/yy"
+        appendTo="body"
+        [(ngModel)]="rangeDates"
+        selectionMode="range"
+        [readonlyInput]="true"
+        inputId="range"
+        (onClose)="sortCars()"
+        [showButtonBar]="true"
+        placeholder="Дата создания"
+      ></p-calendar>
+    </div>
+
+    <div *ngIf="contactStatiscticModeAvailable" style="display: flex; align-items: center;">
+      <p-checkbox
+        name="isContactStatiscticMode"
+        [binary]="true"
+        inputId="isContactStatiscticMode"
+        [(ngModel)]="isContactStatiscticMode"
+        (onChange)="sortCars()"
+      ></p-checkbox>
+      <label for="isContactStatiscticMode">{{'Показать готовых'}}</label>
+    </div>
+
     <!-- <i class="pi pi-bars"></i> -->
   </div>
 
@@ -83,6 +123,6 @@
   </div>
 </p-toolbar>
 <p></p>
-<za-grid [checkboxMode]="isSelectCarModalMode" [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" [selected]="selected" (onSelectEntity)="onSelectEntity($event)"></za-grid>
+<za-grid [getColorConfig]="getColorConfig" [checkboxMode]="isSelectCarModalMode" [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" [selected]="selected" (onSelectEntity)="onSelectEntity($event)"></za-grid>
 
 <za-spinner *ngIf="loading"></za-spinner>

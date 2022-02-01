@@ -148,13 +148,16 @@ export class CarService {
       concatMap(allFields => {
         const statusConfig = allFields.find(field => field.name === FieldNames.Car.status);
         const commentConfig = allFields.find(field => field.name === FieldNames.Car.comment);
+        const dateOfLastStatusChangeConfig = allFields.find(field => field.name === FieldNames.Car.dateOfLastStatusChange);
 
-        if (statusConfig && commentConfig) {
+
+        if (statusConfig && commentConfig && dateOfLastStatusChangeConfig) {
           const statusField = FieldsUtils.setDropdownValue(statusConfig, newStatus);
           const commentField = FieldsUtils.setFieldValue(commentConfig, comment);
+          const dateOfLastStatusChangeField = FieldsUtils.setFieldValue(dateOfLastStatusChangeConfig, `${+(new Date())}`);
 
           const car: ServerCar.UpdateRequest = {
-            fields: [statusField, commentField]
+            fields: [statusField, commentField, dateOfLastStatusChangeField]
           }
           return this.updateCar(car, id)
         } else {

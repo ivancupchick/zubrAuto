@@ -22,7 +22,7 @@ export const settingsCarsStrings = {
   trueCarPrice: 'Цена на руки',
   commission: 'Комиссия',
   comment: 'Комментарии',
-  dateOfLastStatusChange: 'Дата последнего изменения статуса',
+  dateOfLastStatusChange: 'Дата действия',
   worksheet: 'Анкета',
   bargain: 'Торг',
   adPrice: 'Цена на сайте',

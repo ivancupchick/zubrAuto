@@ -123,6 +123,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     return !this.isSelectCarModalMode && !this.sessionService.isCarSales && !this.sessionService.isCarSalesChief
   }
 
+  rangeDates: [Date, Date | null] | null = null;
+
   sortedCars: ServerCar.Response[] = [];
   rawCars: ServerCar.Response[] = [];
 
@@ -158,6 +160,19 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   filters: UIFilter[] = []
   selectedFilters: { name: string, value: string }[] = [];
+
+  selectedContactCenterUsers: string[] = []
+  contactCenterUserOptions: { label: string, key: string }[] = [];
+  get onSelectContactUserAvailable() {
+    return this.sessionService.isContactCenterChief && this.type === QueryCarTypes.allCallBase;
+  }
+
+  get contactStatiscticModeAvailable() {
+    return this.type === QueryCarTypes.allCallBase || this.type === QueryCarTypes.myCallBase;
+  }
+  isContactStatiscticMode = false;
+
+  getColorConfig: ((item: ServerCar.Response) => string) | undefined
 
   constructor(
     private carService: CarService,
@@ -226,6 +241,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                       )
                     ));
 
+        this.contactCenterUserOptions = this.contactCenterUsers.map(u => ({
+          label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name),
+          key: `${u.id}`
+        }))
+
         this.generateFilters();
       });
 
@@ -266,6 +286,29 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   setGridSettings() {
     this.gridConfig = this.getGridConfig();
     this.gridActionsConfig = this.getGridActionsConfig();
+
+
+    if (this.type === QueryCarTypes.myCallBase || this.type === QueryCarTypes.allCallBase) {
+      this.getColorConfig = (car) => {
+        const status = getCarStatus(car)
+
+        // FieldNames.CarStatus.contactCenter_WaitingShooting,
+        // FieldNames.CarStatus.contactCenter_InProgress,
+        // FieldNames.CarStatus.contactCenter_Deny,
+        // FieldNames.CarStatus.contactCenter_MakingDecision,
+        // FieldNames.CarStatus.contactCenter_NoAnswer,
+        // FieldNames.CarStatus.contactCenter_Refund
+
+        switch (status) {
+          case FieldNames.CarStatus.contactCenter_WaitingShooting: return '#008000a3'
+          case FieldNames.CarStatus.contactCenter_MakingDecision: return 'yellow'
+          case FieldNames.CarStatus.contactCenter_NoAnswer: return 'orange'
+          case FieldNames.CarStatus.contactCenter_Refund: return '#80008080'
+
+          default: return '';
+        }
+      }
+    }
   }
 
   ngOnDestroy() {
@@ -304,7 +347,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_Deny,
           FieldNames.CarStatus.contactCenter_MakingDecision,
           FieldNames.CarStatus.contactCenter_NoAnswer,
-          FieldNames.CarStatus.contactCenter_Refund,
+          FieldNames.CarStatus.contactCenter_Refund
         ];
         this.availableStatuses = [
           ...availableStatuses.map(s => ({ label: s, value: s }))
@@ -321,9 +364,24 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         }
 
         this.sortedCars = this.rawCars
-          .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
-                        this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0
-          ) && availableStatuses.includes(getCarStatus(c)));
+          .filter(c => {
+            const readyStatuses = [
+              FieldNames.CarStatus.customerService_InProgress,
+              FieldNames.CarStatus.customerService_OnPause,
+              FieldNames.CarStatus.customerService_OnDelete,
+              FieldNames.CarStatus.customerService_Sold,
+              FieldNames.CarStatus.carSales_Deposit,
+              FieldNames.CarStatus.admin_Deleted
+            ]
+
+            const isStatus = this.contactStatiscticModeAvailable && this.isContactStatiscticMode
+              ? readyStatuses.includes(getCarStatus(c))
+              : (
+                this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0
+              ) && availableStatuses.includes(getCarStatus(c))
+
+            return `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && isStatus
+          });
         break;
       case QueryCarTypes.allCallBase:
         const availableStatuses2 = [
@@ -332,7 +390,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_Deny,
           FieldNames.CarStatus.contactCenter_MakingDecision,
           FieldNames.CarStatus.contactCenter_NoAnswer,
-          FieldNames.CarStatus.contactCenter_Refund,
+          FieldNames.CarStatus.contactCenter_Refund
         ];
         this.availableStatuses = [
           ...availableStatuses2.map(s => ({ label: s, value: s }))
@@ -349,9 +407,32 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         }
 
         this.sortedCars = this.rawCars // FIX THIS
-          .filter(c => (this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0) && (
-            availableStatuses2.includes(getCarStatus(c))
-          ));
+          .filter(c => {
+            const readyStatuses = [
+              FieldNames.CarStatus.customerService_InProgress,
+              FieldNames.CarStatus.customerService_OnPause,
+              FieldNames.CarStatus.customerService_OnDelete,
+              FieldNames.CarStatus.customerService_Sold,
+              FieldNames.CarStatus.carSales_Deposit,
+              FieldNames.CarStatus.admin_Deleted
+            ];
+
+            const isStatus = this.contactStatiscticModeAvailable && this.isContactStatiscticMode
+              ? readyStatuses.includes(getCarStatus(c))
+              : (this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0) && (
+                availableStatuses2.includes(getCarStatus(c))
+              )
+
+            return isStatus;
+          });
+
+        if (this.selectedContactCenterUsers.length > 0) {
+          this.sortedCars = this.sortedCars.filter(c => {
+            const contactUserId = FieldsUtils.getFieldStringValue(c, FieldNames.Car.contactCenterSpecialistId);
+
+            return this.selectedContactCenterUsers.includes(contactUserId);
+          })
+        }
         break;
       case QueryCarTypes.myShootingBase:
         this.sortedCars = this.rawCars
@@ -404,6 +485,18 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       default:
         this.sortedCars = this.rawCars;
     }
+
+    this.sortedCars = this.sortedCars.filter(c => {
+      if (this.rangeDates) {
+        const dateFrom = +this.rangeDates[0];
+        const dateTo = this.rangeDates[1] && (+this.rangeDates[1] + 1000 * 60 * 60 * 24);
+        const carDate = +c.createdDate;
+
+        return dateFrom < carDate && (!dateTo || dateTo > carDate);
+      }
+
+      return true;
+    })
 
     this.sortedCars = this.sortedCars.filter(car => {
       const name = `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
@@ -465,26 +558,29 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           return item.id
         }
       }, // TODO! ,
-    }, this.type !== QueryCarTypes.carsForSale ? {
-      title: this.strings.date,
-      name: 'CreatedDate',
-      getValue: (item) => {
-        try {
-          const date = new Date(+item.createdDate);
-          return date instanceof Date ? DateUtils.getFormatedDate(+item.createdDate) : ''
-        } catch (error) {
-          console.error(error);
-          return item.createdDate
-        }
+    }, this.type !== QueryCarTypes.carsForSale
+      ? {
+        title: this.strings.date,
+        name: 'CreatedDate',
+        getValue: (item) => {
+          try {
+            const date = new Date(+item.createdDate);
+            return date instanceof Date ? DateUtils.getFormatedDate(+item.createdDate) : ''
+          } catch (error) {
+            console.error(error);
+            return item.createdDate
+          }
+        },
+        available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+        sortable: () => true
+      } : {
+        title: this.strings.shootingDate,
+        name: FieldNames.Car.shootingDate,
+        getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
+        available: () => true, // this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+        sortable: () => true
       },
-      available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
-    } : {
-      title: this.strings.shootingDate,
-      name: FieldNames.Car.shootingDate,
-      getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
-      available: () => true, // this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
-      sortable: () => true
-    }, {
+    {
       title: 'Ист',
       name: 'source',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.source),
@@ -529,6 +625,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: this.strings.engine,
       name: 'engine',
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.engine),
+      available: () => !(this.sessionService.isContactCenter || this.sessionService.isContactCenterChief)
     }, {
       title: 'О-м',
       name: 'engineCapacity',
@@ -553,6 +650,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: this.strings.mileage,
       name: 'mileage',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.mileage),
+      available: () => !(this.sessionService.isContactCenter || this.sessionService.isContactCenterChief)
     }, {
       title: this.strings.linkToAd,
       name: 'linkToAd',
@@ -663,23 +761,34 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     //   name: 'nextAction',
     //   getValue: (item) => '', // TODO! specific field???
     //   available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
-    // }, {
-    //   title: this.strings.dateOfLastStatusChange,
-    //   name: 'dateOfLastStatusChange',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfLastStatusChange),
-    //   available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
-    // }
+    // },
+      {
+        title: this.strings.dateOfLastStatusChange,
+        name: 'dateOfLastStatusChange',
+        getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfLastStatusChange) || 0)),
+        available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+      }
     ];
-
-
-
-
 
     return configs.filter(config => !config.available || config.available());
   }
 
+  copyPhonesToClipboard() {
+    navigator.clipboard.writeText(`${
+      this.sortedCars.map(c => c.ownerNumber).join(`\n`)
+    }`);
+  }
+
   private getGridActionsConfig(): GridActionConfigItem<ServerCar.Response>[] {
     const configs: GridActionConfigItem<ServerCar.Response>[] = [{
+      title: 'Копировать телефоны',
+      icon: 'save',
+      buttonClass: 'secondary',
+      disabled: () => false,
+      available: () => this.sessionService.isContactCenter
+                    || this.sessionService.isContactCenterChief,
+      handler: (car) => this.copyPhonesToClipboard()
+    },{
       title: 'Редактировать',
       icon: 'pencil',
       buttonClass: 'secondary',
@@ -779,7 +888,18 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
+      disabled: (car) => getCarStatus(car) === FieldNames.CarStatus.customerService_OnPause,
       handler: (car) => this.transformToCustomerServicePause(car),
+    }, {
+      title: 'Снять с паузы',
+      icon: 'pause',
+      buttonClass: 'primary',
+      available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
+          this.sessionService.isAdminOrHigher
+       || this.sessionService.isCustomerService
+       || this.sessionService.isCustomerServiceChief),
+      disabled: (car) => !(getCarStatus(car) === FieldNames.CarStatus.customerService_OnPause),
+      handler: (car) => this.transformToCustomerServicePause(car, true),
     }, {
       title: 'Поставить на удаление',
       icon: 'times',
@@ -977,16 +1097,20 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     });
   }
 
-  transformToCustomerServicePause(car: ServerCar.Response) {
+  transformToCustomerServicePause(car: ServerCar.Response, isReverse = false) {
     const ref = this.dialogService.open(ChangeCarStatusComponent, {
       data: {
         carId: car.id,
         availableStatuses: [
-          FieldNames.CarStatus.customerService_OnPause,
+          isReverse
+            ? FieldNames.CarStatus.customerService_InProgress
+            : FieldNames.CarStatus.customerService_OnPause,
         ],
         comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
       },
-      header: 'Пауза',
+      header: isReverse
+                ? 'Снять с паузы'
+                : 'Поставить на паузу',
       width: '70%',
     });
 
