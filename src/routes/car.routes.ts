@@ -5,6 +5,10 @@ import { Constants } from '../utils/constansts';
 
 const router = Router();
 
+router.route(`/${ Constants.API.CAR_SYSTEM_QUERY }/`)
+  .get(carController.systemQuery)
+
+
 router.route(`/${ Constants.API.CRUD }/`)
   .get(carController.getAllCars)
   .post(carController.createCar);

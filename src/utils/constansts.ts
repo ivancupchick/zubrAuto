@@ -3,6 +3,7 @@ export namespace Constants {
     CARS = 'cars',
     USERS = 'users',
     CRUD = 'crud',
+    CAR_SYSTEM_QUERY = 'carSystemQuery',
     STATISTIC = 'statistic',
     CLIENTS = 'clients',
     FIELDS = 'fields',

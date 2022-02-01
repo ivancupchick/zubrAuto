@@ -1,6 +1,7 @@
 <p-toolbar>
   <div class="p-toolbar-group-left">
     <button *ngIf="addCarButtonAvailable" pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
+    <button *ngIf="type === ''" pButton type="button" label="Системный запрос" icon="pi pi-user" (click)="handleAdminSystemQuery()"></button>
 
     <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>
 
