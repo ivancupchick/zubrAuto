@@ -15,6 +15,7 @@
       icon="pi pi-times"
       (click)="deleteCars()"
     ></button>
+    <button *ngIf="type === ''" pButton type="button" label="Системный запрос" icon="pi pi-user" (click)="handleAdminSystemQuery()"></button>
 
     <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>
 

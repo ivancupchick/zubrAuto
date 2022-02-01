@@ -454,6 +454,34 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
     return result;
   }
+
+  async systemQuery() {
+    const [
+      carFields,
+      carOwnerFields
+    ] = await Promise.all([
+      fieldService.getFieldsByDomain(FieldDomains.Car),
+      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
+    ]);
+
+    return false;
+
+    const createCarData = await carInfoGetterService.receiveCarsFromAv(carFields, carOwnerFields);
+
+    const createdCarIds = await Promise.all(createCarData.map(cc => this.create(cc)))
+
+    const result = createdCarIds.map((r, i) => {
+      if (r.id === -1) {
+        const carData = createCarData[i];
+
+        return { ...carData, id: -1 }; // TODO! Maybe rethink minor errors for all apies...
+      }
+
+      return {...r};
+    })
+
+    return createCarData;
+  }
 }
 
 export = new CarService();

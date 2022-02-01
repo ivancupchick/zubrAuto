@@ -5,6 +5,7 @@ export namespace Constants {
     CRUD = 'crud',
     DELETE_CARS = 'deleteCars',
     GET_BY_OPTIONS = 'getByOptions',
+    CAR_SYSTEM_QUERY = 'carSystemQuery',
     STATISTIC = 'statistic',
     CLIENTS = 'clients',
     FIELDS = 'fields',

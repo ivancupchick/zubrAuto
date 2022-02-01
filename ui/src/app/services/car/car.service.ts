@@ -22,6 +22,17 @@ export class CarService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
+  carSystemQuery(): Observable<boolean> {
+    return this.requestService.get<any>(`${environment.serverUrl}/${API}/${ Constants.API.CAR_SYSTEM_QUERY }`)
+      .pipe(
+        map(res => {
+          console.log(res);
+
+          return true;
+        })
+      )
+  }
+
   getCars(): Observable<ServerCar.Response[]> {
     return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }`)
   }

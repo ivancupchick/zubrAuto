@@ -2,6 +2,7 @@ import request from 'request-promise';
 import { ServerCar } from '../entities/Car';
 import { RealField, ServerField } from '../entities/Field';
 import { FieldNames } from '../entities/FieldNames';
+import { StringHash } from '../utils/sql-queries';
 
 // const CARS_INFO_LINK = process.env.CARS_INFO_LINK;
 const getPhoneLink = (id: number) => {
@@ -102,7 +103,7 @@ interface ICar {
   publishedAt: string;
   refreshedAt: string;
   sellerName: string;
-  status: 'active' | string;
+  status: 'active' | 'draft' | 'paused' | string;
   videoUrl: string;
   videoUrlId: string;
   year: number;
@@ -130,7 +131,94 @@ interface ICarProperty {
 }
 
 class CarInfoGetter {
-  // startTime = 0;
+
+  private async post<T>(url: string, body: Object, headers: StringHash = {'Content-Type': 'application/json'}): Promise<T> {
+    return request.post(url, {
+      headers,
+      body: JSON.stringify(body)
+    })
+    .then(result => JSON.parse(result))
+    .catch(err => {
+      console.log('error')
+      console.log(err.message);
+    });
+  }
+
+  private async getOurAdverts(apiKey: string, status: number, page: number): Promise<ICarsInfo> {
+    const CARS_INFO_LINK = process.env.AV_ORGANIZATION_CARS_URL;
+
+    return request.post(`${CARS_INFO_LINK}`, {
+      headers : {
+        "X-Api-Key": `${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        page: page,
+        limit: 100,
+        // offset: 2,
+        // sorting: 0,
+        properties: {
+          // brand: 0,
+          // model: 0,
+          private_status: status
+        }
+      })
+    }).then(res => JSON.parse(res))
+      .catch(err => {
+        console.log(err);
+        return err
+      });
+  }
+
+  async loginToAv(): Promise<string> {
+    const url = process.env.AV_LOGIN_URL;
+    const res = await this.post<{ apiKey: string }>(url, {
+      login: process.env.AV_LOGIN,
+      password: process.env.AV_PASSWORD
+    });
+
+    return res.apiKey;
+  }
+
+  async receiveCarsFromAv(
+    carFieldConfigs: ServerField.Response[],
+    carOwnerFieldConfigs: ServerField.Response[],
+  ) {
+    const apiKey = await this.loginToAv();
+
+    const carsInfo = await this.getOurAdverts(apiKey, 1, 0);
+    let otherPages: number[] = [];
+    for (let i = 2; i < carsInfo.pageCount + 1; i++) {
+      otherPages.push(i);
+    }
+    let additionalInform: ICarsInfo[] = [];
+    if (otherPages.length > 0) {
+      additionalInform = await Promise.all(otherPages.map(pageNumber => this.getOurAdverts(apiKey, 1, pageNumber)))
+    }
+    const allCars: ICar[] = carsInfo.adverts;
+    additionalInform.forEach(info => { allCars.push(...info.adverts); })
+
+    const carsInfo2 = await this.getOurAdverts(apiKey, 2, 0);
+    const carsInfo3 = await this.getOurAdverts(apiKey, 3, 0);
+    const carsInfo4 = await this.getOurAdverts(apiKey, 4, 0);
+
+    allCars.push(...carsInfo2.adverts);
+    allCars.push(...carsInfo3.adverts);
+    allCars.push(...carsInfo4.adverts);
+
+    const ids: number[] = allCars.map(car => car.id);
+
+    const result = this.converCarsInfoToServerCars(
+      allCars,
+      [],
+      carFieldConfigs,
+      carOwnerFieldConfigs,
+      0,
+      true
+    );
+
+    return result;
+  }
 
   async getCarsInfo(
     queries: string,
@@ -179,7 +267,8 @@ class CarInfoGetter {
       numbers.map(num => ({ id: num.id, number: +num.number })),
       carFieldConfigs,
       carOwnerFieldConfigs,
-      userId
+      userId,
+      false
     );
 
     return result;
@@ -211,10 +300,13 @@ class CarInfoGetter {
     phoneNumbers: { id: number, number: number }[],
     carFieldConfigs: ServerField.Response[],
     carOwnerFieldConfigs: ServerField.Response[],
-    userId: number
+    userId: number,
+    newes: boolean
   ): ServerCar.CreateRequest[] {
     return cars.map(carInfo => {
-      const number = phoneNumbers.find(num => num.id === carInfo.id)?.number || 0;
+      let number = phoneNumbers.length > 0
+        ? phoneNumbers.find(num => num.id === carInfo.id)?.number || 0
+        : 296205678;
 
       if (!number) {
         return null;
@@ -226,14 +318,14 @@ class CarInfoGetter {
           return {
             id: fieldConfig.id,
             name: fieldConfig.name,
-            value: this.getCarFieldValue(fieldConfig, carInfo, userId)
+            value: this.getCarFieldValue(fieldConfig, carInfo, newes ? carInfo : null, userId)
           } as RealField.Request
         })
       }
     }).filter(c => !!c);
   }
 
-  private getCarFieldValue(fieldConfig: ServerField.Response, car: ICar, userId: number): string {
+  private getCarFieldValue(fieldConfig: ServerField.Response, car: ICar, carInfo: ICar | null, userId?: number): string {
     const name = fieldConfig.name as FieldNames.Car | FieldNames.CarOwner;
     switch (name) {
       case FieldNames.Car.engine: {
@@ -292,13 +384,17 @@ class CarInfoGetter {
         return `${car.price.usd.amount}`;
       }
       case FieldNames.Car.contactCenterSpecialistId: {
-        return `${userId}`;
+        return userId ? `${userId}` : '0';
       }
       case FieldNames.CarOwner.name: {
         return `${car.sellerName}`;
       }
       case FieldNames.Car.status: {
-        return 'status-0';
+        return !carInfo
+          ? 'status-0'
+          : carInfo.status === 'paused'
+            ? 'status-10'
+            : 'status-9'
       }
       case FieldNames.Car.source: {
         // const reg = /^(?:https?:\/\/).*?([^.\r\n\/]+\.)?([^.\r\n\/]+\.[^.\r\n\/]{2,6}(?:\.[^.\r\n\/]{2,6})?).*$/g;

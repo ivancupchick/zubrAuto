@@ -405,6 +405,22 @@ class CarController {
       next(e);
     }
   }
+
+  async systemQuery(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const cars = await carService.systemQuery();
+
+      return res.json(cars);
+    } catch (e) {
+      next(e);
+    }
+  }
 }
 
 export = new CarController();

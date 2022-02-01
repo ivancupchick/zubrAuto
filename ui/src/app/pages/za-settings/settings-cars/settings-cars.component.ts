@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
-import { SortEvent } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable, of, Subject, Subscription, zip } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
@@ -1167,6 +1166,13 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
 
     return configs.filter(config => !config.available || config.available());
+  }
+
+  handleAdminSystemQuery() {
+    this.carService.carSystemQuery()
+      .subscribe(res => {
+        console.log(res);
+      });
   }
 
   openNewCarWindow() {
