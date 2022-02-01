@@ -174,8 +174,8 @@ export function getInsertOneQuery<T> (tableName: string, entity: Omit<T, 'id'>) 
   return `INSERT INTO \`${tableName}\` (${keys.join(',')}) VALUES(${values.join(',')});`
 }
 
-export function getResultInsertOneQuery<T>(tableName: string) {
-  return `SELECT * FROM \`${tableName}\` WHERE id = LAST_INSERT_ID()`
+export function getResultInsertOneQuery<T>(tableName: string, id) {
+  return `SELECT * FROM \`${tableName}\` WHERE id IN ('${id}')`
 }
 
 export const getGetAllByOneColumnExpressionQuery = <T>(tableName: string, expressions: ExpressionHash<T>) => {

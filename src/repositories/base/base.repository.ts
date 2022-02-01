@@ -53,8 +53,9 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
 
     const dbResult = await this.query<OkPacket>(query);
 
+    const id = dbResult.insertId;
 
-    const query2 = getResultInsertOneQuery(this.tableName);
+    const query2 = getResultInsertOneQuery(this.tableName, id);
 
     console.log(query2);
 
@@ -86,10 +87,6 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   }
 
   async deleteById(id: number): Promise<T> {
-    const query2 = getResultInsertOneQuery(this.tableName);
-
-    console.log(query2);
-
     const result2 = await this.findById(id);
 
     const query = getDeleteByIdQuery(this.tableName, id);
@@ -103,10 +100,6 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   }
 
   async deleteOne(expressionHash: ExpressionHash<T>): Promise<T> {
-    const query2 = getResultInsertOneQuery(this.tableName);
-
-    console.log(query2);
-
     const result2 = await this.findOne(expressionHash);
 
     const query = getDeleteByAndExpressions<T>(this.tableName, expressionHash);
