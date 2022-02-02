@@ -56,6 +56,7 @@ export class CreateCarComponent implements OnInit {
     FieldNames.Car.shootingDate,
     FieldNames.Car.shootingTime,
     FieldNames.Car.adPrice,
+    FieldNames.Car.mainPhotoId,
   ];
 
   carOwnerExcludeFields: FieldNames.CarOwner[] = [
