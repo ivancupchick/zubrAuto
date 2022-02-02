@@ -258,6 +258,13 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       }
     }
 
+    const fieldsExists = await fieldChainRepository.find({
+      sourceId: [`${carId}`],
+      sourceName: [Models.CARS_TABLE_NAME],
+    });
+
+    const fieldChainForCreate = carFields.filter(f => !fieldsExists.find(fe => fe.fieldId === f.id))
+
     const cf = carFields.filter(f => f.name !== FieldNames.Car.worksheet);
     await Promise.all(cf.map(f => fieldChainRepository.update({
       value: f.value
@@ -266,6 +273,15 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       sourceId: [`${carId}`],
       sourceName: [Models.CARS_TABLE_NAME]
     })));
+
+    if (fieldChainForCreate.length > 0) {
+      await Promise.all(fieldChainForCreate.map(f => fieldChainService.createFieldChain({
+        sourceId: carId,
+        fieldId: f.id,
+        value: f.value,
+        sourceName: Models.CARS_TABLE_NAME
+      })));
+    }
 
     return { id: carId };
   }
