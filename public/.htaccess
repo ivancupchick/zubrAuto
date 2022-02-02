@@ -1,0 +1,2 @@
+# ModRewrite must be active on Apache
+RewriteEngine On

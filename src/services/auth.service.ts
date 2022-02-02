@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { v4 } from 'uuid';
-import mailService from './mail.service';
+// import mailService from './mail.service';
 import tokenService from './token.service';
 import { Models } from '../entities/Models';
 import { ServerUser } from '../entities/User';
@@ -33,7 +33,7 @@ class AuthService {
       customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
     }
 
-    await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink); // need test
+    // await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink); // need test
     const userPayload = new ServerAuth.Payload(payloadUser);
 
     const tokens = tokenService.generateTokens({...userPayload});

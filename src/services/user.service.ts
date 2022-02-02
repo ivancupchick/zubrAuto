@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { v4 } from 'uuid';
-import mailService from './mail.service';
+// import mailService from './mail.service';
 import { Models } from '../entities/Models';
 import { ServerUser } from '../entities/User';
 import { ApiError } from '../exceptions/api.error';
@@ -68,7 +68,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
     })))
 
     if (!userData.isActivated) {
-      await mailService.sendActivationMail(userData.email, `${process.env.API_URL}/activate/`+activationLink); // need test
+      // await mailService.sendActivationMail(userData.email, `${process.env.API_URL}/activate/`+activationLink); // need test
     }
 
     return user;

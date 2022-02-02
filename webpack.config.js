@@ -10,7 +10,7 @@ module.exports = {
     new webpack.IgnorePlugin({ resourceRegExp: /^pg-native$/ })
   ],
   output: {
-    path: path.resolve(__dirname, './build'),
+    path: path.resolve(__dirname, './build/public'),
     filename: 'index.bundle.js'
   },
   externals: [nodeExternals()]

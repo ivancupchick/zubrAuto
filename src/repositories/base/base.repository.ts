@@ -1,9 +1,7 @@
 import { IWrite } from '../interfaces/write.interface';
 import { IRead } from '../interfaces/read.interface';
 import { ExpressionHash, getDeleteByAndExpressions, getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getResultInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from '../../utils/sql-queries';
-import { pg_db } from '../../database';
 import { ApiError } from '../../exceptions/api.error';
-import { QueryResult } from 'pg';
 import { SSHConnection } from '../../mysql-connect';
 import { OkPacket, ResultSetHeader, RowDataPacket } from 'mysql2';
 
@@ -25,25 +23,6 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
 
       });
     }));
-
-    // return await (new Promise((resolve , reject) => {
-
-    //   const c = mysqlConnect.pool.query(query, (err, res) => {
-    //     if (err) {
-    //       reject(err);
-    //       return;
-    //     }
-
-    //     console.log(res);
-
-    //     resolve(res as TRes[]);
-
-    //   });
-    // }));
-
-
-
-    // return await pg_db.query<TRes>(query);
   }
 
   async create(item: Omit<T, 'id'>): Promise<T> {
