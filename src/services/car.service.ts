@@ -186,6 +186,19 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       })));
     }
 
+    const statusField = await fieldRepository.findOne({ name: [`${FieldNames.Car.status}`], domain: [`${FieldDomains.Car}`] });
+
+    const statusFieldRequest: RealField.Request = {
+      id: statusField.id,
+      name: FieldNames.Car.status,
+      value: 'status-0'
+    }
+    const statusFieldRequestExist = carFields.find(f => f.id === statusFieldRequest.id)
+
+    if (!statusFieldRequestExist || !statusFieldRequestExist.value) {
+      carFields.push(statusFieldRequest);
+    }
+
     const car = await carRepository.create({
       createdDate: `${(new Date()).getTime()}`,
       ownerId
