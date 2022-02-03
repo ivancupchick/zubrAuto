@@ -143,21 +143,35 @@ export class CarService {
       }))
   }
 
-  changeCarStatus(id: number, newStatus: FieldNames.CarStatus, comment = '') {
+  changeCarStatus(
+    id: number,
+    newStatus: FieldNames.CarStatus,
+    comment = '',
+    dateOfNextAction: string | undefined = undefined,
+    dateOfFirstStatusChange: string | undefined = undefined
+  ) {
     return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
       concatMap(allFields => {
         const statusConfig = allFields.find(field => field.name === FieldNames.Car.status);
         const commentConfig = allFields.find(field => field.name === FieldNames.Car.comment);
         const dateOfLastStatusChangeConfig = allFields.find(field => field.name === FieldNames.Car.dateOfLastStatusChange);
+        const dateOfNextActionConfig = allFields.find(field => field.name === FieldNames.Car.dateOfNextAction);
+        const dateOfFirstStatusChangeConfig = allFields.find(field => field.name === FieldNames.Car.dateOfFirstStatusChange);
 
-
-        if (statusConfig && commentConfig && dateOfLastStatusChangeConfig) {
+        if (statusConfig && commentConfig && dateOfLastStatusChangeConfig && dateOfNextActionConfig && dateOfFirstStatusChangeConfig) {
           const statusField = FieldsUtils.setDropdownValue(statusConfig, newStatus);
           const commentField = FieldsUtils.setFieldValue(commentConfig, comment);
           const dateOfLastStatusChangeField = FieldsUtils.setFieldValue(dateOfLastStatusChangeConfig, `${+(new Date())}`);
+          const dateOfNextActionField = dateOfNextAction && FieldsUtils.setFieldValue(dateOfNextActionConfig, dateOfNextAction);
+          const dateOfFirstStatusChangeField = FieldsUtils.setFieldValue(dateOfFirstStatusChangeConfig, `${+(new Date())}`);
+
+          const fields = [statusField, commentField, dateOfLastStatusChangeField]
+
+          dateOfNextAction && dateOfNextActionField && fields.push(dateOfNextActionField);
+          !dateOfFirstStatusChange && fields.push(dateOfFirstStatusChangeField);
 
           const car: ServerCar.UpdateRequest = {
-            fields: [statusField, commentField, dateOfLastStatusChangeField]
+            fields: fields
           }
           return this.updateCar(car, id)
         } else {

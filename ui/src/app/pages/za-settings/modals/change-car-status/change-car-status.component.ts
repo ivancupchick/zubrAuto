@@ -16,6 +16,10 @@ export class ChangeCarStatusComponent implements OnInit {
   statuses: { value: string, key: string }[] = [];
   selectedStatus: 'None' | FieldNames.CarStatus = 'None';
   @Input() comment = '';
+  @Input() dateOfNextAction: string | undefined;
+  @Input() isNextActionDateAvailable: boolean = false;
+  @Input() dateOfFirstStatusChange: string = '';
+  @Input() dateOfFirstStatusChangeAvailable: boolean = false;
 
   get formNotValid() {
     // const link = this.link ? this.link.match(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi) : null;
@@ -38,6 +42,11 @@ export class ChangeCarStatusComponent implements OnInit {
     this.carId = this.config.data.carId;
     this.availableStatuses = this.config.data.availableStatuses;
     this.comment = this.config.data.comment || '';
+    this.dateOfNextAction = this.config.data.dateOfNextAction || '';
+    this.isNextActionDateAvailable = this.config.data.isNextActionDateAvailable || false;
+    this.dateOfFirstStatusChange = this.config.data.dateOfFirstStatusChange || '';
+    this.dateOfFirstStatusChangeAvailable = this.config.data.dateOfFirstStatusChangeAvailable || '';
+
     this.commentIsRequired = this.config.data.commentIsRequired || false;
 
     if (this.availableStatuses.length > 1) {
@@ -62,7 +71,13 @@ export class ChangeCarStatusComponent implements OnInit {
 
     this.loading = true;
 
-    this.carService.changeCarStatus(this.carId, this.selectedStatus, this.comment).subscribe(res => {
+    this.carService.changeCarStatus(
+      this.carId,
+      this.selectedStatus,
+      this.comment,
+      this.isNextActionDateAvailable ? this.dateOfNextAction : undefined,
+      this.dateOfFirstStatusChangeAvailable ? this.dateOfFirstStatusChange : '3'
+    ).subscribe(res => {
       this.loading = false;
 
       if (res) {

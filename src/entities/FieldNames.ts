@@ -42,6 +42,8 @@ export namespace FieldNames {
     contactCenterSpecialist = 'contact-center-specialist',
     mainPhotoId = 'main-photo-id',
     linkToVideo = 'link-to-video',
+    dateOfNextAction = 'date-of-next-action',
+    dateOfFirstStatusChange = 'date-of-first-status-change'
   }
 
   export enum CarStatus {
