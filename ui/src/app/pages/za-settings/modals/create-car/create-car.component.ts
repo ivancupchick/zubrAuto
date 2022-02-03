@@ -34,6 +34,10 @@ export class CreateCarComponent implements OnInit {
   carFormValid = false;
   carOwnerFormValid = false;
 
+  shootingDateAvailable = false;
+  shootingDate = new Date();
+  private startShootingDate = +(new Date());
+
   carDynamicFormFields: DynamicFieldBase<string>[] = [];
   carOwnerDynamicFormFields: DynamicFieldBase<string>[] = [];
   ourLinksDynamicFormFields: DynamicFieldBase<string>[] = [];
@@ -89,7 +93,7 @@ export class CreateCarComponent implements OnInit {
   generateForm() {
     if (!this.sessionService.isAdminOrHigher) {
       this.carExcludeFields.push(...[
-        FieldNames.Car.source,
+        // FieldNames.Car.source,
         FieldNames.Car.status,
         FieldNames.Car.dateOfLastStatusChange
       ]);
@@ -138,7 +142,7 @@ export class CreateCarComponent implements OnInit {
       })
     );
 
-    if (this.sessionService.isAdminOrHigher) {
+    if (this.sessionService.isAdminOrHigher || this.sessionService.isContactCenterChief) {
       const contactCenterField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.contactCenterSpecialistId);
       carFormFields.push(
         this.dfcs.getDynamicFieldFromOptions({
@@ -154,55 +158,75 @@ export class CreateCarComponent implements OnInit {
           ]
         })
       )
-      const carShootingField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.carShootingSpecialistId);
-      carFormFields.push(
-        this.dfcs.getDynamicFieldFromOptions({
-          id: carShootingField?.id || -1,
-          value: this.car?.fields.find(f => f.name === FieldNames.Car.carShootingSpecialistId)?.value || 'None',
-          key: FieldNames.Car.carShootingSpecialistId,
-          label: settingsCarsStrings.carShootingSpecialistId,
-          order: 1,
-          controlType: FieldType.Dropdown,
-          variants: [
-            { value: 'Никто', key: 'None' },
-            ...this.carShootingUsers.map(u => ({ key: `${u.id}`, value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name) || u.email}` }))
-          ]
-        })
-      )
+      // const carShootingField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.carShootingSpecialistId);
+      // carFormFields.push(
+      //   this.dfcs.getDynamicFieldFromOptions({
+      //     id: carShootingField?.id || -1,
+      //     value: this.car?.fields.find(f => f.name === FieldNames.Car.carShootingSpecialistId)?.value || 'None',
+      //     key: FieldNames.Car.carShootingSpecialistId,
+      //     label: settingsCarsStrings.carShootingSpecialistId,
+      //     order: 1,
+      //     controlType: FieldType.Dropdown,
+      //     variants: [
+      //       { value: 'Никто', key: 'None' },
+      //       ...this.carShootingUsers.map(u => ({ key: `${u.id}`, value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name) || u.email}` }))
+      //     ]
+      //   })
+      // )
+    }
+
+    if (this.sessionService.isAdminOrHigher || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief) {
+      this.shootingDateAvailable = true;
+      const date = this.car && FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.shootingDate) || `${+(new Date())}`
+      this.shootingDate = new Date(+date);
+      this.startShootingDate = +(this.shootingDate)
+
+      // const shootingTimeField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.shootingTime);
+
+      // carFormFields.push(
+      //   this.dfcs.getDynamicFieldFromOptions({
+      //     id: shootingDateField?.id || -1,
+      //     value: `${this.car && FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.shootingDate) || +(new Date())}`,
+      //     key: FieldNames.Car.shootingDate,
+      //     label: settingsCarsStrings.shootingDate,
+      //     order: 1,
+      //     controlType: FieldType.Date,
+      //   })
+      // )
     }
 
 
-    // const ourLinks: [string, string, string] = this.car ? (FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.ourLinks) || ',,')?.split(',') as any : ['', '', ''];
-    // const ourLinksField = this.carFieldConfigs.find(c => c.name === FieldNames.Car.ourLinks) as ServerField.Response;
+    const ourLinks: [string, string, string] = this.car ? (FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.ourLinks) || ',,')?.split(',') as any : ['', '', ''];
+    const ourLinksField = this.carFieldConfigs.find(c => c.name === FieldNames.Car.ourLinks) as ServerField.Response;
 
     this.carOwnerDynamicFormFields = carOwnerFormFields;
     this.carDynamicFormFields = carFormFields;
 
-  //   const ourLinksDynamicFormFields = [
-  //     this.dfcs.getDynamicFieldFromOptions({
-  //       id: ourLinksField.id,
-  //       value: ourLinks[0] || '',
-  //       key: 'ourLinks0',
-  //       label: 'av.by',
-  //       order: 1,
-  //       controlType: FieldType.Text
-  //     }), this.dfcs.getDynamicFieldFromOptions({
-  //       id: -2,
-  //       value:  ourLinks[1] || '',
-  //       key: 'ourLinks1',
-  //       label: 'abw.by',
-  //       order: 1,
-  //       controlType: FieldType.Text
-  //     }), this.dfcs.getDynamicFieldFromOptions({
-  //       id: -1,
-  //       value:  ourLinks[2] || '',
-  //       key: 'ourLinks2',
-  //       label: 'ab.onliner.by',
-  //       order: 1,
-  //       controlType: FieldType.Text
-  //     })
-  //   ]
-  //   this.ourLinksDynamicFormFields = ourLinksDynamicFormFields;
+    const ourLinksDynamicFormFields = [
+      this.dfcs.getDynamicFieldFromOptions({
+        id: ourLinksField.id,
+        value: ourLinks[0] || '',
+        key: 'ourLinks0',
+        label: 'av.by',
+        order: 1,
+        controlType: FieldType.Text
+      }), this.dfcs.getDynamicFieldFromOptions({
+        id: -2,
+        value:  ourLinks[1] || '',
+        key: 'ourLinks1',
+        label: 'abw.by',
+        order: 1,
+        controlType: FieldType.Text
+      }), this.dfcs.getDynamicFieldFromOptions({
+        id: -1,
+        value:  ourLinks[2] || '',
+        key: 'ourLinks2',
+        label: 'ab.onliner.by',
+        order: 1,
+        controlType: FieldType.Text
+      })
+    ]
+    this.ourLinksDynamicFormFields = ourLinksDynamicFormFields;
   }
 
   create() {
@@ -220,14 +244,14 @@ export class CreateCarComponent implements OnInit {
       ...carOwnerFields.filter(fc => !this.carOwnerExcludeFields.includes(fc.name as FieldNames.CarOwner))
     ];
 
-    // const ourLinks = this.ourLinksDynamicForm.getAllValue();
+    const ourLinks = this.ourLinksDynamicForm.getAllValue();
 
-    // const ourLinksField: RealField.Request = {
-    //   id: ourLinks[0].id,
-    //   value: ourLinks.map(l => l.value).join(',')
-    // }
+    const ourLinksField: RealField.Request = {
+      id: ourLinks[0].id,
+      value: ourLinks.map(l => l.value).join(',')
+    }
 
-    // fields.push(ourLinksField);
+    fields.push(ourLinksField);
 
     if (contactCenterUser) {
       fields.push(contactCenterUser);
@@ -236,15 +260,13 @@ export class CreateCarComponent implements OnInit {
       fields.push(carShootingUser)
     }
 
-    // const car: ServerCar.CreateRequest = this.car != undefined
-    //   ? {
-    //     createdDate: this.car.createdDate,
-    //     fields
-    //   }
-    //   : {
-    //     createdDate: (new Date()).getTime().toString(),
-    //     fields
-    //   }
+    if (this.shootingDateAvailable && this.startShootingDate !== +this.shootingDate) {
+      const shootingDateField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.shootingDate);
+      shootingDateField && fields.push({
+        id: shootingDateField.id,
+        value: `${+this.shootingDate}`
+      });
+    }
 
     const methodObs = this.car != undefined
       ? this.carService.updateCar({
