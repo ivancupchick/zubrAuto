@@ -564,8 +564,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         name: 'CreatedDate',
         getValue: (item) => {
           try {
-            const date = new Date(+item.createdDate);
-            return date instanceof Date ? DateUtils.getFormatedDate(+item.createdDate) : ''
+            const firstStatusChange = FieldsUtils.getFieldStringValue(item, FieldNames.Car.dateOfFirstStatusChange)
+
+            const date = new Date((+(firstStatusChange || '') || +item.createdDate));
+            return date instanceof Date ? DateUtils.getFormatedDate(+date) : ''
           } catch (error) {
             console.error(error);
             return item.createdDate
@@ -630,22 +632,27 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: 'О-м',
       name: 'engineCapacity',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.engineCapacity),
+      available: () => !(this.sessionService.isContactCenter || this.sessionService.isContactCenterChief)
     }, {
       title: this.strings.transmission,
       name: 'transmission',
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.transmission),
+      available: () => !(this.sessionService.isContactCenter || this.sessionService.isContactCenterChief)
     }, {
       title: this.strings.bodyType,
       name: 'body-type',
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.bodyType),
+      available: () => !(this.sessionService.isContactCenter || this.sessionService.isContactCenterChief)
     }, {
       title: this.strings.color,
       name: 'color',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.color),
+      available: () => !(this.sessionService.isContactCenter || this.sessionService.isContactCenterChief)
     }, {
       title: this.strings.driveType,
       name: 'driveType',
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Car.driveType),
+      available: () => !(this.sessionService.isContactCenter || this.sessionService.isContactCenterChief)
     }, {
       title: this.strings.mileage,
       name: 'mileage',
@@ -763,9 +770,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     //   available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
     // },
       {
-        title: this.strings.dateOfLastStatusChange,
-        name: 'dateOfLastStatusChange',
-        getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfLastStatusChange) || 0)),
+        title: this.strings.dateOfNextAction,
+        name: 'dateOfNextAction',
+        getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfNextAction),
         available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
       }
     ];
@@ -952,6 +959,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.contactCenter_InProgress
         ],
         comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
+        isNextActionDateAvailable: true,
+        dateOfNextAction: FieldsUtils.getFieldValue(car, FieldNames.Car.dateOfNextAction),
+        dateOfFirstStatusChangeAvailable: true,
+        dateOfFirstStatusChange: FieldsUtils.getFieldStringValue(car, FieldNames.Car.dateOfFirstStatusChange)
       },
       header: 'Звонок',
       width: '70%'

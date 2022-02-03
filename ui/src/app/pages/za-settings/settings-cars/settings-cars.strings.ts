@@ -23,6 +23,7 @@ export const settingsCarsStrings = {
   commission: 'Комиссия',
   comment: 'Комментарии',
   dateOfLastStatusChange: 'Дата действия',
+  dateOfNextAction: 'Дата действия',
   worksheet: 'Анкета',
   bargain: 'Торг',
   adPrice: 'Цена на сайте',

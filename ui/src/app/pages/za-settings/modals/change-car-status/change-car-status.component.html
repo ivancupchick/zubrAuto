@@ -8,6 +8,10 @@
       <h5>Комментарий</h5>
       <input type="text" pInputText [(ngModel)]="comment">
     </div>
+    <div *ngIf="isNextActionDateAvailable" class="dateOfNextAction-wrapper">
+      <h5>Дата следующего дейтсвия</h5>
+      <input type="text" pInputText [(ngModel)]="dateOfNextAction">
+    </div>
   </div>
 </div>
 
