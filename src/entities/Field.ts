@@ -48,7 +48,8 @@ export enum FieldType {
   'Text',
   'Multiselect',
   'Number',
-  'Dropdown'
+  'Dropdown',
+  'Date',
 }
 
 export function getTableNameByDomain(domain: FieldDomains): string {

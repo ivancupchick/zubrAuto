@@ -1,5 +1,9 @@
 <p-toolbar>
   <div class="p-toolbar-group-left">
+    <div *ngIf="isCustomerService" style="display: flex; flex-direction: column; align-items: center;">
+      <span>Всего объявлений: {{ allCarsNumber }}</span>
+    </div>
+
     <button *ngIf="addCarButtonAvailable" pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
 
     <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>

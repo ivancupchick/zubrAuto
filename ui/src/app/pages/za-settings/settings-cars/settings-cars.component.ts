@@ -122,6 +122,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   get addCarButtonAvailable() {
     return !this.isSelectCarModalMode && !this.sessionService.isCarSales && !this.sessionService.isCarSalesChief
   }
+  get isCustomerService() {
+    return this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
+  }
+  allCarsNumber = 0;
 
   rangeDates: [Date, Date | null] | null = null;
 
@@ -456,6 +460,13 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           FieldNames.CarStatus.customerService_Sold,
         ];
 
+        this.allCarsNumber = this.sortedCars
+          .filter(c => [
+              FieldNames.CarStatus.customerService_InProgress,
+              FieldNames.CarStatus.customerService_OnPause
+            ].includes(getCarStatus(c))
+          ).length;
+
         this.availableStatuses = [
           ...availableStatuses3.map(s => ({ label: s, value: s }))
         ];
@@ -781,9 +792,35 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   copyPhonesToClipboard() {
-    navigator.clipboard.writeText(`${
+    const text = `${
       this.sortedCars.map(c => c.ownerNumber).join(`\n`)
-    }`);
+    }`;
+
+    if (typeof (navigator.clipboard) == 'undefined') {
+      console.log('navigator.clipboard');
+      var textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position="fixed";  //avoid scrolling to bottom
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+          var successful = document.execCommand('copy');
+          var msg = successful ? 'successful' : 'unsuccessful';
+          console.log(msg);
+      } catch (err) {
+          console.log('Was not possible to copy te text: ', err);
+      }
+
+      document.body.removeChild(textArea)
+      return;
+    }
+    navigator.clipboard && navigator.clipboard.writeText(text).then(function() {
+      console.log(`successful!`);
+    }, function(err) {
+      console.log('unsuccessful!', err);
+    });
   }
 
   private getGridActionsConfig(): GridActionConfigItem<ServerCar.Response>[] {
@@ -895,7 +932,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
-      disabled: (car) => getCarStatus(car) === FieldNames.CarStatus.customerService_OnPause,
+      disabled: (car) => car ? getCarStatus(car) === FieldNames.CarStatus.customerService_OnPause : true,
       handler: (car) => this.transformToCustomerServicePause(car),
     }, {
       title: 'Снять с паузы',

@@ -14,6 +14,6 @@ export function errorMiddleware(err: Error, req: Request, res: Response, next: N
 
   return res.status(500)
     .json({
-      message: 'Непридвиденная ошибка'
+      message: err
     });
 }
