@@ -375,6 +375,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.sortedCars = this.rawCars
           .filter(c => {
             const readyStatuses = [
+              FieldNames.CarStatus.carShooting_InProgres,
+              FieldNames.CarStatus.carShooting_Refund,
               FieldNames.CarStatus.carShooting_Ready,
               FieldNames.CarStatus.customerService_InProgress,
               FieldNames.CarStatus.customerService_OnPause,
@@ -409,9 +411,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         if (first) {
           this.selectedStatus = [
             FieldNames.CarStatus.contactCenter_WaitingShooting,
-            FieldNames.CarStatus.contactCenter_InProgress,
-            FieldNames.CarStatus.contactCenter_MakingDecision,
-            FieldNames.CarStatus.contactCenter_NoAnswer,
             FieldNames.CarStatus.contactCenter_Refund
           ]
         }
@@ -602,14 +601,16 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         name: FieldNames.Car.shootingDate,
         getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
         available: () => true, // this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+        isDate: true,
         sortable: () => true
       },
+    // {
+    //   title: 'Ист',
+    //   name: 'source',
+    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.source),
+    //   available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+    // },
     {
-      title: 'Ист',
-      name: 'source',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.source),
-      available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
-    }, {
       title: this.strings.ownerName,
       name: 'ownerName',
       getValue: (item) => FieldsUtils.getFieldStringValue(item, FieldNames.CarOwner.name),
@@ -683,7 +684,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.linkToAd,
       name: 'linkToAd',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.linkToAd) ? 'Есть' : 'Нету',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.linkToAd),
       available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
     },
     // {
@@ -748,6 +749,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       name: FieldNames.Car.shootingDate,
       getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
       available: () => this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+      isDate: true,
       sortable: () => true
     }, {
       title: this.strings.shootingTime,
@@ -761,6 +763,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       available: () => this.type === QueryCarTypes.carsForSale && (
         this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
       ),
+      isDate: true,
       sortable: () => true
     },
     // {

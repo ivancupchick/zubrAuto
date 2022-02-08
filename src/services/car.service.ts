@@ -242,8 +242,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     })));
 
     if (needUpdate) {
-      delete carData.fields;
-      await carRepository.updateById(carId, carData as Partial<Models.Car>);
+      await carRepository.updateById(carId, { ownerId: carOwner.id });
     }
 
     const worksheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
