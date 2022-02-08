@@ -1,6 +1,16 @@
 <div class="wrapper">
   <div class="content">
     <p-tabView>
+      <p-tabPanel header="Анкета авто">
+        <div class="comment-wrapper">
+          <h5>Анкета авто:</h5>
+          <input type="text" pInputText [(ngModel)]="oldWorksheet">
+
+          <div class="car-buttons">
+            <p-button [disabled]="oldWorksheet === ''" type="button" styleClass="p-button-help" icon="pi pi-save" label="Сохранить" (onClick)="saveOldWorksheet()"></p-button>
+          </div>
+        </div>
+      </p-tabPanel>
       <p-tabPanel header="Видео">
         <div class="comment-wrapper">
           <h5>Ссылка на видео</h5>

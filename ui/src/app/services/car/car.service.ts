@@ -203,6 +203,27 @@ export class CarService {
     )
   }
 
+  saveOldWorksheet(carId: number, oldWorksheet = '') {
+    return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
+      concatMap(allFields => {
+        const oldWorksheetConfig = allFields.find(field => field.name === FieldNames.Car.oldWorksheet);
+
+        console.log(oldWorksheetConfig);
+
+        if (oldWorksheetConfig) {
+          const oldWorksheetField = FieldsUtils.setFieldValue(oldWorksheetConfig, oldWorksheet);
+
+          const car: ServerCar.UpdateRequest = {
+            fields: [oldWorksheetField]
+          }
+          return this.updateCar(car, carId)
+        } else {
+          return of(false)
+        }
+      })
+    )
+  }
+
   selectMainPhoto(carId: number, photoId: number) {
     return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
       concatMap(allFields => {

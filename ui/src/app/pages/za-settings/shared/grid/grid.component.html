@@ -1,14 +1,15 @@
 <p-contextMenu #cm appendTo="body" [model]="contextActions" (onShow)="onShow($event)"></p-contextMenu>
 
-<p-table responsiveLayout="scroll"
-  [(selection)]="selectedKeys" (selectionChange)="onSelect($event)"
+<p-table
   [(contextMenuSelection)]="contextSelectedItem" [contextMenu]="cm"
-  dataKey="id"
   styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
   [value]="gridData"
   (sortFunction)="customSort($event)"
   [customSort]="true"
   [selectionMode]="checkboxMode ? 'dwdwadaw' : 'single'"
+  [(selection)]="selectedKeys" (selectionChange)="onSelect($event)"
+  dataKey="id"
+  responsiveLayout="scroll"
 >
   <ng-template pTemplate="header">
     <tr>
@@ -28,7 +29,11 @@
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-gridItem>
-    <tr [ngStyle]="{backgroundColor: getColorConfig && getColorConfig(gridItem) ? getColorConfig(gridItem) : 'unset'}"  [pContextMenuRow]="gridItem" [pSelectableRow]="gridItem">
+    <tr
+      [pTooltip]="getTooltipConfig && getTooltipConfig(gridItem) || ''" tooltipPosition="top" [tooltipDisabled]="!getTooltipConfig" appendTo="body" [showDelay]="1000"
+      [ngStyle]="{backgroundColor: getColorConfig && getColorConfig(gridItem) ? getColorConfig(gridItem) : ''}"
+      [pContextMenuRow]="gridItem" [pSelectableRow]="gridItem"
+    >
       <td *ngIf="checkboxMode">
         <p-tableCheckbox [value]="gridItem"></p-tableCheckbox>
       </td>

@@ -11,7 +11,7 @@
     <div style="display: flex; flex-direction: column; align-items: center;">
       <p-multiSelect
         appendTo="body"
-        *ngIf="availableStatuses.length > 0"
+        *ngIf="availableStatuses.length > 0 && !isContactStatiscticMode"
         [options]="availableStatuses"
         [(ngModel)]="selectedStatus"
         placeholder="Статус"
@@ -127,6 +127,15 @@
   </div>
 </p-toolbar>
 <p></p>
-<za-grid [getColorConfig]="getColorConfig" [checkboxMode]="isSelectCarModalMode" [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" [selected]="selected" (onSelectEntity)="onSelectEntity($event)"></za-grid>
+<za-grid
+  [getTooltipConfig]="getTooltipConfig"
+  [getColorConfig]="getColorConfig"
+  [checkboxMode]="isSelectCarModalMode"
+  [gridConfig]="gridConfig"
+  [gridData]="sortedCars"
+  [actions]="gridActionsConfig"
+  [selected]="selected"
+  (onSelectEntity)="onSelectEntity($event)"
+></za-grid>
 
 <za-spinner *ngIf="loading"></za-spinner>

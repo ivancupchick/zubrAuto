@@ -34,6 +34,7 @@ import {MultiSelectModule} from 'primeng/multiselect';
 import {OverlayPanelModule} from 'primeng/overlaypanel';
 import {ContextMenuModule} from 'primeng/contextmenu';
 import {EditorModule} from 'primeng/editor';
+import {TooltipModule} from 'primeng/tooltip';
 
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
@@ -192,6 +193,7 @@ const routes: Routes = [{
     OverlayPanelModule,
     ContextMenuModule,
     EditorModule,
+    TooltipModule,
     ModalsAuthModule,
     DynamicFormModule
   ],

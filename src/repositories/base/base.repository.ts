@@ -135,7 +135,7 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
 
   protected getOneRow(rows: RowDataPacket[]): T {
     if (rows.length > 1) {
-      throw new ApiError(400, 'Ошибка бд');
+      // throw new ApiError(400, 'Ошибка бд'); // TODO restore after improoving code
     }
 
     if (rows.length === 0 || !rows[0]) {

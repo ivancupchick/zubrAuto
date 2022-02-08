@@ -1,12 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import * as moment from 'moment';
 import { MenuItem, SortEvent } from 'primeng/api';
-import { FieldsUtils } from 'src/app/entities/field';
+// import { FieldsUtils } from 'src/app/entities/field';
 
 export interface GridConfigItem<GridItemType extends { id: number }> {
   title: string;
   name: string;
   getValue: ((item: GridItemType) => string | number);
   available?: () => boolean;
+  isDate?: boolean;
   sortable?: () => boolean; // TODO!
 }
 
@@ -31,6 +33,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
+  @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
 
   contextSelectedItem!: GridItemType;
   contextActions: MenuItem[] = []
@@ -39,9 +42,11 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
   selectedKeys!: GridItemType[];
 
-  constructor() { }
+  constructor(private elem: ElementRef<HTMLElement>) { }
 
   ngOnInit(): void {
+    console.log(this.elem.nativeElement.offsetHeight)
+
     this.selectedKeys = [...this.selected];
 
     this.updateActions();
@@ -53,7 +58,9 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
   customSort(event: SortEvent) {
     const fieldName = event.field;
-    const gridConfig = this.gridConfig.find(gd => gd.name === fieldName)
+    const gridConfig = this.gridConfig.find(gd => gd.name === fieldName);
+
+
 
     if (!event.order || !fieldName || !gridConfig || !event.data) {
       console.error('sorting not working on this field')
@@ -61,9 +68,15 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
     }
 
     (event.data as GridItemType[]).sort((data1, data2) => {
-        let value1 = gridConfig.getValue(data1);
-        let value2 = gridConfig.getValue(data2);
+        const v1 = gridConfig.getValue(data1)
+        const v2 = gridConfig.getValue(data2)
 
+        let value1 = gridConfig.isDate && v1
+          ? +moment(v1, 'DD/MM/YYYY').toDate()
+          : v1;
+        let value2 = gridConfig.isDate && v2
+          ? +moment(v2, 'DD/MM/YYYY').toDate()
+          : v2;
         let result = null;
 
         if (value1 == null && value2 != null)

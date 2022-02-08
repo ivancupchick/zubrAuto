@@ -1,4 +1,12 @@
+// :host {
+//   height: 100%;
+// }
+
 p-table ::ng-deep {
+  .p-datatable-responsive-scroll > .p-datatable-wrapper {
+    overflow-x: inherit;
+  }
+
   td, th {
     padding: 0.1rem 0.1rem !important;
     text-align: center !important;

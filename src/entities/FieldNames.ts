@@ -43,7 +43,8 @@ export namespace FieldNames {
     mainPhotoId = 'main-photo-id',
     linkToVideo = 'link-to-video',
     dateOfNextAction = 'date-of-next-action',
-    dateOfFirstStatusChange = 'date-of-first-status-change'
+    dateOfFirstStatusChange = 'date-of-first-status-change',
+    oldWorksheet = 'old-worksheet'
   }
 
   export enum CarStatus {

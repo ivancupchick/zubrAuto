@@ -331,15 +331,15 @@ class CarInfoGetter {
   }
 
   private convertEngineType(value: string): string {
-    switch (value) {
-      case 'дизель': return 'Дизель';
-      case 'дизель (гибрид)': return 'Дизель';
-      case 'бензин': return 'Бензин';
-      case 'бензин (пропан-бутан)': return 'Бензин';
-      case 'бензин (метан)': return 'Бензин';
-      case 'бензин (гибрид)': return 'Бензин';
-      case 'электро': return 'Электро';
-    }
+    // switch (value) {
+    //   case 'дизель': return 'Дизель';
+    //   case 'дизель (гибрид)': return 'Дизель';
+    //   case 'бензин': return 'Бензин';
+    //   case 'бензин (пропан-бутан)': return 'Бензин';
+    //   case 'бензин (метан)': return 'Бензин';
+    //   case 'бензин (гибрид)': return 'Бензин';
+    //   case 'электро': return 'Электро';
+    // }
     return value;
   }
 

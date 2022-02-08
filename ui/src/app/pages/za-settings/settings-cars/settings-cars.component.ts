@@ -177,6 +177,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   isContactStatiscticMode = false;
 
   getColorConfig: ((item: ServerCar.Response) => string) | undefined
+  getTooltipConfig: ((item: ServerCar.Response) => string) | undefined
 
   constructor(
     private carService: CarService,
@@ -188,6 +189,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.getTooltipConfig = (car) => {
+      return `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
+    }
+
     this.clientService.getClientFields().subscribe(result => {
       this.clientFieldConfigs = result;
     })
@@ -221,7 +226,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
         this.setGridSettings();
 
-        this.getCars(true).subscribe();
+        // this.getCars(true).subscribe();
       });
 
     zip(this.carService.getCarFields(), this.carService.getCarOwnersFields(), this.userService.getUsers())
@@ -370,6 +375,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.sortedCars = this.rawCars
           .filter(c => {
             const readyStatuses = [
+              FieldNames.CarStatus.carShooting_Ready,
               FieldNames.CarStatus.customerService_InProgress,
               FieldNames.CarStatus.customerService_OnPause,
               FieldNames.CarStatus.customerService_OnDelete,
@@ -574,6 +580,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         title: this.strings.date,
         name: 'CreatedDate',
         getValue: (item) => {
+          if (this.contactStatiscticModeAvailable && this.isContactStatiscticMode) {
+            return DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0));
+          }
+
           try {
             const firstStatusChange = FieldsUtils.getFieldStringValue(item, FieldNames.Car.dateOfFirstStatusChange)
 
@@ -585,6 +595,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           }
         },
         available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
+        isDate: true,
         sortable: () => true
       } : {
         title: this.strings.shootingDate,
@@ -633,7 +644,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
         return form.getValidation() ? 'Есть' : 'Нет'
       },
-      available: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
+      available: () => this.sessionService.isCarSales || this.sessionService.isCarSalesChief || this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
     }, {
       title: this.strings.engine,
       name: 'engine',
@@ -672,7 +683,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, {
       title: this.strings.linkToAd,
       name: 'linkToAd',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.linkToAd),
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.linkToAd) ? 'Есть' : 'Нету',
       available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
     },
     // {
@@ -942,7 +953,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
-      disabled: (car) => !(getCarStatus(car) === FieldNames.CarStatus.customerService_OnPause),
+      disabled: (car) => !car || !(getCarStatus(car) === FieldNames.CarStatus.customerService_OnPause),
       handler: (car) => this.transformToCustomerServicePause(car, true),
     }, {
       title: 'Поставить на удаление',

@@ -36,11 +36,11 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       allCarOwnerChaines
     ] = await Promise.all([
       (cars.length > 0 ? await fieldChainRepository.find({
-        sourceId: cars.map(c => `${c.id}`),
+        // sourceId: cars.map(c => `${c.id}`),
         sourceName: [`${Models.CARS_TABLE_NAME}`]
       }) : []),
       (carOwners.length > 0 ? await fieldChainRepository.find({
-        sourceId: carOwners.map(c => `${c.id}`),
+        // sourceId: carOwners.map(c => `${c.id}`),
         sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`]
       }) : [])
     ]);
