@@ -100,7 +100,9 @@ function calculateComission(price: number) {
 
 export enum QueryCarTypes {
   myCallBase = 'my-call-base',
+  myCallBaseReady = 'my-call-base-ready',
   allCallBase = 'all-call-base',
+  allCallBaseReady = 'all-call-base-ready',
   myShootingBase = 'my-shooting-base',
   allShootingBase = 'all-shooting-base',
   shootedBase = 'shooted-base',
@@ -120,13 +122,17 @@ export enum QueryCarTypes {
   ]
 })
 export class SettingsCarsComponent implements OnInit, OnDestroy {
+  queryCarTypes = QueryCarTypes;
   FieldTypes = FieldType;
   get addCarButtonAvailable() {
     return !this.isSelectCarModalMode && !this.sessionService.isCarSales && !this.sessionService.isCarSalesChief
   }
-  get isCustomerService() {
-    return this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
+  get counterAvailbale() {
+    return this.type === QueryCarTypes.carsForSale
+        || this.type === QueryCarTypes.myCallBaseReady
+        || this.type === QueryCarTypes.allCallBaseReady
   }
+
   allCarsNumber = 0;
 
   rangeDates: [Date, Date | null] | null = null;
@@ -134,7 +140,14 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   sortedCars: ServerCar.Response[] = [];
   rawCars: ServerCar.Response[] = [];
 
-  loading = false;
+  set loading(v: boolean) {
+    this._loading = v;
+    this.cd.detectChanges();
+  };
+  _loading = false;
+  get loading() {
+    return this._loading;
+  }
 
   searchText = '';
 
@@ -155,6 +168,17 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   contactCenterUsers: ServerUser.Response[] = [];
   carShootingUsers: ServerUser.Response[] = [];
 
+  private set availableRawStatuses(v: FieldNames.CarStatus[]) {
+    this._availableRawStatuses = v;
+
+    this.availableStatuses = [
+      ...v.map(s => ({ label: s, value: s }))
+    ];
+  }
+  private _availableRawStatuses: FieldNames.CarStatus[] = [];
+  private get availableRawStatuses() {
+    return this._availableRawStatuses;
+  };
   availableStatuses: { label: FieldNames.CarStatus, value: FieldNames.CarStatus }[] = [];
   selectedStatus: (FieldNames.CarStatus)[] = [];
 
@@ -172,16 +196,28 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   selectedContactCenterUsers: string[] = []
   contactCenterUserOptions: { label: string, key: string }[] = [];
   get onSelectContactUserAvailable() {
-    return this.sessionService.isContactCenterChief && this.type === QueryCarTypes.allCallBase;
+    return this.sessionService.isContactCenterChief && (this.type === QueryCarTypes.allCallBase || this.type === QueryCarTypes.allCallBaseReady);
   }
 
-  get contactStatiscticModeAvailable() {
-    return this.type === QueryCarTypes.allCallBase || this.type === QueryCarTypes.myCallBase;
-  }
-  isContactStatiscticMode = false;
+  getColorConfig: ((item: ServerCar.Response) => string) | undefined;
+  getDate: ((item: ServerCar.Response) => string) = (c) => {
+    if (this.type !== QueryCarTypes.carsForSale) {
+      try {
+        const firstStatusChange = FieldsUtils.getFieldStringValue(c, FieldNames.Car.dateOfFirstStatusChange)
 
-  getColorConfig: ((item: ServerCar.Response) => string) | undefined
-  getTooltipConfig: ((item: ServerCar.Response) => string) | undefined
+        const date = new Date((+(firstStatusChange || '') || +c.createdDate));
+        return date instanceof Date ? DateUtils.getFormatedDate(+date) : ''
+      } catch (error) {
+        console.error(error);
+        return c.createdDate
+      }
+    } else {
+      return DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(c, FieldNames.Car.shootingDate) || 0))
+    }
+  };
+  getTooltipConfig: ((item: ServerCar.Response) => string) = (car) => {
+    return `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
+  };
 
   constructor(
     private carService: CarService,
@@ -194,21 +230,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    this.getTooltipConfig = (car) => {
-      return `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
-    }
-
     this.clientService.getClientFields().subscribe(result => {
       this.clientFieldConfigs = result;
     })
 
-    this.selectedContactCenterUsers = [];
-
-    switch (this.type) {
-      case QueryCarTypes.myCallBase:
-        this.selectedContactCenterUsers = [`${this.sessionService.userSubj.getValue()?.id || ''}`].filter(id => !!id);
-        break;
-    }
+    this.setContactCenterUsers();
 
     this.type = !this.isSelectCarModalMode
       ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
@@ -225,18 +251,11 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
           : QueryCarTypes.carsForSale;
 
-        this.selectedContactCenterUsers = [];
-
-        switch (this.type) {
-          case QueryCarTypes.myCallBase:
-            this.selectedContactCenterUsers = [`${this.sessionService.userSubj.getValue()?.id || ''}`].filter(id => !!id);
-            break;
-        }
-
+        this.setContactCenterUsers();
         this.setGridSettings();
 
         if (oldType !== this.type) {
-          this.getCars(true);
+          this.initCars();
         }
       });
 
@@ -283,9 +302,28 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.generateFilters();
       });
 
-    this.getCars(true);
-
+    this.initCars();
     this.setGridSettings();
+  }
+
+  setContactCenterUsers() {
+    this.selectedContactCenterUsers = [];
+
+    switch (this.type) {
+      case QueryCarTypes.myCallBaseReady:
+      case QueryCarTypes.myCallBase:
+        this.selectedContactCenterUsers = [`${this.sessionService.userSubj.getValue()?.id || ''}`].filter(id => !!id);
+        break;
+    }
+  }
+
+  initCars() {
+    this.resetState();
+
+    this.setAvailableStatuses();
+    this.setDefaultStatuses();
+
+    this.getCars();
   }
 
   subscribeOnCloseModalRef(car: ServerCar.Response | null, ref: DynamicDialogRef, force = false) {
@@ -305,6 +343,111 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       })
   }
 
+  setAvailableStatuses() {
+    switch (this.type) {
+      case QueryCarTypes.myCallBaseReady:
+      case QueryCarTypes.allCallBaseReady:
+        this.availableRawStatuses = [
+          FieldNames.CarStatus.carShooting_InProgres,
+          FieldNames.CarStatus.carShooting_Refund,
+          FieldNames.CarStatus.carShooting_Ready,
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+          FieldNames.CarStatus.customerService_OnDelete,
+          FieldNames.CarStatus.customerService_Sold,
+          FieldNames.CarStatus.carSales_Deposit,
+          FieldNames.CarStatus.admin_Deleted
+        ];
+
+        break;
+      case QueryCarTypes.myCallBase:
+        this.availableRawStatuses = [
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_Deny,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_Refund
+        ];
+        break;
+      case QueryCarTypes.allCallBase:
+        this.availableRawStatuses = [
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_Deny,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_Refund
+        ];
+        break;
+      case QueryCarTypes.myShootingBase:
+      case QueryCarTypes.allShootingBase:
+        this.availableRawStatuses = [
+          FieldNames.CarStatus.carShooting_InProgres,
+          FieldNames.CarStatus.carShooting_Refund,
+          FieldNames.CarStatus.carShooting_Ready
+        ];
+        break;
+      case QueryCarTypes.carsForSale:
+        this.availableRawStatuses = [
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+          FieldNames.CarStatus.customerService_OnDelete,
+          FieldNames.CarStatus.customerService_Sold,
+        ];
+        break;
+      case QueryCarTypes.shootedBase:
+        this.availableRawStatuses = [
+          FieldNames.CarStatus.carShooting_Ready,
+        ];
+        break;
+    }
+  }
+
+  setDefaultStatuses() {
+    switch (this.type) {
+      case QueryCarTypes.myCallBase:
+        this.selectedStatus = [
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_Refund,
+        ];
+
+        break;
+      case QueryCarTypes.allCallBase:
+        this.selectedStatus = [
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_Refund
+        ];
+
+        break;
+      case QueryCarTypes.myShootingBase:
+      case QueryCarTypes.allShootingBase:
+        this.selectedStatus = [
+          FieldNames.CarStatus.carShooting_InProgres,
+          FieldNames.CarStatus.carShooting_Refund
+        ];
+
+        break;
+      case QueryCarTypes.carsForSale:
+        this.selectedStatus = [
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+        ];
+
+        break;
+      // case QueryCarTypes.shootedBase:
+
+      //   break;
+
+      // default:
+      //   this.selectedStatus = [...this.availableRawStatuses];
+      //   break;
+    }
+  }
+
   addRawCarToRawCars(car: ServerCar.Response) {
     const existIndex = this.rawCars.findIndex(c => c.id === car.id);
 
@@ -318,15 +461,22 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.sortCars();
   }
 
-  getCars(first = false) {
+  getCars() {
     this.loading = true;
     this.getCarsSubs && this.getCarsSubs.unsubscribe();
 
     let getCarsObs = this.carService.getCars();
+    const query: StringHash = {};
 
     if (this.selectedContactCenterUsers.length > 0) {
-      const query: StringHash = {};
       query[FieldNames.Car.contactCenterSpecialistId] = this.selectedContactCenterUsers.join(',');
+    }
+
+    if (this.availableRawStatuses.length > 0) {
+      query[FieldNames.Car.status] = this.availableRawStatuses.join(',');
+    }
+
+    if (Object.keys(query).length > 0) {
       getCarsObs = this.carService.getCarsByQuery(query)
     }
 
@@ -339,7 +489,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.rawCars = [...res];
           this.generateFilters();
-          this.sortCars(first);
+          this.sortCars();
         })),
         takeUntil(this.destroyed)
       ).subscribe();
@@ -349,17 +499,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.gridConfig = this.getGridConfig();
     this.gridActionsConfig = this.getGridActionsConfig();
 
-
     if (this.type === QueryCarTypes.myCallBase || this.type === QueryCarTypes.allCallBase) {
       this.getColorConfig = (car) => {
         const status = getCarStatus(car)
-
-        // FieldNames.CarStatus.contactCenter_WaitingShooting,
-        // FieldNames.CarStatus.contactCenter_InProgress,
-        // FieldNames.CarStatus.contactCenter_Deny,
-        // FieldNames.CarStatus.contactCenter_MakingDecision,
-        // FieldNames.CarStatus.contactCenter_NoAnswer,
-        // FieldNames.CarStatus.contactCenter_Refund
 
         switch (status) {
           case FieldNames.CarStatus.contactCenter_WaitingShooting: return '#008000a3'
@@ -408,166 +550,32 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }
   }
 
-  sortCars(first = false) {
-    switch (this.type) {
-      case QueryCarTypes.myCallBase:
-        const availableStatuses = [
-          FieldNames.CarStatus.contactCenter_WaitingShooting,
-          FieldNames.CarStatus.contactCenter_InProgress,
-          FieldNames.CarStatus.contactCenter_Deny,
-          FieldNames.CarStatus.contactCenter_MakingDecision,
-          FieldNames.CarStatus.contactCenter_NoAnswer,
-          FieldNames.CarStatus.contactCenter_Refund
-        ];
-        this.availableStatuses = [
-          ...availableStatuses.map(s => ({ label: s, value: s }))
-        ];
+  resetState() {
+    this.selectedStatus = [];
+    this.availableRawStatuses = [];
+  }
 
-        if (first) {
-          this.selectedStatus = [
-            FieldNames.CarStatus.contactCenter_WaitingShooting,
-            FieldNames.CarStatus.contactCenter_InProgress,
-            FieldNames.CarStatus.contactCenter_MakingDecision,
-            FieldNames.CarStatus.contactCenter_NoAnswer,
-            FieldNames.CarStatus.contactCenter_Refund,
-          ]
-        }
+  sortCars() {
+    this.sortedCars = [...this.rawCars];
 
-        this.sortedCars = this.rawCars
-          .filter(c => {
-            const readyStatuses = [
-              FieldNames.CarStatus.carShooting_InProgres,
-              FieldNames.CarStatus.carShooting_Refund,
-              FieldNames.CarStatus.carShooting_Ready,
-              FieldNames.CarStatus.customerService_InProgress,
-              FieldNames.CarStatus.customerService_OnPause,
-              FieldNames.CarStatus.customerService_OnDelete,
-              FieldNames.CarStatus.customerService_Sold,
-              FieldNames.CarStatus.carSales_Deposit,
-              FieldNames.CarStatus.admin_Deleted
-            ]
+    if (this.selectedStatus.length > 0 && this.availableRawStatuses.length > 0) {
+      this.sortedCars = this.sortedCars
+        .filter(c => this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0);
+    }
 
-            const isStatus = this.contactStatiscticModeAvailable && this.isContactStatiscticMode
-              ? readyStatuses.includes(getCarStatus(c))
-              : (
-                this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0
-              ) && availableStatuses.includes(getCarStatus(c))
+    if (this.selectedContactCenterUsers.length > 0) {
+      this.sortedCars = this.sortedCars.filter(c => {
+        const contactUserId = FieldsUtils.getFieldStringValue(c, FieldNames.Car.contactCenterSpecialistId);
 
-            return `${FieldsUtils.getFieldValue(c, FieldNames.Car.contactCenterSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && isStatus
-          });
-        break;
-      case QueryCarTypes.allCallBase:
-        const availableStatuses2 = [
-          FieldNames.CarStatus.contactCenter_WaitingShooting,
-          FieldNames.CarStatus.contactCenter_InProgress,
-          FieldNames.CarStatus.contactCenter_Deny,
-          FieldNames.CarStatus.contactCenter_MakingDecision,
-          FieldNames.CarStatus.contactCenter_NoAnswer,
-          FieldNames.CarStatus.contactCenter_Refund
-        ];
-        this.availableStatuses = [
-          ...availableStatuses2.map(s => ({ label: s, value: s }))
-        ]
-
-        if (first) {
-          this.selectedStatus = [
-            FieldNames.CarStatus.contactCenter_WaitingShooting,
-            FieldNames.CarStatus.contactCenter_Refund
-          ]
-        }
-
-        this.sortedCars = this.rawCars // FIX THIS
-          .filter(c => {
-            const readyStatuses = [
-              FieldNames.CarStatus.customerService_InProgress,
-              FieldNames.CarStatus.customerService_OnPause,
-              FieldNames.CarStatus.customerService_OnDelete,
-              FieldNames.CarStatus.customerService_Sold,
-              FieldNames.CarStatus.carSales_Deposit,
-              FieldNames.CarStatus.admin_Deleted
-            ];
-
-            const isStatus = this.contactStatiscticModeAvailable && this.isContactStatiscticMode
-              ? readyStatuses.includes(getCarStatus(c))
-              : (this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0) && (
-                availableStatuses2.includes(getCarStatus(c))
-              )
-
-            return isStatus;
-          });
-
-        if (this.selectedContactCenterUsers.length > 0) {
-          this.sortedCars = this.sortedCars.filter(c => {
-            const contactUserId = FieldsUtils.getFieldStringValue(c, FieldNames.Car.contactCenterSpecialistId);
-
-            return this.selectedContactCenterUsers.includes(contactUserId);
-          })
-        }
-        break;
-      case QueryCarTypes.myShootingBase:
-        this.sortedCars = this.rawCars
-          .filter(c => `${FieldsUtils.getFieldValue(c, FieldNames.Car.carShootingSpecialistId)}` === `${this.sessionService.userSubj.getValue()?.id}` && (
-                       getCarStatus(c) === FieldNames.CarStatus.carShooting_InProgres
-                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Refund
-          ));
-        break;
-      case QueryCarTypes.allShootingBase:
-        this.sortedCars = this.rawCars
-          .filter(c => getCarStatus(c) === FieldNames.CarStatus.carShooting_InProgres
-                    || getCarStatus(c) === FieldNames.CarStatus.carShooting_Refund
-                    // || getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
-          );
-        break;
-      case QueryCarTypes.carsForSale:
-        const availableStatuses3 = [
-          FieldNames.CarStatus.customerService_InProgress,
-          FieldNames.CarStatus.customerService_OnPause,
-          FieldNames.CarStatus.customerService_OnDelete,
-          FieldNames.CarStatus.customerService_Sold,
-        ];
-
-        this.allCarsNumber = this.sortedCars
-          .filter(c => [
-              FieldNames.CarStatus.customerService_InProgress,
-              FieldNames.CarStatus.customerService_OnPause
-            ].includes(getCarStatus(c))
-          ).length;
-
-        this.availableStatuses = [
-          ...availableStatuses3.map(s => ({ label: s, value: s }))
-        ];
-
-        if (first) {
-          this.selectedStatus = [
-            FieldNames.CarStatus.customerService_InProgress,
-            FieldNames.CarStatus.customerService_OnPause,
-          ]
-        }
-
-        this.sortedCars = this.rawCars
-          .filter(c => (availableStatuses3.includes(getCarStatus(c))) && (
-            this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0
-          )
-                    // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
-                    // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
-          );
-        break;
-      case QueryCarTypes.shootedBase:
-        this.sortedCars = this.rawCars
-          .filter(c => getCarStatus(c) === FieldNames.CarStatus.carShooting_Ready
-                    // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
-                    // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
-          );
-        break;
-      default:
-        this.sortedCars = [...this.rawCars];
+        return this.selectedContactCenterUsers.includes(contactUserId);
+      })
     }
 
     this.sortedCars = this.sortedCars.filter(c => {
       if (this.rangeDates) {
         const dateFrom = +this.rangeDates[0];
         const dateTo = this.rangeDates[1] && (+this.rangeDates[1] + 1000 * 60 * 60 * 24);
-        const carDate = +c.createdDate;
+        const carDate = +moment(this.getDate(c), 'DD/MM/YYYY').toDate();
 
         return dateFrom < carDate && (!dateTo || dateTo > carDate);
       }
@@ -619,7 +627,20 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       }
     });
 
-    // this.sortedCars = [...this.sortedCars];
+    switch (this.type) {
+      case QueryCarTypes.carsForSale:
+        const inProgressStatuses = [
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause
+        ];
+        this.allCarsNumber = this.rawCars.filter(c => inProgressStatuses.includes(getCarStatus(c))).length;
+        break;
+      case QueryCarTypes.allCallBaseReady:
+      case QueryCarTypes.myCallBaseReady:
+        this.allCarsNumber = this.sortedCars.length;
+        break;
+    }
+
     this.cd.markForCheck();
   }
 
@@ -642,28 +663,14 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       ? {
         title: this.strings.date,
         name: 'CreatedDate',
-        getValue: (item) => {
-          if (this.contactStatiscticModeAvailable && this.isContactStatiscticMode) {
-            return DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0));
-          }
-
-          try {
-            const firstStatusChange = FieldsUtils.getFieldStringValue(item, FieldNames.Car.dateOfFirstStatusChange)
-
-            const date = new Date((+(firstStatusChange || '') || +item.createdDate));
-            return date instanceof Date ? DateUtils.getFormatedDate(+date) : ''
-          } catch (error) {
-            console.error(error);
-            return item.createdDate
-          }
-        },
+        getValue: (item) => this.getDate(item),
         available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
         isDate: true,
         sortable: () => true
       } : {
         title: this.strings.shootingDate,
         name: FieldNames.Car.shootingDate,
-        getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
+        getValue: (item) => this.getDate(item),
         available: () => true, // this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
         isDate: true,
         sortable: () => true
@@ -1076,7 +1083,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         comment: FieldsUtils.getFieldValue(car, FieldNames.Car.comment),
         isNextActionDateAvailable: true,
         dateOfNextAction: FieldsUtils.getFieldValue(car, FieldNames.Car.dateOfNextAction),
-        dateOfFirstStatusChangeAvailable: true,
+        dateOfFirstStatusChangeAvailable: !FieldsUtils.getFieldStringValue(car, FieldNames.Car.dateOfFirstStatusChange),
         dateOfFirstStatusChange: FieldsUtils.getFieldStringValue(car, FieldNames.Car.dateOfFirstStatusChange)
       },
       header: 'Звонок',
@@ -1173,6 +1180,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     this.validatePublish(car).subscribe(res => {
+      this.loading = false;
+
       if (res) {
         const ref = this.dialogService.open(ChangeCarStatusComponent, {
           data: {
@@ -1200,6 +1209,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     this.validatePublish(car).subscribe(res => {
+      this.loading = false;
+
       if (res) {
         const ref = this.dialogService.open(ChangeCarStatusComponent, {
           data: {

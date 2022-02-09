@@ -1,5 +1,5 @@
 import { ServerCar } from "../entities/Car";
-import { FieldDomains, RealField, ServerField } from "../entities/Field";
+import { FieldDomains, FieldType, RealField, ServerField } from "../entities/Field";
 import { FieldNames } from "../entities/FieldNames";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
@@ -47,7 +47,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     }
 
     const allUsers = await userService.getAll();
-    const contactCenterSpecialistIdChaines = allCarChaines.filter(ch => ch.fieldId === contactCenterSpecialistIdField.id)
+    // const contactCenterSpecialistIdChaines = allCarChaines.filter(ch => ch.fieldId === contactCenterSpecialistIdField.id)
     // const contactCenterSpecialistChaines = allCarChaines.filter(ch => ch.fieldId === contactCenterSpecialistField.id)
     // const workSheetChaines = allCarChaines.filter(ch => ch.fieldId === workSheetField.id)
 
@@ -57,12 +57,13 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
       const carForm = carForms.find(form => form.carId === car.id);
 
-      const userIdValue = contactCenterSpecialistIdChaines.find(ch => ch.sourceId === car.id);
-      const user = allUsers.find(dbUser => dbUser.id === +(userIdValue || {}).value);
+      const userIdValue = carChaines.find(ch => ch.fieldId === contactCenterSpecialistIdField.id);
+      const userId: number = userIdValue && userIdValue.value ? +userIdValue.value : -1;
+      const user = allUsers.find(dbUser => dbUser.id === userId);
 
       if (carForm) {
         carChaines.find(ch => {
-          if (ch.fieldId === workSheetField.id && ch.sourceId === car.id) {
+          if (ch.fieldId === workSheetField.id) {
             ch.value = carForm.content;
             return true;
           }
@@ -72,14 +73,24 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       }
 
       if (user) {
-        carChaines.find(ch => {
-          if (ch.fieldId === contactCenterSpecialistField.id && ch.sourceId === car.id) {
+        const r = carChaines.find(ch => {
+          if (ch.fieldId === contactCenterSpecialistField.id) {
             ch.value = JSON.stringify(user);
             return true;
           }
 
           return false
         });
+
+        if (!r) {
+          carChaines.push({
+            id: -1,
+            sourceId: car.id,
+            fieldId: contactCenterSpecialistField.id,
+            value: JSON.stringify(user),
+            sourceName: `${Models.CARS_TABLE_NAME}`
+          });
+        }
       }
 
       return {
@@ -133,16 +144,28 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
   async getCarsByQuery(query: StringHash) {
     const keys = Object.keys(query);
-    const values = keys.map(k => query[k].split(','));
-    const rValues = [];
-    values.forEach(v => {
-      v.forEach(vv => rValues.push(vv));
-    })
 
     const needCarFields = await fieldRepository.find({
       domain: [`${FieldDomains.Car}`],
       name: keys
     });
+
+    needCarFields.forEach(f => {
+      if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
+        const needVariants = query[f.name].split(',');
+        query[f.name] = needVariants.map(v => {
+          const index = f.variants.split(',').findIndex(vValue => vValue === v);
+
+          return `${f.name}-${index}`;
+        }).join(',')
+      }
+    })
+
+    const values = keys.map(k => query[k].split(','));
+    const rValues = [];
+    values.forEach(v => {
+      v.forEach(vv => rValues.push(vv));
+    })
 
     const needCarChaines = await fieldChainRepository.find({
       fieldId: needCarFields.map(f => `${f.id}`),

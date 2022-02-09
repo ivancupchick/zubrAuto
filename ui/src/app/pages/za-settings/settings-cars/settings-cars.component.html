@@ -1,7 +1,7 @@
 <p-toolbar>
   <div class="p-toolbar-group-left">
-    <div *ngIf="isCustomerService" style="display: flex; flex-direction: column; align-items: center;">
-      <span>Всего объявлений: {{ allCarsNumber }}</span>
+    <div *ngIf="counterAvailbale" style="display: flex; flex-direction: column; align-items: center;">
+      <span>{{type === queryCarTypes.carsForSale ? 'Всего автомобилей: ' : 'Выбрано автомобилей: '}}{{ allCarsNumber }}</span>
     </div>
 
     <button *ngIf="addCarButtonAvailable" pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
@@ -11,7 +11,7 @@
     <div style="display: flex; flex-direction: column; align-items: center;">
       <p-multiSelect
         appendTo="body"
-        *ngIf="availableStatuses.length > 0 && !isContactStatiscticMode"
+        *ngIf="availableStatuses.length > 1"
         [options]="availableStatuses"
         [(ngModel)]="selectedStatus"
         placeholder="Статус"
@@ -52,16 +52,6 @@
       ></p-calendar>
     </div>
 
-    <div *ngIf="contactStatiscticModeAvailable" style="display: flex; align-items: center;">
-      <p-checkbox
-        name="isContactStatiscticMode"
-        [binary]="true"
-        inputId="isContactStatiscticMode"
-        [(ngModel)]="isContactStatiscticMode"
-        (onChange)="sortCars()"
-      ></p-checkbox>
-      <label for="isContactStatiscticMode">{{'Показать готовых'}}</label>
-    </div>
 
     <!-- <i class="pi pi-bars"></i> -->
   </div>

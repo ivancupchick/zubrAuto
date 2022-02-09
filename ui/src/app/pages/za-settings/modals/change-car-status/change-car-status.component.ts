@@ -76,7 +76,7 @@ export class ChangeCarStatusComponent implements OnInit {
       this.selectedStatus,
       this.comment,
       this.isNextActionDateAvailable ? this.dateOfNextAction : undefined,
-      this.dateOfFirstStatusChangeAvailable ? this.dateOfFirstStatusChange : '3'
+      this.dateOfFirstStatusChangeAvailable ? this.dateOfFirstStatusChange : undefined
     ).subscribe(res => {
       this.loading = false;
 

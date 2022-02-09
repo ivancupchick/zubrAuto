@@ -106,6 +106,12 @@ export class ActionsService {
       queryParams: { type: QueryCarTypes.myCallBase },
       visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
     }, {
+      label: 'Моя база готовых',
+      icon: 'pi pi-fw pi-dollar',
+      routerLink: `cars`,
+      queryParams: { type: QueryCarTypes.myCallBaseReady },
+      visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+    }, {
       label: 'Добавить базу обзвона',
       icon: 'pi pi-fw pi-mobile',
       // routerLink: 'roles',
@@ -140,6 +146,12 @@ export class ActionsService {
       icon: 'pi pi-fw pi-mobile',
       routerLink: 'cars',
       queryParams: { type: QueryCarTypes.allCallBase },
+      visible: () => this.sessionService.isContactCenterChief,
+    }, {
+      label: 'Вся база готовых',
+      icon: 'pi pi-fw pi-dollar',
+      routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.allCallBaseReady },
       visible: () => this.sessionService.isContactCenterChief,
     }]
   }
