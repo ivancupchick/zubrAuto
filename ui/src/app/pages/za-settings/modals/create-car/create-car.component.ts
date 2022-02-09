@@ -280,7 +280,7 @@ export class CreateCarComponent implements OnInit {
 
     methodObs.subscribe(result => {
       if (result) {
-        this.ref.close(true);
+        this.ref.close(result);
       } else {
         alert(!!this.car ? 'Машина не обновлёна' : 'Машина не создана');
       }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
 import { SortEvent } from 'primeng/api';
@@ -110,6 +110,7 @@ export enum QueryCarTypes {
   selector: 'za-settings-cars',
   templateUrl: './settings-cars.component.html',
   styleUrls: ['./settings-cars.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     DialogService,
     CarService,
@@ -187,7 +188,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private sessionService: SessionService,
     private userService: UserService,
-    private clientService: ClientService
+    private clientService: ClientService,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -265,6 +267,36 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.setGridSettings();
   }
 
+  subscribeOnCloseModalRef(car: ServerCar.Response | null, ref: DynamicDialogRef, force = false) {
+    ref.onClose
+      .subscribe(res => {
+        if (res || force) {
+          this.loading = true;
+
+          const carId = car ? car.id : res.id;
+
+          this.carService.getCar(carId)
+            .subscribe(res => {
+              this.loading = false;
+              this.addRawCarToRawCars(res);
+            });
+        }
+      })
+  }
+
+  addRawCarToRawCars(car: ServerCar.Response) {
+    const existIndex = this.rawCars.findIndex(c => c.id === car.id);
+
+    if (existIndex === -1) {
+      this.rawCars.push(car);
+    } else {
+      this.rawCars[existIndex] = car;
+    }
+
+    this.generateFilters();
+    this.sortCars();
+  }
+
   getCars(first = false) {
     this.loading = true;
     this.getCarsSubs && this.getCarsSubs.unsubscribe();
@@ -281,19 +313,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         })),
         takeUntil(this.destroyed)
       ).subscribe();
-  }
-
-  subscribeOnCloseModalRef(ref: DynamicDialogRef, force = false) {
-    ref.onClose
-      .subscribe(res => {
-        if (res || force) {
-          // this.carService.getCars().subscribe((result) => {
-          //   this.rawCars = result;
-          //   this.sortCars();
-          // })
-          this.getCars();
-        }
-      })
   }
 
   setGridSettings() {
@@ -341,14 +360,22 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%'
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   deleteCar(car: ServerCar.Response) {
-    this.carService.deleteCar(car.id)
-      .subscribe(res => {
-        this.getCars();
-      });
+    const ok = confirm(`Вы уверены что хотите удалить машину со статусом ${getCarStatus(car)}`);
+
+    if (ok) {
+      this.loading = true;
+
+      this.carService.deleteCar(car.id)
+        .subscribe(res => {
+          this.loading = false;
+          this.rawCars = this.rawCars.filter(c => c.id !== res.id);
+          this.sortCars();
+        });
+    }
   }
 
   sortCars(first = false) {
@@ -503,7 +530,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           );
         break;
       default:
-        this.sortedCars = this.rawCars;
+        this.sortedCars = [...this.rawCars];
     }
 
     this.sortedCars = this.sortedCars.filter(c => {
@@ -561,6 +588,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         })
       }
     });
+
+    // this.sortedCars = [...this.sortedCars];
+    this.cd.markForCheck();
   }
 
   private getGridConfig(): GridConfigItem<ServerCar.Response>[] {
@@ -999,7 +1029,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%'
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(null, ref);
   }
 
   contactCenterCall(car: ServerCar.Response) {
@@ -1023,7 +1053,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%'
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   transformToCarShooting(car: ServerCar.Response) {
@@ -1039,7 +1069,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       // height: '60%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   createOrEditCarForm(car: ServerCar.Response) {
@@ -1056,7 +1086,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       height: '90%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   uploadMedia(car: ServerCar.Response) {
@@ -1072,7 +1102,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       height: '90%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   returnToContactCenter(car: ServerCar.Response) {
@@ -1089,7 +1119,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   returnToShootingCar(car: ServerCar.Response) {
@@ -1106,7 +1136,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   transformToCustomerService(car: ServerCar.Response) {
@@ -1126,7 +1156,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           width: '70%',
         });
 
-        this.subscribeOnCloseModalRef(ref);
+        this.subscribeOnCloseModalRef(car, ref);
       }
     }, err => {
       alert('Произошла ошибка, запомните шаги которые привели к такой ситуации, сообщите администарутору.')
@@ -1153,7 +1183,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           width: '70%',
         });
 
-        this.subscribeOnCloseModalRef(ref);
+        this.subscribeOnCloseModalRef(car, ref);
       }
     }, err => {
       alert('Произошла ошибка, запомните шаги которые привели к такой ситуации, сообщите администарутору.')
@@ -1180,7 +1210,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   transformToCustomerServiceDelete(car: ServerCar.Response) {
@@ -1196,7 +1226,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   сustomerServiceCall(car: ServerCar.Response) {
@@ -1208,7 +1238,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       width: '70%',
     });
 
-    this.subscribeOnCloseModalRef(ref, true);
+    this.subscribeOnCloseModalRef(car, ref, true);
   }
 
   onSearch(v: Event) {

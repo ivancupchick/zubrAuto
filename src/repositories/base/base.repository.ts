@@ -11,6 +11,8 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   protected async query<TRes extends (RowDataPacket[] | RowDataPacket[][] | OkPacket | OkPacket[] | ResultSetHeader)>(query: string): Promise<TRes> {
     const conn = await SSHConnection;
 
+    // console.log(query)
+
     return await (new Promise((resolve , reject) => {
 
       const c = conn.query(query, (err, res) => {
@@ -28,15 +30,11 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   async create(item: Omit<T, 'id'>): Promise<T> {
     const query = getInsertOneQuery<T>(this.tableName, item);
 
-    console.log(query);
-
     const dbResult = await this.query<OkPacket>(query);
 
     const id = dbResult.insertId;
 
     const query2 = getResultInsertOneQuery(this.tableName, id);
-
-    console.log(query2);
 
     const result = await this.query<RowDataPacket[]>(query2);
 
@@ -46,10 +44,7 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   async updateById(id: number, item: Partial<Omit<T, 'id'>>): Promise<T> {
     const query = getUpdateByIdQuery<T>(this.tableName, id, item)
 
-    console.log(query)
-
     const dbResult = await this.query<OkPacket>(query);
-
 
     return await this.findById(id);
   }
@@ -57,10 +52,7 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   async update(newValues: Partial<Omit<T, 'id'>>, expressionHash: ExpressionHash<T>): Promise<T[]> {
     const query = getUpdateByAndExpressionQuery<T>(this.tableName, newValues, expressionHash)
 
-    console.log(query)
-
     const dbResult = await this.query<OkPacket>(query);
-
 
     return await this.find(expressionHash);
   }
@@ -70,10 +62,7 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
 
     const query = getDeleteByIdQuery(this.tableName, id);
 
-    console.log(query)
-
     const dbResult = await this.query<OkPacket>(query);
-
 
     return result2;
   }
@@ -83,10 +72,7 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
 
     const query = getDeleteByAndExpressions<T>(this.tableName, expressionHash);
 
-    console.log(query)
-
     const dbResult = await this.query<OkPacket>(query);
-
 
     return result2;
   }
@@ -94,16 +80,12 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   async find(expressionHash: ExpressionHash<T>): Promise<T[]> {
     const query = getGetAllByExpressionAndQuery<T>(this.tableName, expressionHash);
 
-    console.log(query);
-
     const dbResult = await this.query<RowDataPacket[]>(query);
     return this.getAllRows(dbResult);
   }
 
   async findOne(expressionHash: ExpressionHash<T>): Promise<T | null> {
     const query = getGetAllByExpressionAndQuery<T>(this.tableName, expressionHash);
-
-    console.log(query);
 
     const dbResult = await this.query<RowDataPacket[]>(query);
 
@@ -113,8 +95,6 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   async findById(id: number): Promise<T> {
     const query = getGetByIdQuery(this.tableName, id);
 
-    console.log(query);
-
     const dbResult = await this.query<RowDataPacket[]>(query);
 
     return this.getOneRow(dbResult);
@@ -122,8 +102,6 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
 
   async getAll(): Promise<T[]> {
     const query = getGetAllQuery(this.tableName);
-
-    console.log(query);
 
     const dbResult = await this.query<RowDataPacket[]>(query)
     return this.getAllRows(dbResult);
