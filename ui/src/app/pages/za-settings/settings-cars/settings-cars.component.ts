@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
 import { SortEvent } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Observable, of, Subject, zip } from 'rxjs';
+import { Observable, of, Subject, Subscription, zip } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
 import { ServerFile, getCarStatus, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
@@ -160,6 +160,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   destroyed = new Subject();
 
+  getCarsSubs: Subscription | undefined;
+
   clientFieldConfigs: ServerField.Response[] = [];
 
   filters: UIFilter[] = []
@@ -212,7 +214,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
         this.setGridSettings();
 
-        this.getCars(true).subscribe();
+        this.getCars(true);
       });
 
     this.sessionService.roleSubj
@@ -258,14 +260,15 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.generateFilters();
       });
 
-    this.getCars(true).subscribe();
+    this.getCars(true);
 
     this.setGridSettings();
   }
 
   getCars(first = false) {
     this.loading = true;
-    return (
+    this.getCarsSubs && this.getCarsSubs.unsubscribe();
+    this.getCarsSubs = (
       this.carsToSelect.length > 0
         ? of(this.carsToSelect)
         : this.carService.getCars()
@@ -275,8 +278,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           this.rawCars = [...res];
           this.generateFilters();
           this.sortCars(first);
-        }))
-      )
+        })),
+        takeUntil(this.destroyed)
+      ).subscribe();
   }
 
   subscribeOnCloseModalRef(ref: DynamicDialogRef, force = false) {
@@ -287,7 +291,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           //   this.rawCars = result;
           //   this.sortCars();
           // })
-          this.getCars().subscribe();
+          this.getCars();
         }
       })
   }
@@ -343,7 +347,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   deleteCar(car: ServerCar.Response) {
     this.carService.deleteCar(car.id)
       .subscribe(res => {
-        this.getCars().subscribe();
+        this.getCars();
       });
   }
 

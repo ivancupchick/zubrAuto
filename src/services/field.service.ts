@@ -77,12 +77,12 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
         break;
     }
 
-    await Promise.all(entities.map(entity => fieldChainService.createFieldChain({
-      sourceId: entity.id,
-      fieldId: field.id,
-      value: '',
-      sourceName: tableName
-    })))
+    // await Promise.all(entities.map(entity => fieldChainService.createFieldChain({
+    //   sourceId: entity.id,
+    //   fieldId: field.id,
+    //   value: '',
+    //   sourceName: tableName
+    // })))
 
     return field;
   }
