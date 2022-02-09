@@ -7,6 +7,7 @@ import { ApiError } from '../exceptions/api.error';
 import carImageService from '../services/car-image.service';
 import carStatisticService from '../services/car-statistic.service';
 import carService from '../services/car.service';
+import { StringHash } from '../utils/sql-queries';
 import { BaseController } from './base.conroller';
 
 class CarController {
@@ -18,7 +19,12 @@ class CarController {
         throw ApiError.BadRequest('Ошибка при валидации', errors.array());
       }
 
-      const cars = await carService.getAll();
+      const query: StringHash = req.query as StringHash;
+      const queryKeys = Object.keys(query);
+
+      const cars = queryKeys.length > 0
+        ? await carService.getCarsByQuery(query)
+        : await carService.getAll();
 
       return res.json(cars);
     } catch (e) {

@@ -6,6 +6,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable, of, Subject, Subscription, zip } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
 import { ServerFile, getCarStatus, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
+import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
@@ -201,6 +202,14 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       this.clientFieldConfigs = result;
     })
 
+    this.selectedContactCenterUsers = [];
+
+    switch (this.type) {
+      case QueryCarTypes.myCallBase:
+        this.selectedContactCenterUsers = [`${this.sessionService.userSubj.getValue()?.id || ''}`].filter(id => !!id);
+        break;
+    }
+
     this.type = !this.isSelectCarModalMode
       ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
       : QueryCarTypes.carsForSale;
@@ -210,13 +219,25 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         takeUntil(this.destroyed)
       )
       .subscribe(params => {
+        const oldType = this.type;
+
         this.type = !this.isSelectCarModalMode
           ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
           : QueryCarTypes.carsForSale;
 
+        this.selectedContactCenterUsers = [];
+
+        switch (this.type) {
+          case QueryCarTypes.myCallBase:
+            this.selectedContactCenterUsers = [`${this.sessionService.userSubj.getValue()?.id || ''}`].filter(id => !!id);
+            break;
+        }
+
         this.setGridSettings();
 
-        this.getCars(true);
+        if (oldType !== this.type) {
+          this.getCars(true);
+        }
       });
 
     this.sessionService.roleSubj
@@ -300,10 +321,19 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   getCars(first = false) {
     this.loading = true;
     this.getCarsSubs && this.getCarsSubs.unsubscribe();
+
+    let getCarsObs = this.carService.getCars();
+
+    if (this.selectedContactCenterUsers.length > 0) {
+      const query: StringHash = {};
+      query[FieldNames.Car.contactCenterSpecialistId] = this.selectedContactCenterUsers.join(',');
+      getCarsObs = this.carService.getCarsByQuery(query)
+    }
+
     this.getCarsSubs = (
       this.carsToSelect.length > 0
         ? of(this.carsToSelect)
-        : this.carService.getCars()
+        : getCarsObs
       ).pipe(
         tap((res => {
           this.loading = false;

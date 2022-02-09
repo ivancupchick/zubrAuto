@@ -9,6 +9,7 @@ import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
 import fieldRepository from "../repositories/base/field.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
+import { StringHash } from "../utils/sql-queries";
 import carInfoGetterService from "./car-info-getter.service";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
@@ -124,6 +125,50 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       carRepository.getAll(),
       fieldService.getFieldsByDomain(FieldDomains.Car),
       carOwnerRepository.getAll(),
+      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
+    ]);
+
+    return this.getCars(cars, carFields, carOwners, carOwnerFields);
+  }
+
+  async getCarsByQuery(query: StringHash) {
+    const keys = Object.keys(query);
+    const values = keys.map(k => query[k].split(','));
+    const rValues = [];
+    values.forEach(v => {
+      v.forEach(vv => rValues.push(vv));
+    })
+
+    const needCarFields = await fieldRepository.find({
+      domain: [`${FieldDomains.Car}`],
+      name: keys
+    });
+
+    const needCarChaines = await fieldChainRepository.find({
+      fieldId: needCarFields.map(f => `${f.id}`),
+      value: rValues,
+      sourceName: [`${Models.CARS_TABLE_NAME}`]
+    });
+
+    const carIds = new Set<string>();
+
+    needCarChaines.forEach(ch => {
+      carIds.add(`${ch.sourceId}`)
+    });
+
+    const cars = await carRepository.find({
+      id: [...carIds]
+    });
+
+    const [
+      carFields,
+      carOwners,
+      carOwnerFields,
+    ] = await Promise.all([
+      fieldService.getFieldsByDomain(FieldDomains.Car),
+      carOwnerRepository.find({
+        id: cars.map(c => `${c.ownerId}`)
+      }),
       fieldService.getFieldsByDomain(FieldDomains.CarOwner),
     ]);
 
