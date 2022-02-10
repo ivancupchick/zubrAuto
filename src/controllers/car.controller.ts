@@ -82,6 +82,23 @@ class CarController {
     }
   }
 
+  async deleteCars(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+      }
+
+      const carIds = req.body.carIds;
+      const cars = await carService.deleteCars(carIds);
+
+      return res.json(cars);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async updateCar(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);

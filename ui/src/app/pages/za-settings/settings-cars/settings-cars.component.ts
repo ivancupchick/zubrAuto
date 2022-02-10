@@ -99,6 +99,7 @@ function calculateComission(price: number) {
 }
 
 export enum QueryCarTypes {
+  byAdmin = 'by-admin',
   myCallBase = 'my-call-base',
   myCallBaseReady = 'my-call-base-ready',
   allCallBase = 'all-call-base',
@@ -149,6 +150,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   @Input() type: QueryCarTypes | '' = '';
 
   @Input() isSelectCarModalMode = false;
+  @Input() checkboxMode = false;
   @Input() selected: ServerCar.Response[] = [];
   @Input() carsToSelect: ServerCar.Response[] = [];
   @Output() onSelectCar = new EventEmitter<ServerCar.Response[]>();
@@ -213,6 +215,12 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   getTooltipConfig: ((item: ServerCar.Response) => string) = (car) => {
     return `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
   };
+
+  get isAdminOrHigher() {
+    return this.sessionService.isAdminOrHigher;
+  }
+  selectedCars: ServerCar.Response[] = [];
+
 
   constructor(
     private carService: CarService,
@@ -297,8 +305,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.generateFilters();
       });
 
-    this.initCars();
     this.setGridSettings();
+    this.initCars();
   }
 
   setContactCenterUsers() {
@@ -340,6 +348,29 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   setAvailableStatuses() {
     switch (this.type) {
+      case QueryCarTypes.byAdmin:
+        const v = [
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_Deny,
+          FieldNames.CarStatus.contactCenter_Refund,
+          FieldNames.CarStatus.carShooting_InProgres,
+          FieldNames.CarStatus.carShooting_Refund,
+          FieldNames.CarStatus.carShooting_Ready,
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+          FieldNames.CarStatus.customerService_OnDelete,
+          FieldNames.CarStatus.customerService_Sold,
+          FieldNames.CarStatus.carSales_Deposit,
+          FieldNames.CarStatus.admin_Deleted,
+        ];
+
+        this.availableStatuses = [
+          ...v.map(s => ({ label: s, value: s }))
+        ];
+        break;
       case QueryCarTypes.myCallBaseReady:
       case QueryCarTypes.allCallBaseReady:
         this.availableRawStatuses = [
@@ -401,6 +432,25 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   setDefaultStatuses() {
     switch (this.type) {
+      case QueryCarTypes.byAdmin:
+        this.selectedStatus = [
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_Deny,
+          FieldNames.CarStatus.contactCenter_Refund,
+          FieldNames.CarStatus.carShooting_InProgres,
+          FieldNames.CarStatus.carShooting_Refund,
+          FieldNames.CarStatus.carShooting_Ready,
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+          FieldNames.CarStatus.customerService_OnDelete,
+          FieldNames.CarStatus.customerService_Sold,
+          FieldNames.CarStatus.carSales_Deposit,
+          FieldNames.CarStatus.admin_Deleted,
+        ];
+        break;
       case QueryCarTypes.myCallBase:
         this.selectedStatus = [
           FieldNames.CarStatus.contactCenter_WaitingShooting,
@@ -494,19 +544,33 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.gridConfig = this.getGridConfig();
     this.gridActionsConfig = this.getGridActionsConfig();
 
-    if (this.type === QueryCarTypes.myCallBase || this.type === QueryCarTypes.allCallBase) {
-      this.getColorConfig = (car) => {
-        const status = getCarStatus(car)
+    this.checkboxMode = false;
+    // this.isSelectCarModalMode = false;
+    this.getColorConfig = undefined;
 
-        switch (status) {
-          case FieldNames.CarStatus.contactCenter_WaitingShooting: return '#008000a3'
-          case FieldNames.CarStatus.contactCenter_MakingDecision: return 'yellow'
-          case FieldNames.CarStatus.contactCenter_NoAnswer: return 'orange'
-          case FieldNames.CarStatus.contactCenter_Refund: return '#80008080'
+    switch (this.type) {
+      case QueryCarTypes.myCallBase:
+      case QueryCarTypes.allCallBase:
+        this.getColorConfig = (car) => {
+          const status = getCarStatus(car)
 
-          default: return '';
+          switch (status) {
+            case FieldNames.CarStatus.contactCenter_WaitingShooting: return '#008000a3'
+            case FieldNames.CarStatus.contactCenter_MakingDecision: return 'yellow'
+            case FieldNames.CarStatus.contactCenter_NoAnswer: return 'orange'
+            case FieldNames.CarStatus.contactCenter_Refund: return '#80008080'
+
+            default: return '';
+          }
         }
-      }
+
+        break;
+      case QueryCarTypes.byAdmin:
+        this.checkboxMode = true;
+        // this.isSelectCarModalMode = false;
+        this.getColorConfig = undefined;
+
+        break;
     }
   }
 
@@ -545,6 +609,38 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }
   }
 
+  deleteCars() {
+    const cars = [...this.selectedCars];
+
+    const availableStatuses = [
+      FieldNames.CarStatus.admin_Deleted,
+      FieldNames.CarStatus.contactCenter_Deny,
+      FieldNames.CarStatus.contactCenter_InProgress,
+    ];
+
+    if (cars.some(c => !availableStatuses.includes(getCarStatus(c)))) {
+      alert('Вы пытаетесь удалить машины со статусами не из списка: \n[ОКЦ]В работе, \n[ОКЦ]Отказ, \n[Админ]Удалена');
+    } else {
+      const carNames = cars
+        .map(item =>  `${FieldsUtils.getFieldValue(item, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(item, FieldNames.Car.model)}`)
+        .join('\n');
+
+      const ok = confirm(`Вы уверены что хотите удалить машины: \n${carNames}`);
+      if (ok) {
+        this.loading = true;
+
+        this.carService.deleteCars(cars.map(c => c.id))
+          .subscribe(res => {
+            this.loading = false;
+            const deletedCarIds = res.map(c => c.id);
+            this.rawCars = this.rawCars.filter(c => !deletedCarIds.includes(c.id));
+            this.sortCars();
+          });
+      }
+    }
+
+  }
+
   resetState() {
     this.selectedStatus = [];
     this.availableRawStatuses = [];
@@ -553,7 +649,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   sortCars() {
     this.sortedCars = [...this.rawCars];
 
-    if (this.selectedStatus.length > 0 && this.availableRawStatuses.length > 0) {
+    if (this.selectedStatus.length > 0) {
       this.sortedCars = this.sortedCars
         .filter(c => this.selectedStatus.includes(getCarStatus(c)) || this.selectedStatus.length === 0);
     }
@@ -1286,6 +1382,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   onSelectEntity(cars: ServerCar.Response[]) {
     console.log(cars);
+    this.selectedCars = [...cars];
+    this.cd.markForCheck();
     this.isSelectCarModalMode && this.onSelectCar.emit(cars);
   }
 

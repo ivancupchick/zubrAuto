@@ -32,6 +32,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
+  @Input() selectionMode = '';
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
 
@@ -42,10 +43,13 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
   selectedKeys!: GridItemType[];
 
+  scrollHeight: number = 0;
+
   constructor(private elem: ElementRef<HTMLElement>) { }
 
   ngOnInit(): void {
-    console.log(this.elem.nativeElement.offsetHeight)
+    console.log();
+    this.scrollHeight = this.elem.nativeElement.offsetHeight - 20
 
     this.selectedKeys = [...this.selected];
 
@@ -53,7 +57,15 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   }
 
   onSelect(c: any) {
-    this.onSelectEntity.emit(this.selectedKeys);
+    if (this.selectionMode !== 'multiple' && this.selectionMode !== 'single') {
+      return;
+    }
+
+    let selected = this.selectionMode === 'multiple'
+      ? this.selectedKeys || []
+      : [this.selectedKeys as any].filter(r => !!r)
+
+    this.onSelectEntity.emit(selected);
   }
 
   customSort(event: SortEvent) {

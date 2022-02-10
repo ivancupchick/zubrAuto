@@ -67,8 +67,8 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
     return result2;
   }
 
-  async deleteOne(expressionHash: ExpressionHash<T>): Promise<T> {
-    const result2 = await this.findOne(expressionHash);
+  async delete(expressionHash: ExpressionHash<T>): Promise<T[]> {
+    const result2 = await this.find(expressionHash);
 
     const query = getDeleteByAndExpressions<T>(this.tableName, expressionHash);
 

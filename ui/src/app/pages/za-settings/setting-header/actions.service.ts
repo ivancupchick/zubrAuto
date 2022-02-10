@@ -58,6 +58,7 @@ export class ActionsService {
       label: 'База машин',
       icon: 'pi pi-fw pi-th-large',
       routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.byAdmin },
       visible: () => this.sessionService.isAdminOrHigher,
     }
   }

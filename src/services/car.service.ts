@@ -412,6 +412,16 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     return car
   }
 
+  async deleteCars(ids: number[]) {
+    const chaines = await fieldChainRepository.find({
+      sourceId: ids.map(id => `${id}`),
+      sourceName: [Models.CARS_TABLE_NAME]
+    });
+    await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
+    const car = await carRepository.delete({ id: ids.map(id => `${id}`) });
+    return car
+  }
+
   async createCarsByLink(data: ServerCar.CreateByLink): Promise<(ServerCar.Response | ServerCar.IdResponse)[]> {
     const [
       carFields,

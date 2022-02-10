@@ -20,6 +20,12 @@ router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_CALL }
     carController.addCustomerCall
   );
 
+router.route(`/${ Constants.API.DELETE_CARS }`)
+  .post(
+    body('carIds').isArray(),
+    carController.deleteCars
+  );
+
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_DISCOUNT }/:carId`)
   .post(
     body('amount').isNumeric(),

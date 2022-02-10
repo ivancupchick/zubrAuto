@@ -84,7 +84,7 @@ class AuthService {
   }
 
   async logout(refreshToken: string) {
-    const token = await tokenService.removeToken(refreshToken);
+    const token: Models.UserToken = await tokenService.removeToken(refreshToken);
     return token;
   }
 

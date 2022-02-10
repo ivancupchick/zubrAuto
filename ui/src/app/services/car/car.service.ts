@@ -69,6 +69,15 @@ export class CarService {
       }))
   }
 
+  deleteCars(ids: number[]): Observable<ServerCar.Response[]> {
+    return this.requestService.post<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.DELETE_CARS }`, { carIds: ids })
+      .pipe(map(result => {
+        console.log(result);
+
+        return result;
+      }))
+  }
+
   createCarsByLink(link: string, userId: number) {
     return this.requestService.post<any>(`${environment.serverUrl}/${API}/${ Constants.API.CREATE_CARS_BY_LINK }`, { link, userId })
       .pipe(map(result => {

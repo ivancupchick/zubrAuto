@@ -5,6 +5,16 @@
     </div>
 
     <button *ngIf="addCarButtonAvailable" pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
+    <button
+      *ngIf="isAdminOrHigher && selectedCars.length > 0 && type === queryCarTypes.byAdmin"
+      pButton
+      type="button"
+      class="p-mb-2 p-button-danger"
+      [disabled]="carFieldConfigs.length === 0"
+      label="Удалить"
+      icon="pi pi-times"
+      (click)="deleteCars()"
+    ></button>
 
     <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>
 
@@ -120,7 +130,8 @@
 <za-grid
   [getTooltipConfig]="getTooltipConfig"
   [getColorConfig]="getColorConfig"
-  [checkboxMode]="isSelectCarModalMode"
+  [checkboxMode]="checkboxMode"
+  [selectionMode]="checkboxMode ? 'multiple' : 'single'"
   [gridConfig]="gridConfig"
   [gridData]="sortedCars"
   [actions]="gridActionsConfig"

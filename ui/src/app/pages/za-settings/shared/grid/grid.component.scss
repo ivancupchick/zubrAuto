@@ -1,6 +1,6 @@
-// :host {
-//   height: 100%;
-// }
+:host {
+  height: 100%;
+}
 
 p-table ::ng-deep {
   .p-datatable-responsive-scroll > .p-datatable-wrapper {
@@ -11,6 +11,12 @@ p-table ::ng-deep {
     padding: 0.1rem 0.1rem !important;
     text-align: center !important;
     font-size: 0.8rem;
+  }
+
+  th {
+    justify-content: center;
+    text-align: center !important;
+    white-space: nowrap;
   }
 
   td:not(.buttons) {
