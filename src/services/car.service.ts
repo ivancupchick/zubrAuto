@@ -22,6 +22,11 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     carOwners: Models.CarOwner[],
     carOwnerFields: ServerField.Response[],
   ) {
+
+    if (cars.length === 0) {
+      return [];
+    }
+
     const [
       allCarChaines,
       allCarOwnerChaines,
@@ -35,7 +40,10 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
         sourceId: carOwners.map(c => `${c.id}`),
         sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`]
       }) : []),
-      carFormRepository.find({ carId: cars.map(c => `${c.id}`) })
+
+      (cars.length > 0 ? await carFormRepository.find({
+        carId: cars.map(c => `${c.id}`)
+      }) : [])
     ]);
 
     const contactCenterSpecialistIdField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId);
@@ -179,9 +187,11 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       carIds.add(`${ch.sourceId}`)
     });
 
-    const cars = await carRepository.find({
-      id: [...carIds]
-    });
+    const carIdsArr = [...carIds];
+
+    const cars = carIdsArr.length > 0 ? await carRepository.find({
+      id: carIdsArr
+    }) : [];
 
     const [
       carFields,
@@ -189,9 +199,9 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       carOwnerFields,
     ] = await Promise.all([
       fieldService.getFieldsByDomain(FieldDomains.Car),
-      carOwnerRepository.find({
+      (cars.length > 0 ? await carOwnerRepository.find({
         id: cars.map(c => `${c.ownerId}`)
-      }),
+      }) : []),
       fieldService.getFieldsByDomain(FieldDomains.CarOwner),
     ]);
 

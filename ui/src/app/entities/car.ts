@@ -136,7 +136,7 @@ export class RealCarForm implements ICarForm {
     // console.log(valid);
 
     if (this.description === '' || this.description === descriptionTemplate) {
-      console.error('Описание не заполнено!')
+      // console.error('Описание не заполнено!')
       return false;
     }
 

@@ -127,11 +127,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   get addCarButtonAvailable() {
     return !this.isSelectCarModalMode && !this.sessionService.isCarSales && !this.sessionService.isCarSalesChief
   }
-  get counterAvailbale() {
-    return this.type === QueryCarTypes.carsForSale
-        || this.type === QueryCarTypes.myCallBaseReady
-        || this.type === QueryCarTypes.allCallBaseReady
-  }
 
   allCarsNumber = 0;
 
@@ -201,7 +196,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   getColorConfig: ((item: ServerCar.Response) => string) | undefined;
   getDate: ((item: ServerCar.Response) => string) = (c) => {
-    if (this.type !== QueryCarTypes.carsForSale) {
+    if (this.type !== QueryCarTypes.carsForSale && this.type !== QueryCarTypes.allCallBaseReady && this.type !== QueryCarTypes.myCallBaseReady) {
       try {
         const firstStatusChange = FieldsUtils.getFieldStringValue(c, FieldNames.Car.dateOfFirstStatusChange)
 
@@ -635,8 +630,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         ];
         this.allCarsNumber = this.rawCars.filter(c => inProgressStatuses.includes(getCarStatus(c))).length;
         break;
-      case QueryCarTypes.allCallBaseReady:
-      case QueryCarTypes.myCallBaseReady:
+      default:
         this.allCarsNumber = this.sortedCars.length;
         break;
     }
