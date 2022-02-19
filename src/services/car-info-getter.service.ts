@@ -155,8 +155,9 @@ class CarInfoGetter {
       additionalInform = await Promise.all(otherQueries.map((link, i) => this.getResponseFromLink<ICarsInfo>(link, i * 300)))
     }
 
-    const allCars: ICar[] = carsInfo.adverts.filter(car => !(car.organizationId || car.organizationTitle));
-    additionalInform.forEach(info => { allCars.push(...info.adverts.filter(car => !(car.organizationId || car.organizationTitle))); })
+    const statuses = ['removed', 'archived', 'purged'];
+    const allCars: ICar[] = carsInfo.adverts.filter(car => !(car.organizationId || car.organizationTitle) && !statuses.includes(car.status));
+    additionalInform.forEach(info => { allCars.push(...info.adverts.filter(car => !(car.organizationId || car.organizationTitle) && !statuses.includes(car.status))); })
 
     const ids: number[] = allCars.map(car => car.id);
 

@@ -664,7 +664,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
     this.sortedCars = this.sortedCars.filter(c => {
       if (this.rangeDates) {
-        const dateFrom = +this.rangeDates[0];
+        const dateFrom = this.rangeDates[0] && (+this.rangeDates[0] - 1000 * 60 * 60 * 24); +this.rangeDates[0];
         const dateTo = this.rangeDates[1] && (+this.rangeDates[1] + 1000 * 60 * 60 * 24);
         const carDate = +moment(this.getDate(c), 'DD/MM/YYYY').toDate();
 
@@ -1517,7 +1517,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }
 
     if (index !== -1) {
-      if (filterConfig.defaultValue === e.value) {
+      if (filterConfig.defaultValue.length === e.value.length) { // TODO improve array comparing expression
         this.selectedFilters.splice(index, 1);
       } else {
         this.selectedFilters[index].value = JSON.stringify(e.value);

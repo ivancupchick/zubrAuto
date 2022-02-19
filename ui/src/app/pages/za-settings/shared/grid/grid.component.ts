@@ -48,8 +48,9 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   constructor(private elem: ElementRef<HTMLElement>) { }
 
   ngOnInit(): void {
-    console.log();
     this.scrollHeight = this.elem.nativeElement.offsetHeight - 20
+    console.log(this.scrollHeight);
+
 
     this.selectedKeys = [...this.selected];
 
@@ -72,14 +73,14 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
     const fieldName = event.field;
     const gridConfig = this.gridConfig.find(gd => gd.name === fieldName);
 
-
-
     if (!event.order || !fieldName || !gridConfig || !event.data) {
       console.error('sorting not working on this field')
       return;
     }
 
-    (event.data as GridItemType[]).sort((data1, data2) => {
+    console.log(1);
+
+    this.gridData = [...this.gridData.sort((data1, data2) => {
         const v1 = gridConfig.getValue(data1)
         const v2 = gridConfig.getValue(data2)
 
@@ -103,7 +104,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
             result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
 
         return ((event.order || 0) * result);
-    });
+    })];
   }
 
   onShow(e: any) {

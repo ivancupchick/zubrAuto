@@ -1,0 +1,19 @@
+.p-toolbar-group-left > * + * {
+  margin-left: 10px;
+}
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .grid-wrapper {
+    margin-top: 10px;
+    flex: 1 1 auto;
+    overflow: auto;
+  }
+}
+
+p-slider {
+  width: 100%;
+}
