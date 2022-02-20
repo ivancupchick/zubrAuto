@@ -108,6 +108,7 @@ export enum QueryCarTypes {
   allShootingBase = 'all-shooting-base',
   shootedBase = 'shooted-base',
   carsForSale = 'cars-for-sale',
+  carsForSaleTemp = 'cars-for-sale-temp',
 }
 
 @Component({
@@ -198,7 +199,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   getColorConfig: ((item: ServerCar.Response) => string) | undefined;
   getDate: ((item: ServerCar.Response) => string) = (c) => {
-    if (this.type !== QueryCarTypes.carsForSale && this.type !== QueryCarTypes.allCallBaseReady && this.type !== QueryCarTypes.myCallBaseReady) {
+    if (this.type !== QueryCarTypes.carsForSale && this.type !== QueryCarTypes.allCallBaseReady && this.type !== QueryCarTypes.myCallBaseReady && this.type !== QueryCarTypes.carsForSaleTemp) {
       try {
         const firstStatusChange = FieldsUtils.getFieldStringValue(c, FieldNames.Car.dateOfFirstStatusChange)
 
@@ -241,7 +242,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
     this.type = !this.isSelectCarModalMode
       ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
-      : QueryCarTypes.carsForSale;
+      : QueryCarTypes.carsForSaleTemp;
 
     this.route.queryParams
       .pipe(
@@ -252,7 +253,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
         this.type = !this.isSelectCarModalMode
           ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
-          : QueryCarTypes.carsForSale;
+          : QueryCarTypes.carsForSaleTemp;
 
         this.setContactCenterUsers();
         this.setGridSettings();
@@ -269,7 +270,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       .subscribe(user => {
         this.type = !this.isSelectCarModalMode
           ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
-          : QueryCarTypes.carsForSale;
+          : QueryCarTypes.carsForSaleTemp;
 
         this.setGridSettings();
 
@@ -416,6 +417,15 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         break;
       case QueryCarTypes.carsForSale:
         this.availableRawStatuses = [
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+          FieldNames.CarStatus.customerService_OnDelete,
+          FieldNames.CarStatus.customerService_Sold,
+        ];
+        break;
+      case QueryCarTypes.carsForSaleTemp:
+        this.availableRawStatuses = [
+          FieldNames.CarStatus.carShooting_Ready,
           FieldNames.CarStatus.customerService_InProgress,
           FieldNames.CarStatus.customerService_OnPause,
           FieldNames.CarStatus.customerService_OnDelete,
@@ -726,6 +736,15 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         ];
         this.allCarsNumber = this.rawCars.filter(c => inProgressStatuses.includes(getCarStatus(c))).length;
         break;
+      case QueryCarTypes.carsForSaleTemp:
+        const inProgressStatuses1 = [
+          FieldNames.CarStatus.carShooting_Ready,
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause
+        ];
+        this.allCarsNumber = this.rawCars.filter(c => inProgressStatuses1.includes(getCarStatus(c))).length;
+        break;
+
       default:
         this.allCarsNumber = this.sortedCars.length;
         break;
@@ -749,7 +768,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           return item.id
         }
       }, // TODO! ,
-    }, this.type !== QueryCarTypes.carsForSale
+    }, this.type !== QueryCarTypes.carsForSale && this.type !== QueryCarTypes.carsForSaleTemp
       ? {
         title: this.strings.date,
         name: 'CreatedDate',
@@ -909,19 +928,19 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: this.strings.shootingDate,
       name: FieldNames.Car.shootingDate,
       getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0)),
-      available: () => this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+      available: () => this.type !== QueryCarTypes.carsForSale && this.type !== QueryCarTypes.carsForSaleTemp && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
       isDate: true,
       sortable: () => true
     }, {
       title: this.strings.shootingTime,
       name: 'shootingTime',
       getValue: (item) => moment(new Date(+(FieldsUtils.getFieldValue(item, FieldNames.Car.shootingDate) || 0))).format('HH:mm'),
-      available: () => this.type !== QueryCarTypes.carsForSale && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
+      available: () => this.type !== QueryCarTypes.carsForSale && this.type !== QueryCarTypes.carsForSaleTemp && (this.sessionService.isCarShooting || this.sessionService.isCarShootingChief || this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief),
     }, {
       title: this.strings.dateOfLastCustomerCall,
       name: FieldNames.Car.dateOfLastCustomerCall,
       getValue: (item) => DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(item, FieldNames.Car.dateOfLastCustomerCall) || 0)),
-      available: () => this.type === QueryCarTypes.carsForSale && (
+      available: () => (this.type === QueryCarTypes.carsForSale || this.type === QueryCarTypes.carsForSaleTemp) && (
         this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief
       ),
       isDate: true,
@@ -1103,7 +1122,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: 'Поставить на паузу',
       icon: 'pause',
       buttonClass: 'primary',
-      available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
+      available: () => (this.type === QueryCarTypes.carsForSale || this.type === QueryCarTypes.carsForSaleTemp) && !this.isSelectCarModalMode && (
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
@@ -1113,7 +1132,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: 'Снять с паузы',
       icon: 'pause',
       buttonClass: 'primary',
-      available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
+      available: () => (this.type === QueryCarTypes.carsForSale || this.type === QueryCarTypes.carsForSaleTemp) && !this.isSelectCarModalMode && (
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
@@ -1123,7 +1142,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: 'Поставить на удаление',
       icon: 'times',
       buttonClass: 'danger',
-      available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
+      available: () => (this.type === QueryCarTypes.carsForSale || this.type === QueryCarTypes.carsForSaleTemp) && !this.isSelectCarModalMode && (
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
@@ -1132,7 +1151,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       title: '[ОРК] Звонок',
       icon: 'mobile',
       buttonClass: 'secondary',
-      available: () => this.type === QueryCarTypes.carsForSale && !this.isSelectCarModalMode && (
+      available: () => (this.type === QueryCarTypes.carsForSale || this.type === QueryCarTypes.carsForSaleTemp) && !this.isSelectCarModalMode && (
           this.sessionService.isAdminOrHigher
        || this.sessionService.isCustomerService
        || this.sessionService.isCustomerServiceChief),
@@ -1572,6 +1591,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       originalEvent: e,
       value: inputTarget.value
     }
+  }
+
+  refresh() {
+    this.getCars();
   }
 
   private validatePublish(car: ServerCar.Response): Observable<boolean> {

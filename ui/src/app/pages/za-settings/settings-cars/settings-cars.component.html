@@ -71,6 +71,8 @@
     <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
     <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button> -->
 
+    <p-button icon="pi pi-refresh" iconPos="left" (click)="refresh()"></p-button>
+
     <p-button [label]="selectedFilters.length > 0 ? selectedFilters.length + ' фильтров выбрано' : 'Фильтры'" icon="pi pi-filter" (click)="op.toggle($event)"></p-button>
     <p-overlayPanel #op [showCloseIcon]="true" [style]="{width: '550px', padding: '10px'}">
       <ng-template pTemplate>

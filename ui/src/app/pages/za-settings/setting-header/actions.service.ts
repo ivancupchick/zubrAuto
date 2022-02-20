@@ -227,7 +227,7 @@ export class ActionsService {
       label: 'Автомобили в продаже',
       icon: 'pi pi-fw pi-money-bill',
       routerLink: 'cars',
-      queryParams: { type: QueryCarTypes.carsForSale },
+      queryParams: { type: QueryCarTypes.carsForSaleTemp },
       visible: () => this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
     }, {
       label: 'База клиентов',
