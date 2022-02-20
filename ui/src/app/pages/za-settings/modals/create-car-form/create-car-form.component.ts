@@ -58,7 +58,7 @@ export class CreateCarFormComponent implements OnInit {
   public generalConditionFields!: CarFormField<CarFormEnums.GeneralCondition>[];
   public inspectionFields!: FieldObject<CarFormEnums.Inspection>;
   public exteriorInspectionFields!: FieldObject<CarFormEnums.ExteriorInspection>;
-  public checkboxesFields!: CarFormField<CarFormEnums.Checkboxes>[];
+  public checkboxesFields!: FieldObject<CarFormEnums.Checkboxes>;
   public descriptionField!: CarFormField;
 
   private carForm!: RealCarForm;
@@ -106,8 +106,14 @@ export class CreateCarFormComponent implements OnInit {
       }};
     }, new Object() as FieldObject<CarFormEnums.ExteriorInspection>)
 
-    this.checkboxesFields = keys(this.carForm.checkboxes)
-      .map(field => ({ title: this.carFormStrings.Checkboxes[field], key: field, id: `checkboxes-${field}` }));
+    this.checkboxesFields =  keys(this.carForm.checkboxes).reduce((previos, field) => {
+      return {...previos,
+        [field]: { title: this.carFormStrings.Checkboxes[field], key: field, id: `checkboxes-${field}`
+      }};
+    }, new Object() as FieldObject<CarFormEnums.Checkboxes>)
+
+    // this.checkboxesFields = keys(this.carForm.checkboxes)
+    //   .map(field => ({ title: this.carFormStrings.Checkboxes[field], key: field, id: `checkboxes-${field}` }));
 
     this.descriptionField = { title: this.carFormStrings.AdditionalStrings.description, key: 'description', id: `description` }
 
@@ -231,13 +237,23 @@ export class CreateCarFormComponent implements OnInit {
       }
     }
 
-    for (const iterator of this.checkboxesFields) {
-      const control = this.checkboxesForm.controls[iterator.key];
-
-      if (!control.pristine) {
-        this.carForm.checkboxes[iterator.key] = control.value;
+    for (const key in this.checkboxesFields) {
+      if (Object.prototype.hasOwnProperty.call(this.checkboxesFields, key)) {
+        const element = this.checkboxesFields[key as CarFormEnums.Checkboxes];
+        const control = this.checkboxesForm.controls[element.key];
+        if (!control.pristine) {
+          this.carForm.checkboxes[element.key] = control.value;
+        }
       }
     }
+
+    // for (const iterator of this.checkboxesFields) {
+    //   const control = this.checkboxesForm.controls[iterator.key];
+
+    //   if (!control.pristine) {
+    //     this.carForm.checkboxes[iterator.key] = control.value;
+    //   }
+    // }
 
     const descriptionControl = this.descriptionForm.controls['description'];
     if (!descriptionControl.pristine) {

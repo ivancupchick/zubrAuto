@@ -86,6 +86,13 @@ p-accordiontab.invalid::ng-deep .p-accordion-header {
   }
 }
 
+.checkbox-title {
+  font-weight: 600;
+  margin-left: 25px;
+  margin-top: 7px;
+  margin-bottom: 7px;
+}
+
 .tab-wrapper.carWeightInspection {
   position: relative;
   display: flex;

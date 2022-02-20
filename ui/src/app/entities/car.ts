@@ -92,11 +92,71 @@ export class RealCarForm implements ICarForm {
   description!: string;
 
   constructor(carForm: ICarForm | null, car?: ServerCar.Response) {
-    this.carQuestionnaire = carForm?.carQuestionnaire || CarFormEnumsFactory.createCarQuestionnaire();
-    this.generalCondition = carForm?.generalCondition || CarFormEnumsFactory.createGeneralCondition();
-    this.inspection = carForm?.inspection || CarFormEnumsFactory.createInspection(car);
-    this.exteriorInspection = carForm?.exteriorInspection || CarFormEnumsFactory.createExteriorInspection();
-    this.checkboxes = carForm?.checkboxes || CarFormEnumsFactory.createCheckboxes();
+    this.carQuestionnaire = CarFormEnumsFactory.createCarQuestionnaire();
+
+    if (carForm?.carQuestionnaire) {
+      for (const key in this.carQuestionnaire) {
+        if (Object.prototype.hasOwnProperty.call(carForm.carQuestionnaire, key)) {
+          const element = carForm.carQuestionnaire[key as CarFormEnums.CarQuestionnaire];
+
+          if (element != null) {
+            this.carQuestionnaire[key as CarFormEnums.CarQuestionnaire] = element
+          }
+        }
+      }
+    }
+    this.generalCondition = CarFormEnumsFactory.createGeneralCondition();
+
+    if (carForm?.generalCondition) {
+      for (const key in this.generalCondition) {
+        if (Object.prototype.hasOwnProperty.call(carForm.generalCondition, key)) {
+          const element = carForm.generalCondition[key as CarFormEnums.GeneralCondition];
+
+          if (element != null) {
+            this.generalCondition[key as CarFormEnums.GeneralCondition] = element
+          }
+        }
+      }
+    }
+    this.inspection = CarFormEnumsFactory.createInspection(car);
+
+    if (carForm?.inspection) {
+      for (const key in this.inspection) {
+        if (Object.prototype.hasOwnProperty.call(carForm.inspection, key)) {
+          const element = carForm.inspection[key as CarFormEnums.Inspection];
+
+          if (element != null) {
+            this.inspection[key as CarFormEnums.Inspection] = element
+          }
+        }
+      }
+    }
+    this.exteriorInspection = CarFormEnumsFactory.createExteriorInspection();
+
+    if (carForm?.exteriorInspection) {
+      for (const key in this.exteriorInspection) {
+        if (Object.prototype.hasOwnProperty.call(carForm.exteriorInspection, key)) {
+          const element = carForm.exteriorInspection[key as CarFormEnums.ExteriorInspection];
+
+          if (element != null) {
+            this.exteriorInspection[key as CarFormEnums.ExteriorInspection] = element
+          }
+        }
+      }
+    }
+    this.checkboxes = CarFormEnumsFactory.createCheckboxes();
+
+    if (carForm?.checkboxes) {
+      for (const key in this.checkboxes) {
+        if (Object.prototype.hasOwnProperty.call(carForm.checkboxes, key)) {
+          const element = carForm.checkboxes[key as CarFormEnums.Checkboxes];
+
+          if (element != null) {
+            this.checkboxes[key as CarFormEnums.Checkboxes] = element
+          }
+        }
+      }
+    }
     this.description = carForm?.description || descriptionTemplate;
   }
 
@@ -265,6 +325,13 @@ abstract class CarFormEnumsFactory {
       textile: '',
       combined: '',
       leather: '',
+      secondNonHave: '',
+      secondTires: '',
+      secondTiresWithDisks: '',
+      secondTiresR: '',
+      summerTires: '',
+      winterTires: '',
+      winterTiresR: '',
       multifunction: '',
       frontParkingSensors: '',
       rearParkingSensors: '',
@@ -289,6 +356,7 @@ abstract class CarFormEnumsFactory {
       signaling: '',
       airSuspension: '',
       premiumAcoustics: '',
+      premiumAcousticsNames: '',
       towbar: '',
       startStopSystem: '',
       engineStartButton: '',
