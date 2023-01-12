@@ -98,6 +98,15 @@ CREATE TABLE `users` (
     `roleLevel` int(11) NOT NULL
 );
 
+CREATE TABLE `activities` (
+  `id` int(11),
+  `userId` int(11),
+  `sourceId` int(11),
+  `sourceName` varchar(255),
+  `date` bigint,
+  `activities` longtext
+);
+
 ALTER TABLE `carForms`
     ADD CONSTRAINT carForms_pk PRIMARY KEY (`id`);
 ALTER TABLE `carOwners`

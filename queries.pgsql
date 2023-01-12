@@ -155,6 +155,15 @@ CREATE TABLE "public.carStatistic" (
   OIDS=FALSE
 );
 
+CREATE TABLE activities (
+  id integer AUTO_INCREMENT,
+  userId integer,
+  sourceId integer,
+  sourceName varchar,
+  date bigint,
+  activities longtext
+);
+
 
 /*
 	add column

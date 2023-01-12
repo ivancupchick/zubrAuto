@@ -110,4 +110,14 @@ export namespace Models {
     type: number;
     date: number;
   }
+
+  export const ACTIVITIES = 'activities';
+  export interface Activities {
+    id: number;
+    userId: number;
+    sourceId: number;
+    sourceName: string;
+    date: number;
+    activities: string;
+  }
 }
