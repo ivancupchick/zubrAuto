@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServerRole } from 'src/app/entities/role';
-import { ServerAuth, ServerUser } from 'src/app/entities/user';
+import { ServerAuth } from 'src/app/entities/user';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
@@ -89,7 +89,6 @@ export class SessionService {
 
   setCustomRole(role: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin) {
     this.selectedRole = role;
-
     this.roleSubj.next(role);
   }
 }

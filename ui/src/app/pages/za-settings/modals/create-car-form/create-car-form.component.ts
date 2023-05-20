@@ -2,12 +2,12 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CarFormEnums, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
-import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
-import { EnumType } from 'typescript';
 import { CarFormEnumsStrings } from './car-form.strings';
+import { SessionService } from 'src/app/services/session/session.service';
+import * as CryptoJS from 'crypto-js';  
 
 type CarFormEnum = CarFormEnums.CarQuestionnaire | CarFormEnums.Checkboxes | CarFormEnums.ExteriorInspection | CarFormEnums.GeneralCondition | CarFormEnums.Inspection;
 
@@ -37,9 +37,9 @@ export class CreateCarFormComponent implements OnInit {
   readonly carFormStrings = CarFormEnumsStrings;
 
   CarFormEnums = CarFormEnums;
-  loading = false;
-
-  readOnly = false;
+  loading: boolean = false;
+  readOnly: boolean = false;
+  isAdminRole: boolean = false;
 
   get formNotValid() {
     return false;
@@ -67,14 +67,14 @@ export class CreateCarFormComponent implements OnInit {
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
     private fb: FormBuilder,
-
+    private sessionService: SessionService,
     private carService: CarService,
   ) { }
 
   ngOnInit(): void {
     this.car = this.config.data.car;
     this.readOnly = this.config.data.readOnly;
-
+    this.isAdminRole = this.sessionService.isRealAdminOrHigher;
     let worksheet: ICarForm | null;
 
     try {
@@ -112,16 +112,7 @@ export class CreateCarFormComponent implements OnInit {
       }};
     }, new Object() as FieldObject<CarFormEnums.Checkboxes>)
 
-    // this.checkboxesFields = keys(this.carForm.checkboxes)
-    //   .map(field => ({ title: this.carFormStrings.Checkboxes[field], key: field, id: `checkboxes-${field}` }));
-
     this.descriptionField = { title: this.carFormStrings.AdditionalStrings.description, key: 'description', id: `description` }
-
-    // this.checkboxesFields =  keys(this.carForm.checkboxes).reduce((previos, field) => {
-    //   return {...previos,
-    //     [field]: { title: this.carFormStrings.Checkboxes[field], key: field, id: `inspection-${field}`
-    //   }};
-    // }, {} as FieldObject<CarFormEnums.Checkboxes>)
 
     this.carQuestionnaireForm = this.fb.group( this.carForm.carQuestionnaire );
     for (const key in this.carQuestionnaireForm.controls) {
@@ -174,14 +165,6 @@ export class CreateCarFormComponent implements OnInit {
     }
 
     this.checkboxesForm = this.fb.group( this.carForm.checkboxes );
-    // for (const key in this.checkboxesForm.controls) {
-    //   if (Object.prototype.hasOwnProperty.call(this.checkboxesForm.controls, key)) {
-    //     const element = this.checkboxesForm.controls[key];
-    //     element.setValidators(Validators.required);
-    //     element.markAsTouched();
-    //     element.markAsDirty();
-    //   }
-    // }
 
     this.descriptionForm = this.fb.group({ description: this.carForm.description });
     for (const key in this.descriptionForm.controls) {
@@ -247,14 +230,6 @@ export class CreateCarFormComponent implements OnInit {
       }
     }
 
-    // for (const iterator of this.checkboxesFields) {
-    //   const control = this.checkboxesForm.controls[iterator.key];
-
-    //   if (!control.pristine) {
-    //     this.carForm.checkboxes[iterator.key] = control.value;
-    //   }
-    // }
-
     const descriptionControl = this.descriptionForm.controls['description'];
     if (!descriptionControl.pristine) {
       this.carForm.description = descriptionControl.value;
@@ -274,6 +249,20 @@ export class CreateCarFormComponent implements OnInit {
       alert('Форма не сохранена');
       this.loading = false;
     })
+  }
+
+  createTestData() {
+    this.inspectionForm.patchValue({
+      ...CarFormEnumsStrings.Inspection,
+      date: (new Date()).toLocaleDateString('ru-RU'),
+      vin: CryptoJS.AES.encrypt( new Date().toString(), 'vin').toString().slice(0,17),
+    });
+    this.generalConditionForm.patchValue({
+      ...CarFormEnumsStrings.GeneralCondition
+    });
+    this.carQuestionnaireForm.patchValue({
+      ...CarFormEnumsStrings.CarQuestionnaire
+    });
   }
 
   cancel() {
