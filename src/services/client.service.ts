@@ -21,8 +21,8 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     ]);
 
     const chaines = clients.length > 0 ? await fieldChainRepository.find({
+      sourceName: [`${Models.CLIENTS_TABLE_NAME}`],
       sourceId: clients.map(c => `${c.id}`),
-      sourceName: [`${Models.CLIENTS_TABLE_NAME}`]
     }) : [];
 
     const result: ServerClient.Response[] = clients.map(client => ({
@@ -69,8 +69,8 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
 
   async delete(id: number) {
     const chaines = await fieldChainRepository.find({
+      sourceName: [Models.CLIENTS_TABLE_NAME],
       sourceId: [`${id}`],
-      sourceName: [Models.CLIENTS_TABLE_NAME]
     });
     await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
     const client = await clientRepository.deleteById(id);
@@ -81,8 +81,8 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     const client = await clientRepository.findById(id);
     const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.Client);
     const chaines = await fieldChainRepository.find({
+      sourceName: [`${Models.CLIENTS_TABLE_NAME}`],
       sourceId: [`${id}`],
-      sourceName: [`${Models.CLIENTS_TABLE_NAME}`]
     });
 
     const result: ServerClient.Response = {
@@ -110,8 +110,16 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       clientStatusChain,
       carStatusChain,
     ] = await Promise.all([
-      fieldChainRepository.findOne({ fieldId: [`${clientStatusField.id}`], sourceId: [`${clientId}`], sourceName: [`${Models.CLIENTS_TABLE_NAME}`] }),
-      fieldChainRepository.findOne({ fieldId: [`${carStatusField.id}`], sourceId: [`${carId}`], sourceName: [`${Models.CARS_TABLE_NAME}`] }),
+      fieldChainRepository.findOne({
+        sourceName: [`${Models.CLIENTS_TABLE_NAME}`],
+        sourceId: [`${clientId}`],
+        fieldId: [`${clientStatusField.id}`], }
+      ),
+      fieldChainRepository.findOne({
+        sourceName: [`${Models.CARS_TABLE_NAME}`],
+        sourceId: [`${carId}`],
+        fieldId: [`${carStatusField.id}`], }
+      ),
     ]);
 
     const clientStatusIndex = clientStatusField.variants.split(',').findIndex(v => v === FieldNames.DealStatus.Sold);

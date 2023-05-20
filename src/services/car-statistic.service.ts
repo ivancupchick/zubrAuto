@@ -116,9 +116,9 @@ class CarStatisticService {
     const fieldConfig = await fieldRepository.findOne({ name: [`${FieldNames.Car.dateOfLastCustomerCall}`] });
 
     const fieldIdExist = await fieldChainRepository.findOne({
-      fieldId: [`${fieldConfig.id}`],
+      sourceName: [`${Models.CARS_TABLE_NAME}`],
       sourceId: [`${carId}`],
-      sourceName: [`${Models.CARS_TABLE_NAME}`]
+      fieldId: [`${fieldConfig.id}`],
     });
 
     if (fieldIdExist) {
@@ -138,9 +138,9 @@ class CarStatisticService {
   async addCustomerDiscount(carId: number, discount: number, amount: number) {
     const fieldConfig = await fieldRepository.findOne({ name: [`${FieldNames.Car.carOwnerPrice}`] });
     const fieldChain = await fieldChainRepository.findOne({
-      fieldId: [`${fieldConfig.id}`],
+      sourceName: [`${Models.CARS_TABLE_NAME}`],
       sourceId: [`${carId}`],
-      sourceName: [`${Models.CARS_TABLE_NAME}`]
+      fieldId: [`${fieldConfig.id}`],
     });
 
     if (amount !== +fieldChain.value) {

@@ -33,12 +33,12 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       carForms
     ] = await Promise.all([
       (cars.length > 0 ? await fieldChainRepository.find({
+        sourceName: [`${Models.CARS_TABLE_NAME}`],
         sourceId: cars.map(c => `${c.id}`),
-        sourceName: [`${Models.CARS_TABLE_NAME}`]
       }) : []),
       (carOwners.length > 0 ? await fieldChainRepository.find({
+        sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`],
         sourceId: carOwners.map(c => `${c.id}`),
-        sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`]
       }) : []),
 
       (cars.length > 0 ? await carFormRepository.find({
@@ -176,9 +176,10 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     })
 
     const needCarChaines = await fieldChainRepository.find({
+      sourceName: [`${Models.CARS_TABLE_NAME}`],
+      // добавить sourceIds !
       fieldId: needCarFields.map(f => `${f.id}`),
       value: rValues,
-      sourceName: [`${Models.CARS_TABLE_NAME}`]
     });
 
     const carIds = new Set<string>();
@@ -233,8 +234,8 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       const carFieldChains = (await Promise.all(
         existCarIds
           .map(car => fieldChainRepository.find({
-            sourceId: [`${car.id}`],
             sourceName: [Models.CARS_TABLE_NAME],
+            sourceId: [`${car.id}`],
             fieldId: fields.map(f => `${f.id}`)
           }))
       )).reduce(function(prev, next) {
@@ -375,8 +376,8 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     }
 
     const fieldsExists = await fieldChainRepository.find({
-      sourceId: [`${carId}`],
       sourceName: [Models.CARS_TABLE_NAME],
+      sourceId: [`${carId}`],
     });
 
     const fieldChainForCreate = carFields.filter(f => !fieldsExists.find(fe => fe.fieldId === f.id))
@@ -404,8 +405,8 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
   async delete(id: number) {
     const chaines = await fieldChainRepository.find({
+      sourceName: [Models.CARS_TABLE_NAME],
       sourceId: [`${id}`],
-      sourceName: [Models.CARS_TABLE_NAME]
     });
     await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
     const car = await carRepository.deleteById(id);
@@ -414,8 +415,8 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
   async deleteCars(ids: number[]) {
     const chaines = await fieldChainRepository.find({
+      sourceName: [Models.CARS_TABLE_NAME],
       sourceId: ids.map(id => `${id}`),
-      sourceName: [Models.CARS_TABLE_NAME]
     });
     await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
     const car = await carRepository.delete({ id: ids.map(id => `${id}`) });

@@ -25,8 +25,8 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
     ]);
 
     const chaines = await fieldChainRepository.find({
+      sourceName: [`${Models.USERS_TABLE_NAME}`],
       sourceId: users.map(c => `${c.id}`),
-      sourceName: [`${Models.USERS_TABLE_NAME}`]
     });
 
     const customRoles = await roleRepository.getAll();
@@ -96,8 +96,8 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
 
   async delete(id: number) { // TODO deleting userTokens
     const chaines = await fieldChainRepository.find({
+      sourceName: [Models.USERS_TABLE_NAME],
       sourceId: [`${id}`],
-      sourceName: [Models.USERS_TABLE_NAME]
     });
     await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
     const user = await userRepository.deleteById(id);
@@ -108,8 +108,8 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
     const user = await userRepository.findById(id);
     const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.User);
     const chaines = await fieldChainRepository.find({
+      sourceName: [`${Models.USERS_TABLE_NAME}`],
       sourceId: [`${id}`],
-      sourceName: [`${Models.USERS_TABLE_NAME}`]
     });
 
     const customRoles = await roleRepository.getAll();

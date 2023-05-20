@@ -89,6 +89,9 @@ class AuthService {
   }
 
   async refresh(refreshToken: string): Promise<ServerAuth.AuthGetResponse> {
+    //
+    const start = new Date().getTime();
+
     if (!refreshToken) {
       throw ApiError.UnauthorizedError();
     }
@@ -96,7 +99,11 @@ class AuthService {
     const userData: ServerAuth.Payload = tokenService.validateRefreshToken(refreshToken) as ServerAuth.Payload;
     const tokenFromDb  = await tokenService.findToken(refreshToken);
 
+    // console.log(`refresh: start tokin refreshing for ${userData.id} user `);
+
     if (!userData || !tokenFromDb) {
+      // const end = new Date().getTime();
+      // console.log(`refresh: tokin refreshing for ${userData.id} user declined: ${end - start}ms`);
       throw ApiError.UnauthorizedError();
     }
 
@@ -110,6 +117,9 @@ class AuthService {
 
     const tokens = tokenService.generateTokens({...userPayload});
     await tokenService.saveToken(userPayload.id, tokens.refreshToken);
+
+    // const end = new Date().getTime();
+    // console.log(`refresh: ${user.id}, ${user.email}: ${end - start}ms`);
 
     return {
       ...tokens,

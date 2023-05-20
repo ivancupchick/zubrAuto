@@ -163,6 +163,7 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
     })) || [];
 
     const fieldIds = await fieldChainRepository.find({
+      // maybe need to add sourceName
       sourceId: entities.map(e => `${e.id}`),
       fieldId: [`${field.id}`],
     });

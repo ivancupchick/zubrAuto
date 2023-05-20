@@ -9,9 +9,8 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
   constructor(protected tableName: string) {}
 
   protected async query<TRes extends (RowDataPacket[] | RowDataPacket[][] | OkPacket | OkPacket[] | ResultSetHeader)>(query: string): Promise<TRes> {
+    // const start = new Date().getTime();
     const conn = await SSHConnection;
-
-    // console.log(query)
 
     return await (new Promise((resolve , reject) => {
 
@@ -20,6 +19,9 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
           reject(err);
           return;
         }
+
+        // const end = new Date().getTime();
+        // console.log(`${query.slice(0, 80)}...: ${end - start}ms`);
 
         resolve(res as any);
 
