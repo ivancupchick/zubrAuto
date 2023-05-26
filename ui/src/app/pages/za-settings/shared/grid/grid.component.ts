@@ -1,12 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import * as moment from 'moment';
 import { MenuItem, SortEvent } from 'primeng/api';
-import { FieldsUtils } from 'src/app/entities/field';
+// import { FieldsUtils } from 'src/app/entities/field';
 
 export interface GridConfigItem<GridItemType extends { id: number }> {
   title: string;
   name: string;
   getValue: ((item: GridItemType) => string | number);
   available?: () => boolean;
+  isDate?: boolean;
   sortable?: () => boolean; // TODO!
 }
 
@@ -30,7 +32,9 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
+  @Input() selectionMode = '';
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
+  @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
 
   contextSelectedItem!: GridItemType;
   contextActions: MenuItem[] = []
@@ -39,31 +43,53 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
   selectedKeys!: GridItemType[];
 
-  constructor() { }
+  scrollHeight: number = 0;
+
+  constructor(private elem: ElementRef<HTMLElement>) { }
 
   ngOnInit(): void {
+    this.scrollHeight = this.elem.nativeElement.offsetHeight - 20
+    console.log(this.scrollHeight);
+
+
     this.selectedKeys = [...this.selected];
 
     this.updateActions();
   }
 
   onSelect(c: any) {
-    this.onSelectEntity.emit(this.selectedKeys);
+    if (this.selectionMode !== 'multiple' && this.selectionMode !== 'single') {
+      return;
+    }
+
+    let selected = this.selectionMode === 'multiple'
+      ? this.selectedKeys || []
+      : [this.selectedKeys as any].filter(r => !!r)
+
+    this.onSelectEntity.emit(selected);
   }
 
   customSort(event: SortEvent) {
     const fieldName = event.field;
-    const gridConfig = this.gridConfig.find(gd => gd.name === fieldName)
+    const gridConfig = this.gridConfig.find(gd => gd.name === fieldName);
 
     if (!event.order || !fieldName || !gridConfig || !event.data) {
       console.error('sorting not working on this field')
       return;
     }
 
-    (event.data as GridItemType[]).sort((data1, data2) => {
-        let value1 = gridConfig.getValue(data1);
-        let value2 = gridConfig.getValue(data2);
+    console.log(1);
 
+    this.gridData = [...this.gridData.sort((data1, data2) => {
+        const v1 = gridConfig.getValue(data1)
+        const v2 = gridConfig.getValue(data2)
+
+        let value1 = gridConfig.isDate && v1
+          ? +moment(v1, 'DD/MM/YYYY').toDate()
+          : v1;
+        let value2 = gridConfig.isDate && v2
+          ? +moment(v2, 'DD/MM/YYYY').toDate()
+          : v2;
         let result = null;
 
         if (value1 == null && value2 != null)
@@ -78,7 +104,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
             result = (value1 < value2) ? -1 : (value1 > value2) ? 1 : 0;
 
         return ((event.order || 0) * result);
-    });
+    })];
   }
 
   onShow(e: any) {

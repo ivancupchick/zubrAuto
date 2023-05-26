@@ -51,8 +51,8 @@ class TokenService {
   }
 
   async removeToken(refreshToken: string) {
-    const tokenData = userTokenRepository.deleteOne({refreshToken: [`${refreshToken}`]})
-    return tokenData;
+    const tokenData = userTokenRepository.delete({refreshToken: [`${refreshToken}`]})
+    return tokenData[0];
   }
 
   async findToken(refreshToken: string) {

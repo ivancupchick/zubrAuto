@@ -15,6 +15,8 @@ export interface CarImageMetadata {
 
 }
 
+
+
 @Injectable()
 export class CarService {
 
@@ -24,12 +26,18 @@ export class CarService {
     return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }`)
   }
 
-  createCar(value: ServerCar.CreateRequest): Observable<boolean> {
-    return this.requestService.post<never>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }`, value)
+  getCarsByQuery(query: StringHash): Observable<ServerCar.Response[]> {
+    const queries = Object.keys(query).filter(key => !!query[key]).map(key => `${key}=${query[key]}`).join('&');
+
+    return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }?${queries}`)
+  }
+
+  createCar(value: ServerCar.CreateRequest): Observable<ServerCar.IdResponse> {
+    return this.requestService.post<ServerCar.IdResponse>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }`, value)
       .pipe(map(result => {
         console.log(result);
 
-        return true;
+        return result;
       }))
   }
 
@@ -42,22 +50,31 @@ export class CarService {
       }))
   }
 
-  updateCar(value: ServerCar.UpdateRequest, id: number): Observable<boolean> {
+  updateCar(value: ServerCar.UpdateRequest, id: number): Observable<ServerCar.IdResponse> {
     delete (value as any).id;
-    return this.requestService.put<any>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }/${id}`, value)
+    return this.requestService.put<ServerCar.IdResponse>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }/${id}`, value)
       .pipe(map(result => {
         console.log(result);
 
-        return true;
+        return result;
       }))
   }
 
-  deleteCar(id: number): Observable<boolean> {
-    return this.requestService.delete<any>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }/${id}`)
+  deleteCar(id: number): Observable<ServerCar.Response> {
+    return this.requestService.delete<ServerCar.Response>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }/${id}`)
       .pipe(map(result => {
         console.log(result);
 
-        return true;
+        return result;
+      }))
+  }
+
+  deleteCars(ids: number[]): Observable<ServerCar.Response[]> {
+    return this.requestService.post<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.DELETE_CARS }`, { carIds: ids })
+      .pipe(map(result => {
+        console.log(result);
+
+        return result;
       }))
   }
 
@@ -194,6 +211,27 @@ export class CarService {
 
           const car: ServerCar.UpdateRequest = {
             fields: [linkField]
+          }
+          return this.updateCar(car, carId)
+        } else {
+          return of(false)
+        }
+      })
+    )
+  }
+
+  saveOldWorksheet(carId: number, oldWorksheet = '') {
+    return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
+      concatMap(allFields => {
+        const oldWorksheetConfig = allFields.find(field => field.name === FieldNames.Car.oldWorksheet);
+
+        console.log(oldWorksheetConfig);
+
+        if (oldWorksheetConfig) {
+          const oldWorksheetField = FieldsUtils.setFieldValue(oldWorksheetConfig, oldWorksheet);
+
+          const car: ServerCar.UpdateRequest = {
+            fields: [oldWorksheetField]
           }
           return this.updateCar(car, carId)
         } else {

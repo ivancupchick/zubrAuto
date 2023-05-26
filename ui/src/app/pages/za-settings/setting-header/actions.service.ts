@@ -58,6 +58,7 @@ export class ActionsService {
       label: 'База машин',
       icon: 'pi pi-fw pi-th-large',
       routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.byAdmin },
       visible: () => this.sessionService.isAdminOrHigher,
     }
   }
@@ -106,6 +107,12 @@ export class ActionsService {
       queryParams: { type: QueryCarTypes.myCallBase },
       visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
     }, {
+      label: 'Моя база готовых',
+      icon: 'pi pi-fw pi-dollar',
+      routerLink: `cars`,
+      queryParams: { type: QueryCarTypes.myCallBaseReady },
+      visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
+    }, {
       label: 'Добавить базу обзвона',
       icon: 'pi pi-fw pi-mobile',
       // routerLink: 'roles',
@@ -140,6 +147,12 @@ export class ActionsService {
       icon: 'pi pi-fw pi-mobile',
       routerLink: 'cars',
       queryParams: { type: QueryCarTypes.allCallBase },
+      visible: () => this.sessionService.isContactCenterChief,
+    }, {
+      label: 'Вся база готовых',
+      icon: 'pi pi-fw pi-dollar',
+      routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.allCallBaseReady },
       visible: () => this.sessionService.isContactCenterChief,
     }]
   }
@@ -214,7 +227,7 @@ export class ActionsService {
       label: 'Автомобили в продаже',
       icon: 'pi pi-fw pi-money-bill',
       routerLink: 'cars',
-      queryParams: { type: QueryCarTypes.carsForSale },
+      queryParams: { type: QueryCarTypes.carsForSaleTemp },
       visible: () => this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
     }, {
       label: 'База клиентов',

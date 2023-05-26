@@ -69,6 +69,6 @@ export function getDomainByTableName(tableName: string): FieldDomains {
     // case Models.CLIENTS_TABLE_NAME: return FieldDomains.Client;
     // case Models.USERS_TABLE_NAME: return FieldDomains.User;
     case Models.ROLES_TABLE_NAME: return FieldDomains.Role;
-    default: return 1000;
+    default: return FieldDomains.Car;
   }
 }

@@ -43,7 +43,8 @@ export namespace FieldNames {
     mainPhotoId = 'main-photo-id',
     linkToVideo = 'link-to-video',
     dateOfNextAction = 'date-of-next-action',
-    dateOfFirstStatusChange = 'date-of-first-status-change'
+    dateOfFirstStatusChange = 'date-of-first-status-change',
+    oldWorksheet = 'old-worksheet',
   }
 
   export enum CarStatus {
@@ -193,6 +194,13 @@ export namespace CarFormEnums {
     textile = 'textile',
     combined = 'combined',
     leather = 'leather',
+    secondNonHave = 'secondNonHave',
+    secondTires = 'secondTires',
+    secondTiresWithDisks = 'secondTiresWithDisks',
+    secondTiresR = 'secondTiresR',
+    summerTires = 'summerTires',
+    winterTires = 'winterTires',
+    winterTiresR = 'winterTiresR',
     multifunction = 'multifunction',
     frontParkingSensors = 'frontParkingSensors',
     rearParkingSensors = 'rearParkingSensors',
@@ -217,6 +225,7 @@ export namespace CarFormEnums {
     signaling = 'signaling',
     airSuspension = 'airSuspension',
     premiumAcoustics = 'premiumAcoustics',
+    premiumAcousticsNames = 'premiumAcousticsNames',
     towbar = 'towbar',
     startStopSystem = 'startStopSystem',
     engineStartButton = 'engineStartButton',

@@ -19,6 +19,7 @@ import { environment } from 'src/environments/environment';
 export class UploadCarMediaComponent implements OnInit {
   loading = false;
   link: string = '';
+  oldWorksheet: string = '';
   images: ServerFile.Response[] = [];
   stateImages: ServerFile.Response[] = [];
 
@@ -67,6 +68,7 @@ export class UploadCarMediaComponent implements OnInit {
     this.car = car;
 
     this.link = FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.linkToVideo);
+    this.oldWorksheet = FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.oldWorksheet);
 
     this.mainPhotoId = FieldsUtils.getFieldNumberValue(this.car, FieldNames.Car.mainPhotoId);
 
@@ -197,6 +199,23 @@ export class UploadCarMediaComponent implements OnInit {
   saveLink() {
     this.loading = true;
     this.carService.saveVideo(this.car.id, this.link).subscribe(res => {
+      this.carService.getCar(this.car.id).subscribe(car => {
+        this.setCar(car);
+
+        this.loading = false;
+      }, e => {
+        this.loading = false;
+        console.error(e);
+      })
+    }, e => {
+      this.loading = false;
+      console.error(e);
+    })
+  }
+
+  saveOldWorksheet() {
+    this.loading = true;
+    this.carService.saveOldWorksheet(this.car.id, this.oldWorksheet).subscribe(res => {
       this.carService.getCar(this.car.id).subscribe(car => {
         this.setCar(car);
 

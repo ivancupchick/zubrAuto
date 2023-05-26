@@ -174,10 +174,10 @@ class CarImageService {
   }
 
   async deleteCarImage(carId: number, imageId: number):Promise<ServerFile.IdResponse> {
-    const result = await fileChainRepository.deleteOne({ fileId: [`${imageId}`], sourceName: [`${Models.CARS_TABLE_NAME}`], sourceId: [`${carId}`] });
+    const result = await fileChainRepository.delete({ fileId: [`${imageId}`], sourceName: [`${Models.CARS_TABLE_NAME}`], sourceId: [`${carId}`] });
     // const result = await fileRepository.deleteById(imageId);
 
-    return result;
+    return result[0];
   }
 }
 

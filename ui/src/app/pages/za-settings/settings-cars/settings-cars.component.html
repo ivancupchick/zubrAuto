@@ -1,17 +1,27 @@
 <p-toolbar>
   <div class="p-toolbar-group-left">
-    <div *ngIf="isCustomerService" style="display: flex; flex-direction: column; align-items: center;">
-      <span>Всего объявлений: {{ allCarsNumber }}</span>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <span>{{type === queryCarTypes.carsForSale ? 'Всего автомобилей: ' : 'Выбрано автомобилей: '}}{{ allCarsNumber }}</span>
     </div>
 
     <button *ngIf="addCarButtonAvailable" pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
+    <button
+      *ngIf="isAdminOrHigher && selectedCars.length > 0 && type === queryCarTypes.byAdmin"
+      pButton
+      type="button"
+      class="p-mb-2 p-button-danger"
+      [disabled]="carFieldConfigs.length === 0"
+      label="Удалить"
+      icon="pi pi-times"
+      (click)="deleteCars()"
+    ></button>
 
     <input *ngIf="isSearchAvailable" type="text" (change)="onSearch($event)" pInputText placeholder="Марка/модель"/>
 
     <div style="display: flex; flex-direction: column; align-items: center;">
       <p-multiSelect
         appendTo="body"
-        *ngIf="availableStatuses.length > 0"
+        *ngIf="availableStatuses.length > 1"
         [options]="availableStatuses"
         [(ngModel)]="selectedStatus"
         placeholder="Статус"
@@ -40,7 +50,6 @@
     <div style="display: flex; flex-direction: column; align-items: center;">
       <!-- <label for="range">Дата создания</label> -->
       <p-calendar
-        dateFormat="dd/mm/yy"
         appendTo="body"
         [(ngModel)]="rangeDates"
         selectionMode="range"
@@ -49,19 +58,10 @@
         (onClose)="sortCars()"
         [showButtonBar]="true"
         placeholder="Дата создания"
+        [firstDayOfWeek]="1"
       ></p-calendar>
     </div>
 
-    <div *ngIf="contactStatiscticModeAvailable" style="display: flex; align-items: center;">
-      <p-checkbox
-        name="isContactStatiscticMode"
-        [binary]="true"
-        inputId="isContactStatiscticMode"
-        [(ngModel)]="isContactStatiscticMode"
-        (onChange)="sortCars()"
-      ></p-checkbox>
-      <label for="isContactStatiscticMode">{{'Показать готовых'}}</label>
-    </div>
 
     <!-- <i class="pi pi-bars"></i> -->
   </div>
@@ -70,6 +70,8 @@
     <!-- <p-button icon="pi pi-search"></p-button>
     <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
     <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button> -->
+
+    <p-button icon="pi pi-refresh" iconPos="left" (click)="refresh()"></p-button>
 
     <p-button [label]="selectedFilters.length > 0 ? selectedFilters.length + ' фильтров выбрано' : 'Фильтры'" icon="pi pi-filter" (click)="op.toggle($event)"></p-button>
     <p-overlayPanel #op [showCloseIcon]="true" [style]="{width: '550px', padding: '10px'}">
@@ -127,6 +129,16 @@
   </div>
 </p-toolbar>
 <p></p>
-<za-grid [getColorConfig]="getColorConfig" [checkboxMode]="isSelectCarModalMode" [gridConfig]="gridConfig" [gridData]="sortedCars" [actions]="gridActionsConfig" [selected]="selected" (onSelectEntity)="onSelectEntity($event)"></za-grid>
+<za-grid
+  [getTooltipConfig]="getTooltipConfig"
+  [getColorConfig]="getColorConfig"
+  [checkboxMode]="checkboxMode"
+  [selectionMode]="checkboxMode ? 'multiple' : 'single'"
+  [gridConfig]="gridConfig"
+  [gridData]="sortedCars"
+  [actions]="gridActionsConfig"
+  [selected]="selected"
+  (onSelectEntity)="onSelectEntity($event)"
+></za-grid>
 
 <za-spinner *ngIf="loading"></za-spinner>

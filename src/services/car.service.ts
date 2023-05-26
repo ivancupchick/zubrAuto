@@ -1,5 +1,5 @@
 import { ServerCar } from "../entities/Car";
-import { FieldDomains, RealField } from "../entities/Field";
+import { FieldDomains, FieldType, RealField, ServerField } from "../entities/Field";
 import { FieldNames } from "../entities/FieldNames";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
@@ -8,87 +8,205 @@ import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
 import fieldRepository from "../repositories/base/field.repository";
-import userRepository from "../repositories/base/user.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
+import { StringHash } from "../utils/sql-queries";
 import carInfoGetterService from "./car-info-getter.service";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
 import userService from "./user.service";
 
 class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.UpdateRequest, ServerCar.Response, ServerCar.IdResponse> {
-  async getAll() {
-    const [
-      cars,
-      carFields,
-      carOwners,
-      carOwnerFields,
-      carForms,
-    ] = await Promise.all([
-      carRepository.getAll(),
-      fieldService.getFieldsByDomain(FieldDomains.Car),
-      carOwnerRepository.getAll(),
-      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
-      carFormRepository.getAll(),
-    ]);
+  private async getCars(
+    cars: Models.Car[],
+    carFields: ServerField.Response[],
+    carOwners: Models.CarOwner[],
+    carOwnerFields: ServerField.Response[],
+  ) {
+
+    if (cars.length === 0) {
+      return [];
+    }
 
     const [
       allCarChaines,
-      allCarOwnerChaines
+      allCarOwnerChaines,
+      carForms
     ] = await Promise.all([
       (cars.length > 0 ? await fieldChainRepository.find({
+        sourceName: [`${Models.CARS_TABLE_NAME}`],
         sourceId: cars.map(c => `${c.id}`),
-        sourceName: [`${Models.CARS_TABLE_NAME}`]
       }) : []),
       (carOwners.length > 0 ? await fieldChainRepository.find({
+        sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`],
         sourceId: carOwners.map(c => `${c.id}`),
-        sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`]
+      }) : []),
+
+      (cars.length > 0 ? await carFormRepository.find({
+        carId: cars.map(c => `${c.id}`)
       }) : [])
     ]);
 
+    const contactCenterSpecialistIdField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId);
+    const workSheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
+    const contactCenterSpecialistField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialist);
+
+    if (!contactCenterSpecialistIdField || !workSheetField || !contactCenterSpecialistField) {
+      throw new Error("!contactCenterSpecialistIdField || !workSheetField || !contactCenterSpecialistField");
+    }
+
     const allUsers = await userService.getAll();
+    // const contactCenterSpecialistIdChaines = allCarChaines.filter(ch => ch.fieldId === contactCenterSpecialistIdField.id)
+    // const contactCenterSpecialistChaines = allCarChaines.filter(ch => ch.fieldId === contactCenterSpecialistField.id)
+    // const workSheetChaines = allCarChaines.filter(ch => ch.fieldId === workSheetField.id)
 
     const result: ServerCar.Response[] = cars.map(car => {
+      const carChaines = allCarChaines.filter(ch => ch.sourceId === car.id)
+      const carOwnerChaines = allCarOwnerChaines.filter(ch => ch.sourceId === car.ownerId)
+
       const carForm = carForms.find(form => form.carId === car.id);
-      const workSheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
 
+      const userIdValue = carChaines.find(ch => ch.fieldId === contactCenterSpecialistIdField.id);
+      const userId: number = userIdValue && userIdValue.value ? +userIdValue.value : -1;
+      const user = allUsers.find(dbUser => dbUser.id === userId);
 
-      const userIdField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId);
-      const userIdValue = allCarChaines.find(ch => ch.fieldId === userIdField.id && ch.sourceId === car.id && ch.sourceName === Models.CARS_TABLE_NAME);
-
-      const user = allUsers.find(dbUser => dbUser.id === +(userIdValue || {}).value);
-      const userField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialist);
-
-      if (carForm && workSheetField) {
-        allCarChaines.forEach(ch => {
-          if (ch.fieldId === workSheetField.id && ch.sourceId === car.id && ch.sourceName === Models.CARS_TABLE_NAME) {
+      if (carForm) {
+        carChaines.find(ch => {
+          if (ch.fieldId === workSheetField.id) {
             ch.value = carForm.content;
+            return true;
           }
+
+          return false
         });
       }
 
-      if (user && userField) {
-        allCarChaines.forEach(ch => {
-          if (ch.fieldId === userField.id && ch.sourceId === car.id && ch.sourceName === Models.CARS_TABLE_NAME) {
+      if (user) {
+        const r = carChaines.find(ch => {
+          if (ch.fieldId === contactCenterSpecialistField.id) {
             ch.value = JSON.stringify(user);
+            return true;
           }
+
+          return false
         });
+
+        if (!r) {
+          carChaines.push({
+            id: -1,
+            sourceId: car.id,
+            fieldId: contactCenterSpecialistField.id,
+            value: JSON.stringify(user),
+            sourceName: `${Models.CARS_TABLE_NAME}`
+          });
+        }
       }
 
-
-      const carRealFields = getFieldsWithValues(carFields, allCarChaines, car.id)
       return {
         id: car.id,
         createdDate: car.createdDate,
         ownerId: car.ownerId,
         ownerNumber: carOwners.find(co => co.id === car.ownerId)?.number || '',
         fields: [
-          ...carRealFields,
-          ...getFieldsWithValues(carOwnerFields, allCarOwnerChaines, car.ownerId)
+          ...getFieldsWithValues(carFields, carChaines, car.id),
+          ...getFieldsWithValues(carOwnerFields, carOwnerChaines, car.ownerId)
         ]
       }
     });
 
     return result;
+  }
+
+  async get(id: number) {
+    const [
+      car,
+      carFields,
+      carOwnerFields,
+    ] = await Promise.all([
+      carRepository.findById(id),
+      fieldService.getFieldsByDomain(FieldDomains.Car),
+      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
+    ]);
+
+    const carOwner = await carOwnerRepository.findById(car.ownerId);
+
+    const result = await this.getCars([car], carFields, [carOwner], carOwnerFields)
+
+    return result[0];
+  }
+
+  async getAll() {
+    const [
+      cars,
+      carFields,
+      carOwners,
+      carOwnerFields,
+    ] = await Promise.all([
+      carRepository.getAll(),
+      fieldService.getFieldsByDomain(FieldDomains.Car),
+      carOwnerRepository.getAll(),
+      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
+    ]);
+
+    return this.getCars(cars, carFields, carOwners, carOwnerFields);
+  }
+
+  async getCarsByQuery(query: StringHash) {
+    const keys = Object.keys(query);
+
+    const needCarFields = await fieldRepository.find({
+      domain: [`${FieldDomains.Car}`],
+      name: keys
+    });
+
+    needCarFields.forEach(f => {
+      if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
+        const needVariants = query[f.name].split(',');
+        query[f.name] = needVariants.map(v => {
+          const index = f.variants.split(',').findIndex(vValue => vValue === v);
+
+          return `${f.name}-${index}`;
+        }).join(',')
+      }
+    })
+
+    const values = keys.map(k => query[k].split(','));
+    const rValues = [];
+    values.forEach(v => {
+      v.forEach(vv => rValues.push(vv));
+    })
+
+    const needCarChaines = await fieldChainRepository.find({
+      sourceName: [`${Models.CARS_TABLE_NAME}`],
+      // добавить sourceIds !
+      fieldId: needCarFields.map(f => `${f.id}`),
+      value: rValues,
+    });
+
+    const carIds = new Set<string>();
+
+    needCarChaines.forEach(ch => {
+      carIds.add(`${ch.sourceId}`)
+    });
+
+    const carIdsArr = [...carIds];
+
+    const cars = carIdsArr.length > 0 ? await carRepository.find({
+      id: carIdsArr
+    }) : [];
+
+    const [
+      carFields,
+      carOwners,
+      carOwnerFields,
+    ] = await Promise.all([
+      fieldService.getFieldsByDomain(FieldDomains.Car),
+      (cars.length > 0 ? await carOwnerRepository.find({
+        id: cars.map(c => `${c.ownerId}`)
+      }) : []),
+      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
+    ]);
+
+    return this.getCars(cars, carFields, carOwners, carOwnerFields);
   }
 
   private async getCarAndOwnerCarFields(carData: RealField.With.Request): Promise<[RealField.Request[], RealField.Request[]]> {
@@ -116,8 +234,8 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       const carFieldChains = (await Promise.all(
         existCarIds
           .map(car => fieldChainRepository.find({
-            sourceId: [`${car.id}`],
             sourceName: [Models.CARS_TABLE_NAME],
+            sourceId: [`${car.id}`],
             fieldId: fields.map(f => `${f.id}`)
           }))
       )).reduce(function(prev, next) {
@@ -242,8 +360,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     })));
 
     if (needUpdate) {
-      delete carData.fields;
-      await carRepository.updateById(carId, carData as Partial<Models.Car>);
+      await carRepository.updateById(carId, { ownerId: carOwner.id });
     }
 
     const worksheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
@@ -259,8 +376,8 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     }
 
     const fieldsExists = await fieldChainRepository.find({
-      sourceId: [`${carId}`],
       sourceName: [Models.CARS_TABLE_NAME],
+      sourceId: [`${carId}`],
     });
 
     const fieldChainForCreate = carFields.filter(f => !fieldsExists.find(fe => fe.fieldId === f.id))
@@ -288,53 +405,22 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
   async delete(id: number) {
     const chaines = await fieldChainRepository.find({
+      sourceName: [Models.CARS_TABLE_NAME],
       sourceId: [`${id}`],
-      sourceName: [Models.CARS_TABLE_NAME]
     });
     await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
     const car = await carRepository.deleteById(id);
     return car
   }
 
-  async get(id: number) {
-    const [
-      car,
-      carFields,
-      carOwnerFields
-    ] = await Promise.all([
-      carRepository.findById(id),
-      fieldService.getFieldsByDomain(FieldDomains.Car),
-      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
-    ]);
-
-    const carOwner = await  carOwnerRepository.findById(car.ownerId);
-
-    const [
-      carChaines,
-      carOwnerChaines
-    ] = await Promise.all([
-      await fieldChainRepository.find({
-        sourceId: [`${car.id}`],
-        sourceName: [`${Models.CARS_TABLE_NAME}`]
-      }),
-      await fieldChainRepository.find({
-        sourceId: [`${carOwner.id}`],
-        sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`]
-      })
-    ]);
-
-    const result: ServerCar.Response = {
-      id: car.id,
-      createdDate: car.createdDate,
-      ownerId: car.ownerId,
-      ownerNumber: carOwner.number,
-      fields: [
-        ...getFieldsWithValues(carFields, carChaines, car.id),
-        ...getFieldsWithValues(carOwnerFields, carOwnerChaines, car.ownerId)
-      ]
-    };
-
-    return result;
+  async deleteCars(ids: number[]) {
+    const chaines = await fieldChainRepository.find({
+      sourceName: [Models.CARS_TABLE_NAME],
+      sourceId: ids.map(id => `${id}`),
+    });
+    await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
+    const car = await carRepository.delete({ id: ids.map(id => `${id}`) });
+    return car
   }
 
   async createCarsByLink(data: ServerCar.CreateByLink): Promise<(ServerCar.Response | ServerCar.IdResponse)[]> {

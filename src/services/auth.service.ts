@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { v4 } from 'uuid';
-import mailService from './mail.service';
+// import mailService from './mail.service';
 import tokenService from './token.service';
 import { Models } from '../entities/Models';
 import { ServerUser } from '../entities/User';
@@ -33,7 +33,7 @@ class AuthService {
       customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
     }
 
-    await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink); // need test
+    // await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink); // need test
     const userPayload = new ServerAuth.Payload(payloadUser);
 
     const tokens = tokenService.generateTokens({...userPayload});
@@ -84,11 +84,14 @@ class AuthService {
   }
 
   async logout(refreshToken: string) {
-    const token = await tokenService.removeToken(refreshToken);
+    const token: Models.UserToken = await tokenService.removeToken(refreshToken);
     return token;
   }
 
   async refresh(refreshToken: string): Promise<ServerAuth.AuthGetResponse> {
+    //
+    const start = new Date().getTime();
+
     if (!refreshToken) {
       throw ApiError.UnauthorizedError();
     }
@@ -96,7 +99,11 @@ class AuthService {
     const userData: ServerAuth.Payload = tokenService.validateRefreshToken(refreshToken) as ServerAuth.Payload;
     const tokenFromDb  = await tokenService.findToken(refreshToken);
 
+    // console.log(`refresh: start tokin refreshing for ${userData.id} user `);
+
     if (!userData || !tokenFromDb) {
+      // const end = new Date().getTime();
+      // console.log(`refresh: tokin refreshing for ${userData.id} user declined: ${end - start}ms`);
       throw ApiError.UnauthorizedError();
     }
 
@@ -110,6 +117,9 @@ class AuthService {
 
     const tokens = tokenService.generateTokens({...userPayload});
     await tokenService.saveToken(userPayload.id, tokens.refreshToken);
+
+    // const end = new Date().getTime();
+    // console.log(`refresh: ${user.id}, ${user.email}: ${end - start}ms`);
 
     return {
       ...tokens,

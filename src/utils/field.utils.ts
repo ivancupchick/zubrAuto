@@ -27,10 +27,10 @@ export namespace FlagField {
 
 export const getFieldsWithValues = (chainedFields: Models.Field[], chaines: Models.FieldChain[], sourceId: number): RealField.Response[] => {
   return chainedFields
-    .filter(cf => !!chaines
-      .filter(ch => ch.sourceId === sourceId)
-      .find(ch => ch.fieldId === cf.id)
-    )
+    // .filter(cf => !!chaines
+    //   .filter(ch => ch.sourceId === sourceId)
+    //   .find(ch => ch.fieldId === cf.id)
+    // )
     .map(cf => {
       return {
         id: cf.id,

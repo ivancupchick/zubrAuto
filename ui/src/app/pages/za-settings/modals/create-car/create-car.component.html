@@ -6,7 +6,7 @@
 <za-dynamic-form #ourLinksForm (changed)="setValidForm($event, 'carFormValid')" [fields]="ourLinksDynamicFormFields"></za-dynamic-form>
 <ng-container *ngIf="shootingDateAvailable">
   <h1>Дата/Время съёмки</h1>
-  <p-calendar appendTo="body" [(ngModel)]="shootingDate" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy"></p-calendar>
+  <p-calendar appendTo="body" [(ngModel)]="shootingDate" [showTime]="true" hourFormat="24" [firstDayOfWeek]="1"></p-calendar>
 </ng-container>
 
 <div class="footer">

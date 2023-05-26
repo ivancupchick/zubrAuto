@@ -12,9 +12,9 @@ class FieldChainService {
 
   async createFieldChain(fieldChainData: Omit<Models.FieldChain, 'id'>) {
     const existFieldChain = await fieldChainRepository.findOne({
+      sourceName: [`${fieldChainData.sourceName}`],
       sourceId: [`${fieldChainData.sourceId}`],
       fieldId: [`${fieldChainData.fieldId}`],
-      sourceName: [`${fieldChainData.sourceName}`]
     });
     if (existFieldChain) {
       throw ApiError.BadRequest(`This Field Chain exists`);

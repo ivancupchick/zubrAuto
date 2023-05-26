@@ -12,7 +12,7 @@
 
   <div class="status-wrapper">
     <h5>Выберите дату и время показа</h5>
-    <p-calendar appendTo="body" [(ngModel)]="showingDate" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy"></p-calendar>
+    <p-calendar appendTo="body" [(ngModel)]="showingDate" [showTime]="true" hourFormat="24" [firstDayOfWeek]="1"></p-calendar>
   </div>
 
   <div class="comment-wrapper">

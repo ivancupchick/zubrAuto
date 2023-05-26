@@ -1,31 +1,31 @@
 export namespace Models {
 
-  export const CARS_TABLE_NAME = 'public.cars';
+  export const CARS_TABLE_NAME = 'cars';
   export interface Car {
     id: number;
     createdDate: string;
     ownerId: number;
   }
 
-  export const CAR_OWNERS_TABLE_NAME = 'public.carOwners';
+  export const CAR_OWNERS_TABLE_NAME = 'carOwners';
   export interface CarOwner {
     id: number;
     number: string;
   }
 
-  // export const FORMS_TABLE_NAME = 'public.forms';
+  // export const FORMS_TABLE_NAME = 'forms';
   // export interface Form {
   //   id: number;
   //   flags: number;
   // }
 
-  export const CLIENTS_TABLE_NAME = 'public.clients';
+  export const CLIENTS_TABLE_NAME = 'clients';
   export interface Client {
     id: number;
     carIds: string;
   }
 
-  export const USERS_TABLE_NAME = 'public.users';
+  export const USERS_TABLE_NAME = 'users';
   export interface User {
     id: number;
     email: string; // uniq, required
@@ -35,14 +35,14 @@ export namespace Models {
     roleLevel: number;
   }
 
-  export const USER_TOKENS_TABLE_NAME = 'public.userTokens';
+  export const USER_TOKENS_TABLE_NAME = 'userTokens';
   export interface UserToken {
     id: number;
     userId: number; // link to User.id
     refreshToken: string; // required
   }
 
-  export const FILE_CHAINS_TABLE_NAME = 'public.filesIds';
+  export const FILE_CHAINS_TABLE_NAME = 'filesIds';
   export interface FileChain {
     id: number;
     sourceId: number;
@@ -50,7 +50,7 @@ export namespace Models {
     sourceName: string;
   }
 
-  export const FILES_TABLE_NAME = 'public.files';
+  export const FILES_TABLE_NAME = 'files';
   export interface File {
     id: number;
     url: string;
@@ -60,7 +60,7 @@ export namespace Models {
     fileMetadata: string;
   }
 
-  export const FIELD_CHAINS_TABLE_NAME = 'public.fieldIds';
+  export const FIELD_CHAINS_TABLE_NAME = 'fieldIds';
   export interface FieldChain {
     id: number;
     sourceId: number;
@@ -69,7 +69,7 @@ export namespace Models {
     sourceName: string;
   }
 
-  export const FIELDS_TABLE_NAME = 'public.fields';
+  export const FIELDS_TABLE_NAME = 'fields';
   export interface Field {
     id: number;
     name: string;
@@ -80,13 +80,13 @@ export namespace Models {
     showUserLevel: number; // delete
   }
 
-  export const ROLES_TABLE_NAME = 'public.roles';
+  export const ROLES_TABLE_NAME = 'roles';
   export interface Role {
     id: number;
     systemName: string;
   }
 
-  export const FIELD_ACCESSES_TABLE_NAME = 'public.fieldAccesses';
+  export const FIELD_ACCESSES_TABLE_NAME = 'fieldAccesses';
   export interface FieldAccess {
     id: number;
     fieldId: number;
@@ -95,19 +95,29 @@ export namespace Models {
     access: number;
   }
 
-  export const CAR_FORMS_TABLE_NAME = 'public.carForms';
+  export const CAR_FORMS_TABLE_NAME = 'carForms';
   export interface CarForm {
     id: number;
     carId: number;
     content: string;
   }
 
-  export const CAR_STATISTIC_TABLE_NAME = 'public.carStatistic';
+  export const CAR_STATISTIC_TABLE_NAME = 'carStatistic';
   export interface CarStatistic {
     id: number;
     carId: number;
     content: string;
     type: number;
     date: number;
+  }
+
+  export const ACTIVITIES = 'activities';
+  export interface Activities {
+    id: number;
+    userId: number;
+    sourceId: number;
+    sourceName: string;
+    date: number;
+    activities: string;
   }
 }
