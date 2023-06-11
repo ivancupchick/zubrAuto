@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FieldDomains, FieldType, RealField, ServerField } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
-
 import {DialogService} from 'primeng/dynamicdialog';
 import { CreateFieldComponent } from '../modals/create-field/create-field.component';
 import { tap } from 'rxjs/operators';
@@ -9,6 +8,7 @@ import { settingsClientsStrings } from '../settings-clients/settings-clients.str
 import { settingsCarsStrings } from '../settings-cars/settings-cars.strings';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { StringHash } from 'src/app/entities/constants';
+import { Observable } from 'rxjs';
 
 export interface GridField {
   name: string;
@@ -27,7 +27,10 @@ export interface GridField {
 })
 export class SettingsFieldsComponent implements OnInit {
   loading = false;
-
+  selectedDomain = FieldDomains.Car;
+  fields: GridField[] = [];
+  sortedFields: GridField[] = [];
+  rawFields: ServerField.Response[] = [];
   domains = [
     {name: 'Машины', code: FieldDomains.Car},
     {name: 'Владелец машины', code: FieldDomains.CarOwner},
@@ -35,26 +38,22 @@ export class SettingsFieldsComponent implements OnInit {
     {name: 'Пользователь', code: FieldDomains.User},
   ];
 
-  selectedDomain = FieldDomains.Car;
-
-  fields: GridField[] = [];
-  sortedFields: GridField[] = [];
-  rawFields: ServerField.Response[] = [];
-
   constructor(private fieldService: FieldService, private dialogService: DialogService) { }
 
   ngOnInit(): void {
-    this.getFields().subscribe();
+    this.loading = true;
+    this.getFields().subscribe(() => {
+      this.sortFields();
+      this.loading = false;
+    });
   }
-
-  getFields() {
+  
+  getFields(): Observable<ServerField.Response[]> {
     return this.fieldService.getFields().pipe(
-        tap((res => {
-          this.rawFields = [...res];
-
-          this.sortFields();
-        }))
-      )
+      tap((res) => {
+        this.rawFields = [...res];
+      })
+    );
   }
 
   openNewField() {
