@@ -1416,8 +1416,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   onSelectEntity(cars: ServerCar.Response[]) {
-    console.log(cars);
     this.selectedCars = [...cars];
+    this.allCarsNumber = cars.length;
     this.cd.markForCheck();
     this.isSelectCarModalMode && this.onSelectCar.emit(cars);
   }
@@ -1626,8 +1626,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     } catch (error) {
       worksheet = null;
     }
-
-    console.log(worksheet);
 
     const form = new RealCarForm(worksheet);
 
