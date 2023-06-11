@@ -125,12 +125,11 @@ export enum QueryCarTypes {
 export class SettingsCarsComponent implements OnInit, OnDestroy {
   queryCarTypes = QueryCarTypes;
   FieldTypes = FieldType;
-  _loading = false;
   allCarsNumber = 0;
   rangeDates: [Date, Date | null] | null = null;
-
   sortedCars: ServerCar.Response[] = [];
   rawCars: ServerCar.Response[] = [];
+  _loading = false;
   gridConfig!: GridConfigItem<ServerCar.Response>[];
   gridActionsConfig!: GridActionConfigItem<ServerCar.Response>[];
   carFieldConfigs: ServerField.Response[] = [];
@@ -477,6 +476,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         ];
 
         break;
+      case QueryCarTypes.carsForSaleTemp:
       case QueryCarTypes.carsForSale:
         this.selectedStatus = [
           FieldNames.CarStatus.customerService_InProgress,
@@ -484,13 +484,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         ];
 
         break;
-      // case QueryCarTypes.shootedBase:
-
-      //   break;
-
-      // default:
-      //   this.selectedStatus = [...this.availableRawStatuses];
-      //   break;
     }
   }
 
@@ -546,7 +539,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.gridActionsConfig = this.getGridActionsConfig();
 
     this.checkboxMode = false;
-    // this.isSelectCarModalMode = false;
     this.getColorConfig = undefined;
 
     switch (this.type) {
