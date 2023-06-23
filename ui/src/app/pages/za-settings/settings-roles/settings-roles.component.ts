@@ -4,6 +4,8 @@ import { ServerRole } from 'src/app/entities/role';
 import { RoleService } from 'src/app/services/role/role.service';
 import { CreateRoleComponent } from '../modals/create-role/create-role.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
+import { tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'za-settings-roles',
@@ -17,6 +19,7 @@ import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.compon
 export class SettingsRolesComponent implements OnInit {
   sortedRoles: ServerRole.Response[] = [];
   rawRoles: ServerRole.Response[] = [];
+  loading: boolean = false;
 
   gridConfig!: GridConfigItem<ServerRole.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerRole.Response>[] = [{
@@ -31,17 +34,30 @@ export class SettingsRolesComponent implements OnInit {
     handler: (role) => this.deleteRole(role)
   }]
 
-  // readonly strings = settingsRolesStrings;
-
   constructor(private roleService: RoleService, private dialogService: DialogService) { }
 
   ngOnInit(): void {
-
-    this.roleService.getRoles().subscribe((result) => {
+    this.loading = true
+    this.getRoles().subscribe((result) => {
       this.rawRoles = result;
       this.sortRoles();
+      this.loading = false;
     })
 
+    this.createGridConfig();
+  }
+
+  updateRole(role: ServerRole.Response) {
+    const ref = this.dialogService.open(CreateRoleComponent, {
+      data: {
+        role,
+      },
+      header: 'Редактировать роль',
+      width: '70%'
+    });
+  }
+
+  createGridConfig(): void{
     this.gridConfig = [{
       title: 'id',
       name: 'id',
@@ -83,24 +99,10 @@ export class SettingsRolesComponent implements OnInit {
     ];
   }
 
-  updateRole(role: ServerRole.Response) {
-    const ref = this.dialogService.open(CreateRoleComponent, {
-      data: {
-        role,
-      },
-      header: 'Редактировать роль',
-      width: '70%'
-    });
-  }
-
   deleteRole(role: ServerRole.Response) {
     this.roleService.deleteRole(role.id)
       .subscribe(res => {
       });
-  }
-
-  private sortRoles() {
-    this.sortedRoles = this.rawRoles;
   }
 
   openNewRoleWindow() {
@@ -111,5 +113,13 @@ export class SettingsRolesComponent implements OnInit {
       header: 'Новая роль',
       width: '70%'
     });
+  }
+
+  private sortRoles() {
+    this.sortedRoles = this.rawRoles;
+  }
+
+  private getRoles(): Observable<ServerRole.Response[]>{
+    return this.roleService.getRoles()
   }
 }

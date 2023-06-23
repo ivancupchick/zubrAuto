@@ -16,3 +16,5 @@
 </p-toolbar>
 <p></p>
 <za-grid [gridConfig]="gridConfig" [gridData]="sortedRoles" [actions]="gridActionsConfig" ></za-grid>
+
+<za-spinner *ngIf="loading"></za-spinner>
