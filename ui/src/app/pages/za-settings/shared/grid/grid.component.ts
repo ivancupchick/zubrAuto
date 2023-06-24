@@ -1,7 +1,6 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as moment from 'moment';
 import { MenuItem, SortEvent } from 'primeng/api';
-// import { FieldsUtils } from 'src/app/entities/field';
 
 export interface GridConfigItem<GridItemType extends { id: number }> {
   title: string;
@@ -28,32 +27,35 @@ export interface GridActionConfigItem<GridItemType extends { id: number }> {
 })
 export class GridComponent<GridItemType extends { id: number }> implements OnInit {
   @Input() gridConfig!: GridConfigItem<GridItemType>[];
-  @Input() gridData!: GridItemType[];
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
   @Input() selectionMode = '';
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
-
-  contextSelectedItem!: GridItemType;
-  contextActions: MenuItem[] = []
+  @Input() set gridData(value: GridItemType[]) {
+    if (Array.isArray(value) && value.length > 0) {
+      this._gridData = value;
+      this.scrollHeight = this.elem.nativeElement.offsetHeight  - 20;
+    }
+  }
+  
+  get gridData(): GridItemType[] {
+    return this._gridData;
+  }
 
   @Output() onSelectEntity = new EventEmitter<GridItemType[]>();
 
+  contextSelectedItem!: GridItemType;
+  contextActions: MenuItem[] = [];
   selectedKeys!: GridItemType[];
-
   scrollHeight: number = 0;
+  private _gridData: GridItemType[] = [];
 
-  constructor(private elem: ElementRef<HTMLElement>) { }
+  constructor(private elem: ElementRef<HTMLElement>) {}
 
   ngOnInit(): void {
-    this.scrollHeight = this.elem.nativeElement.offsetHeight - 20
-    console.log(this.scrollHeight);
-
-
     this.selectedKeys = [...this.selected];
-
     this.updateActions();
   }
 
@@ -77,8 +79,6 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
       console.error('sorting not working on this field')
       return;
     }
-
-    console.log(1);
 
     this.gridData = [...this.gridData.sort((data1, data2) => {
         const v1 = gridConfig.getValue(data1)
