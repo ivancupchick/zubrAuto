@@ -3,7 +3,6 @@ import { Models } from "./Models";
 export namespace Activities {
   export type Activity = {
     type: ActivityType;
-    oldValue: string; // ?
     value: string;
   }
 

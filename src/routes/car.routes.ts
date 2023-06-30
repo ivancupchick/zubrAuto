@@ -2,23 +2,17 @@ import { Router } from 'express'
 import { body } from 'express-validator';
 import carController from '../controllers/car.controller';
 import { Constants } from '../utils/constansts';
+import carFunctionsController from '../controllers/car-functions.controller';
 
 const router = Router();
 
 router.route(`/${ Constants.API.CRUD }/`)
-  .get(carController.getAllCars)
-  .post(carController.createCar);
+  .get(carController.getAll)
+  .post(carController.create);
 router.route(`/${ Constants.API.CRUD }/:carId`)
-  .get(carController.getCar)
-  .delete(carController.deleteCar)
-  .put(carController.updateCar);
-
-// router.route(`/${ Constants.API.CRUD }/${}`)
-
-router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_CALL }/:carId`)
-  .post(
-    carController.addCustomerCall
-  );
+  .get(carController.getOne)
+  .delete(carController.delete)
+  .put(carController.update);
 
 router.route(`/${ Constants.API.DELETE_CARS }`)
   .post(
@@ -26,48 +20,53 @@ router.route(`/${ Constants.API.DELETE_CARS }`)
     carController.deleteCars
   );
 
+router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_CALL }/:carId`)
+  .post(
+    carFunctionsController.addCustomerCall
+  );
+
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_DISCOUNT }/:carId`)
   .post(
     body('amount').isNumeric(),
     body('discount').isNumeric(),
-    carController.addCustomerDiscount
+    carFunctionsController.addCustomerDiscount
   );
 
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CALL }`)
-  .post(carController.addCall);
+  .post(carFunctionsController.addCall);
 
 router.route(`/${ Constants.API.STATISTIC }/:carId`)
-  .get(carController.getAllCarStatistic)
+  .get(carFunctionsController.getAllCarStatistic)
 
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/:carId`)
-  .get(carController.getCarStatistic)
-  .post(carController.createCarShowing)
+  .get(carFunctionsController.getCarStatistic)
+  .post(carFunctionsController.createCarShowing)
   .put(
     body('showingId').notEmpty().isNumeric(),
     body('showingContent').notEmpty().isObject(),
-    carController.updateCarShowing
+    carFunctionsController.updateCarShowing
   );
 
 router.route(`/${Constants.API.CREATE_CARS_BY_LINK}`)
-  .post(carController.createCarsByLink);
+  .post(carFunctionsController.createCarsByLink);
 
 router.route(`/${Constants.API.IMAGES}/:carId`)
-  .get(carController.getImages);
+  .get(carFunctionsController.getImages);
 
 router.route(`/${Constants.API.IMAGES}/:carId/:imageId`)
-  .delete(carController.deleteCarImage);
+  .delete(carFunctionsController.deleteCarImage);
 
 router.route(`/${Constants.API.IMAGES}`)
   .post(
-    carController.uploadImages
+    carFunctionsController.uploadImages
   );
 router.route(`/${Constants.API.STATE_IMAGES}`)
   .post(
-    carController.uploadStateImages
+    carFunctionsController.uploadStateImages
   );
 router.route(`/${Constants.API.IMAGE360}`)
   .post(
-    carController.uploadImage360
+    carFunctionsController.uploadImage360
   );
 
 

@@ -136,10 +136,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   rangeDates: [Date, Date | null] | null = null;
 
-  allCarsNumber = 0;
-
-  rangeDates: [Date, Date | null] | null = null;
-
   sortedCars: ServerCar.Response[] = [];
   rawCars: ServerCar.Response[] = [];
 
@@ -729,7 +725,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           const v = FieldsUtils.getFieldNumberValue(car, filterConfig.name) || '';
           const values = value as [number, number]
 
-          return v >= values[0] && v <= values[1];
+          return +v >= values[0] && +v <= values[1];
         })
       }
     });

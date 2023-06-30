@@ -8,402 +8,54 @@ import carImageService from '../services/car-image.service';
 import carStatisticService from '../services/car-statistic.service';
 import carService from '../services/car.service';
 import { StringHash } from '../utils/sql-queries';
-import { BaseController } from './base.conroller';
+import { BaseCrudController } from './base.conroller';
+// import { Activity } from '../decorators/activity.decorator';
 
-class CarController {
-  getAllCars = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const errors = validationResult(req);
+class CarController extends BaseCrudController<ServerCar.Response> {
+  // @Activity()
+  protected getAllEntities(req: Request, res: Response, next: NextFunction) {
+    const query: StringHash = req.query as StringHash;
+    const queryKeys = Object.keys(query);
 
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const query: StringHash = req.query as StringHash;
-      const queryKeys = Object.keys(query);
-
-      const cars = queryKeys.length > 0
-        ? await carService.getCarsByQuery(query)
-        : await carService.getAll();
-
-      return res.json(cars);
-    } catch (e) {
-      next(e);
-    }
+    return queryKeys.length > 0
+      ? carService.getCarsByQuery(query)
+      : carService.getAll();
   }
 
-  async createCar(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
+  protected getEntity(req: Request<{ carId: string }>, res: Response, next: NextFunction) {
+    const car = carService.get(+req.params.carId);
 
-    if (!errors.isEmpty()) {
-      throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-    }
-
-      const newCar: ServerCar.CreateRequest = req.body;
-      const car = await carService.create(newCar);
-      return res.json(car);
-    } catch (e) {
-      next(e);
-    }
+    return car;
   }
 
-  async getCar(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
+  protected createEntity(req: Request<any, any, ServerCar.CreateRequest>, res: Response, next: NextFunction) {
+    const car = carService.create(req.body);
 
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const id = +req.params.carId;
-      const car = await carService.get(id);
-
-      return res.json(car);
-    } catch (e) {
-      next(e);
-    }
+    return car;
   }
 
-  async deleteCar(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
+  async updateEntity(req: Request, res: Response, next: NextFunction) {
+    const id = +req.params.carId;
+    const updatedCar: ServerCar.UpdateRequest = req.body;
+    const car = await carService.update(id, updatedCar);
 
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
+    return car;
+  }
 
-      const id = +req.params.carId;
-      const car = await carService.delete(id);
+  protected deleteEntity(req: Request, res: Response, next: NextFunction) {
+    const id = +req.params.carId;
+    const car = carService.delete(id);
 
-      return res.json(car);
-    } catch (e) {
-      next(e);
-    }
+    return car;
   }
 
   async deleteCars(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carIds = req.body.carIds;
-      const cars = await carService.deleteCars(carIds);
-
-      return res.json(cars);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async updateCar(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const id = +req.params.carId;
-      const updatedCar: ServerCar.UpdateRequest = req.body;
-      const car = await carService.update(id, updatedCar);
-
-      return res.json(car);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async createCarsByLink(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+    const rusultFn = (reqq: Request) => {
+      const carIds = reqq.body.carIds;
+      return carService.deleteCars(carIds);
     }
 
-      const body: ServerCar.CreateByLink = req.body;
-      const cars = await carService.createCarsByLink(body);
-      return res.json(cars);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async getImages(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const id = +req.params.carId;
-
-      const result = await carImageService.getCarFiles(id)
-
-      // const body: ServerCar.CreateByLink = req.body;
-      // const cars = await carService.createCarsByLink(body);
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async deleteCarImage(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carId = +req.params.carId;
-      const imageId = +req.params.imageId;
-
-      const result = await carImageService.deleteCarImage(carId, imageId)
-;
-      return res.json(true);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async uploadImages(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const file = ((req as any).files as FileArray)['file'];
-
-      let files: UploadedFile[] = Array.isArray(file)
-        ? file
-        : [file];
-
-      const id = +req.body.carId;
-      const metadata = req.body.metadata || '{}';
-
-      const result = await carImageService.uploadCarImage(id, files, metadata);
-
-      return res.json(result);
-    } catch (e) {
-      console.log(e);
-      next(e);
-    }
-  }
-
-  async uploadStateImages(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const file = ((req as any).files as FileArray)['file'];
-
-      let files: UploadedFile[] = Array.isArray(file)
-        ? file
-        : [file];
-
-      const id = +req.body.carId;
-      const metadata = req.body.metadata || '{}';
-
-      const result = await carImageService.uploadCarStateImages(id, files, metadata);
-
-      return res.json(result);
-    } catch (e) {
-      console.log(e);
-      next(e);
-    }
-  }
-
-  async uploadImage360(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const file = ((req as any).files as FileArray)['file'];
-
-      let files: UploadedFile[] = Array.isArray(file)
-        ? file
-        : [file];
-
-      const id = +req.body.carId;
-      const metadata = req.body.metadata || '{}';
-
-      const result = await carImageService.uploadCarImage360(id, files[0], metadata);
-
-      return res.json(result);
-    } catch (e) {
-      console.log(e);
-      next(e);
-    }
-  }
-
-  // async uploadImages(req: Request, res: Response, next: NextFunction) {
-  //   try {
-  //     const errors = validationResult(req);
-
-  //     if (!errors.isEmpty()) {
-  //       throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-  //     }
-
-  //     // const file = Array.isArray(((req as any).files as any).file)
-  //     //   ? ((req as any).files as any).file[0]
-  //     //   : ((req as any).files as any).file;
-
-  //     const file = req.file;
-  //     const metadata = req.body.metadata || '{}';
-  //     const id = +req.body.carId;
-
-
-  //     const result = await carImageService.uploadCarImage(id, file, metadata);
-
-  //     return res.json(result);
-  //   } catch (e) {
-  //     next(e);
-  //   }
-  // }
-
-  async addCall(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carIds = req.body.carIds
-
-      const result = await carStatisticService.addCall(carIds);
-
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async addCustomerCall(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carId = +req.params.carId;
-
-      const result = await carStatisticService.addCustomerCall(carId);
-
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async addCustomerDiscount(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carId = +req.params.carId;
-      const discount = +req.body.discount
-      const amount = +req.body.amount
-
-      const result = await carStatisticService.addCustomerDiscount(carId, discount, amount);
-
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async createCarShowing(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carId = +req.params.carId;
-      const carShowingContent: CarStatistic.ShowingContent = req.body.showingContent;
-
-      const result = await carStatisticService.createCarShowing(carId, carShowingContent);
-
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async updateCarShowing(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carId = +req.params.carId;
-      const carShowingId: number = req.body.showingId;
-      const carShowingContent: CarStatistic.ShowingContent = req.body.showingContent;
-
-      const result = await carStatisticService.updateCarShowing(carShowingId, carId, carShowingContent);
-
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async getCarStatistic(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carId = +req.params.carId;
-
-      const result = await carStatisticService.getCarShowingStatistic(carId);
-
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
-
-  async getAllCarStatistic(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        throw ApiError.BadRequest('Ошибка при валидации', errors.array());
-      }
-
-      const carId = +req.params.carId;
-
-      const result = await carStatisticService.getAllCarStatistic(carId);
-
-      return res.json(result);
-    } catch (e) {
-      next(e);
-    }
+    return await this.request(req, res, next, rusultFn)
   }
 }
 

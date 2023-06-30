@@ -140,32 +140,36 @@ CREATE INDEX fieldIds_FIND_INDEX ON fieldIds (sourceName, sourceId, fieldId);
 
 ALTER TABLE `activities`
   ADD CONSTRAINT FOREIGN KEY `fk_userId` (`userId`)
-    REFERENCES `users` (`id`)
-    ON DELETE CASCADE;
+    REFERENCES `users` (`id`);
 
 ALTER TABLE `cars`
   ADD CONSTRAINT FOREIGN KEY `fk_ownerId` (`ownerId`)
-    REFERENCES `carOwners` (`id`)
-    ON DELETE CASCADE;
+    REFERENCES `carOwners` (`id`);
 
 
 ALTER TABLE `fieldIds`
   ADD CONSTRAINT FOREIGN KEY `fk_fieldId` (`fieldId`)
-    REFERENCES `fields` (`id`)
-    ON DELETE CASCADE;
+    REFERENCES `fields` (`id`);
 
 
 ALTER TABLE `fieldAccesses`
   ADD CONSTRAINT FOREIGN KEY `fk_fieldId` (`fieldId`)
-    REFERENCES `fields` (`id`)
-    ON DELETE CASCADE;
+    REFERENCES `fields` (`id`);
 
 ALTER TABLE `filesIds`
   ADD CONSTRAINT FOREIGN KEY `fk_fileId` (`fileId`)
-    REFERENCES `files` (`id`)
-    ON DELETE CASCADE;
+    REFERENCES `files` (`id`);
 
 ALTER TABLE `carStatistic`
   ADD CONSTRAINT FOREIGN KEY `fk_carId` (`carId`)
-    REFERENCES `cars` (`id`)
-    ON DELETE CASCADE;
+    REFERENCES `cars` (`id`);
+
+ALTER TABLE `carForms`
+  ADD CONSTRAINT `fk_carId` FOREIGN KEY (`carId`)
+  REFERENCES `cars` (`id`);
+
+
+-- clear all car data TODO
+TRUNCATE TABLE cars;
+TRUNCATE TABLE carForms;
+TRUNCATE TABLE clients;
