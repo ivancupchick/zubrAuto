@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CarFormEnums, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
@@ -47,12 +47,12 @@ export class CreateCarFormComponent implements OnInit {
 
   @Input() car!: ServerCar.Response;
 
-  public carQuestionnaireForm!: FormGroup;
-  public generalConditionForm!: FormGroup;
-  public inspectionForm!: FormGroup;
-  public exteriorInspectionForm!: FormGroup;
-  public checkboxesForm!: FormGroup;
-  public descriptionForm!: FormGroup;
+  public carQuestionnaireForm!: UntypedFormGroup;
+  public generalConditionForm!: UntypedFormGroup;
+  public inspectionForm!: UntypedFormGroup;
+  public exteriorInspectionForm!: UntypedFormGroup;
+  public checkboxesForm!: UntypedFormGroup;
+  public descriptionForm!: UntypedFormGroup;
 
   public carQuestionnaireFields!: CarFormField<CarFormEnums.CarQuestionnaire>[];
   public generalConditionFields!: CarFormField<CarFormEnums.GeneralCondition>[];
@@ -66,7 +66,7 @@ export class CreateCarFormComponent implements OnInit {
   constructor(
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private sessionService: SessionService,
     private carService: CarService,
   ) { }

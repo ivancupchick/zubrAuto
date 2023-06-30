@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { RealField } from 'src/app/entities/field';
 import { DynamicFieldControlService } from './dynamic-field-control.service';
 import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
@@ -27,7 +27,7 @@ import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
 })
 export class DynamicFormComponent implements OnInit {
 
-  formGroup!: FormGroup;
+  formGroup!: UntypedFormGroup;
   // @Input() data: RealField[] | null = null;
   // @Input() dataConfig!: DataConfigItem[];
 

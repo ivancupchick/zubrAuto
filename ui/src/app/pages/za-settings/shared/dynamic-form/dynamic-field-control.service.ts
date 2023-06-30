@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { FieldsUtils, FlagField, UIRealField } from 'src/app/entities/field';
 import { DynamicFieldBase, DynamicFieldOptions } from './dynamic-fields/dynamic-field-base';
 
@@ -17,14 +17,14 @@ export class DynamicFieldControlService {
         validators.push(Validators.required);
       }
 
-      group[field.key] = new FormControl(field.value || '', [...validators]);
+      group[field.key] = new UntypedFormControl(field.value || '', [...validators]);
 
       // TODO replace to other place
       if (field.readonly) {
-        (group[field.key] as FormControl).disable();
+        (group[field.key] as UntypedFormControl).disable();
       }
     });
-    return new FormGroup(group);
+    return new UntypedFormGroup(group);
   }
 
   getDynamicFieldsFromDBFields(dbFields: UIRealField[]) {

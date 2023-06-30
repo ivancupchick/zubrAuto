@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { FieldType } from 'src/app/entities/field';
 import { DynamicFieldBase } from '../../dynamic-fields/dynamic-field-base';
 
@@ -12,7 +12,7 @@ export class PrimitiveFormFieldComponent implements OnInit {
   FieldType = FieldType;
 
   @Input() field!: DynamicFieldBase<string>;
-  @Input() form!: FormGroup;
+  @Input() form!: UntypedFormGroup;
   get isValid() {
     return this.form.controls[this.field.key].valid;
   }

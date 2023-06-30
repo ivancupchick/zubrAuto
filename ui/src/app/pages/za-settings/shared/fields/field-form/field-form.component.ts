@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'primeng/dynamicdialog';
 import { StringHash } from 'src/app/entities/constants';
 import { FieldDomains, FieldType, FlagField, getAccessName, getDomainName, ServerField } from 'src/app/entities/field';
@@ -36,7 +36,7 @@ export class FieldFormComponent implements OnInit {
 
   roles: ServerRole.Response[] = [];
 
-  formGroup!: FormGroup;
+  formGroup!: UntypedFormGroup;
   @Input() field!: ServerField.Response | null;
   @Input() domain!: FieldDomains;
 
@@ -44,7 +44,7 @@ export class FieldFormComponent implements OnInit {
 
   private valid = false;
 
-  constructor(private fb: FormBuilder, private dialogService: DialogService, private roleService: RoleService) { }
+  constructor(private fb: UntypedFormBuilder, private dialogService: DialogService, private roleService: RoleService) { }
 
   getRoleName(systemName: string) {
     if ((settingsUsersStrings as StringHash)[systemName]) {

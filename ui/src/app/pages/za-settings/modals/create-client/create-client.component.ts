@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { getCarStatus, ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
@@ -38,7 +38,7 @@ export class CreateClientComponent implements OnInit {
 
   formValid = false;
 
-  isJustCall!: FormControl;
+  isJustCall!: UntypedFormControl;
 
   dynamicFormFields: DynamicFieldBase<string>[] = [];
 
@@ -65,7 +65,7 @@ export class CreateClientComponent implements OnInit {
   ngOnInit(): void {
     this.fieldConfigs = this.config.data.fieldConfigs;
 
-    this.isJustCall = new FormControl(false);
+    this.isJustCall = new UntypedFormControl(false);
 
     this.isJustCall.valueChanges.subscribe((res: boolean) => {
       if (res) {
