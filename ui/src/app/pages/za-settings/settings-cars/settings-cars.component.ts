@@ -587,7 +587,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroyed.next();
+    this.destroyed.next(null);
   }
 
   updateCar(car: ServerCar.Response) {

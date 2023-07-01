@@ -7,7 +7,7 @@ import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 import { CarFormEnumsStrings } from './car-form.strings';
 import { SessionService } from 'src/app/services/session/session.service';
-import * as CryptoJS from 'crypto-js';  
+import * as CryptoJS from 'crypto-js';
 
 type CarFormEnum = CarFormEnums.CarQuestionnaire | CarFormEnums.Checkboxes | CarFormEnums.ExteriorInspection | CarFormEnums.GeneralCondition | CarFormEnums.Inspection;
 
@@ -21,7 +21,7 @@ type FieldObject<T extends CarFormEnum> = {
   [key in T]: CarFormField<T>
 }
 
-function keys<T = any>(obj: T): Array<keyof typeof obj> {
+function keys<T extends Object>(obj: T): Array<keyof typeof obj> {
   return Object.keys(obj) as Array<keyof typeof obj>
 }
 
@@ -37,6 +37,7 @@ export class CreateCarFormComponent implements OnInit {
   readonly carFormStrings = CarFormEnumsStrings;
 
   CarFormEnums = CarFormEnums;
+
   loading: boolean = false;
   readOnly: boolean = false;
   isAdminRole: boolean = false;

@@ -88,7 +88,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroyed.next();
+    this.destroyed.next(null);
   }
 
   rebuildActions() {;

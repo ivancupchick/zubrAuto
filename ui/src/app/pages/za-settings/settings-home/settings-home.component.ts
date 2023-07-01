@@ -26,6 +26,6 @@ export class SettingsHomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroyed.next();
+    this.destroyed.next(null);
   }
 }
