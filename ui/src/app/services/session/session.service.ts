@@ -2,12 +2,18 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServerRole } from 'src/app/entities/role';
-import { ServerAuth } from 'src/app/entities/user';
+import { LocalStorageKey, ServerAuth } from 'src/app/entities/user';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class SessionService {
-  isAuth = false;
+  get token(): string | null {
+    return localStorage.getItem(LocalStorageKey.Token);
+  }
+
+  get isAuth(): boolean {
+    return this.token !== null
+  }
 
   private selectedRole: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin = ServerRole.System.Admin;
   userSubj = new BehaviorSubject<ServerAuth.IPayload | null>(null);
@@ -39,10 +45,6 @@ export class SessionService {
     );
   }
 
-  setAuth(isAuth: boolean) {
-    this.isAuth = isAuth;
-  }
-
   setUser(user: ServerAuth.IPayload | null) {
     this.userSubj.next(user);
   }
@@ -50,8 +52,7 @@ export class SessionService {
   login(email: string, password: string) {
     return this.authService.login(email, password)
       .pipe(map((res) => {
-        localStorage.setItem('token', res.accessToken);
-        this.setAuth(true);
+        localStorage.setItem(LocalStorageKey.Token, res.accessToken);
         this.setUser(res.user);
         return res;
       }))
@@ -60,8 +61,7 @@ export class SessionService {
   registration(email: string, password: string) {
     return this.authService.registration(email, password)
       .pipe(map((res) => {
-        localStorage.setItem('token', res.accessToken);
-        this.setAuth(true);
+        localStorage.setItem(LocalStorageKey.Token, res.accessToken);
         this.setUser(res.user);
         return res;
       }))
@@ -70,8 +70,7 @@ export class SessionService {
   logout() {
     return this.authService.logout()
       .pipe(map(res => {
-        localStorage.removeItem('token');
-        this.setAuth(false);
+        localStorage.removeItem(LocalStorageKey.Token);
         this.setUser(null);
         return res;
       }))
@@ -80,8 +79,7 @@ export class SessionService {
   checkAuth() {
     return this.authService.refresh()
       .pipe(map((res) => {
-        localStorage.setItem('token', res.accessToken);
-        this.setAuth(true);
+        localStorage.setItem(LocalStorageKey.Token, res.accessToken);
         this.setUser(res.user);
         return res;
       }))
