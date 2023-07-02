@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { getClientStatus, ServerClient } from 'src/app/entities/client';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -10,12 +10,19 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SessionService } from 'src/app/services/session/session.service';
 import { ManageCarShowingComponent } from '../modals/manage-car-showing/manage-car-showing.component';
-import { tap } from 'rxjs/operators';
+import { takeUntil, tap } from 'rxjs/operators';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
-import { ServerUser } from 'src/app/entities/user';
 import { CompleteClientDealComponent } from '../modals/complete-client-deal/complete-client-deal.component';
-import { DateUtils } from 'src/app/entities/utils';
+import { Subject, zip } from 'rxjs';
+import { StringHash } from 'src/app/entities/constants';
+
+const availableStatuses = [
+  FieldNames.DealStatus.Deny,
+  FieldNames.DealStatus.InProgress,
+  FieldNames.DealStatus.OnDeposit,
+  FieldNames.DealStatus.Sold,
+];
 
 
 @Component({
@@ -28,7 +35,7 @@ import { DateUtils } from 'src/app/entities/utils';
     CarService
   ]
 })
-export class SettingsClientsComponent implements OnInit {
+export class SettingsClientsComponent implements OnInit, OnDestroy {
   sortedClients: ServerClient.Response[] = [];
   rawClients: ServerClient.Response[] = [];
 
@@ -46,27 +53,39 @@ export class SettingsClientsComponent implements OnInit {
   availableStatuses: { label: FieldNames.DealStatus, value: FieldNames.DealStatus }[] = [];
   selectedStatus: FieldNames.DealStatus[] = [];
 
+  destoyed = new Subject<void>();
+
   constructor(private clientService: ClientService, private dialogService: DialogService, private sessionService: SessionService, private carService: CarService) { }
 
   ngOnInit(): void {
     this.loading = true;
 
-    this.carService.getCars().subscribe(cars => {
-      this.allCars = cars;
+    zip(this.getClients(), this.clientService.getClientFields()).pipe(takeUntil(this.destoyed))
+      .subscribe(([clientsRes, clientFieldsRes]) => {
+        this.fieldConfigs = clientFieldsRes;
 
-      this.setGridSettings();
-    })
+        const carIds = clientsRes.reduce<number[]>((prev, client) => {
+          const clietnCarIds = client.carIds.split(',').map(id => +id);
 
-    this.clientService.getClientFields().subscribe(result => {
-      this.fieldConfigs = result;
-    })
+          return [...prev, ...clietnCarIds]
+        }, []);
 
-    const availableStatuses = [
-      FieldNames.DealStatus.Deny,
-      FieldNames.DealStatus.InProgress,
-      FieldNames.DealStatus.OnDeposit,
-      FieldNames.DealStatus.Sold,
-    ];
+        const query: StringHash = {};
+        query['id'] = carIds.join(',')
+        // query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
+
+        this.carService.getCarsByQuery(query).subscribe(cars => {
+          this.allCars = cars;
+
+          this.loading = false;
+
+          this.setGridSettings();
+        })
+      });
+
+    // this.clientService.getClientFields().subscribe(result => {
+    // })
+
     this.availableStatuses = [
       ...availableStatuses.map(s => ({ label: s, value: s }))
     ];
@@ -75,10 +94,6 @@ export class SettingsClientsComponent implements OnInit {
       FieldNames.DealStatus.InProgress,
       FieldNames.DealStatus.OnDeposit,
     ];
-
-    this.getClients().subscribe(() => {
-      this.loading = false;
-    });
   }
 
   setGridSettings() {
@@ -87,28 +102,30 @@ export class SettingsClientsComponent implements OnInit {
   }
 
   getGridConfig(): GridConfigItem<ServerClient.Response>[] {
-    return [{
-      title: this.strings.id,
-      name: 'id',
-      getValue: (item) => item.id,
-    }, {
-      title: this.strings.date,
-      name: 'date',
-      getValue: (item) => {
-        const timestamp = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date);
-        try {
-          const date = new Date(timestamp);
-          return date instanceof Date ? DateUtils.getFormatedDate(timestamp) : ''
-        } catch (error) {
-          console.error(error);
-          return timestamp
-        }
-      },
-    }, {
-      title: this.strings.source,
-      name: 'source',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.source),
-    }, {
+    return [
+    // {
+    //   title: this.strings.id,
+    //   name: 'id',
+    //   getValue: (item) => item.id,
+    // }, {
+    //   title: this.strings.date,
+    //   name: 'date',
+    //   getValue: (item) => {
+    //     const timestamp = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date);
+    //     try {
+    //       const date = new Date(timestamp);
+    //       return date instanceof Date ? DateUtils.getFormatedDate(timestamp) : ''
+    //     } catch (error) {
+    //       console.error(error);
+    //       return timestamp
+    //     }
+    //   },
+    // }, {
+    //   title: this.strings.source,
+    //   name: 'source',
+    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.source),
+    // },
+    {
       title: this.strings.name,
       name: 'name',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.name),
@@ -116,11 +133,13 @@ export class SettingsClientsComponent implements OnInit {
       title: this.strings.number,
       name: 'number',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.number),
-    }, {
-      title: this.strings.email,
-      name: 'email',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.email),
-    }, {
+    },
+    // {
+    //   title: this.strings.email,
+    //   name: 'email',
+    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.email),
+    // },
+    {
       title: this.strings.carIds,
       name: 'carIds',
       getValue: (item) => {
@@ -130,15 +149,17 @@ export class SettingsClientsComponent implements OnInit {
           return `${FieldsUtils.getFieldValue(c, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(c, FieldNames.Car.model)}`;
         }).join(', ')
       },
-    }, {
-      title: this.strings.paymentType,
-      name: 'paymentType',
-      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.paymentType),
-    }, {
-      title: this.strings.tradeInAuto,
-      name: 'tradeInAuto',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.tradeInAuto),
-    }, {
+    },
+    // {
+    //   title: this.strings.paymentType,
+    //   name: 'paymentType',
+    //   getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.paymentType),
+    // }, {
+    //   title: this.strings.tradeInAuto,
+    //   name: 'tradeInAuto',
+    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.tradeInAuto),
+    // },
+    {
       title: this.strings.dealStatus,
       name: 'dealStatus',
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
@@ -277,5 +298,9 @@ export class SettingsClientsComponent implements OnInit {
           });
         }
       })
+  }
+
+  ngOnDestroy(): void {
+    this.destoyed.next();
   }
 }

@@ -24,6 +24,7 @@ import { TransformToCarShooting } from '../modals/transform-to-car-shooting/tran
 import { UploadCarMediaComponent } from '../modals/upload-car-media/upload-car-media.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsCarsStrings } from './settings-cars.strings';
+import { CarStatusLists, QueryCarTypes } from './cars.enums';
 
 type UIFilter = {
   title: string;
@@ -95,19 +96,6 @@ function calculateComission(price: number) {
   }
 
   return commission;
-}
-
-export enum QueryCarTypes {
-  byAdmin = 'by-admin',
-  myCallBase = 'my-call-base',
-  myCallBaseReady = 'my-call-base-ready',
-  allCallBase = 'all-call-base',
-  allCallBaseReady = 'all-call-base-ready',
-  myShootingBase = 'my-shooting-base',
-  allShootingBase = 'all-shooting-base',
-  shootedBase = 'shooted-base',
-  carsForSale = 'cars-for-sale',
-  carsForSaleTemp = 'cars-for-sale-temp',
 }
 
 @Component({
@@ -406,12 +394,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         ];
         break;
       case QueryCarTypes.carsForSale:
-        this.availableRawStatuses = [
-          FieldNames.CarStatus.customerService_InProgress,
-          FieldNames.CarStatus.customerService_OnPause,
-          FieldNames.CarStatus.customerService_OnDelete,
-          FieldNames.CarStatus.customerService_Sold,
-        ];
+        this.availableRawStatuses = CarStatusLists[QueryCarTypes.carsForSale];
         break;
       case QueryCarTypes.carsForSaleTemp:
         this.availableRawStatuses = [

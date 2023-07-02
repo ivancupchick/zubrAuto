@@ -1,6 +1,6 @@
 export type ExpressionHash<T> = {
   [P in keyof Partial<T>]: string[];
-}
+} & Object;
 export interface StringHash {
   [key: string]: string;
 }
@@ -183,6 +183,9 @@ export const getGetAllByOneColumnExpressionQuery = <T>(tableName: string, expres
 }
 
 export const getGetAllByExpressionAndQuery = <T>(tableName: string, expressions: ExpressionHash<T>) => {
+  // expressions = Object.keys(expressions).reduce((prev, curKey) => {
+
+  // }, {})
   return `SELECT * FROM \`${tableName}\` WHERE (${
     Object.keys(expressions).map(key => `${key} IN (${expressions[key].map(e => `'${e}'`).join(',')})`).join(' AND ')
   });`

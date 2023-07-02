@@ -39,7 +39,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
       this.scrollHeight = this.elem.nativeElement.offsetHeight  - 20;
     }
   }
-  
+
   get gridData(): GridItemType[] {
     return this._gridData;
   }

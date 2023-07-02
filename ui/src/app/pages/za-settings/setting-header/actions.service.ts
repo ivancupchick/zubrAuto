@@ -8,7 +8,7 @@ import { CreateCallBaseComponent } from '../modals/create-call-base/create-call-
 import { CreateCarComponent } from '../modals/create-car/create-car.component';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
-import { QueryCarTypes } from '../settings-cars/settings-cars.component';
+import { QueryCarTypes } from '../settings-cars/cars.enums';
 
 export interface ActionsItem {
   label: string,

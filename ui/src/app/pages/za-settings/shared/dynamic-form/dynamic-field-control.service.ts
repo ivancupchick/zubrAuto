@@ -28,7 +28,7 @@ export class DynamicFieldControlService {
   }
 
   getDynamicFieldsFromDBFields(dbFields: UIRealField[]) {
-
+    const requiredFields = ['name', 'number', 'deal-status']
 
     const fields: DynamicFieldBase<string>[] = dbFields
       .filter(dbField => !FlagField.Is(dbField, FlagField.Flags.Virtual))
@@ -38,7 +38,7 @@ export class DynamicFieldControlService {
           value: dbField.hasOwnProperty('value') ? dbField.value : '',
           key: dbField.name,
           label: 'Default title',
-          required: false, // TODO check required bit + user bit // rethink about it
+          required: requiredFields.includes(dbField.name), // false, // TODO check required bit + user bit // rethink about it
           readonly: FlagField.Is(dbField, FlagField.Flags.System),
           order: 1,
           controlType: dbField.type,

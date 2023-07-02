@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { zip } from 'rxjs';
 import { CarStatistic, ServerCar, UICarShowingStatistic } from 'src/app/entities/car';
-import { BDModels } from 'src/app/entities/constants';
+import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { DateUtils } from 'src/app/entities/utils';
@@ -47,7 +47,11 @@ export class ManageCarShowingComponent implements OnInit {
 
     this.setGridSettings();
 
-    this.carService.getCars().subscribe(cars => {
+    const query: StringHash = {};
+    query['id'] = this.carIds.join(',')
+    // query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
+
+    this.carService.getCarsByQuery(query).subscribe(cars => {
       const clientCars = cars.filter(car => this.carIds.includes(car.id));
       this.cars = clientCars;
 
@@ -81,8 +85,6 @@ export class ManageCarShowingComponent implements OnInit {
 
             this.carStatistics = [...result];
           });
-
-          // this.carStatistics = .;
 
           this.setGridSettings();
           this.loading = false;

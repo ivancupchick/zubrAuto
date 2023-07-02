@@ -12,6 +12,8 @@ import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-fi
 import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
 import { CarChip, SelectCarComponent } from '../select-car/select-car.component';
+import { StringHash } from 'src/app/entities/constants';
+import { CarStatusLists, QueryCarTypes } from '../../settings-cars/cars.enums';
 
 @Component({
   selector: 'za-create-client',
@@ -90,14 +92,17 @@ export class CreateClientComponent implements OnInit {
 
         return newField;
       }))
-        .map(fc => this.updateFieldConfig(fc)).map(f => { f.required = true; return f; });
+        .map(fc => this.updateFieldConfig(fc));
 
     this.dynamicFormFields = formFields;
 
 
     this.loading = true;
 
-    this.carService.getCars().subscribe(cars => {
+    const query: StringHash = {};
+    query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
+
+    this.carService.getCarsByQuery(query).subscribe(cars => {
       this.allCars = cars.filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
       // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
       // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready

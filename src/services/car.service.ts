@@ -9,7 +9,7 @@ import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
 import fieldRepository from "../repositories/base/field.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
-import { StringHash } from "../utils/sql-queries";
+import { ExpressionHash, StringHash } from "../utils/sql-queries";
 import carInfoGetterService from "./car-info-getter.service";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
@@ -151,12 +151,18 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
   }
 
   async getCarsByQuery(query: StringHash) {
+    const carIds = query['id'] ? new Set<string>((query['id']).split(',')) : new Set<string>();
+    delete query['id'];
+
     const keys = Object.keys(query);
 
-    const needCarFields = await fieldRepository.find({
-      domain: [`${FieldDomains.Car}`],
-      name: keys
-    });
+    const needCarFields =
+      keys.length > 0
+        ? await fieldRepository.find({
+            domain: [`${FieldDomains.Car}`],
+            name: keys,
+          })
+        : [];
 
     needCarFields.forEach(f => {
       if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
@@ -169,29 +175,35 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       }
     })
 
-    const values = keys.map(k => query[k].split(','));
+    const queryValues = keys.map(k => query[k].split(','));
     const rValues = [];
-    values.forEach(v => {
-      v.forEach(vv => rValues.push(vv));
+    queryValues.forEach(queryValue => {
+      queryValue.forEach(vv => rValues.push(vv));
     })
 
-    const needCarChaines = await fieldChainRepository.find({
+    const needCarChainesOptions: ExpressionHash<Models.FieldChain> = {
       sourceName: [`${Models.CARS_TABLE_NAME}`],
-      // добавить sourceIds !
-      fieldId: needCarFields.map(f => `${f.id}`),
-      value: rValues,
-    });
+    }
 
-    const carIds = new Set<string>();
+    if (carIds && carIds.size > 0) {
+      needCarChainesOptions.sourceId = [...carIds];
+    }
 
-    needCarChaines.forEach(ch => {
-      carIds.add(`${ch.sourceId}`)
-    });
+    if (needCarFields.length > 0) {
+      needCarChainesOptions.fieldId = needCarFields.map(f => `${f.id}`);
+      needCarChainesOptions.value = rValues;
+    }
 
-    const carIdsArr = [...carIds];
+    const needCarChaines = needCarFields.length > 0 ? await fieldChainRepository.find(needCarChainesOptions) : [];
 
-    const cars = carIdsArr.length > 0 ? await carRepository.find({
-      id: carIdsArr
+    if (needCarChaines.length > 0) {
+      needCarChaines.forEach(ch => {
+        carIds.add(`${ch.sourceId}`)
+      });
+    }
+
+    const cars = carIds.size > 0 ? await carRepository.find({
+      id: [...carIds]
     }) : [];
 
     const [

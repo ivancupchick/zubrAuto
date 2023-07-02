@@ -2,7 +2,7 @@
 
 <p-table
   *ngIf="scrollHeight"
-  [scrollHeight]="scrollHeight + 'px'" [virtualScroll]="true" [virtualRowHeight]="24"
+  [scrollHeight]="scrollHeight + 'px'" [virtualScroll]="true" [virtualScrollItemSize]="24"
   [(contextMenuSelection)]="contextSelectedItem" [contextMenu]="cm"
   styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
   [value]="gridData"

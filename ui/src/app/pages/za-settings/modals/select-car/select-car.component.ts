@@ -4,7 +4,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ServerCar } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
-import { QueryCarTypes } from '../../settings-cars/settings-cars.component';
+import { QueryCarTypes } from '../../settings-cars/cars.enums';
 
 export interface CarChip {
   id: number;

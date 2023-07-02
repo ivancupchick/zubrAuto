@@ -46,7 +46,7 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       fieldId: f.id,
       value: f.value,
       sourceName: Models.CLIENTS_TABLE_NAME
-    })))
+    })));
 
     return client;
   }

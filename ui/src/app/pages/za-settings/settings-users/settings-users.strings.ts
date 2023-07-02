@@ -1,12 +1,12 @@
 export const settingsUsersStrings = {
-  contactCenter: 'Колл-Центр',
-  contactCenterChief: 'Нач. Колл-Центра',
-  carShooting: 'Отдел Съёмки',
-  carShootingChief: 'Нач. Отдела Съёмки',
-  customerService: 'Работа с Клиентами',
-  customerServiceChief: 'Нач. Работы с Клиентами',
-  carSales: 'Отдел Продаж',
-  carSalesChief: 'Нач. Отдела Продаж',
+  contactCenter: 'Сотрудник ОКЦ',
+  contactCenterChief: 'Начальник ОКЦ',
+  carShooting: 'Сотрудник ОСА',
+  carShootingChief: 'Начальник ОСА',
+  customerService: 'Сотрудник ОРК',
+  customerServiceChief: 'Начальник ОРК',
+  carSales: 'Сотрудник ОПА',
+  carSalesChief: 'Начальник ОПА',
 
   name: 'ФИО'
 };
