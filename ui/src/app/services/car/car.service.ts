@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Observable, of } from 'rxjs';
 import { FieldService } from '../field/field.service';
-import { ServerFile, CarStatistic, RealCarForm, ServerCar, UICarStatistic } from 'src/app/entities/car';
+import { ServerFile, CarStatistic, RealcarQuestionnaire, ServerCar, UICarStatistic } from 'src/app/entities/car';
 import { concatMap, map, mergeMap } from 'rxjs/operators';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
@@ -220,18 +220,18 @@ export class CarService {
     )
   }
 
-  saveOldWorksheet(carId: number, oldWorksheet = '') {
+  saveOldcarQuestionnaire(carId: number, oldcarQuestionnaire = '') {
     return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
       concatMap(allFields => {
-        const oldWorksheetConfig = allFields.find(field => field.name === FieldNames.Car.oldWorksheet);
+        const oldcarQuestionnaireConfig = allFields.find(field => field.name === FieldNames.Car.oldcarQuestionnaire);
 
-        console.log(oldWorksheetConfig);
+        console.log(oldcarQuestionnaireConfig);
 
-        if (oldWorksheetConfig) {
-          const oldWorksheetField = FieldsUtils.setFieldValue(oldWorksheetConfig, oldWorksheet);
+        if (oldcarQuestionnaireConfig) {
+          const oldcarQuestionnaireField = FieldsUtils.setFieldValue(oldcarQuestionnaireConfig, oldcarQuestionnaire);
 
           const car: ServerCar.UpdateRequest = {
-            fields: [oldWorksheetField]
+            fields: [oldcarQuestionnaireField]
           }
           return this.updateCar(car, carId)
         } else {
@@ -287,18 +287,18 @@ export class CarService {
       );
   }
 
-  editCarForm(id: number, carForm: RealCarForm) {
+  editcarQuestionnaire(id: number, carQuestionnaire: RealcarQuestionnaire) {
     return this.fieldService.getFieldsByDomain(FieldDomains.Car).pipe(
       concatMap(allFields => {
-        const form = JSON.stringify(carForm);
+        const form = JSON.stringify(carQuestionnaire);
 
-        const worksheetConfig = allFields.find(field => field.name === FieldNames.Car.worksheet);
+        const carQuestionnaireConfig = allFields.find(field => field.name === FieldNames.Car.carQuestionnaire);
 
-        if (worksheetConfig) {
-          const worksheetField = FieldsUtils.setFieldValue(worksheetConfig, form);
+        if (carQuestionnaireConfig) {
+          const carQuestionnaireField = FieldsUtils.setFieldValue(carQuestionnaireConfig, form);
 
           const car: ServerCar.UpdateRequest = {
-            fields: [worksheetField]
+            fields: [carQuestionnaireField]
           }
           return this.updateCar(car, id)
         } else {

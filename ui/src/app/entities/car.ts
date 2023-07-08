@@ -1,7 +1,7 @@
 import { ServerFile as serverFile } from '../../../../src/entities/File'
 import { ServerCar as serverCar } from '../../../../src/entities/Car'
 import { ServerCarImage as serverCarImage } from '../../../../src/entities/Car'
-import { CarFormEnums as carForm } from '../../../../src/entities/FieldNames';
+import { carQuestionnaireEnums as carQuestionnaire } from '../../../../src/entities/FieldNames';
 import { CarStatistic as carStatistic } from '../../../../src/entities/CarStatistic';
 import { FieldsUtils } from './field';
 import { FieldNames } from './FieldNames';
@@ -31,7 +31,7 @@ export const descriptionTemplate = `<p>Внимание! Осмотр автом
 export import ServerCar = serverCar;
 export import ServerFile = serverFile;
 export import ServerCarImage = serverCarImage;
-export import CarFormEnums = carForm;
+export import carQuestionnaireEnums = carQuestionnaire;
 export import CarStatistic = carStatistic
 import { StringHash } from './constants';
 
@@ -59,22 +59,22 @@ export function getCarStatus(car: ServerCar.Response): FieldNames.CarStatus {
 }
 
 export type CarQuestionnaireHash = {
-  [key in CarFormEnums.CarQuestionnaire]: string;
+  [key in carQuestionnaireEnums.CarQuestionnaire]: string;
 };
 export type GeneralConditionHash = {
-  [key in CarFormEnums.GeneralCondition]: string;
+  [key in carQuestionnaireEnums.GeneralCondition]: string;
 };
 export type InspectionHash = {
-  [key in CarFormEnums.Inspection]: string;
+  [key in carQuestionnaireEnums.Inspection]: string;
 };
 export type ExteriorInspectionHash = {
-  [key in CarFormEnums.ExteriorInspection]: string;
+  [key in carQuestionnaireEnums.ExteriorInspection]: string;
 };
 export type CheckboxesHash = {
-  [key in CarFormEnums.Checkboxes]: string;
+  [key in carQuestionnaireEnums.Checkboxes]: string;
 };
 
-export interface ICarForm {
+export interface IcarQuestionnaire {
   carQuestionnaire: CarQuestionnaireHash,
   generalCondition: GeneralConditionHash,
   inspection: InspectionHash,
@@ -83,7 +83,7 @@ export interface ICarForm {
   description: string,
 }
 
-export class RealCarForm implements ICarForm {
+export class RealcarQuestionnaire implements IcarQuestionnaire {
   carQuestionnaire!: CarQuestionnaireHash;
   generalCondition!: GeneralConditionHash;
   inspection!: InspectionHash;
@@ -91,73 +91,73 @@ export class RealCarForm implements ICarForm {
   checkboxes!: CheckboxesHash;
   description!: string;
 
-  constructor(carForm: ICarForm | null, car?: ServerCar.Response) {
-    this.carQuestionnaire = CarFormEnumsFactory.createCarQuestionnaire();
+  constructor(carQuestionnaire: IcarQuestionnaire | null, car?: ServerCar.Response) {
+    this.carQuestionnaire = carQuestionnaireEnumsFactory.createCarQuestionnaire();
 
-    if (carForm?.carQuestionnaire) {
+    if (carQuestionnaire?.carQuestionnaire) {
       for (const key in this.carQuestionnaire) {
-        if (Object.prototype.hasOwnProperty.call(carForm.carQuestionnaire, key)) {
-          const element = carForm.carQuestionnaire[key as CarFormEnums.CarQuestionnaire];
+        if (Object.prototype.hasOwnProperty.call(carQuestionnaire.carQuestionnaire, key)) {
+          const element = carQuestionnaire.carQuestionnaire[key as carQuestionnaireEnums.CarQuestionnaire];
 
           if (element != null) {
-            this.carQuestionnaire[key as CarFormEnums.CarQuestionnaire] = element
+            this.carQuestionnaire[key as carQuestionnaireEnums.CarQuestionnaire] = element
           }
         }
       }
     }
-    this.generalCondition = CarFormEnumsFactory.createGeneralCondition();
+    this.generalCondition = carQuestionnaireEnumsFactory.createGeneralCondition();
 
-    if (carForm?.generalCondition) {
+    if (carQuestionnaire?.generalCondition) {
       for (const key in this.generalCondition) {
-        if (Object.prototype.hasOwnProperty.call(carForm.generalCondition, key)) {
-          const element = carForm.generalCondition[key as CarFormEnums.GeneralCondition];
+        if (Object.prototype.hasOwnProperty.call(carQuestionnaire.generalCondition, key)) {
+          const element = carQuestionnaire.generalCondition[key as carQuestionnaireEnums.GeneralCondition];
 
           if (element != null) {
-            this.generalCondition[key as CarFormEnums.GeneralCondition] = element
+            this.generalCondition[key as carQuestionnaireEnums.GeneralCondition] = element
           }
         }
       }
     }
-    this.inspection = CarFormEnumsFactory.createInspection(car);
+    this.inspection = carQuestionnaireEnumsFactory.createInspection(car);
 
-    if (carForm?.inspection) {
+    if (carQuestionnaire?.inspection) {
       for (const key in this.inspection) {
-        if (Object.prototype.hasOwnProperty.call(carForm.inspection, key)) {
-          const element = carForm.inspection[key as CarFormEnums.Inspection];
+        if (Object.prototype.hasOwnProperty.call(carQuestionnaire.inspection, key)) {
+          const element = carQuestionnaire.inspection[key as carQuestionnaireEnums.Inspection];
 
           if (element != null) {
-            this.inspection[key as CarFormEnums.Inspection] = element
+            this.inspection[key as carQuestionnaireEnums.Inspection] = element
           }
         }
       }
     }
-    this.exteriorInspection = CarFormEnumsFactory.createExteriorInspection();
+    this.exteriorInspection = carQuestionnaireEnumsFactory.createExteriorInspection();
 
-    if (carForm?.exteriorInspection) {
+    if (carQuestionnaire?.exteriorInspection) {
       for (const key in this.exteriorInspection) {
-        if (Object.prototype.hasOwnProperty.call(carForm.exteriorInspection, key)) {
-          const element = carForm.exteriorInspection[key as CarFormEnums.ExteriorInspection];
+        if (Object.prototype.hasOwnProperty.call(carQuestionnaire.exteriorInspection, key)) {
+          const element = carQuestionnaire.exteriorInspection[key as carQuestionnaireEnums.ExteriorInspection];
 
           if (element != null) {
-            this.exteriorInspection[key as CarFormEnums.ExteriorInspection] = element
+            this.exteriorInspection[key as carQuestionnaireEnums.ExteriorInspection] = element
           }
         }
       }
     }
-    this.checkboxes = CarFormEnumsFactory.createCheckboxes();
+    this.checkboxes = carQuestionnaireEnumsFactory.createCheckboxes();
 
-    if (carForm?.checkboxes) {
+    if (carQuestionnaire?.checkboxes) {
       for (const key in this.checkboxes) {
-        if (Object.prototype.hasOwnProperty.call(carForm.checkboxes, key)) {
-          const element = carForm.checkboxes[key as CarFormEnums.Checkboxes];
+        if (Object.prototype.hasOwnProperty.call(carQuestionnaire.checkboxes, key)) {
+          const element = carQuestionnaire.checkboxes[key as carQuestionnaireEnums.Checkboxes];
 
           if (element != null) {
-            this.checkboxes[key as CarFormEnums.Checkboxes] = element
+            this.checkboxes[key as carQuestionnaireEnums.Checkboxes] = element
           }
         }
       }
     }
-    this.description = carForm?.description || descriptionTemplate;
+    this.description = carQuestionnaire?.description || descriptionTemplate;
   }
 
   getValidation(): boolean {
@@ -165,11 +165,11 @@ export class RealCarForm implements ICarForm {
 
     const checkValid = (object: StringHash) => Object.keys(object).forEach(c => {
       const exludeList: string[] = [
-        CarFormEnums.Inspection.stateInspection,
-        CarFormEnums.Inspection.termStateInspection,
-        CarFormEnums.Inspection.valueAddedTax,
-        CarFormEnums.Inspection.guarantee,
-        CarFormEnums.Inspection.termGuarantee,
+        carQuestionnaireEnums.Inspection.stateInspection,
+        carQuestionnaireEnums.Inspection.termStateInspection,
+        carQuestionnaireEnums.Inspection.valueAddedTax,
+        carQuestionnaireEnums.Inspection.guarantee,
+        carQuestionnaireEnums.Inspection.termGuarantee,
         'bodyCondition'
       ]
 
@@ -204,7 +204,7 @@ export class RealCarForm implements ICarForm {
   }
 }
 
-abstract class CarFormEnumsFactory {
+abstract class carQuestionnaireEnumsFactory {
   static createCarQuestionnaire(): CarQuestionnaireHash {
     return {
       country: '',

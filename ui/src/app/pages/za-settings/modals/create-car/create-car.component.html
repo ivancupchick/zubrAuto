@@ -1,16 +1,16 @@
 <h1>Форма владельца машины</h1>
 <za-dynamic-form #carOwnerForm (changed)="setValidForm($event, 'carOwnerFormValid')" [fields]="carOwnerDynamicFormFields"></za-dynamic-form>
 <h1>Форма машины</h1>
-<za-dynamic-form #carForm (changed)="setValidForm($event, 'carFormValid')" [fields]="carDynamicFormFields"></za-dynamic-form>
+<za-dynamic-form #carQuestionnaire (changed)="setValidForm($event, 'carQuestionnaireValid')" [fields]="carDynamicFormFields"></za-dynamic-form>
 <h1>Наши объявления</h1>
-<za-dynamic-form #ourLinksForm (changed)="setValidForm($event, 'carFormValid')" [fields]="ourLinksDynamicFormFields"></za-dynamic-form>
+<za-dynamic-form #ourLinksForm (changed)="setValidForm($event, 'carQuestionnaireValid')" [fields]="ourLinksDynamicFormFields"></za-dynamic-form>
 <ng-container *ngIf="shootingDateAvailable">
   <h1>Дата/Время съёмки</h1>
   <p-calendar appendTo="body" [(ngModel)]="shootingDate" [showTime]="true" hourFormat="24" [firstDayOfWeek]="1"></p-calendar>
 </ng-container>
 
 <div class="footer">
-  <button pButton icon="pi pi-save" [disabled]="!carFormValid || !carOwnerFormValid" type="button" [label]="!!car ? 'Редактировать' : 'Создать'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button>
+  <button pButton icon="pi pi-save" [disabled]="!carQuestionnaireValid || !carOwnerFormValid" type="button" [label]="!!car ? 'Редактировать' : 'Создать'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button>
   <button pButton icon="pi pi-times" type="button" label="Отмена" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
 </div>
 

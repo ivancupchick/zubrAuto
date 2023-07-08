@@ -28,7 +28,7 @@ export namespace FieldNames {
     comment = 'comment',
     dateOfLastStatusChange = 'date-of-last-status-change',
     dateOfLastCustomerCall = 'date-of-last-customer-call',
-    worksheet = 'worksheet',
+    carQuestionnaire = 'carQuestionnaire',
     bargain = 'bargain',
     adPrice = 'ad-price',
     shootingDate = 'shooting-date',
@@ -44,7 +44,7 @@ export namespace FieldNames {
     linkToVideo = 'link-to-video',
     dateOfNextAction = 'date-of-next-action',
     dateOfFirstStatusChange = 'date-of-first-status-change',
-    oldWorksheet = 'old-worksheet',
+    oldcarQuestionnaire = 'old-carQuestionnaire',
   }
 
   export enum CarStatus {
@@ -82,7 +82,7 @@ export namespace FieldNames {
   }
 }
 
-export namespace CarFormEnums {
+export namespace carQuestionnaireEnums {
   export enum CarQuestionnaire {
     country = 'country',
     firstSaleCountry = 'firstSaleCountry',
