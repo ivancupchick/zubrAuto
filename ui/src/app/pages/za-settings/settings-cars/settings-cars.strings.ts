@@ -24,7 +24,7 @@ export const settingsCarsStrings = {
   comment: 'Комментарии',
   dateOfLastStatusChange: 'Дата действия',
   dateOfNextAction: 'Дата действия',
-  worksheet: 'Анкета',
+  carQuestionnaire: 'Анкета',
   bargain: 'Торг',
   adPrice: 'Цена на сайте',
   shootingDate: 'Дата съёмки',

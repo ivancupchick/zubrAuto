@@ -1,4 +1,4 @@
-export namespace CarFormEnumsStrings {
+export namespace carQuestionnaireEnumsStrings {
   export enum AdditionalStrings {
     description = 'Описание',
   }
