@@ -4,10 +4,10 @@
       <p-tabPanel header="Анкета авто">
         <div class="comment-wrapper">
           <h5>Анкета авто:</h5>
-          <input type="text" pInputText [(ngModel)]="oldWorksheet">
+          <input type="text" pInputText [(ngModel)]="oldCarQuestionnaire">
 
           <div class="car-buttons">
-            <p-button [disabled]="oldWorksheet === ''" type="button" styleClass="p-button-help" icon="pi pi-save" label="Сохранить" (onClick)="saveOldWorksheet()"></p-button>
+            <p-button [disabled]="oldCarQuestionnaire === ''" type="button" styleClass="p-button-help" icon="pi pi-save" label="Сохранить" (onClick)="saveOldCarQuestionnaire()"></p-button>
           </div>
         </div>
       </p-tabPanel>

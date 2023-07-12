@@ -31,7 +31,7 @@ export class CreateCarComponent implements OnInit {
   @Input() carOwnerFieldConfigs: ServerField.Response[] = [];
   @Input() carFieldConfigs: ServerField.Response[] = [];
 
-  carFormValid = false;
+  carQuestionnaireValid = false;
   carOwnerFormValid = false;
 
   shootingDateAvailable = false;
@@ -43,14 +43,14 @@ export class CreateCarComponent implements OnInit {
   ourLinksDynamicFormFields: DynamicFieldBase<string>[] = [];
 
 
-  @ViewChild('carForm', { read: DynamicFormComponent }) carDynamicForm!: DynamicFormComponent;
+  @ViewChild('carQuestionnaire', { read: DynamicFormComponent }) carDynamicForm!: DynamicFormComponent;
   @ViewChild('carOwnerForm', { read: DynamicFormComponent }) carOwnerDynamicForm!: DynamicFormComponent;
   @ViewChild('ourLinksForm', { read: DynamicFormComponent }) ourLinksDynamicForm!: DynamicFormComponent;
 
   carExcludeFields: FieldNames.Car[] = [
     // FieldNames.Car.date,
     'ownerNumber' as FieldNames.Car,
-    FieldNames.Car.worksheet,
+    FieldNames.Car.carQuestionnaire,
     FieldNames.Car.contactCenterSpecialistId,
     FieldNames.Car.carShootingSpecialistId,
     FieldNames.Car.bargain,
@@ -115,7 +115,7 @@ export class CreateCarComponent implements OnInit {
       }))
         .map(fc => this.updateFieldConfig(fc));
 
-    const carFormFields = this.dfcs.getDynamicFieldsFromDBFields(this.carFieldConfigs
+    const carQuestionnaireFields = this.dfcs.getDynamicFieldsFromDBFields(this.carFieldConfigs
       .filter(fc => !this.carExcludeFields.includes(fc.name as FieldNames.Car))
       .map(fc => {
         const fieldValue = !!this.car
@@ -144,7 +144,7 @@ export class CreateCarComponent implements OnInit {
 
     if (this.sessionService.isAdminOrHigher || this.sessionService.isContactCenterChief) {
       const contactCenterField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.contactCenterSpecialistId);
-      carFormFields.push(
+      carQuestionnaireFields.push(
         this.dfcs.getDynamicFieldFromOptions({
           id: contactCenterField?.id || -1,
           value: this.car?.fields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId)?.value || 'None',
@@ -159,7 +159,7 @@ export class CreateCarComponent implements OnInit {
         })
       )
       // const carShootingField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.carShootingSpecialistId);
-      // carFormFields.push(
+      // carQuestionnaireFields.push(
       //   this.dfcs.getDynamicFieldFromOptions({
       //     id: carShootingField?.id || -1,
       //     value: this.car?.fields.find(f => f.name === FieldNames.Car.carShootingSpecialistId)?.value || 'None',
@@ -183,7 +183,7 @@ export class CreateCarComponent implements OnInit {
 
       // const shootingTimeField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.shootingTime);
 
-      // carFormFields.push(
+      // carQuestionnaireFields.push(
       //   this.dfcs.getDynamicFieldFromOptions({
       //     id: shootingDateField?.id || -1,
       //     value: `${this.car && FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.shootingDate) || +(new Date())}`,
@@ -200,7 +200,7 @@ export class CreateCarComponent implements OnInit {
     const ourLinksField = this.carFieldConfigs.find(c => c.name === FieldNames.Car.ourLinks) as ServerField.Response;
 
     this.carOwnerDynamicFormFields = carOwnerFormFields;
-    this.carDynamicFormFields = carFormFields;
+    this.carDynamicFormFields = carQuestionnaireFields;
 
     const ourLinksDynamicFormFields = [
       this.dfcs.getDynamicFieldFromOptions({
@@ -291,9 +291,9 @@ export class CreateCarComponent implements OnInit {
     this.ref.close(false);
   }
 
-  setValidForm(value: boolean, string: 'carFormValid' | 'carOwnerFormValid') {
-    if (string === 'carFormValid') {
-      this.carFormValid = value;
+  setValidForm(value: boolean, string: 'carQuestionnaireValid' | 'carOwnerFormValid') {
+    if (string === 'carQuestionnaireValid') {
+      this.carQuestionnaireValid = value;
     } else {
       this.carOwnerFormValid = value;
     }

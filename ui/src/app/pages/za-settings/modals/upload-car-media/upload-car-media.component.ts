@@ -19,7 +19,7 @@ import { environment } from 'src/environments/environment';
 export class UploadCarMediaComponent implements OnInit {
   loading = false;
   link: string = '';
-  oldWorksheet: string = '';
+  oldCarQuestionnaire: string = '';
   images: ServerFile.Response[] = [];
   stateImages: ServerFile.Response[] = [];
 
@@ -68,7 +68,7 @@ export class UploadCarMediaComponent implements OnInit {
     this.car = car;
 
     this.link = FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.linkToVideo);
-    this.oldWorksheet = FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.oldWorksheet);
+    this.oldCarQuestionnaire = FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.oldCarQuestionnaire);
 
     this.mainPhotoId = FieldsUtils.getFieldNumberValue(this.car, FieldNames.Car.mainPhotoId);
 
@@ -213,9 +213,9 @@ export class UploadCarMediaComponent implements OnInit {
     })
   }
 
-  saveOldWorksheet() {
+  saveOldCarQuestionnaire() {
     this.loading = true;
-    this.carService.saveOldWorksheet(this.car.id, this.oldWorksheet).subscribe(res => {
+    this.carService.saveOldCarQuestionnaire(this.car.id, this.oldCarQuestionnaire).subscribe(res => {
       this.carService.getCar(this.car.id).subscribe(car => {
         this.setCar(car);
 

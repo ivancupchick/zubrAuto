@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable, of, Subject, Subscription, zip } from 'rxjs';
 import { map, takeUntil, tap } from 'rxjs/operators';
-import { ServerFile, getCarStatus, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
+import { ServerFile, getCarStatus, ICarQuestionnaire, RealCarQuestionnaire, ServerCar } from 'src/app/entities/car';
 import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -16,7 +16,7 @@ import { ClientService } from 'src/app/services/client/client.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { ChangeCarStatusComponent } from '../modals/change-car-status/change-car-status.component';
-import { CreateCarFormComponent } from '../modals/create-car-form/create-car-form.component';
+import { CreateCarQuestionnaireComponent } from '../modals/create-car-questionnaire/create-car-questionnaire.component';
 import { CreateCarComponent } from '../modals/create-car/create-car.component';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { CustomerServiceCallComponent } from '../modals/customer-service-call/customer-service-call.component';
@@ -809,18 +809,18 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       name: 'year',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Car.year),
     }, {
-      title: this.strings.worksheet,
-      name: 'worksheet',
+      title: this.strings.carQuestionnaire,
+      name: 'carQuestionnaire',
       getValue: (item) => {
-        let worksheet: ICarForm | null;
+        let carQuestionnaire: ICarQuestionnaire | null;
         try {
-          const worksheetSource = FieldsUtils.getFieldStringValue(item, FieldNames.Car.worksheet) || '';
-          worksheet = JSON.parse(worksheetSource)
+          const carQuestionnaireSource = FieldsUtils.getFieldStringValue(item, FieldNames.Car.carQuestionnaire) || '';
+          carQuestionnaire = JSON.parse(carQuestionnaireSource)
         } catch (error) {
-          worksheet = null;
+          carQuestionnaire = null;
         }
 
-        const form = new RealCarForm(worksheet);
+        const form = new RealCarQuestionnaire(carQuestionnaire);
 
         return form.getValidation() ? 'Есть' : 'Нет'
       },
@@ -1065,7 +1065,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                     || this.sessionService.isCarSalesChief
                     || this.sessionService.isCustomerService
                     || this.sessionService.isCustomerServiceChief,
-      handler: (car) => this.createOrEditCarForm(car),
+      handler: (car) => this.createOrEditCarQuestionnaire(car),
     }, {
       title: 'Создать клиента',
       icon: 'pi pi-fw pi-mobile',
@@ -1217,8 +1217,8 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.subscribeOnCloseModalRef(car, ref);
   }
 
-  createOrEditCarForm(car: ServerCar.Response) {
-    const ref = this.dialogService.open(CreateCarFormComponent, {
+  createOrEditCarQuestionnaire(car: ServerCar.Response) {
+    const ref = this.dialogService.open(CreateCarQuestionnaireComponent, {
       data: {
         car: car,
         readOnly: this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
@@ -1589,20 +1589,20 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   private validatePublish(car: ServerCar.Response): Observable<boolean> {
-    if (!FieldsUtils.getFieldValue(car, FieldNames.Car.worksheet)) {
+    if (!FieldsUtils.getFieldValue(car, FieldNames.Car.carQuestionnaire)) {
       alert('У авто нету анкеты!');
       return of(false);
     }
 
-    let worksheet: ICarForm | null;
+    let carQuestionnaire: ICarQuestionnaire | null;
     try {
-      const worksheetSource = FieldsUtils.getFieldStringValue(car, FieldNames.Car.worksheet) || '';
-      worksheet = JSON.parse(worksheetSource)
+      const carQuestionnaireSource = FieldsUtils.getFieldStringValue(car, FieldNames.Car.carQuestionnaire) || '';
+      carQuestionnaire = JSON.parse(carQuestionnaireSource)
     } catch (error) {
-      worksheet = null;
+      carQuestionnaire = null;
     }
 
-    const form = new RealCarForm(worksheet);
+    const form = new RealCarQuestionnaire(carQuestionnaire);
 
     if (!form.getValidation()) {
       alert('Анкета не заполнена!');

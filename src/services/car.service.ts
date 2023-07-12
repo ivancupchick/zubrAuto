@@ -3,7 +3,7 @@ import { FieldDomains, FieldType, RealField, ServerField } from "../entities/Fie
 import { FieldNames } from "../entities/FieldNames";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
-import carFormRepository from "../repositories/base/car-form.repository";
+import carQuestionnaireRepository from "../repositories/base/car-form.repository";
 import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
@@ -30,7 +30,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
     const [
       allCarChaines,
       allCarOwnerChaines,
-      carForms
+      carQuestionnaires
     ] = await Promise.all([
       (cars.length > 0 ? await fieldChainRepository.find({
         sourceName: [`${Models.CARS_TABLE_NAME}`],
@@ -41,38 +41,38 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
         sourceId: carOwners.map(c => `${c.id}`),
       }) : []),
 
-      (cars.length > 0 ? await carFormRepository.find({
+      (cars.length > 0 ? await carQuestionnaireRepository.find({
         carId: cars.map(c => `${c.id}`)
       }) : [])
     ]);
 
     const contactCenterSpecialistIdField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId);
-    const workSheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
+    const carQuestionnaireField = carFields.find(f => f.name === FieldNames.Car.carQuestionnaire);
     const contactCenterSpecialistField = carFields.find(f => f.name === FieldNames.Car.contactCenterSpecialist);
 
-    if (!contactCenterSpecialistIdField || !workSheetField || !contactCenterSpecialistField) {
-      throw new Error("!contactCenterSpecialistIdField || !workSheetField || !contactCenterSpecialistField");
+    if (!contactCenterSpecialistIdField || !carQuestionnaireField || !contactCenterSpecialistField) {
+      throw new Error("!contactCenterSpecialistIdField || !carQuestionnaireField || !contactCenterSpecialistField");
     }
 
     const allUsers = await userService.getAll();
     // const contactCenterSpecialistIdChaines = allCarChaines.filter(ch => ch.fieldId === contactCenterSpecialistIdField.id)
     // const contactCenterSpecialistChaines = allCarChaines.filter(ch => ch.fieldId === contactCenterSpecialistField.id)
-    // const workSheetChaines = allCarChaines.filter(ch => ch.fieldId === workSheetField.id)
+    // const carQuestionnaireChaines = allCarChaines.filter(ch => ch.fieldId === carQuestionnaireField.id)
 
     const result: ServerCar.Response[] = cars.map(car => {
       const carChaines = allCarChaines.filter(ch => ch.sourceId === car.id)
       const carOwnerChaines = allCarOwnerChaines.filter(ch => ch.sourceId === car.ownerId)
 
-      const carForm = carForms.find(form => form.carId === car.id);
+      const carQuestionnaire = carQuestionnaires.find(form => form.carId === car.id);
 
       const userIdValue = carChaines.find(ch => ch.fieldId === contactCenterSpecialistIdField.id);
       const userId: number = userIdValue && userIdValue.value ? +userIdValue.value : -1;
       const user = allUsers.find(dbUser => dbUser.id === userId);
 
-      if (carForm) {
+      if (carQuestionnaire) {
         carChaines.find(ch => {
-          if (ch.fieldId === workSheetField.id) {
-            ch.value = carForm.content;
+          if (ch.fieldId === carQuestionnaireField.id) {
+            ch.value = carQuestionnaire.content;
             return true;
           }
 
@@ -375,15 +375,15 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       await carRepository.updateById(carId, { ownerId: carOwner.id });
     }
 
-    const worksheetField = carFields.find(f => f.name === FieldNames.Car.worksheet);
+    const carQuestionnaireField = carFields.find(f => f.name === FieldNames.Car.carQuestionnaire);
 
-    if (worksheetField && worksheetField.value) {
-      const carFormExist = await carFormRepository.findOne({ carId: [`${carId}`]});
+    if (carQuestionnaireField && carQuestionnaireField.value) {
+      const carQuestionnaireExist = await carQuestionnaireRepository.findOne({ carId: [`${carId}`]});
 
-      if (carFormExist) {
-        await carFormRepository.updateById(carFormExist.id, { content: worksheetField.value });
+      if (carQuestionnaireExist) {
+        await carQuestionnaireRepository.updateById(carQuestionnaireExist.id, { content: carQuestionnaireField.value });
       } else {
-        await carFormRepository.create({ carId, content: worksheetField.value });
+        await carQuestionnaireRepository.create({ carId, content: carQuestionnaireField.value });
       }
     }
 
@@ -394,7 +394,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
     const fieldChainForCreate = carFields.filter(f => !fieldsExists.find(fe => fe.fieldId === f.id))
 
-    const cf = carFields.filter(f => f.name !== FieldNames.Car.worksheet);
+    const cf = carFields.filter(f => f.name !== FieldNames.Car.carQuestionnaire);
     await Promise.all(cf.map(f => fieldChainRepository.update({
       value: f.value
     }, {

@@ -1,24 +1,24 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CarFormEnums, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
+import { CarQuestionnaireEnums, ICarQuestionnaire, RealCarQuestionnaire, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
-import { CarFormEnumsStrings } from './car-form.strings';
+import { CarQuestionnaireEnumsStrings } from './car-questionnaire.strings';
 import { SessionService } from 'src/app/services/session/session.service';
 import * as CryptoJS from 'crypto-js';
 
-type CarFormEnum = CarFormEnums.CarQuestionnaire | CarFormEnums.Checkboxes | CarFormEnums.ExteriorInspection | CarFormEnums.GeneralCondition | CarFormEnums.Inspection;
+type CarQuestionnaireEnum = CarQuestionnaireEnums.CarQuestionnaire | CarQuestionnaireEnums.Checkboxes | CarQuestionnaireEnums.ExteriorInspection | CarQuestionnaireEnums.GeneralCondition | CarQuestionnaireEnums.Inspection;
 
-interface CarFormField<T = string> {
+interface carQuestionnaireField<T = string> {
   title: string;
   key: T;
   id: string;
 }
 
-type FieldObject<T extends CarFormEnum> = {
-  [key in T]: CarFormField<T>
+type FieldObject<T extends CarQuestionnaireEnum> = {
+  [key in T]: carQuestionnaireField<T>
 }
 
 function keys<T extends Object>(obj: T): Array<keyof typeof obj> {
@@ -26,17 +26,15 @@ function keys<T extends Object>(obj: T): Array<keyof typeof obj> {
 }
 
 @Component({
-  selector: 'za-create-car-form',
-  templateUrl: './create-car-form.component.html',
-  styleUrls: ['./create-car-form.component.scss'],
+  selector: 'za-create-car-questionnaire',
+  templateUrl: './create-car-questionnaire.component.html',
+  styleUrls: ['./create-car-questionnaire.component.scss'],
   providers: [
     CarService
   ]
 })
-export class CreateCarFormComponent implements OnInit {
-  readonly carFormStrings = CarFormEnumsStrings;
-
-  CarFormEnums = CarFormEnums;
+export class CreateCarQuestionnaireComponent implements OnInit {
+  readonly carQuestionnaireStrings = CarQuestionnaireEnumsStrings;
 
   loading: boolean = false;
   readOnly: boolean = false;
@@ -55,14 +53,14 @@ export class CreateCarFormComponent implements OnInit {
   public checkboxesForm!: UntypedFormGroup;
   public descriptionForm!: UntypedFormGroup;
 
-  public carQuestionnaireFields!: CarFormField<CarFormEnums.CarQuestionnaire>[];
-  public generalConditionFields!: CarFormField<CarFormEnums.GeneralCondition>[];
-  public inspectionFields!: FieldObject<CarFormEnums.Inspection>;
-  public exteriorInspectionFields!: FieldObject<CarFormEnums.ExteriorInspection>;
-  public checkboxesFields!: FieldObject<CarFormEnums.Checkboxes>;
-  public descriptionField!: CarFormField;
+  public carQuestionnaireFields!: carQuestionnaireField<CarQuestionnaireEnums.CarQuestionnaire>[];
+  public generalConditionFields!: carQuestionnaireField<CarQuestionnaireEnums.GeneralCondition>[];
+  public inspectionFields!: FieldObject<CarQuestionnaireEnums.Inspection>;
+  public exteriorInspectionFields!: FieldObject<CarQuestionnaireEnums.ExteriorInspection>;
+  public checkboxesFields!: FieldObject<CarQuestionnaireEnums.Checkboxes>;
+  public descriptionField!: carQuestionnaireField;
 
-  private carForm!: RealCarForm;
+  private carQuestionnaire!: RealCarQuestionnaire;
 
   constructor(
     private ref: DynamicDialogRef,
@@ -76,46 +74,46 @@ export class CreateCarFormComponent implements OnInit {
     this.car = this.config.data.car;
     this.readOnly = this.config.data.readOnly;
     this.isAdminRole = this.sessionService.isRealAdminOrHigher;
-    let worksheet: ICarForm | null;
+    let carQuestionnaire: ICarQuestionnaire | null;
 
     try {
-      const worksheetSource = FieldsUtils.getFieldValue(this.car, FieldNames.Car.worksheet) || '';
-      worksheet = JSON.parse(worksheetSource)
+      const carQuestionnaireSource = FieldsUtils.getFieldValue(this.car, FieldNames.Car.carQuestionnaire) || '';
+      carQuestionnaire = JSON.parse(carQuestionnaireSource)
     } catch (error) {
-      worksheet = null;
+      carQuestionnaire = null;
     }
 
-    this.carForm = worksheet
-      ? new RealCarForm(worksheet, this.car)
-      : new RealCarForm(null, this.car);
+    this.carQuestionnaire = carQuestionnaire
+      ? new RealCarQuestionnaire(carQuestionnaire, this.car)
+      : new RealCarQuestionnaire(null, this.car);
 
-    this.carQuestionnaireFields = keys(this.carForm.carQuestionnaire)
-      .map(field => ({ title: this.carFormStrings.CarQuestionnaire[field], key: field, id: `carQuestionnaire-${field}` }));
+    this.carQuestionnaireFields = keys(this.carQuestionnaire.carQuestionnaire)
+      .map(field => ({ title: this.carQuestionnaireStrings.CarQuestionnaire[field], key: field, id: `carQuestionnaire-${field}` }));
 
-    this.generalConditionFields = keys(this.carForm.generalCondition)
-      .map(field => ({ title: this.carFormStrings.GeneralCondition[field], key: field, id: `generalCondition-${field}` }));
+    this.generalConditionFields = keys(this.carQuestionnaire.generalCondition)
+      .map(field => ({ title: this.carQuestionnaireStrings.GeneralCondition[field], key: field, id: `generalCondition-${field}` }));
 
-    this.inspectionFields =  keys(this.carForm.inspection).reduce((previos, field) => {
+    this.inspectionFields =  keys(this.carQuestionnaire.inspection).reduce((previos, field) => {
       return {...previos,
-        [field]: { title: this.carFormStrings.Inspection[field], key: field, id: `inspection-${field}`
+        [field]: { title: this.carQuestionnaireStrings.Inspection[field], key: field, id: `inspection-${field}`
       }};
-    }, {} as FieldObject<CarFormEnums.Inspection>);
+    }, {} as FieldObject<CarQuestionnaireEnums.Inspection>);
 
-    this.exteriorInspectionFields =  keys(this.carForm.exteriorInspection).reduce((previos, field) => {
+    this.exteriorInspectionFields =  keys(this.carQuestionnaire.exteriorInspection).reduce((previos, field) => {
       return {...previos,
-        [field]: { title: this.carFormStrings.ExteriorInspection[field], key: field, id: `exteriorInspection-${field}`
+        [field]: { title: this.carQuestionnaireStrings.ExteriorInspection[field], key: field, id: `exteriorInspection-${field}`
       }};
-    }, new Object() as FieldObject<CarFormEnums.ExteriorInspection>)
+    }, new Object() as FieldObject<CarQuestionnaireEnums.ExteriorInspection>)
 
-    this.checkboxesFields =  keys(this.carForm.checkboxes).reduce((previos, field) => {
+    this.checkboxesFields =  keys(this.carQuestionnaire.checkboxes).reduce((previos, field) => {
       return {...previos,
-        [field]: { title: this.carFormStrings.Checkboxes[field], key: field, id: `checkboxes-${field}`
+        [field]: { title: this.carQuestionnaireStrings.Checkboxes[field], key: field, id: `checkboxes-${field}`
       }};
-    }, new Object() as FieldObject<CarFormEnums.Checkboxes>)
+    }, new Object() as FieldObject<CarQuestionnaireEnums.Checkboxes>)
 
-    this.descriptionField = { title: this.carFormStrings.AdditionalStrings.description, key: 'description', id: `description` }
+    this.descriptionField = { title: this.carQuestionnaireStrings.AdditionalStrings.description, key: 'description', id: `description` }
 
-    this.carQuestionnaireForm = this.fb.group( this.carForm.carQuestionnaire );
+    this.carQuestionnaireForm = this.fb.group( this.carQuestionnaire.carQuestionnaire );
     for (const key in this.carQuestionnaireForm.controls) {
       if (Object.prototype.hasOwnProperty.call(this.carQuestionnaireForm.controls, key)) {
         const element = this.carQuestionnaireForm.controls[key];
@@ -125,7 +123,7 @@ export class CreateCarFormComponent implements OnInit {
       }
     }
 
-    this.generalConditionForm = this.fb.group( this.carForm.generalCondition );
+    this.generalConditionForm = this.fb.group( this.carQuestionnaire.generalCondition );
     for (const key in this.generalConditionForm.controls) {
       if (Object.prototype.hasOwnProperty.call(this.generalConditionForm.controls, key)) {
         const element = this.generalConditionForm.controls[key];
@@ -135,16 +133,16 @@ export class CreateCarFormComponent implements OnInit {
       }
     }
 
-    this.inspectionForm = this.fb.group( this.carForm.inspection );
+    this.inspectionForm = this.fb.group( this.carQuestionnaire.inspection );
     for (const key in this.inspectionForm.controls) {
       if (Object.prototype.hasOwnProperty.call(this.inspectionForm.controls, key)) {
         const element = this.inspectionForm.controls[key];
         const excluseFields: string[] = [
-          CarFormEnums.Inspection.guarantee,
-          CarFormEnums.Inspection.termGuarantee,
-          CarFormEnums.Inspection.stateInspection,
-          CarFormEnums.Inspection.termStateInspection,
-          CarFormEnums.Inspection.valueAddedTax,
+          CarQuestionnaireEnums.Inspection.guarantee,
+          CarQuestionnaireEnums.Inspection.termGuarantee,
+          CarQuestionnaireEnums.Inspection.stateInspection,
+          CarQuestionnaireEnums.Inspection.termStateInspection,
+          CarQuestionnaireEnums.Inspection.valueAddedTax,
           'bodyCondition',
         ]
         if (!excluseFields.includes(key)) {
@@ -155,7 +153,7 @@ export class CreateCarFormComponent implements OnInit {
       }
     }
 
-    this.exteriorInspectionForm = this.fb.group( this.carForm.exteriorInspection );
+    this.exteriorInspectionForm = this.fb.group( this.carQuestionnaire.exteriorInspection );
     for (const key in this.exteriorInspectionForm.controls) {
       if (Object.prototype.hasOwnProperty.call(this.exteriorInspectionForm.controls, key)) {
         const element = this.exteriorInspectionForm.controls[key];
@@ -165,9 +163,9 @@ export class CreateCarFormComponent implements OnInit {
       }
     }
 
-    this.checkboxesForm = this.fb.group( this.carForm.checkboxes );
+    this.checkboxesForm = this.fb.group( this.carQuestionnaire.checkboxes );
 
-    this.descriptionForm = this.fb.group({ description: this.carForm.description });
+    this.descriptionForm = this.fb.group({ description: this.carQuestionnaire.description });
     for (const key in this.descriptionForm.controls) {
       if (Object.prototype.hasOwnProperty.call(this.descriptionForm.controls, key)) {
         const element = this.descriptionForm.controls[key];
@@ -189,7 +187,7 @@ export class CreateCarFormComponent implements OnInit {
       const control = this.carQuestionnaireForm.controls[iterator.key];
 
       if (!control.pristine) {
-        this.carForm.carQuestionnaire[iterator.key] = control.value;
+        this.carQuestionnaire.carQuestionnaire[iterator.key] = control.value;
       }
     }
 
@@ -197,46 +195,46 @@ export class CreateCarFormComponent implements OnInit {
       const control = this.generalConditionForm.controls[iterator.key];
 
       if (!control.pristine) {
-        this.carForm.generalCondition[iterator.key] = control.value;
+        this.carQuestionnaire.generalCondition[iterator.key] = control.value;
       }
     }
 
     for (const key in this.inspectionFields) {
       if (Object.prototype.hasOwnProperty.call(this.inspectionFields, key)) {
-        const element = this.inspectionFields[key as CarFormEnums.Inspection];
+        const element = this.inspectionFields[key as CarQuestionnaireEnums.Inspection];
         const control = this.inspectionForm.controls[element.key];
         if (!control.pristine) {
-          this.carForm.inspection[element.key] = control.value;
+          this.carQuestionnaire.inspection[element.key] = control.value;
         }
       }
     }
 
     for (const key in this.exteriorInspectionFields) {
       if (Object.prototype.hasOwnProperty.call(this.exteriorInspectionFields, key)) {
-        const element = this.exteriorInspectionFields[key as CarFormEnums.ExteriorInspection];
+        const element = this.exteriorInspectionFields[key as CarQuestionnaireEnums.ExteriorInspection];
         const control = this.exteriorInspectionForm.controls[element.key];
         if (!control.pristine) {
-          this.carForm.exteriorInspection[element.key] = control.value;
+          this.carQuestionnaire.exteriorInspection[element.key] = control.value;
         }
       }
     }
 
     for (const key in this.checkboxesFields) {
       if (Object.prototype.hasOwnProperty.call(this.checkboxesFields, key)) {
-        const element = this.checkboxesFields[key as CarFormEnums.Checkboxes];
+        const element = this.checkboxesFields[key as CarQuestionnaireEnums.Checkboxes];
         const control = this.checkboxesForm.controls[element.key];
         if (!control.pristine) {
-          this.carForm.checkboxes[element.key] = control.value;
+          this.carQuestionnaire.checkboxes[element.key] = control.value;
         }
       }
     }
 
     const descriptionControl = this.descriptionForm.controls['description'];
     if (!descriptionControl.pristine) {
-      this.carForm.description = descriptionControl.value;
+      this.carQuestionnaire.description = descriptionControl.value;
     }
 
-    this.carService.editCarForm(this.car.id, this.carForm).subscribe(res => {
+    this.carService.editCarQuestionnaire(this.car.id, this.carQuestionnaire).subscribe(res => {
       this.loading = false;
 
       if (res) {
@@ -254,15 +252,15 @@ export class CreateCarFormComponent implements OnInit {
 
   createTestData() {
     this.inspectionForm.patchValue({
-      ...CarFormEnumsStrings.Inspection,
+      ...CarQuestionnaireEnumsStrings.Inspection,
       date: (new Date()).toLocaleDateString('ru-RU'),
       vin: CryptoJS.AES.encrypt( new Date().toString(), 'vin').toString().slice(0,17),
     });
     this.generalConditionForm.patchValue({
-      ...CarFormEnumsStrings.GeneralCondition
+      ...CarQuestionnaireEnumsStrings.GeneralCondition
     });
     this.carQuestionnaireForm.patchValue({
-      ...CarFormEnumsStrings.CarQuestionnaire
+      ...CarQuestionnaireEnumsStrings.CarQuestionnaire
     });
   }
 

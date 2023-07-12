@@ -67,10 +67,9 @@ import { CreateUserComponent } from './modals/create-user/create-user.component'
 import { SelectAccessComponent } from './modals/select-access/select-access.component';
 import { SettingsHomeComponent } from './settings-home/settings-home.component';
 import { CreateCallBaseComponent } from './modals/create-call-base/create-call-base.component';
-import { NewWorksheetComponent } from './new-worksheet/new-worksheet.component';
 import { NewQuestionnaireComponent } from './new-questionnaire/new-questionnaire.component';
 import { TransformToCarShooting } from './modals/transform-to-car-shooting/transform-to-car-shooting.component';
-import { CreateCarFormComponent } from './modals/create-car-form/create-car-form.component';
+import { CreateCarQuestionnaireComponent } from './modals/create-car-questionnaire/create-car-questionnaire.component';
 import { UploadCarMediaComponent } from './modals/upload-car-media/upload-car-media.component';
 import { ChangeCarStatusComponent } from './modals/change-car-status/change-car-status.component';
 import { SelectCarComponent } from './modals/select-car/select-car.component';
@@ -78,6 +77,7 @@ import { ManageCarShowingComponent } from './modals/manage-car-showing/manage-ca
 import { CreateCarShowingComponent } from './modals/create-car-showing/create-car-showing.component';
 import { CustomerServiceCallComponent } from './modals/customer-service-call/customer-service-call.component';
 import { CompleteClientDealComponent } from './modals/complete-client-deal/complete-client-deal.component';
+import { NewCarQuestionnaireComponent } from './new-carQuestionnaire/new-carQuestionnaire.component';
 
 
 
@@ -111,9 +111,9 @@ const routes: Routes = [{
       canActivate: [AuthGuard],
       component: SettingsRolesComponent
     }, {
-      path: 'new-worksheet',
+      path: 'new-carQuestionnaire',
       canActivate: [AuthGuard],
-      component: NewWorksheetComponent
+      component: NewCarQuestionnaireComponent
     }, {
       path: 'new-questionnaire',
       canActivate: [AuthGuard],
@@ -142,17 +142,17 @@ const routes: Routes = [{
     SelectAccessComponent,
     SettingsHomeComponent,
     CreateCallBaseComponent,
-    NewWorksheetComponent,
     NewQuestionnaireComponent,
     TransformToCarShooting,
-    CreateCarFormComponent,
+    CreateCarQuestionnaireComponent,
     UploadCarMediaComponent,
     ChangeCarStatusComponent,
     SelectCarComponent,
     ManageCarShowingComponent,
     CreateCarShowingComponent,
     CustomerServiceCallComponent,
-    CompleteClientDealComponent
+    CompleteClientDealComponent,
+    NewCarQuestionnaireComponent
   ],
   imports: [
     RouterModule.forChild(routes),

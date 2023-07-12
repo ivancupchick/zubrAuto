@@ -95,8 +95,8 @@ export namespace Models {
     access: number;
   }
 
-  export const CAR_FORMS_TABLE_NAME = 'carForms';
-  export interface CarForm {
+  export const CAR_FORMS_TABLE_NAME = 'carQuestionnaires';
+  export interface CarQuestionnaire {
     id: number;
     carId: number;
     content: string;

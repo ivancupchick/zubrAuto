@@ -176,7 +176,7 @@ export class ActionsService {
     //  {
     //   label: 'Создать Анкету',
     //   icon: 'pi pi-fw pi-camera',
-    //   routerLink: 'new-worksheet',
+    //   routerLink: 'new-carQuestionnaire',
     //   visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
     // }, {
     //   label: 'создать опросник продавца',
