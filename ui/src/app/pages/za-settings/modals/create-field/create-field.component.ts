@@ -48,6 +48,8 @@ export class CreateFieldComponent implements OnInit {
       } else {
         alert(this.isEdit ? 'Поле не обновлено' :'Поле не создано');
       }
+    },() => {
+      this.loading = false;
     })
   }
 

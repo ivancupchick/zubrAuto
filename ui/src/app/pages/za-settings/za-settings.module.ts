@@ -51,7 +51,7 @@ import { FieldService } from 'src/app/services/field/field.service';
 import { SettingsCarsComponent } from './settings-cars/settings-cars.component';
 import { CreateCarComponent } from './modals/create-car/create-car.component';
 import { SpinnerModule } from 'src/app/shared/components/spinner/spinner.module';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from 'src/app/interceptors/auth.interceptor';
 import { AuthGuard } from './auth.guard';
 import { SessionService } from 'src/app/services/session/session.service';
@@ -78,6 +78,8 @@ import { ManageCarShowingComponent } from './modals/manage-car-showing/manage-ca
 import { CreateCarShowingComponent } from './modals/create-car-showing/create-car-showing.component';
 import { CustomerServiceCallComponent } from './modals/customer-service-call/customer-service-call.component';
 import { CompleteClientDealComponent } from './modals/complete-client-deal/complete-client-deal.component';
+import { ServerErrorMessageInterceptor } from 'src/app/services/interseptors/server-error-message-interceptor.service';
+import { MessageService } from 'primeng/api';
 
 
 
@@ -203,6 +205,12 @@ const routes: Routes = [{
     SettingsResolver,
     SessionService,
     FieldService,
+    MessageService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ServerErrorMessageInterceptor,
+      multi: true,
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
