@@ -5,6 +5,8 @@ import { ServerClient } from 'src/app/entities/client';
 import { ClientService } from 'src/app/services/client/client.service';
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
 import { CarChip, SelectCarComponent } from '../select-car/select-car.component';
+import { FieldsUtils } from '../../../../../../../src/utils/field.utils';
+import { FieldNames } from '../../../../../../../src/entities/FieldNames';
 
 @Component({
   selector: 'za-complete-client-deal',
@@ -16,19 +18,16 @@ import { CarChip, SelectCarComponent } from '../select-car/select-car.component'
   ]
 })
 export class CompleteClientDealComponent implements OnInit {
+  private selectedRealCars: ServerCar.Response[] = [];
+
   @Input() client: ServerClient.Response | undefined = undefined;
   @Input() cars: ServerCar.Response[] = [];
 
   selectedCars: CarChip[] = [];
-
-  private selectedRealCars: ServerCar.Response[] = [];
-
   loading = false;
 
   constructor(
     private clientService: ClientService,
-    private dfcs: DynamicFieldControlService,
-
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
     private dialogService: DialogService,
@@ -38,14 +37,25 @@ export class CompleteClientDealComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if(this.cars){      
+      this.selectedCars = this.cars.map(item => {
+        const car = this.cars.find(c => c.id === item.id);
+        const markModel = car
+          ? `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
+          : '';
+
+        car && this.selectedRealCars.push(car);
+
+        return {
+          id: item.id,
+          markModel,
+        }
+      });
+    }
   }
 
   openEditCars() {
-    console.log(this.selectedCars);
-    console.log(this.selectedRealCars);
-
-
-    const ref = this.dialogService.open(SelectCarComponent, {
+    this.dialogService.open(SelectCarComponent, {
       data: {
         cars: this.selectedCars,
         origignalCars: this.selectedRealCars,

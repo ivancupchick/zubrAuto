@@ -113,7 +113,6 @@ function calculateComission(price: number) {
 export class SettingsCarsComponent implements OnInit, OnDestroy {
   queryCarTypes = QueryCarTypes;
   FieldTypes = FieldType;
-  allCarsNumber = 0;
   rangeDates: [Date, Date | null] | null = null;
   sortedCars: ServerCar.Response[] = [];
   rawCars: ServerCar.Response[] = [];
@@ -196,6 +195,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       return DateUtils.getFormatedDate(+(FieldsUtils.getFieldValue(c, FieldNames.Car.shootingDate) || 0))
     }
   };
+
+  getAllSelectedCars(): number{
+    return this.selectedCars.length !== 0 ? this.selectedCars.length : this.selected.length;
+  }
 
   getTooltipConfig: ((item: ServerCar.Response) => string) = (car) => {
     return `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
@@ -501,20 +504,16 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     if (Object.keys(query).length > 0) {
       getCarsObs = this.carService.getCarsByQuery(query)
     }
-
-    this.getCarsSubs = (
-      this.carsToSelect.length > 0
-        ? of(this.carsToSelect)
-        : getCarsObs
-      ).pipe(
-        tap((res => {
-          this.loading = false;
-          this.rawCars = [...res];
-          this.generateFilters();
-          this.sortCars();
-        })),
-        takeUntil(this.destroyed)
-      ).subscribe();
+    this.getCarsSubs = getCarsObs.pipe(
+      takeUntil(this.destroyed),
+      tap(res2 => {
+        this.loading = false;
+        this.rawCars = this.carsToSelect.length > 0 ? [...this.carsToSelect, ...res2] : [...res2];
+        this.selectedCars = this.carsToSelect.length > 0 ? [...this.carsToSelect] : [];
+        this.generateFilters();
+        this.sortCars();
+      })
+    ).subscribe();
   }
 
   setGridSettings() {
@@ -631,8 +630,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.filterByModelSearch();
     this.filterByPhoneNumberSearch();
     this.filterBySelectedFilters();
-    this.calculateAllCarsNumber();
-
     this.cd.markForCheck();
   }
 
@@ -727,29 +724,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       const v = FieldsUtils.getFieldNumberValue(car, filterConfig.name) || 0;
       return v >= values[0] && v <= values[1];
     });
-  }
-
-  calculateAllCarsNumber() {
-    switch (this.type) {
-      case QueryCarTypes.carsForSale:
-        const inProgressStatuses = [
-          FieldNames.CarStatus.customerService_InProgress,
-          FieldNames.CarStatus.customerService_OnPause
-        ];
-        this.allCarsNumber = this.rawCars.filter(c => inProgressStatuses.includes(getCarStatus(c))).length;
-        break;
-      case QueryCarTypes.carsForSaleTemp:
-        const inProgressStatuses1 = [
-          FieldNames.CarStatus.carShooting_Ready,
-          FieldNames.CarStatus.customerService_InProgress,
-          FieldNames.CarStatus.customerService_OnPause
-        ];
-        this.allCarsNumber = this.rawCars.filter(c => inProgressStatuses1.includes(getCarStatus(c))).length;
-        break;
-      default:
-        this.allCarsNumber = this.sortedCars.length;
-        break;
-    }
   }
 
   private getGridConfig(): GridConfigItem<ServerCar.Response>[] {
@@ -1392,7 +1366,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   onSelectEntity(cars: ServerCar.Response[]) {
     this.selectedCars = [...cars];
-    this.allCarsNumber = cars.length;
     this.cd.markForCheck();
     this.isSelectCarModalMode && this.onSelectCar.emit(cars);
   }

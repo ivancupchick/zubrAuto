@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { zip } from 'rxjs';
+import { Subject, takeUntil, zip } from 'rxjs';
 import { CarStatistic, ServerCar, UICarShowingStatistic } from 'src/app/entities/car';
 import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils } from 'src/app/entities/field';
@@ -20,7 +20,7 @@ import { CreateCarShowingComponent } from '../create-car-showing/create-car-show
 })
 export class ManageCarShowingComponent implements OnInit {
   loading = false;
-
+  destoyed = new Subject<void>();
   gridConfig!: GridConfigItem<UICarShowingStatistic>[];
   gridActionsConfig: GridActionConfigItem<UICarShowingStatistic>[] = [];
 
@@ -34,9 +34,7 @@ export class ManageCarShowingComponent implements OnInit {
   constructor(
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
-
     private dialogService: DialogService,
-
     private carService: CarService,
   ) { }
 
@@ -46,7 +44,10 @@ export class ManageCarShowingComponent implements OnInit {
     this.loading = true;
 
     this.setGridSettings();
+    this.getShows();
+  }
 
+  getShows(){
     const query: StringHash = {};
     query['id'] = this.carIds.join(',')
     // query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
@@ -160,5 +161,21 @@ export class ManageCarShowingComponent implements OnInit {
       header: 'Редактировать показ',
       width: '70%'
     });
+
+    this.subscribeOnCloseModalRef(ref)
+  }
+
+  subscribeOnCloseModalRef(ref: DynamicDialogRef) {
+    ref.onClose.pipe(takeUntil(this.destoyed))
+      .subscribe(res => {
+        if (res) {
+          this.loading = true;
+          this.getShows();
+        }
+      })
+  }
+
+  ngOnDestroy(): void {
+    this.destoyed.next();
   }
 }

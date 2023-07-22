@@ -42,12 +42,6 @@ export class SelectCarComponent implements OnInit {
 
   save() {
     const result: (CarChip | null)[] = this.selectedCars.map(car => {
-      // const car = this.cars.find(r => r.id === gd.id);
-
-      // if (!car) {
-      //   return null;
-      // }
-
       return {
         id: car.id,
         markModel: this.getCarName(car),
