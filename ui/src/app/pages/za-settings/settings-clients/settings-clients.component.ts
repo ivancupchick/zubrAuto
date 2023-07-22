@@ -75,7 +75,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         query['id'] = carIds.join(',')
         // query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
 
-        this.carService.getCarsByQuery(query).subscribe(cars => {
+        this.carService.getCarsByQuery(query).pipe(takeUntil(this.destoyed)).subscribe(cars => {
           this.allCars = cars;
 
           this.loading = false;
@@ -222,11 +222,22 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       header: 'Редактировать клиента',
       width: '70%'
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   deleteClient(client: ServerClient.Response) {
     this.clientService.deleteClient(client.id)
+    .pipe(takeUntil(this.destoyed))
       .subscribe(res => {
+        if(res){
+          this.loading = true;
+          this.getClients()
+          .pipe(takeUntil(this.destoyed))
+          .subscribe(() => {
+            this.loading = false;
+          });
+        }
       });
   }
 
@@ -243,8 +254,9 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       },
       header: 'Новый клиент',
       width: '70%',
-      // height: '90%',
     });
+
+    this.subscribeOnCloseModalRef(ref);
   }
 
   // addShowing(client: ServerClient.Response) {
@@ -281,7 +293,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   completeDeal(client: ServerClient.Response) {
     const ref = this.dialogService.open(CompleteClientDealComponent, {
       data: {
-        client: client,
+        client,
         cars: this.allCars.filter(c => client.carIds.includes(`${c.id}`)),
       },
       header: 'Завершить сделку',
@@ -302,15 +314,11 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   }
 
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
-    ref.onClose
+    ref.onClose.pipe(takeUntil(this.destoyed))
       .subscribe(res => {
         if (res) {
           this.loading = true;
-          // this.carService.getCars().subscribe((result) => {
-          //   this.rawCars = result;
-          //   this.sortCars();
-          // })
-          this.getClients().subscribe(() => {
+          this.getClients().pipe(takeUntil(this.destoyed)).subscribe(() => {
             this.loading = false;
           });
         }

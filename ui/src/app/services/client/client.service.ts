@@ -15,9 +15,13 @@ const API = 'clients';
 export class ClientService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
-
   getClients(): Observable<ServerClient.Response[]> {
-    return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}`)
+    return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}`);
+  }
+
+  // Геттер для клиентов
+  get clients$(): Observable<ServerClient.Response[]> {
+    return this.getClients();
   }
 
   createClient(value: ServerClient.CreateRequest): Observable<boolean> {

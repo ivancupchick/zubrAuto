@@ -63,6 +63,7 @@ export class CreateCarShowingComponent implements OnInit {
     if (this.statiscticItem) {
       this.selectedCarId = this.statiscticItem.carId;
       this.selectedStatus = this.statiscticItem.content.status;
+      this.showingComment = this.statiscticItem.content.comment
     } else {
       this.selectedCarId = -1;
       this.selectedStatus = '';

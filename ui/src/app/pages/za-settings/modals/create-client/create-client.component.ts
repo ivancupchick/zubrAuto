@@ -3,7 +3,7 @@ import { UntypedFormControl } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { getCarStatus, ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
-import { ServerField, FieldType, UIRealField, FieldsUtils } from 'src/app/entities/field';
+import { ServerField, UIRealField, FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 import { ClientService } from 'src/app/services/client/client.service';
@@ -54,7 +54,6 @@ export class CreateClientComponent implements OnInit {
   constructor(
     private clientService: ClientService,
     private dfcs: DynamicFieldControlService,
-
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
     private dialogService: DialogService,
@@ -107,7 +106,6 @@ export class CreateClientComponent implements OnInit {
       // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
       // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
       );
-
       if (this.client) {
         let carIds: number[] = [];
 
@@ -165,7 +163,7 @@ export class CreateClientComponent implements OnInit {
         if (result) {
           alert('Звонки учтены');
           this.loading = false;
-          this.ref.close(true);
+          this.cancel(true);
         } else {
           this.loading = false;
           alert('Звонки не учтены, нажмите F12, заскриньте красные ошибки в консоле и отправьте администратору.');
@@ -199,7 +197,7 @@ export class CreateClientComponent implements OnInit {
 
       methodObs.subscribe(result => {
         if (result) {
-          this.ref.close(true);
+          this.cancel(true);
         } else {
           this.loading = false;
           alert(!!this.client ? 'Клиент не обновлён' : 'Клиент не создан');
@@ -208,8 +206,8 @@ export class CreateClientComponent implements OnInit {
     }
   }
 
-  cancel() {
-    this.ref.close(false);
+  cancel(value: boolean = false) {
+    this.ref.close(value);
   }
 
   setValidForm(value: boolean) {
@@ -238,7 +236,7 @@ export class CreateClientComponent implements OnInit {
   }
 
   openEditCars() {
-    const ref = this.dialogService.open(SelectCarComponent, {
+    this.dialogService.open(SelectCarComponent, {
       data: {
         cars: this.selectedCars,
         origignalCars: this.selectedRealCars,
@@ -248,13 +246,8 @@ export class CreateClientComponent implements OnInit {
       height: '90%',
     }).onClose.subscribe((res: CarChip[] | boolean) => {
       if (res !== false && Array.isArray(res)) {
-        // const deleteCars = this.originalCarChips.filter(oc => !res.find(r => r.id === oc.id));
-
-        const cars = [...res];
-
         this.selectedRealCars = this.allCars.filter(ac => !!res.find(r => r.id === ac.id))
-
-        this.setCarsToForm(cars);
+        this.setCarsToForm([...res]);
       }
     });
   }
