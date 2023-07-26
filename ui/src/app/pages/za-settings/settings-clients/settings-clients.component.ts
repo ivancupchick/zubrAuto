@@ -45,6 +45,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
   gridConfig!: GridConfigItem<ServerClient.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
+  getColorConfig: ((item: ServerClient.Response) => string) | undefined;
 
   fieldConfigs: ServerField.Response[] = [];
 
@@ -99,6 +100,22 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   setGridSettings() {
     this.gridConfig = this.getGridConfig();
     this.gridActionsConfig = this.getGridActionsConfig();
+    this.getGridColorConfig();
+  }
+
+  getGridColorConfig(){
+    this.getColorConfig = (car) => {
+      const status = getClientStatus(car);
+
+      switch (status) {
+        case FieldNames.DealStatus.Deny: return '#ff00002b'
+        case FieldNames.DealStatus.InProgress: return '#fff'
+        case FieldNames.DealStatus.OnDeposit: return '#07ff003d'
+        case FieldNames.DealStatus.Sold: return '#005dff3d'
+
+        default: return '';
+      }
+    }
   }
 
   getGridConfig(): GridConfigItem<ServerClient.Response>[] {

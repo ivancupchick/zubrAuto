@@ -27,6 +27,10 @@
   </div>
 </p-toolbar>
 <p></p>
-<za-grid [gridConfig]="gridConfig" [gridData]="sortedClients" [actions]="gridActionsConfig"></za-grid>
+<za-grid [gridConfig]="gridConfig"
+  [gridData]="sortedClients"
+  [actions]="gridActionsConfig"
+  [getColorConfig]="getColorConfig"
+></za-grid>
 
 <za-spinner *ngIf="loading"></za-spinner>
