@@ -161,9 +161,14 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       name: 'carIds',
       getValue: (item) => {
         const needCars = this.allCars.filter(c => item.carIds.split(',').map(id => +id).includes(c.id));
-
         return needCars.map(c => {
-          return `${FieldsUtils.getFieldValue(c, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(c, FieldNames.Car.model)}`;
+          return `
+          ${FieldsUtils.getFieldValue(c,FieldNames.Car.mark)}
+          ${FieldsUtils.getFieldValue(c,FieldNames.Car.model)}
+          , ${FieldsUtils.getFieldValue(c,FieldNames.Car.year)}
+          , ${FieldsUtils.getFieldValue(c, FieldNames.Car.engine)}
+          ${FieldsUtils.getFieldValue(c, FieldNames.Car.engineCapacity)}
+          , ${FieldsUtils.getFieldValue(c, FieldNames.Car.transmission)}`;
         }).join(', ')
       },
     },

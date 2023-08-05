@@ -81,60 +81,40 @@ export class FieldsUtils {
     }
 
     const fields = this.getFields(entityOrFieldsArray)
-
-    if (!fields || fields.length < 1) {
+  
+    if (!fields || fields.length === 0) {
       return null;
     }
-
-    for (const field of fields) {
-      if (field.name === name) {
-        return field;
-      }
-    }
-    return null;
+  
+    return fields.find((field) => field.name === name) || null;
   }
 
   static getFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
     const field = this.getField(entityOrFieldsArray, name);
 
     if (field == null) {
-      // console.error(`${name} did not found`)
+      return '';
     }
 
-    if (field && (field.value || field.value === '')) {
-      return field.value;
+    if (['engine', 'transmission'].includes(field.name)) {
+      return field.variants.split(',')[+field.value.split('-')[1]];
     }
 
-    return '';
+    return field.value || '';
   }
 
   static getFieldBooleanValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): boolean {
     const field = this.getField(entityOrFieldsArray, name);
-
-    if (field == null) {
-      // console.error(`${name} did not found`)
-    }
-
     return (!!field && !!+field.value);
   }
 
   static getFieldNumberValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): number {
     const field = this.getField(entityOrFieldsArray, name);
-
-    if (field == null) {
-      // console.error(`${name} did not found`)
-    }
-
     return field && field.value ? +field.value : 0;
   }
 
   static getFieldStringValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
     const field = this.getField(entityOrFieldsArray, name);
-
-    // if (field == null) {
-    //   console.error(`${name} did not found`)
-    // }
-
     return field && field.value != null ? field.value + '' : '';
   }
 
