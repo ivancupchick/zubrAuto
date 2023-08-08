@@ -45,7 +45,6 @@ export class UIRealField  {
 export class FieldsUtils {
   static getDropdownValue(entity: RealField.With.Response, fieldName: string) {
     const field = entity.fields.find(f => f.name === fieldName);
-
     return !field
       ? ''
       : field.variants.split(',').find((variant, index) => `${fieldName}-${index}` === field.value) || ''
@@ -91,7 +90,6 @@ export class FieldsUtils {
 
   static getFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
     const field = this.getField(entityOrFieldsArray, name);
-
     if (field == null) {
       return '';
     }

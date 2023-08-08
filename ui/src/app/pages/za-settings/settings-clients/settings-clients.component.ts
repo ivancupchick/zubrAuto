@@ -10,11 +10,11 @@ import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SessionService } from 'src/app/services/session/session.service';
 import { ManageCarShowingComponent } from '../modals/manage-car-showing/manage-car-showing.component';
-import { takeUntil, tap } from 'rxjs/operators';
+import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { CompleteClientDealComponent } from '../modals/complete-client-deal/complete-client-deal.component';
-import { Subject, zip } from 'rxjs';
+import { Observable, Subject, zip } from 'rxjs';
 import { StringHash } from 'src/app/entities/constants';
 
 const availableStatuses = [
@@ -61,40 +61,38 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loading = true;
 
-    zip(this.getClients(), this.clientService.getClientFields()).pipe(takeUntil(this.destoyed))
-      .subscribe(([clientsRes, clientFieldsRes]) => {
-        this.fieldConfigs = clientFieldsRes;
+    this.getData().pipe(
+      takeUntil(this.destoyed)
+    ).subscribe(cars => {
+      this.allCars = cars;
+      this.loading = false;
+      this.setGridSettings();
+    });
 
-        const carIds = clientsRes.reduce<number[]>((prev, client) => {
-          const clietnCarIds = client.carIds.split(',').map(id => +id);
-
-          return [...prev, ...clietnCarIds]
-        }, []);
-
-        const query: StringHash = {};
-        query['id'] = carIds.join(',')
-        // query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
-
-        this.carService.getCarsByQuery(query).pipe(takeUntil(this.destoyed)).subscribe(cars => {
-          this.allCars = cars;
-
-          this.loading = false;
-
-          this.setGridSettings();
-        })
-      });
-
-    // this.clientService.getClientFields().subscribe(result => {
-    // })
-
-    this.availableStatuses = [
-      ...availableStatuses.map(s => ({ label: s, value: s }))
-    ];
+    this.availableStatuses = availableStatuses.map(s => ({ label: s, value: s }));
 
     this.selectedStatus = [
       FieldNames.DealStatus.InProgress,
       FieldNames.DealStatus.OnDeposit,
     ];
+  }
+
+  getData(): Observable<ServerCar.Response[]> {
+    return zip(this.getClients(), this.clientService.getClientFields()).pipe(
+      takeUntil(this.destoyed),
+      switchMap(([clientsRes, clientFieldsRes]) => {
+        this.fieldConfigs = clientFieldsRes;
+  
+        const carIds = clientsRes.reduce<number[]>((prev, client) => {
+          const clietnCarIds = client.carIds.split(',').map(id => +id);
+          return [...prev, ...clietnCarIds];
+        }, []);
+  
+        const query: StringHash = { id: carIds.join(',') };
+  
+        return this.carService.getCarsByQuery(query);
+      })
+    );
   }
 
   setGridSettings() {
@@ -120,28 +118,6 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
   getGridConfig(): GridConfigItem<ServerClient.Response>[] {
     return [
-    // {
-    //   title: this.strings.id,
-    //   name: 'id',
-    //   getValue: (item) => item.id,
-    // }, {
-    //   title: this.strings.date,
-    //   name: 'date',
-    //   getValue: (item) => {
-    //     const timestamp = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date);
-    //     try {
-    //       const date = new Date(timestamp);
-    //       return date instanceof Date ? DateUtils.getFormatedDate(timestamp) : ''
-    //     } catch (error) {
-    //       console.error(error);
-    //       return timestamp
-    //     }
-    //   },
-    // }, {
-    //   title: this.strings.source,
-    //   name: 'source',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.source),
-    // },
     {
       title: this.strings.name,
       name: 'name',
@@ -151,11 +127,6 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       name: 'number',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.number),
     },
-    // {
-    //   title: this.strings.email,
-    //   name: 'email',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.email),
-    // },
     {
       title: this.strings.carIds,
       name: 'carIds',
@@ -172,20 +143,17 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         }).join(', ')
       },
     },
-    // {
-    //   title: this.strings.paymentType,
-    //   name: 'paymentType',
-    //   getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.paymentType),
-    // }, {
-    //   title: this.strings.tradeInAuto,
-    //   name: 'tradeInAuto',
-    //   getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.tradeInAuto),
-    // },
     {
       title: this.strings.dealStatus,
       name: 'dealStatus',
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
-    }];
+    },
+    {
+      title: this.strings.nextAction,
+      name: 'nextAction',
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
+    }
+  ];
   }
 
   getGridActionsConfig(): GridActionConfigItem<ServerClient.Response>[] {
@@ -319,15 +287,16 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   }
 
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
-    ref.onClose.pipe(takeUntil(this.destoyed))
-      .subscribe(res => {
-        if (res) {
-          this.loading = true;
-          this.getClients().pipe(takeUntil(this.destoyed)).subscribe(() => {
-            this.loading = false;
-          });
-        }
-      })
+    ref.onClose.pipe(takeUntil(this.destoyed)).subscribe(res => {
+      if (res) {
+        this.loading = true;
+        this.getData().pipe(takeUntil(this.destoyed)).subscribe(cars => {
+          this.allCars = cars;
+          this.loading = false;
+          this.setGridSettings();
+        });
+      }
+    });
   }
 
   ngOnDestroy(): void {

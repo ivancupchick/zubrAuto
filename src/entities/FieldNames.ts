@@ -6,6 +6,7 @@ export namespace FieldNames {
     number = 'number',
     email = 'email',
     paymentType = 'payment-type',
+    nextAction = 'next-action',
     tradeInAuto = 'trade-in-auto',
     dealStatus = 'deal-status',
     comment = 'comment',

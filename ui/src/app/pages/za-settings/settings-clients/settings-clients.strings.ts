@@ -14,4 +14,5 @@ export const settingsClientsStrings: StringHash = {
   tradeInAuto: 'Авто в зачет',
   dealStatus: 'Статус сделки',
   comment: 'Коммент',
+  nextAction: 'Следующее действие'
 }
