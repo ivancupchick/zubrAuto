@@ -132,6 +132,9 @@ export class SettingsFieldsComponent implements OnInit {
           case FieldNames.Client.tradeInAuto:
             title = settingsClientsStrings.tradeInAuto;
             break;
+          case FieldNames.Client.nextAction:
+            title = settingsClientsStrings.nextAction;
+            break;
         }
         break;
       case FieldDomains.Car:

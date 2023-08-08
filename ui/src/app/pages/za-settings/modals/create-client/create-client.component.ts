@@ -230,6 +230,9 @@ export class CreateClientComponent implements OnInit {
       case FieldNames.Client.dealStatus:
         field.label = settingsClientsStrings.dealStatus;
         break;
+      case FieldNames.Client.nextAction:
+        field.label = settingsClientsStrings.nextAction;
+        break;
     }
 
     return field;
