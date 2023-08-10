@@ -163,30 +163,39 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       buttonClass: 'secondary',
       disabled: () => false,
       handler: (client) => this.updateClient(client)
-    }, {
+    }, 
+    {
+      title: 'Следующее действие',
+      icon: 'question-circle',
+      buttonClass: 'success',
+      handler: (client) => this.updateSpecificField(client, 'next-action')
+    }, 
+    {
+      title: 'Изменить статус сделки',
+      icon: 'check-circle',
+      buttonClass: 'success',
+      handler: (client) => this.updateSpecificField(client, 'deal-status')
+    }, 
+    {
+      title: 'Показы',
+      icon: 'list',
+      buttonClass: 'success',
+      handler: (client) => this.manageCarShowings(client)
+    }, 
+    {
       title: 'Удалить',
       icon: 'times',
       buttonClass: 'danger',
       handler: (client) => this.deleteClient(client),
       disabled: () => !this.sessionService.isAdminOrHigher,
       available: () => this.sessionService.isAdminOrHigher
-    }, {
-      title: 'Показы',
-      icon: 'list',
-      buttonClass: 'success',
-      handler: (client) => this.manageCarShowings(client)
-    }, {
-      title: 'Завершить сделку',
-      icon: 'check-circle',
-      buttonClass: 'success',
-      handler: (client) => this.completeDeal(client)
-    },
-    {
-      title: 'Следующее действие',
-      icon: 'fast-forward',
-      buttonClass: 'success',
-      handler: (client) => this.updateSpecificField(client, 'next-action')
     }
+    // {
+    //   title: 'Завершить сделку',
+    //   icon: 'check-circle',
+    //   buttonClass: 'success',
+    //   handler: (client) => this.completeDeal(client)
+    // },
     ];
 
     return configs.filter(config => !config.available || config.available());
@@ -285,19 +294,19 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
     this.subscribeOnCloseModalRef(ref);
   }
 
-  completeDeal(client: ServerClient.Response) {
-    const ref = this.dialogService.open(CompleteClientDealComponent, {
-      data: {
-        client,
-        cars: this.allCars.filter(c => client.carIds.includes(`${c.id}`)),
-      },
-      header: 'Завершить сделку',
-      width: '70%',
-      height: '50%',
-    });
+  // completeDeal(client: ServerClient.Response) {
+  //   const ref = this.dialogService.open(CompleteClientDealComponent, {
+  //     data: {
+  //       client,
+  //       cars: this.allCars.filter(c => client.carIds.includes(`${c.id}`)),
+  //     },
+  //     header: 'Завершить сделку',
+  //     width: '70%',
+  //     height: '50%',
+  //   });
 
-    this.subscribeOnCloseModalRef(ref);
-  }
+  //   this.subscribeOnCloseModalRef(ref);
+  // }
 
   getClients() {
     return this.clientService.getClients().pipe(
