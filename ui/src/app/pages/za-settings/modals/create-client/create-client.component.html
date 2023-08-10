@@ -6,7 +6,7 @@
 
 <za-dynamic-form (changed)="setValidForm($event)" [fields]="dynamicFormFields"></za-dynamic-form>
 
-<div class="p-field col-12">
+<div class="p-field col-12" *ngIf="hasSelectionOfCars">
   <span class="p-float-label access-wrapper">
     <p-chips [disabled]="true" inputId="chips" class="p-inputwrapper-focus" [(ngModel)]="selectedCars">
       <ng-template let-car pTemplate="item">

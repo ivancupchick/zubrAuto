@@ -180,6 +180,12 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       icon: 'check-circle',
       buttonClass: 'success',
       handler: (client) => this.completeDeal(client)
+    },
+    {
+      title: 'Следующее действие',
+      icon: 'fast-forward',
+      buttonClass: 'success',
+      handler: (client) => this.updateSpecificField(client, 'next-action')
     }
     ];
 
@@ -193,6 +199,22 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         fieldConfigs: this.fieldConfigs
       },
       header: 'Редактировать клиента',
+      width: '70%'
+    });
+
+    this.subscribeOnCloseModalRef(ref);
+  }
+
+  updateSpecificField(client: ServerClient.Response, fieldName: string): void {
+    const specificFieldConfigs = this.fieldConfigs.filter(item => item.name === fieldName);
+
+    const ref = this.dialogService.open(CreateClientComponent, {
+      data: {
+        client,
+        fieldConfigs: specificFieldConfigs,
+        hasSelectionOfCars: false,
+      },
+      header: 'Редактировать следующее действие',
       width: '70%'
     });
 

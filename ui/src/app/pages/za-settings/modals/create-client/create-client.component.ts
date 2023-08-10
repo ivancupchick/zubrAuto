@@ -31,6 +31,11 @@ export class CreateClientComponent implements OnInit {
   @Input() client: ServerClient.Response | undefined = undefined;
   @Input() fieldConfigs: ServerField.Response[] = [];
 
+  @Input() 
+  get hasSelectionOfCars(): boolean {
+    return this.config?.data?.hasSelectionOfCars ?? true;
+  };
+
   selectedCars: CarChip[] = [];
   private originalCarChips: CarChip[] = [];
   private selectedRealCars: ServerCar.Response[] = [];
