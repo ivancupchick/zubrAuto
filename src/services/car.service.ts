@@ -168,9 +168,13 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
         const needVariants = query[f.name].split(',');
         query[f.name] = needVariants.map(v => {
-          const index = f.variants.split(',').findIndex(vValue => vValue === v);
+          if (f.variants) {
+            const index = f.variants.split(',').findIndex(vValue => vValue === v);
 
-          return `${f.name}-${index}`;
+            return `${f.name}-${index}`;
+          }
+
+          return query[f.name];
         }).join(',')
       }
     })
@@ -196,14 +200,37 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
     const needCarChaines = needCarFields.length > 0 ? await fieldChainRepository.find(needCarChainesOptions) : [];
 
+    const searchCarIds = new Set<string>();
+
+    const matchObj: ExpressionHash<any> = {};
+
     if (needCarChaines.length > 0) {
       needCarChaines.forEach(ch => {
-        carIds.add(`${ch.sourceId}`)
+        if (!matchObj[ch.fieldId]) {
+          matchObj[ch.fieldId] = [];
+        }
+        matchObj[ch.fieldId].push(`${ch.sourceId}`);
+      });
+
+      const matchKeys = needCarFields.map(f => `${f.id}`);;
+
+      needCarChaines.forEach(ch => {
+        let currentMatch = 0;
+
+        matchKeys.forEach(key => {
+          if (matchObj[key] && matchObj[key].includes(`${ch.sourceId}`)) {
+            ++currentMatch;
+          }
+        })
+
+        if (currentMatch === matchKeys.length) {
+          searchCarIds.add(`${ch.sourceId}`);
+        }
       });
     }
 
-    const cars = carIds.size > 0 ? await carRepository.find({
-      id: [...carIds]
+    const cars = searchCarIds.size > 0 ? await carRepository.find({
+      id: [...searchCarIds]
     }) : [];
 
     const [

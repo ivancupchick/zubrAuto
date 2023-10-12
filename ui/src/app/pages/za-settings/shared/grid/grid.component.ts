@@ -34,7 +34,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
   @Input() set gridData(value: GridItemType[]) {
-    if (Array.isArray(value) && value.length > 0) {
+    if (Array.isArray(value)) {
       this._gridData = value;
       this.scrollHeight = this.elem.nativeElement.offsetHeight  - 20;
     }
