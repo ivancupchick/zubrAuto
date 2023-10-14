@@ -11,13 +11,13 @@ router.route(`/${ Constants.API.CRUD }/`)
   .post(carController.create);
 router.route(`/${ Constants.API.CRUD }/:carId`)
   .get(carController.getOne)
-  .delete(carController.delete)
+  .delete(carController.deleteOne)
   .put(carController.update);
 
 router.route(`/${ Constants.API.DELETE_CARS }`)
   .post(
     body('carIds').isArray(),
-    carController.deleteCars
+    carController.delete
   );
 
 router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CUSTOMER_CALL }/:carId`)

@@ -1,17 +1,26 @@
 import { NextFunction, Request, Response } from 'express'
-import { FileArray, UploadedFile } from 'express-fileupload';
-import { validationResult } from 'express-validator';
 import { ServerCar } from '../entities/Car';
-import { CarStatistic } from '../entities/CarStatistic';
-import { ApiError } from '../exceptions/api.error';
-import carImageService from '../services/car-image.service';
-import carStatisticService from '../services/car-statistic.service';
 import carService from '../services/car.service';
 import { StringHash } from '../utils/sql-queries';
 import { BaseCrudController } from './base.conroller';
 // import { Activity } from '../decorators/activity.decorator';
 
 class CarController extends BaseCrudController<ServerCar.Response> {
+  // protected async request<TResponse>(
+  //   req: Request,
+  //   res: Response<TResponse>,
+  //   next: NextFunction,
+  //   getResults: (
+  //     (
+  //       req: Request,
+  //       res: Response<TResponse>,
+  //       next: NextFunction
+  //     ) => Promise<TResponse>
+  //   )
+  // ): Promise<Response<TResponse>> {
+  //   return super.request(req, res, next, getResults);
+  // }
+
   // @Activity()
   protected getAllEntities(req: Request, res: Response, next: NextFunction) {
     const query: StringHash = req.query as StringHash;
@@ -49,14 +58,21 @@ class CarController extends BaseCrudController<ServerCar.Response> {
     return car;
   }
 
-  async deleteCars(req: Request, res: Response, next: NextFunction) {
-    const rusultFn = (reqq: Request) => {
-      const carIds = reqq.body.carIds;
-      return carService.deleteCars(carIds);
-    }
+  protected deleteEntities(req: Request, res: Response, next: NextFunction) {
+    const carIds: number[] = req.body.carIds;
+    const result = carService.deleteCars(carIds);
 
-    return await this.request(req, res, next, rusultFn)
+    return result;
   }
+
+  // async deleteCars(req: Request, res: Response, next: NextFunction) {
+  //   const rusultFn = (reqq: Request) => {
+  //     const carIds = reqq.body.carIds;
+  //     return carService.deleteCars(carIds);
+  //   }
+
+  //   return await this.request(req, res, next, rusultFn)
+  // }
 }
 
 export = new CarController();

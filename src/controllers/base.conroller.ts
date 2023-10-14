@@ -52,6 +52,7 @@ export abstract class BaseCrudController<TGetResponse extends Id, TCreateRequest
   protected abstract createEntity(req: Request<any, Id, TCreateRequest>, res: Response<Id>, next: NextFunction): Promise<Id>;
   protected abstract updateEntity(req: Request<any, Id, TUpdateRequest>, res: Response<Id>, next: NextFunction): Promise<Id>;
   protected abstract deleteEntity(req: Request<any, Id>, res: Response<Id>, next: NextFunction): Promise<Id>;
+  protected abstract deleteEntities(req: Request<any, Id>, res: Response<Id>, next: NextFunction): Promise<any>; // TODO
 
   getAll = async (
     req: Request,
@@ -73,7 +74,11 @@ export abstract class BaseCrudController<TGetResponse extends Id, TCreateRequest
     return await this.request(req, res, next, this.updateEntity)
   }
 
-  delete = async (req: Request, res: Response, next: NextFunction) => {
+  deleteOne = async (req: Request, res: Response, next: NextFunction) => {
     return await this.request(req, res, next, this.deleteEntity)
+  }
+
+  delete = async (req: Request, res: Response, next: NextFunction) => {
+    return await this.request(req, res, next, this.deleteEntities)
   }
 }
