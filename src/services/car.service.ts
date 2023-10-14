@@ -15,6 +15,31 @@ import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
 import userService from "./user.service";
 
+function getFieldChainsValue(query: StringHash, fields: Models.Field[]): string[] {
+  fields.forEach(f => {
+    if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
+      const needVariants = query[f.name].split(',');
+      query[f.name] = needVariants.map(v => {
+        if (f.variants) {
+          const index = f.variants.split(',').findIndex(vValue => vValue === v);
+
+          return `${f.name}-${index}`;
+        }
+
+        return query[f.name];
+      }).join(',')
+    }
+  });
+
+  const queryValues = fields.map(f => f.name).map(k => query[k].split(','));
+  const rValues: string[] = [];
+  queryValues.forEach(queryValue => {
+    queryValue.forEach(vv => rValues.push(vv));
+  })
+
+  return rValues;
+}
+
 class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.UpdateRequest, ServerCar.Response, ServerCar.IdResponse> {
   private async getCars(
     cars: Models.Car[],
@@ -151,54 +176,74 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
   }
 
   async getCarsByQuery(query: StringHash) {
-    const carIds = query['id'] ? new Set<string>((query['id']).split(',')) : new Set<string>();
+    const {
+      page,
+      size,
+    } = query;
+    delete query['page'];
+    delete query['size'];
+
+    const searchCarIds = await this.getSearchCars(
+      Models.CARS_TABLE_NAME,
+      FieldDomains.Car,
+      query
+    );
+
+    let carIds = [...searchCarIds];
+
+    if (page && size) {
+      const start = (+page - 1) * +size;
+
+      carIds = carIds.slice(start, start + +size);
+    }
+
+    const cars = carIds.length > 0 ? await carRepository.find({
+      id: carIds
+    }) : [];
+
+    const [
+      carFields,
+      carOwners,
+      carOwnerFields,
+    ] = await Promise.all([
+      fieldService.getFieldsByDomain(FieldDomains.Car),
+      (cars.length > 0 ? await carOwnerRepository.find({
+        id: cars.map(c => `${c.ownerId}`)
+      }) : []),
+      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
+    ]);
+
+    return this.getCars(cars, carFields, carOwners, carOwnerFields);
+  }
+
+  async getSearchCars(sourceName: string, domain: FieldDomains, query: StringHash) {
+    const carIds = new Set<string>((query['id'])?.split(',') || []);
     delete query['id'];
 
-    const keys = Object.keys(query);
+    const fieldNames = Object.keys(query);
 
-    const needCarFields =
-      keys.length > 0
+    const carFields =
+      fieldNames.length > 0
         ? await fieldRepository.find({
             domain: [`${FieldDomains.Car}`],
-            name: keys,
+            name: fieldNames,
           })
         : [];
 
-    needCarFields.forEach(f => {
-      if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
-        const needVariants = query[f.name].split(',');
-        query[f.name] = needVariants.map(v => {
-          if (f.variants) {
-            const index = f.variants.split(',').findIndex(vValue => vValue === v);
-
-            return `${f.name}-${index}`;
-          }
-
-          return query[f.name];
-        }).join(',')
-      }
-    })
-
-    const queryValues = keys.map(k => query[k].split(','));
-    const rValues = [];
-    queryValues.forEach(queryValue => {
-      queryValue.forEach(vv => rValues.push(vv));
-    })
-
     const needCarChainesOptions: ExpressionHash<Models.FieldChain> = {
-      sourceName: [`${Models.CARS_TABLE_NAME}`],
+      sourceName: [sourceName],
     }
 
     if (carIds && carIds.size > 0) {
       needCarChainesOptions.sourceId = [...carIds];
     }
 
-    if (needCarFields.length > 0) {
-      needCarChainesOptions.fieldId = needCarFields.map(f => `${f.id}`);
-      needCarChainesOptions.value = rValues;
+    if (carFields.length > 0) {
+      needCarChainesOptions.fieldId = carFields.map(f => `${f.id}`);
+      needCarChainesOptions.value = getFieldChainsValue(query, carFields);
     }
 
-    const needCarChaines = needCarFields.length > 0 ? await fieldChainRepository.find(needCarChainesOptions) : [];
+    const needCarChaines = carFields.length > 0 ? await fieldChainRepository.find(needCarChainesOptions) : [];
 
     const searchCarIds = new Set<string>();
 
@@ -212,7 +257,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
         matchObj[ch.fieldId].push(`${ch.sourceId}`);
       });
 
-      const matchKeys = needCarFields.map(f => `${f.id}`);;
+      const matchKeys = carFields.map(f => `${f.id}`);;
 
       needCarChaines.forEach(ch => {
         let currentMatch = 0;
@@ -229,23 +274,7 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
       });
     }
 
-    const cars = searchCarIds.size > 0 ? await carRepository.find({
-      id: [...searchCarIds]
-    }) : [];
-
-    const [
-      carFields,
-      carOwners,
-      carOwnerFields,
-    ] = await Promise.all([
-      fieldService.getFieldsByDomain(FieldDomains.Car),
-      (cars.length > 0 ? await carOwnerRepository.find({
-        id: cars.map(c => `${c.ownerId}`)
-      }) : []),
-      fieldService.getFieldsByDomain(FieldDomains.CarOwner),
-    ]);
-
-    return this.getCars(cars, carFields, carOwners, carOwnerFields);
+    return [...searchCarIds];
   }
 
   private async getCarAndOwnerCarFields(carData: RealField.With.Request): Promise<[RealField.Request[], RealField.Request[]]> {
