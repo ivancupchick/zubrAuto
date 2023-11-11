@@ -508,6 +508,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       takeUntil(this.destroyed),
       tap(res2 => {
         this.loading = false;
+        console.log(res2);
         this.rawCars = this.carsToSelect.length > 0 ? [...this.carsToSelect, ...res2] : [...res2];
         this.selectedCars = this.carsToSelect.length > 0 ? [...this.carsToSelect] : [];
         this.generateFilters();
@@ -591,6 +592,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       FieldNames.CarStatus.admin_Deleted,
       FieldNames.CarStatus.contactCenter_Deny,
       FieldNames.CarStatus.contactCenter_InProgress,
+      ''
     ];
 
     if (cars.some(c => !availableStatuses.includes(getCarStatus(c)))) {
