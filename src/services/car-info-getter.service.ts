@@ -168,7 +168,7 @@ class CarInfoGetter {
             getPhoneLink(id),
             i * 100
           ).then(res => {
-            const number = res.find(num => num.country.id === 1)?.number || 0;
+            const number = res && res.find(num => num && num.country.id === 1)?.number || 0;
             return { id, number }
           })
         )
@@ -185,18 +185,17 @@ class CarInfoGetter {
     return result;
   }
 
-  private async getResponseFromLink<T>(link: string, timeout: number): Promise<T> {
+  private async getResponseFromLink<T>(link: string, timeout: number): Promise<T | null> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // console.log(timeout);
         this.get<T>(link)
           .then(res => {
             // console.log(((new Date().getTime()) - this.startTime) / 1000);
-
             resolve(res);
           })
           .catch(e => {
-            reject(e);
+            resolve(null);
           });
       }, timeout);
     })
