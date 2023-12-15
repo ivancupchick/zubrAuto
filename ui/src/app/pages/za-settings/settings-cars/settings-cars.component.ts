@@ -992,6 +992,38 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     });
   }
 
+  copyLinksToClipboard() {
+    const text = `${
+      this.sortedCars.map(c => FieldsUtils.getFieldValue(c, FieldNames.Car.linkToAd),).join(`\n`)
+    }`;
+
+    if (typeof (navigator.clipboard) == 'undefined') {
+      console.log('navigator.clipboard');
+      var textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position="fixed";  //avoid scrolling to bottom
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+          var successful = document.execCommand('copy');
+          var msg = successful ? 'successful' : 'unsuccessful';
+          console.log(msg);
+      } catch (err) {
+          console.log('Was not possible to copy te text: ', err);
+      }
+
+      document.body.removeChild(textArea)
+      return;
+    }
+    navigator.clipboard && navigator.clipboard.writeText(text).then(function() {
+      console.log(`successful!`);
+    }, function(err) {
+      console.log('unsuccessful!', err);
+    });
+  }
+
   private getGridActionsConfig(): GridActionConfigItem<ServerCar.Response>[] {
     const configs: GridActionConfigItem<ServerCar.Response>[] = [{
       title: 'Копировать телефоны',
@@ -1001,6 +1033,14 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       available: () => this.sessionService.isContactCenter
                     || this.sessionService.isContactCenterChief,
       handler: (car) => this.copyPhonesToClipboard()
+    }, {
+      title: 'Копировать ссылки',
+      icon: 'save',
+      buttonClass: 'secondary',
+      disabled: () => false,
+      available: () => this.sessionService.isContactCenter
+                    || this.sessionService.isContactCenterChief,
+      handler: (car) => this.copyLinksToClipboard()
     },{
       title: 'Редактировать',
       icon: 'pencil',

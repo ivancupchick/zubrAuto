@@ -8,7 +8,7 @@ import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
 import fieldRepository from "../repositories/base/field.repository";
-import { getFieldsWithValues } from "../utils/field.utils";
+import { FieldsUtils, getFieldsWithValues } from "../utils/field.utils";
 import { ExpressionHash, StringHash } from "../utils/sql-queries";
 import carInfoGetterService from "./car-info-getter.service";
 import fieldChainService from "./field-chain.service";
@@ -40,7 +40,7 @@ function getFieldChainsValue(query: StringHash, fields: Models.Field[]): string[
   return rValues;
 }
 
-class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.UpdateRequest, ServerCar.Response, ServerCar.IdResponse> {
+class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.CreateRequest, ServerCar.Response, ServerCar.IdResponse> {
   private async getCars(
     cars: Models.Car[],
     carFields: ServerField.Response[],
@@ -289,67 +289,79 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
   async create(carData: ServerCar.CreateRequest) {
     const [ownerFields, carFields] = await this.getCarAndOwnerCarFields(carData);
 
-    const existCarOwner = await carOwnerRepository.findOne({ number: [`${carData.ownerNumber}`]});
+    const existCarOwner = false; // await carOwnerRepository.findOne({ number: [`${carData.ownerNumber}`]});
 
-    const ownerId = !existCarOwner
-      ? (await carOwnerRepository.create({ number: carData.ownerNumber })).id
-      : existCarOwner.id;
+    const ownerId = (await carOwnerRepository.create({ number: carData.ownerNumber })).id
+    //  !existCarOwner
+    //   ? (await carOwnerRepository.create({ number: carData.ownerNumber })).id
+    //   : existCarOwner.id;
 
-    const existCarIds = await carRepository.find({ ownerId: [`${existCarOwner?.id || -1}` ]});
+    // const existCarIds = await carRepository.find({ ownerId: [`${existCarOwner?.id || -1}` ]});
 
-    if (existCarIds.length > 0) {
-      const fields = await fieldRepository.find({ name: [FieldNames.Car.mark, FieldNames.Car.model, FieldNames.Car.mileage]});
-      const carFieldChains = (await Promise.all(
-        existCarIds
-          .map(car => fieldChainRepository.find({
-            sourceName: [Models.CARS_TABLE_NAME],
-            sourceId: [`${car.id}`],
-            fieldId: fields.map(f => `${f.id}`)
-          }))
-      )).reduce(function(prev, next) {
-        return prev.concat(next);
-      });
+    const searchFields = await fieldRepository.find({ name: [FieldNames.Car.linkToAd]});
+    const existCarChain = await fieldChainRepository.find({
+      sourceName: [Models.CARS_TABLE_NAME],
+      fieldId: searchFields.map(f => `${f.id}`),
+      value: [FieldsUtils.getFieldValue(carData, FieldNames.Car.linkToAd)]
+    });
 
-      const realFields: (RealField.Response & { carId: number })[] = fields
-        .map(f => ({
-          ...f,
-          carId: carFieldChains.find(cfc => cfc.fieldId === f.id)?.sourceId || -1,
-          value: carFieldChains.find(cfc => cfc.fieldId === f.id)?.value || ''
-        })).filter(f => f.carId !== -1);
-
-      const realFieldsMatches: (RealField.Response & { carId: number })[] = realFields
-        .filter(rf => {
-          const field = carData.fields.find(f => f.id === rf.id);
-
-          return rf.value === field.value
-        })
-
-      let matches: { [key: number]: number[] } = {};
-
-      realFieldsMatches.forEach(rfm => {
-        if (!matches[rfm.carId]) {
-          matches[rfm.carId] = [rfm.id];
-        } else {
-          matches[rfm.carId].push(rfm.id);
-        }
-      })
-
-      let trueMatches = 0;
-
-      for (const key in matches) {
-        if (Object.prototype.hasOwnProperty.call(matches, key)) {
-          const element = matches[key];
-
-          if (element.length > 0) {
-            ++trueMatches;
-          }
-        }
-      }
-
-      if (trueMatches > 0) {
-        return { id: -1 };
-      }
+    if (existCarChain.length > 0) {
+      return { id: -1 };
     }
+
+    // if (existCarIds.length > 0) {
+    //   const fields = await fieldRepository.find({ name: [FieldNames.Car.mark, FieldNames.Car.model, FieldNames.Car.mileage]});
+    //   const carFieldChains = (await Promise.all(
+    //     existCarIds
+    //       .map(car => fieldChainRepository.find({
+    //         sourceName: [Models.CARS_TABLE_NAME],
+    //         sourceId: [`${car.id}`],
+    //         fieldId: fields.map(f => `${f.id}`)
+    //       }))
+    //   )).reduce(function(prev, next) {
+    //     return prev.concat(next);
+    //   });
+
+    //   const realFields: (RealField.Response & { carId: number })[] = fields
+    //     .map(f => ({
+    //       ...f,
+    //       carId: carFieldChains.find(cfc => cfc.fieldId === f.id)?.sourceId || -1,
+    //       value: carFieldChains.find(cfc => cfc.fieldId === f.id)?.value || ''
+    //     })).filter(f => f.carId !== -1);
+
+    //   const realFieldsMatches: (RealField.Response & { carId: number })[] = realFields
+    //     .filter(rf => {
+    //       const field = carData.fields.find(f => f.id === rf.id);
+
+    //       return rf.value === field?.value
+    //     })
+
+    //   let matches: { [key: number]: number[] } = {};
+
+    //   realFieldsMatches.forEach(rfm => {
+    //     if (!matches[rfm.carId]) {
+    //       matches[rfm.carId] = [rfm.id];
+    //     } else {
+    //       matches[rfm.carId].push(rfm.id);
+    //     }
+    //   })
+
+    //   let trueMatches = 0;
+
+    //   for (const key in matches) {
+    //     if (Object.prototype.hasOwnProperty.call(matches, key)) {
+    //       const element = matches[key];
+
+    //       if (element.length > 0) {
+    //         ++trueMatches;
+    //       }
+    //     }
+    //   }
+
+    //   if (trueMatches > 0) {
+    //     return { id: -1 };
+    //   }
+    // }
 
     if (!existCarOwner) {
       await Promise.all(ownerFields.map(f => fieldChainService.createFieldChain({
@@ -374,15 +386,17 @@ class CarService implements ICrudService<ServerCar.CreateRequest, ServerCar.Upda
 
     const statusField = await fieldRepository.findOne({ name: [`${FieldNames.Car.status}`], domain: [`${FieldDomains.Car}`] });
 
-    const statusFieldRequest: RealField.Request = {
-      id: statusField.id,
-      name: FieldNames.Car.status,
-      value: 'status-0'
-    }
-    const statusFieldRequestExist = carFields.find(f => f.id === statusFieldRequest.id)
+    if (statusField) {
+      const statusFieldRequest: RealField.Request = {
+        id: statusField.id,
+        name: FieldNames.Car.status,
+        value: 'status-0'
+      }
+      const statusFieldRequestExist = carFields.find(f => f.id === statusFieldRequest.id)
 
-    if (!statusFieldRequestExist || !statusFieldRequestExist.value) {
-      carFields.push(statusFieldRequest);
+      if (!statusFieldRequestExist || !statusFieldRequestExist.value) {
+        carFields.push(statusFieldRequest);
+      }
     }
 
     const car = await carRepository.create({
