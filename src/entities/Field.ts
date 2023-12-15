@@ -6,7 +6,7 @@ export namespace RealField {
 
   export type Request = {
     id: number;
-    name?: string;
+    name: string;
     value: string;
   }
 

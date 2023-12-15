@@ -25,6 +25,7 @@ import { UploadCarMediaComponent } from '../modals/upload-car-media/upload-car-m
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
 import { settingsCarsStrings } from './settings-cars.strings';
 import { CarStatusLists, QueryCarTypes } from './cars.enums';
+import { ChangeCarOwnerNumberComponent } from '../modals/change-car-owner-number/change-car-owner-number.component';
 
 type UIFilter = {
   title: string;
@@ -554,6 +555,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.destroyed.next(null);
   }
 
+  //
   updateCar(car: ServerCar.Response) {
     const ref = this.dialogService.open(CreateCarComponent, {
       data: {
@@ -1065,6 +1067,12 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       available: () => (this.sessionService.isAdminOrHigher || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief) && !this.isSelectCarModalMode,
       handler: (car) => this.contactCenterCall(car),
     }, {
+      title: '[ОКЦ] Поменять телефон',
+      icon: 'mobile',
+      buttonClass: 'secondary',
+      available: () => (this.sessionService.isRealAdminOrHigher || this.sessionService.isContactCenter || this.sessionService.isContactCenterChief) && !this.isSelectCarModalMode,
+      handler: (car) => this.changePhoneNumber(car),
+    }, {
       title: 'Передать в ОСА',
       icon: 'check',
       buttonClass: 'primary',
@@ -1191,6 +1199,19 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     });
 
     this.subscribeOnCloseModalRef(null, ref);
+  }
+
+  changePhoneNumber(car: ServerCar.Response) {
+    const ref = this.dialogService.open(ChangeCarOwnerNumberComponent, {
+      data: {
+        carId: car.id,
+        ownerNumber: car.ownerNumber,
+      },
+      header: 'Поменять телефон',
+      width: '70%'
+    });
+
+    this.subscribeOnCloseModalRef(car, ref);
   }
 
   contactCenterCall(car: ServerCar.Response) {

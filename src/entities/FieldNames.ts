@@ -23,7 +23,7 @@ export namespace FieldNames {
     transmission = 'transmission',
     color = 'color',
     driveType = 'drive-type',
-    linkToAd = 'link-to-ad',
+    linkToAd = 'link-to-ad', // dont change this please never (car import)
     carOwnerPrice = 'car-owner-price',
     commission = 'commission',
     comment = 'comment',

@@ -1,0 +1,15 @@
+<div class="wrapper">
+  <div class="content">
+    <div class="comment-wrapper">
+      <h5>Телефон</h5>
+      <input type="text" pInputText [(ngModel)]="ownerNumber">
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <button pButton icon="pi pi-save" [disabled]="formNotValid" type="button" [label]="'Готово'" (click)="update()" class="p-mr-2 p-mb-2 p-button-success"></button>
+  <button pButton icon="pi pi-times" type="button" label="Отмена" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
+</div>
+
+<za-spinner *ngIf="loading"></za-spinner>

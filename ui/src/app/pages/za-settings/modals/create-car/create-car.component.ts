@@ -248,6 +248,7 @@ export class CreateCarComponent implements OnInit {
 
     const ourLinksField: RealField.Request = {
       id: ourLinks[0].id,
+      name: ourLinks[0].name,
       value: ourLinks.map(l => l.value).join(',')
     }
 
@@ -264,6 +265,7 @@ export class CreateCarComponent implements OnInit {
       const shootingDateField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.shootingDate);
       shootingDateField && fields.push({
         id: shootingDateField.id,
+        name: shootingDateField.name,
         value: `${+this.shootingDate}`
       });
     }

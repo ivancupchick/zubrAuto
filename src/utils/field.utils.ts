@@ -72,13 +72,13 @@ export class FieldsUtils {
     return newField;
   }
 
-  static getFields(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[]): RealField.Response[] {
+  static getFields(entityOrFieldsArray: { fields: Pick<RealField.Response, 'name' | 'value'>[] } | Pick<RealField.Response, 'name' | 'value'>[]): Pick<RealField.Response, 'name' | 'value'>[] {
     return Array.isArray(entityOrFieldsArray)
     ? entityOrFieldsArray
     : entityOrFieldsArray.fields;
   }
 
-  static getField(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): RealField.Response | null {
+  static getField(entityOrFieldsArray: { fields: Pick<RealField.Response, 'name' | 'value'>[] } | Pick<RealField.Response, 'name' | 'value'>[], name: string): Pick<RealField.Response, 'name' | 'value'> | null {
     if (!name || !entityOrFieldsArray) {
       return null;
     }
@@ -97,7 +97,7 @@ export class FieldsUtils {
     return null;
   }
 
-  static getFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
+  static getFieldValue(entityOrFieldsArray: { fields: Pick<RealField.Response, 'name' | 'value'>[] } | Pick<RealField.Response, 'name' | 'value'>[], name: string): string {
     const field = this.getField(entityOrFieldsArray, name);
 
     if (field == null) {

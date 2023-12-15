@@ -80,6 +80,7 @@ import { CustomerServiceCallComponent } from './modals/customer-service-call/cus
 import { CompleteClientDealComponent } from './modals/complete-client-deal/complete-client-deal.component';
 import { ServerErrorMessageInterceptor } from 'src/app/services/interseptors/server-error-message-interceptor.service';
 import { MessageService } from 'primeng/api';
+import { ChangeCarOwnerNumberComponent } from './modals/change-car-owner-number/change-car-owner-number.component';
 
 
 
@@ -154,7 +155,8 @@ const routes: Routes = [{
     ManageCarShowingComponent,
     CreateCarShowingComponent,
     CustomerServiceCallComponent,
-    CompleteClientDealComponent
+    CompleteClientDealComponent,
+    ChangeCarOwnerNumberComponent
   ],
   imports: [
     RouterModule.forChild(routes),
