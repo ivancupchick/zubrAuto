@@ -38,7 +38,7 @@ class CarController extends BaseCrudController<ServerCar.Response> {
   }
 
   protected createEntity(req: Request<any, any, ServerCar.CreateRequest>, res: Response, next: NextFunction) {
-    const car = carService.create(req.body);
+    const car = carService.manualCreate(req.body);
 
     return car;
   }

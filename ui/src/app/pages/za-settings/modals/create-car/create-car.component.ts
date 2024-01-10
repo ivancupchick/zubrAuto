@@ -281,11 +281,19 @@ export class CreateCarComponent implements OnInit {
         });
 
     methodObs.subscribe(result => {
+      if (result.id === -1) {
+        alert('Мащина уже существует в базе.');
+        return;
+      }
+
       if (result) {
         this.ref.close(result);
       } else {
         alert(!!this.car ? 'Машина не обновлёна' : 'Машина не создана');
       }
+    }, (e) => {
+      console.log(e);
+      alert('Что-то пошло не так, машина не создана');
     })
   }
 

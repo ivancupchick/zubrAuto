@@ -413,6 +413,133 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     return { id: car.id };
   }
 
+  async manualCreate(carData: ServerCar.CreateRequest) {
+    const [ownerFields, carFields] = await this.getCarAndOwnerCarFields(carData);
+
+    const existCarOwner = false; // await carOwnerRepository.findOne({ number: [`${carData.ownerNumber}`]});
+
+    const ownerId = (await carOwnerRepository.create({ number: carData.ownerNumber })).id
+    //  !existCarOwner
+    //   ? (await carOwnerRepository.create({ number: carData.ownerNumber })).id
+    //   : existCarOwner.id;
+
+    // const existCarIds = await carRepository.find({ ownerId: [`${existCarOwner?.id || -1}` ]});
+
+    // const searchFields = await fieldRepository.find({ name: [FieldNames.Car.linkToAd]});
+    // const existCarChain = await fieldChainRepository.find({
+    //   sourceName: [Models.CARS_TABLE_NAME],
+    //   fieldId: searchFields.map(f => `${f.id}`),
+    //   value: [FieldsUtils.getFieldValue(carData, FieldNames.Car.linkToAd)]
+    // });
+
+    // if (existCarChain.length > 0) {
+    //   return { id: -1 };
+    // }
+
+    // if (existCarIds.length > 0) {
+    //   const fields = await fieldRepository.find({ name: [FieldNames.Car.mark, FieldNames.Car.model, FieldNames.Car.mileage]});
+    //   const carFieldChains = (await Promise.all(
+    //     existCarIds
+    //       .map(car => fieldChainRepository.find({
+    //         sourceName: [Models.CARS_TABLE_NAME],
+    //         sourceId: [`${car.id}`],
+    //         fieldId: fields.map(f => `${f.id}`)
+    //       }))
+    //   )).reduce(function(prev, next) {
+    //     return prev.concat(next);
+    //   });
+
+    //   const realFields: (RealField.Response & { carId: number })[] = fields
+    //     .map(f => ({
+    //       ...f,
+    //       carId: carFieldChains.find(cfc => cfc.fieldId === f.id)?.sourceId || -1,
+    //       value: carFieldChains.find(cfc => cfc.fieldId === f.id)?.value || ''
+    //     })).filter(f => f.carId !== -1);
+
+    //   const realFieldsMatches: (RealField.Response & { carId: number })[] = realFields
+    //     .filter(rf => {
+    //       const field = carData.fields.find(f => f.id === rf.id);
+
+    //       return rf.value === field?.value
+    //     })
+
+    //   let matches: { [key: number]: number[] } = {};
+
+    //   realFieldsMatches.forEach(rfm => {
+    //     if (!matches[rfm.carId]) {
+    //       matches[rfm.carId] = [rfm.id];
+    //     } else {
+    //       matches[rfm.carId].push(rfm.id);
+    //     }
+    //   })
+
+    //   let trueMatches = 0;
+
+    //   for (const key in matches) {
+    //     if (Object.prototype.hasOwnProperty.call(matches, key)) {
+    //       const element = matches[key];
+
+    //       if (element.length > 0) {
+    //         ++trueMatches;
+    //       }
+    //     }
+    //   }
+
+    //   if (trueMatches > 0) {
+    //     return { id: -1 };
+    //   }
+    // }
+
+    if (!existCarOwner) {
+      await Promise.all(ownerFields.map(f => fieldChainService.createFieldChain({
+        sourceId: ownerId,
+        fieldId: f.id,
+        value: f.value,
+        sourceName: Models.CAR_OWNERS_TABLE_NAME
+      })));
+    } else {
+      // await carOwnerRepository.updateById(existCarOwner.id, { // not need
+      //   id: 0,
+      //   number: carData.ownerNumber
+      // })
+      await Promise.all(ownerFields.map(f => fieldChainRepository.update({
+        value: f.value
+      }, {
+        fieldId: [`${f.id}`],
+        sourceId: [`${ownerId}`],
+        sourceName: [Models.CAR_OWNERS_TABLE_NAME]
+      })));
+    }
+
+    const statusField = await fieldRepository.findOne({ name: [`${FieldNames.Car.status}`], domain: [`${FieldDomains.Car}`] });
+
+    if (statusField) {
+      const statusFieldRequest: RealField.Request = {
+        id: statusField.id,
+        name: FieldNames.Car.status,
+        value: 'status-0'
+      }
+      const statusFieldRequestExist = carFields.find(f => f.id === statusFieldRequest.id)
+
+      if (!statusFieldRequestExist || !statusFieldRequestExist.value) {
+        carFields.push(statusFieldRequest);
+      }
+    }
+
+    const car = await carRepository.create({
+      createdDate: `${(new Date()).getTime()}`,
+      ownerId
+    });
+    await Promise.all(carFields.map(f => fieldChainService.createFieldChain({
+      sourceId: car.id,
+      fieldId: f.id,
+      value: f.value,
+      sourceName: Models.CARS_TABLE_NAME
+    })));
+
+    return { id: car.id };
+  }
+
   async update(carId: number, carData: ServerCar.UpdateRequest) {
     const [ownerFields, carFields] = await this.getCarAndOwnerCarFields(carData);
     let needUpdate = false;

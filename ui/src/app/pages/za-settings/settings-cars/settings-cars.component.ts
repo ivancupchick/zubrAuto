@@ -320,6 +320,12 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
           const carId = car ? car.id : res.id;
 
+          if (carId === -1) {
+            alert('Машина уже существует в базе');
+            this.loading = false;
+            return;
+          }
+
           this.carService.getCar(carId)
             .subscribe(res => {
               this.loading = false;
