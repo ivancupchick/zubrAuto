@@ -6,13 +6,16 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputTextModule } from 'primeng/inputtext';
+import { DateFormFieldsComponent } from './dynamic-form-fields/date-form-fields/date-form-fields.component';
+import { CalendarModule } from 'primeng/calendar';
 
 
 
 @NgModule({
   declarations: [
     DynamicFormComponent,
-    PrimitiveFormFieldComponent
+    PrimitiveFormFieldComponent,
+    DateFormFieldsComponent
   ],
   exports: [
     DynamicFormComponent
@@ -24,6 +27,7 @@ import { InputTextModule } from 'primeng/inputtext';
     FormsModule,
     ReactiveFormsModule,
     InputTextareaModule,
+    CalendarModule,
   ]
 })
 export class DynamicFormModule { }

@@ -1,5 +1,12 @@
 <form class="p-fluid grid formgrid" [formGroup]="formGroup" autocomplete="nope">
   <div *ngFor="let field of fields" class="p-field col-4">
-    <za-primitive-form-field [field]="field" [form]="formGroup"></za-primitive-form-field>
+    <ng-container [ngSwitch]="field.controlType">
+      <ng-container *ngSwitchCase="FieldType.Date">
+        <za-date-form-fields [field]="field" [form]="formGroup"></za-date-form-fields>
+      </ng-container>
+      <ng-container *ngSwitchDefault>
+        <za-primitive-form-field [field]="field" [form]="formGroup"></za-primitive-form-field>
+      </ng-container>
+    </ng-container>
   </div>
 </form>

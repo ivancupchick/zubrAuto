@@ -86,7 +86,7 @@ export class ActionsService {
       label: 'Пользователи',
       icon: 'pi pi-fw pi-user-plus',
       routerLink: 'users',
-      visible: () => this.sessionService.isAdminOrHigher,
+      visible: () => this.sessionService.isAdminOrHigher || this.sessionService.isContactCenterChief,
     }
   }
 

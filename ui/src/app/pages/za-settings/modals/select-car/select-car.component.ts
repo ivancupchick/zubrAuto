@@ -7,7 +7,7 @@ import { FieldNames } from 'src/app/entities/FieldNames';
 import { QueryCarTypes } from '../../settings-cars/cars.enums';
 
 export interface CarChip {
-  id: number;
+  id: number | string;
   markModel: string;
 }
 

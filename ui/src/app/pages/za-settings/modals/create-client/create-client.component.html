@@ -8,7 +8,7 @@
 
 <div class="p-field col-12" *ngIf="hasSelectionOfCars">
   <span class="p-float-label access-wrapper">
-    <p-chips [disabled]="true" inputId="chips" class="p-inputwrapper-focus" [(ngModel)]="selectedCars">
+    <p-chips inputId="chips" class="p-inputwrapper-focus" [(ngModel)]="selectedCars" (onAdd)="onAddCar($event)">
       <ng-template let-car pTemplate="item">
         {{car.markModel}}
       </ng-template>

@@ -56,13 +56,30 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       carIds: clientData.carIds
     });
 
-    await Promise.all(clientData.fields.map(f => fieldChainRepository.update({
+    const existsFieldChains = (await Promise.all(clientData.fields.map(f => fieldChainRepository.find({
+      fieldId: [f.id].map(c => `${c}`),
+      sourceId: [id].map(c => `${c}`),
+      sourceName: [Models.CLIENTS_TABLE_NAME]
+    })))).reduce((prev, cur) => [...prev, ...cur], []);
+    const existFieldIds = existsFieldChains.map(ef => +ef.fieldId);
+
+    const existsFields = clientData.fields.filter(f => existFieldIds.includes(+f.id));
+    const nonExistFields = clientData.fields.filter(f => !existFieldIds.includes(+f.id));
+
+    existsFields.length > 0 && await Promise.all(existsFields.map(f => fieldChainRepository.update({
       value: f.value
     }, {
       fieldId: [f.id].map(c => `${c}`),
       sourceId: [id].map(c => `${c}`),
       sourceName: [Models.CLIENTS_TABLE_NAME]
-    })))
+    })));
+
+    nonExistFields.length > 0 && await Promise.all(nonExistFields.map(f => fieldChainRepository.create({
+      fieldId: f.id,
+      sourceId: id,
+      sourceName: Models.CLIENTS_TABLE_NAME,
+      value: f.value,
+    })));
 
     return client
   }

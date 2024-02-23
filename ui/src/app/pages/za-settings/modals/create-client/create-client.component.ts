@@ -3,7 +3,7 @@ import { UntypedFormControl } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { getCarStatus, ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
-import { ServerField, UIRealField, FieldsUtils } from 'src/app/entities/field';
+import { ServerField, UIRealField, FieldsUtils, FieldType } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 import { ClientService } from 'src/app/services/client/client.service';
@@ -31,7 +31,7 @@ export class CreateClientComponent implements OnInit {
   @Input() client: ServerClient.Response | undefined = undefined;
   @Input() fieldConfigs: ServerField.Response[] = [];
 
-  @Input() 
+  @Input()
   get hasSelectionOfCars(): boolean {
     return this.config?.data?.hasSelectionOfCars ?? true;
   };
@@ -80,7 +80,7 @@ export class CreateClientComponent implements OnInit {
       } else {
         this.clientForm.formGroup.enable();
       }
-    })
+    });
 
     const formFields = this.dfcs.getDynamicFieldsFromDBFields(this.fieldConfigs
       .filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
@@ -88,6 +88,10 @@ export class CreateClientComponent implements OnInit {
         const fieldValue = !!this.client
           ? this.client.fields.find(f => f.id === fc.id)?.value || ''
           : '';
+
+        if (fc.name === FieldNames.Client.dateNextAction) {
+          fc.type = FieldType.Date;
+        }
 
         const newField = new UIRealField(
           fc,
@@ -100,7 +104,6 @@ export class CreateClientComponent implements OnInit {
 
     this.dynamicFormFields = formFields;
 
-
     this.loading = true;
 
     const query: StringHash = {};
@@ -112,11 +115,11 @@ export class CreateClientComponent implements OnInit {
       // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
       );
       if (this.client) {
-        let carIds: number[] = [];
+        let carIds: (number | string)[] = [];
 
         try {
           carIds = this.client.carIds
-            ? this.client.carIds.split(',').map(a => +a) || []
+            ? this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a) || []
             : [];
         } catch (error) {
           carIds = [];
@@ -126,7 +129,7 @@ export class CreateClientComponent implements OnInit {
           const car = cars.find(c => c.id === id);
           const markModel = car
             ? `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
-            : '';
+            : `${id}`;
 
           car && this.selectedRealCars.push(car);
 
@@ -171,7 +174,7 @@ export class CreateClientComponent implements OnInit {
           this.cancel(true);
         } else {
           this.loading = false;
-          alert('Звонки не учтены, нажмите F12, заскриньте красные ошибки в консоле и отправьте администратору.');
+          alert('Звонки не учтены, нажмите F12, заскриньте красные ошибки в консоли и отправьте администратору.');
         }
       })
     } else {
@@ -224,7 +227,6 @@ export class CreateClientComponent implements OnInit {
       field.label = settingsClientsStrings[field.key];
     }
 
-
     switch (field.key) {
       case FieldNames.Client.paymentType:
         field.label = settingsClientsStrings.paymentType;
@@ -235,12 +237,28 @@ export class CreateClientComponent implements OnInit {
       case FieldNames.Client.dealStatus:
         field.label = settingsClientsStrings.dealStatus;
         break;
+      case FieldNames.Client.clientStatus:
+        field.label = settingsClientsStrings.clientStatus;
+        break;
       case FieldNames.Client.nextAction:
         field.label = settingsClientsStrings.nextAction;
+        break;
+      case FieldNames.Client.dateNextAction:
+        field.label = settingsClientsStrings.dateNextAction;
         break;
     }
 
     return field;
+  }
+
+  onAddCar(event: { originalEvent: KeyboardEvent, value: string }) {
+    event.originalEvent.preventDefault();
+    event.originalEvent.stopPropagation();
+
+    this.selectedCars = [{
+      id: event.value,
+      markModel: event.value,
+    }];
   }
 
   openEditCars() {

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServerClient } from 'src/app/entities/client';
 import { Constants } from 'src/app/entities/constants';
@@ -61,7 +61,10 @@ export class ClientService {
       }))
   }
 
-  completeDeal(clientId: number, carId: number): Observable<boolean> {
+  completeDeal(clientId: number, carId: number | string): Observable<boolean> {
+    if (typeof clientId === 'string') {
+      return of(false);
+    }
     return this.requestService.post<any>(`${environment.serverUrl}/${API}/${Constants.API.COMPLETE_DEAL}`, { clientId, carId })
       .pipe(map(result => {
         console.log(result);

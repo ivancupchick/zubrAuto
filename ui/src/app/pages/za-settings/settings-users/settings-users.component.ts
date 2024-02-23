@@ -12,6 +12,7 @@ import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.compon
 import { settingsUsersStrings } from './settings-users.strings';
 import { FieldNames } from '../../../../../../src/entities/FieldNames';
 import { tap } from 'rxjs/operators';
+import { SessionService } from 'src/app/services/session/session.service';
 
 @Component({
   selector: 'za-settings-users',
@@ -36,13 +37,26 @@ export class SettingsUsersComponent implements OnInit {
     title: 'Редактировать',
     icon: 'pencil',
     buttonClass: 'secondary',
-    disabled: () => this.fieldConfigs.length === 0,
+    disabled: (user) => {
+      if (this.fieldConfigs.length === 0) {
+        return true;
+      }
+
+      const customRole = this.roles.find(role => (role.id + 1000) === user.roleLevel);
+
+      return !(this.sessionService.isAdminOrHigher || (this.sessionService.isContactCenterChief && customRole?.systemName === ServerRole.Custom.contactCenter));
+    },
     handler: (user) => this.updateUser(user)
   }, {
     title: 'Удалить',
     icon: 'times',
     buttonClass: 'danger',
-    handler: (user) => this.deleteUser(user)
+    handler: (user) => this.deleteUser(user),
+    disabled: (user) => {
+      const customRole = this.roles.find(role => (role.id + 1000) === user.roleLevel);
+
+      return !(this.sessionService.isAdminOrHigher || (this.sessionService.isContactCenterChief && customRole?.systemName === ServerRole.Custom.contactCenter));
+    },
   }]
 
   fieldConfigs: ServerField.Response[] = [];
@@ -50,16 +64,17 @@ export class SettingsUsersComponent implements OnInit {
 
   // readonly strings = settingsUsersStrings;
 
-  constructor(private userService: UserService, private dialogService: DialogService, private roleService: RoleService) { }
+  constructor(private userService: UserService, private dialogService: DialogService, private roleService: RoleService, private sessionService: SessionService) { }
 
   ngOnInit(): void {
     zip(this.userService.getUserFields(), this.roleService.getRoles())
       .subscribe(([fieldConfigs, roles]) => {
         this.fieldConfigs = fieldConfigs;
         this.roles = roles;
+        this.getUsers().subscribe();
       })
 
-    this.getUsers().subscribe();
+    // this.getUsers().subscribe();
 
     this.gridConfig = [{
       title: 'id',
@@ -119,8 +134,12 @@ export class SettingsUsersComponent implements OnInit {
     this.loading = true;
     return this.userService.getUsers().pipe(
       tap((result) => {
+        const contactCenterRole = this.roles.find(cr => cr.systemName === ServerRole.Custom.contactCenter)!;
+
         this.loading = false;
-        this.rawUsers = result;
+        this.rawUsers = this.sessionService.isContactCenterChief
+          ? result.filter(user => user.roleLevel === contactCenterRole.id + 1000)
+          : result;
         this.sortUsers();
       })
     )

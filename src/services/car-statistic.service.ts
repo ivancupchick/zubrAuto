@@ -8,8 +8,13 @@ import { ApiError } from "../exceptions/api.error";
 
 class CarStatisticService {
   async addCall(carIds: number[]) {
+    const ids = carIds.filter(id => !Number.isNaN(id));
+    if (ids.length === 0) {
+      return { carIds };
+    }
+
     await Promise.all([
-      ...carIds.map(id => {
+      ...ids.map(id => {
         const timestamp = +(new Date());
         return carStatisticRepository.create({
           carId: id,

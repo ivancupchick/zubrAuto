@@ -222,6 +222,10 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
 
     const fieldNames = Object.keys(query);
 
+    if (fieldNames.length === 0 && carIds.size > 0) {
+      return [...carIds];
+    }
+
     const carFields =
       fieldNames.length > 0
         ? await fieldRepository.find({

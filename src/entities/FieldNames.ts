@@ -10,6 +10,8 @@ export namespace FieldNames {
     tradeInAuto = 'trade-in-auto',
     dealStatus = 'deal-status',
     comment = 'comment',
+    dateNextAction = 'date-next-action',
+    clientStatus = 'client-status',
   }
 
   export enum Car {
@@ -49,6 +51,7 @@ export namespace FieldNames {
   }
 
   export enum CarStatus {
+    none = '',
     contactCenter_InProgress = '[ОКЦ]В работе',
     contactCenter_NoAnswer = '[ОКЦ]Недозвон',
     contactCenter_MakingDecision = '[ОКЦ]Принимает решение',

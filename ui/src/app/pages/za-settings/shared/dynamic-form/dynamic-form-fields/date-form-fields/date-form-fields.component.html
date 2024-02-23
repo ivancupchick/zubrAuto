@@ -1,0 +1,16 @@
+<div [formGroup]="form" class="p-field p-col-12 p-md-12">
+  <span class="p-float-label">
+    <p-calendar
+      appendTo="body"
+      [formControlName]="field.key"
+      [showTime]="false"
+      [firstDayOfWeek]="1"
+    ></p-calendar>
+
+    <label [attr.for]="field.key">{{field.label}}</label>
+
+    <!-- <div class="errorMessage" *ngIf="!isValid">{{field.label}} is required</div> -->
+    <!-- <small *ngIf="!isValid" class="p-error">Username is not available.</small> -->
+    <!-- <small id="username2-help">Enter your username to reset your password.</small> -->
+  </span>
+</div>

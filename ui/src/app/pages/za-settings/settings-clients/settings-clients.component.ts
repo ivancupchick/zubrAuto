@@ -16,6 +16,7 @@ import { ServerCar } from 'src/app/entities/car';
 import { CompleteClientDealComponent } from '../modals/complete-client-deal/complete-client-deal.component';
 import { Observable, Subject, zip } from 'rxjs';
 import { StringHash } from 'src/app/entities/constants';
+import { DateUtils } from 'src/app/entities/utils';
 
 const availableStatuses = [
   FieldNames.DealStatus.Deny,
@@ -82,14 +83,14 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       takeUntil(this.destoyed),
       switchMap(([clientsRes, clientFieldsRes]) => {
         this.fieldConfigs = clientFieldsRes;
-  
+
         const carIds = clientsRes.reduce<number[]>((prev, client) => {
           const clietnCarIds = client.carIds.split(',').map(id => +id);
           return [...prev, ...clietnCarIds];
         }, []);
-  
+
         const query: StringHash = { id: carIds.join(',') };
-  
+
         return this.carService.getCarsByQuery(query);
       })
     );
@@ -119,6 +120,10 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   getGridConfig(): GridConfigItem<ServerClient.Response>[] {
     return [
     {
+      title: this.strings.createDate,
+      name: FieldNames.Client.date,
+      getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date)),
+    }, {
       title: this.strings.name,
       name: 'name',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.name),
@@ -131,16 +136,18 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       title: this.strings.carIds,
       name: 'carIds',
       getValue: (item) => {
-        const needCars = this.allCars.filter(c => item.carIds.split(',').map(id => +id).includes(c.id));
-        return needCars.map(c => {
-          return `
-          ${FieldsUtils.getFieldValue(c,FieldNames.Car.mark)}
-          ${FieldsUtils.getFieldValue(c,FieldNames.Car.model)}
-          , ${FieldsUtils.getFieldValue(c,FieldNames.Car.year)}
-          , ${FieldsUtils.getFieldValue(c, FieldNames.Car.engine)}
-          ${FieldsUtils.getFieldValue(c, FieldNames.Car.engineCapacity)}
-          , ${FieldsUtils.getFieldValue(c, FieldNames.Car.transmission)}`;
-        }).join(', ')
+        const needCars = this.allCars.filter(c => item.carIds.split(',').map(id => +id).includes(+c.id));
+
+        const nonCars: string[] = item.carIds.split(',').filter(a => Number.isNaN(+a));
+
+        return [
+          ...needCars.map(c => {
+            return `
+            ${FieldsUtils.getFieldValue(c,FieldNames.Car.mark)}
+            ${FieldsUtils.getFieldValue(c,FieldNames.Car.model)}`;
+          }),
+          ...nonCars
+        ].join(', ')
       },
     },
     {
@@ -149,9 +156,19 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
     },
     {
+      title: this.strings.clientStatus,
+      name: 'clientStatus',
+      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.clientStatus),
+    },
+    {
       title: this.strings.nextAction,
       name: 'nextAction',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
+    },
+    {
+      title: this.strings.nextAction,
+      name: 'dateNextAction',
+      getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.dateNextAction)),
     }
   ];
   }
@@ -163,25 +180,25 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       buttonClass: 'secondary',
       disabled: () => false,
       handler: (client) => this.updateClient(client)
-    }, 
+    },
     {
       title: 'Следующее действие',
       icon: 'question-circle',
       buttonClass: 'success',
-      handler: (client) => this.updateSpecificField(client, 'next-action')
-    }, 
+      handler: (client) => this.updateSpecificField(client, FieldNames.Client.nextAction)
+    },
     {
       title: 'Изменить статус сделки',
       icon: 'check-circle',
       buttonClass: 'success',
-      handler: (client) => this.updateSpecificField(client, 'deal-status')
-    }, 
-    {
-      title: 'Показы',
-      icon: 'list',
-      buttonClass: 'success',
-      handler: (client) => this.manageCarShowings(client)
-    }, 
+      handler: (client) => this.updateSpecificField(client, FieldNames.Client.dealStatus)
+    },
+    // {
+    //   title: 'Показы',
+    //   icon: 'list',
+    //   buttonClass: 'success',
+    //   handler: (client) => this.manageCarShowings(client)
+    // },
     {
       title: 'Удалить',
       icon: 'times',
@@ -215,7 +232,11 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   }
 
   updateSpecificField(client: ServerClient.Response, fieldName: string): void {
-    const specificFieldConfigs = this.fieldConfigs.filter(item => item.name === fieldName);
+    const includeFields = fieldName === FieldNames.Client.nextAction
+      ? [FieldNames.Client.nextAction, FieldNames.Client.dateNextAction]
+      : [fieldName]
+
+    const specificFieldConfigs = this.fieldConfigs.filter(item => includeFields.includes(item.name));
 
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
@@ -281,18 +302,18 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   //   this.subscribeOnCloseModalRef(ref);
   // }
 
-  manageCarShowings(client: ServerClient.Response) {
-    const ref = this.dialogService.open(ManageCarShowingComponent, {
-      data: {
-        clientId: client.id,
-        carIds: client.carIds.split(',').map(id => +id),
-      },
-      header: 'Показы',
-      width: '70%',
-    });
+  // manageCarShowings(client: ServerClient.Response) {
+  //   const ref = this.dialogService.open(ManageCarShowingComponent, {
+  //     data: {
+  //       clientId: client.id,
+  //       carIds: client.carIds.split(',').map(id => +id),
+  //     },
+  //     header: 'Показы',
+  //     width: '70%',
+  //   });
 
-    this.subscribeOnCloseModalRef(ref);
-  }
+  //   this.subscribeOnCloseModalRef(ref);
+  // }
 
   // completeDeal(client: ServerClient.Response) {
   //   const ref = this.dialogService.open(CompleteClientDealComponent, {

@@ -1,7 +1,8 @@
 <p-toolbar>
   <div class="p-toolbar-group-left">
     <div style="display: flex; flex-direction: column; align-items: center;">
-      <span>{{type === queryCarTypes.carsForSale ? 'Всего автомобилей: ' : 'Выбрано автомобилей: '}}{{getAllSelectedCars()}}</span>
+      <span>{{'Выбрано автомобилей: '}}{{getAllSelectedCars()}}</span>
+      <span>{{'Всего автомобилей: '}}{{sortedCars.length}}</span>
     </div>
 
     <button *ngIf="addCarButtonAvailable" pButton type="button" [disabled]="carFieldConfigs.length === 0" label="Добавить машину" icon="pi pi-plus" (click)="openNewCarWindow()"></button>
@@ -11,9 +12,19 @@
       type="button"
       class="p-mb-2 p-button-danger"
       [disabled]="carFieldConfigs.length === 0"
-      label="Удалить"
+      label="Удалить навсегда"
       icon="pi pi-times"
       (click)="deleteCars()"
+    ></button>
+    <button
+      *ngIf="(isAdminOrHigher || isCarSalesChief) && selectedCars.length > 0"
+      pButton
+      type="button"
+      class="p-mb-2 p-button-danger"
+      [disabled]="carFieldConfigs.length === 0"
+      label="Удалить"
+      icon="pi pi-times"
+      (click)="changeCarsStatus()"
     ></button>
 
     <input type="text" (change)="sortCars()" [(ngModel)]="modelSearch" pInputText placeholder="Марка/модель"/>

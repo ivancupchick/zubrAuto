@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { FieldsUtils, FlagField, UIRealField } from 'src/app/entities/field';
+import { FieldType, FieldsUtils, FlagField, UIRealField } from 'src/app/entities/field';
 import { DynamicFieldBase, DynamicFieldOptions } from './dynamic-fields/dynamic-field-base';
 
 
@@ -17,7 +17,15 @@ export class DynamicFieldControlService {
         validators.push(Validators.required);
       }
 
-      group[field.key] = new UntypedFormControl(field.value || '', [...validators]);
+      switch (field.controlType) {
+        case FieldType.Date:
+          group[field.key] = new UntypedFormControl(field.value && new Date(+field.value) || '', [...validators]);
+          break;
+        default:
+          group[field.key] = new UntypedFormControl(field.value || '', [...validators]);
+          break;
+      }
+
 
       // TODO replace to other place
       if (field.readonly) {

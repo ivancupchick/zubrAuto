@@ -85,10 +85,10 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
         const v2 = gridConfig.getValue(data2)
 
         let value1 = gridConfig.isDate && v1
-          ? +moment(v1, 'DD/MM/YYYY').toDate()
+          ? +moment(v1, 'DD.MM.YYYY').toDate()
           : v1;
         let value2 = gridConfig.isDate && v2
-          ? +moment(v2, 'DD/MM/YYYY').toDate()
+          ? +moment(v2, 'DD.MM.YYYY').toDate()
           : v2;
         let result = null;
 

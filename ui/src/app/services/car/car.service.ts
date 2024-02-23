@@ -316,11 +316,12 @@ export class CarService {
     return this.fieldService.getFieldsByDomain(FieldDomains.CarOwner);
   }
 
-  addCall(carIds: number[]) {
+  addCall(carIds: (number | string)[]) {
+    const ids: number[] = carIds.filter(id => typeof id === 'number') as number[];
     const url = `${environment.serverUrl}/${API}/${ Constants.API.STATISTIC }/${ Constants.API.ADD_CALL }`;
 
     return this.requestService
-      .post<any>(url, { carIds })
+      .post<any>(url, { ids })
       .pipe(map(result => {
         console.log(result);
 

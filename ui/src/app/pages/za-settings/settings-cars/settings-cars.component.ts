@@ -163,6 +163,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     return this.sessionService.isAdminOrHigher;
   }
 
+  get isCarSalesChief() {
+    return this.sessionService.isCarSalesChief;
+  }
+
   get onSelectContactUserAvailable() {
     return this.sessionService.isContactCenterChief && (this.type === QueryCarTypes.allCallBase || this.type === QueryCarTypes.allCallBaseReady);
   }
@@ -534,6 +538,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     switch (this.type) {
       case QueryCarTypes.myCallBase:
       case QueryCarTypes.allCallBase:
+        this.checkboxMode = true;
         this.getColorConfig = (car) => {
           const status = getCarStatus(car)
 
@@ -593,6 +598,54 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }
   }
 
+  changeCarsStatus() {
+    const cars = [...this.selectedCars];
+
+
+    const availableStatuses = [
+      FieldNames.CarStatus.admin_Deleted,
+      FieldNames.CarStatus.contactCenter_Deny,
+      FieldNames.CarStatus.contactCenter_InProgress,
+      FieldNames.CarStatus.none
+    ];
+
+    if (cars.some(c => !availableStatuses.includes(getCarStatus(c)))) {
+      alert('Вы пытаетесь удалить машины со статусами не из списка: \n[ОКЦ]В работе, \n[ОКЦ]Отказ, \n[Админ]Удалена');
+    } else {
+      const carNames = cars
+        .map(item =>  `${FieldsUtils.getFieldValue(item, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(item, FieldNames.Car.model)}`)
+        .join('\n');
+
+      const ok = confirm(`Вы уверены что хотите удалить машины: \n${carNames}`);
+      if (ok) {
+        this.loading = true;
+
+        const statusField = this.carFieldConfigs.find(cfc => cfc.name === FieldNames.Car.status);
+        if (statusField) {
+          const settedStatusField = FieldsUtils.setDropdownValue(statusField, FieldNames.CarStatus.admin_Deleted);
+
+          zip(
+            cars.map(car => this.carService.updateCar({
+              fields: [{
+                id: settedStatusField.id,
+                name: settedStatusField.name,
+                value: settedStatusField.value
+              }],
+              ownerNumber: car.ownerNumber
+            }, car.id))
+          ).subscribe(res => {
+            this.loading = false;
+            const deletedCarIds = res.map(c => c.id);
+            this.rawCars = this.rawCars.filter(c => !deletedCarIds.includes(c.id));
+            this.sortCars();
+          });
+
+        }
+
+      }
+    }
+  }
+
   deleteCars() {
     const cars = [...this.selectedCars];
 
@@ -623,7 +676,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           });
       }
     }
-
   }
 
   resetState() {
@@ -663,7 +715,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       const dateFrom = this.rangeDates[0] ? (+this.rangeDates[0] - 1000 * 60 * 60 * 24) : null;
       const dateTo = this.rangeDates[1] ? (+this.rangeDates[1] + 1000 * 60 * 60 * 24) : null;
       this.sortedCars = this.sortedCars.filter(c => {
-        const carDate = +moment(this.getDate(c), 'DD/MM/YYYY').toDate();
+        const carDate = +moment(this.getDate(c), 'DD.MM.YYYY').toDate();
         return (!dateFrom || dateFrom < carDate) && (!dateTo || dateTo > carDate);
       });
     }

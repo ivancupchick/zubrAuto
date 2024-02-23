@@ -11,6 +11,7 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
 import { settingsUsersStrings } from '../../settings-users/settings-users.strings';
 import { Validators } from '@angular/forms';
 import { StringHash } from 'src/app/entities/constants';
+import { SessionService } from 'src/app/services/session/session.service';
 
 @Component({
   selector: 'za-create-user',
@@ -43,7 +44,7 @@ export class CreateUserComponent implements OnInit {
   constructor(
     private userService: UserService,
     private dfcs: DynamicFieldControlService,
-
+    private sessionService: SessionService,
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig
   ) {
@@ -92,28 +93,39 @@ export class CreateUserComponent implements OnInit {
       type: 'password',
       validators: [...[], ...creationValidators], // Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/)
       controlType: FieldType.Text,
-    }))
+    }));
+
+    const contactCenterRole = this.customRoles.find(cr => cr.systemName === ServerRole.Custom.contactCenter)!;
+
     formFields.push(this.dfcs.getDynamicFieldFromOptions({
       id: -1,
       value: `${this.user?.roleLevel || ServerRole.System.None }`,
       key: 'roleLevel',
       label: 'Роль',
       order: 1,
-      variants: [{
-        key: `${ServerRole.System.None}`,
-        value: 'Никакой'
-      }, {
-        key: `${ServerRole.System.Admin}`,
-        value: 'Админ'
-      }, {
-        key: `${ServerRole.System.SuperAdmin}`,
-        value: 'Супер Админ'
-      }, ...this.customRoles.map((role) => {
-        return {
-          key: `${role.id + 1000}`,
-          value: (settingsUsersStrings as StringHash)[role.systemName] || role.systemName
-        };
-      })],
+      variants: this.sessionService.isContactCenterChief
+        ? [{
+          key: `${ServerRole.System.None}`,
+          value: 'Никакой'
+        }, {
+          key: `${contactCenterRole.id + 1000}`,
+          value: (settingsUsersStrings as StringHash)[contactCenterRole.systemName] || contactCenterRole.systemName
+        }]
+        : [{
+          key: `${ServerRole.System.None}`,
+          value: 'Никакой'
+        }, {
+          key: `${ServerRole.System.Admin}`,
+          value: 'Админ'
+        }, {
+          key: `${ServerRole.System.SuperAdmin}`,
+          value: 'Супер Админ'
+        }, ...this.customRoles.map((role) => {
+          return {
+            key: `${role.id + 1000}`,
+            value: (settingsUsersStrings as StringHash)[role.systemName] || role.systemName
+          };
+        })],
       controlType: FieldType.Dropdown,
     }))
 

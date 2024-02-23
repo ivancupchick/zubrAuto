@@ -1,0 +1,14 @@
+.p-field {
+  margin-top: 1rem;
+  padding: .5rem;
+
+  // &.ng-invalid {
+  //   margin-top: 1.5rem;
+  // }
+
+  small {
+    position: absolute;
+    left: 0;
+    bottom: -15px;
+  }
+}

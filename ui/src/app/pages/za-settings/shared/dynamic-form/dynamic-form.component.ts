@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { UntypedFormGroup } from '@angular/forms';
-import { RealField } from 'src/app/entities/field';
+import { FieldType, RealField } from 'src/app/entities/field';
 import { DynamicFieldControlService } from './dynamic-field-control.service';
 import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
 
@@ -26,7 +26,6 @@ import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
   ]
 })
 export class DynamicFormComponent implements OnInit {
-
   formGroup!: UntypedFormGroup;
   // @Input() data: RealField[] | null = null;
   // @Input() dataConfig!: DataConfigItem[];
@@ -34,6 +33,8 @@ export class DynamicFormComponent implements OnInit {
   @Input() fields: DynamicFieldBase<string>[] = [];
 
   @Output() changed = new EventEmitter<boolean>();
+
+  FieldType = FieldType;
 
   private valid = false;
 
@@ -64,11 +65,21 @@ export class DynamicFormComponent implements OnInit {
   getValue(): RealField.Request[] {
     return this.fields
       .filter((field) => !this.formGroup.controls[field.key].pristine)
-      .map((field) => ({
-        id: field.id,
-        name: field.key,
-        value: this.formGroup.controls[field.key].value
-      }))
+      .map((field) => {
+        if (field.controlType === FieldType.Date) {
+          return {
+            id: field.id,
+            name: field.key,
+            value: +this.formGroup.controls[field.key].value
+          }
+        }
+
+        return {
+          id: field.id,
+          name: field.key,
+          value: this.formGroup.controls[field.key].value
+        };
+      });
   }
 
   getAllValue(): RealField.Request[] {
