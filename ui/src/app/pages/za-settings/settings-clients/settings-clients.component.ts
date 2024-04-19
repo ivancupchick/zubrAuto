@@ -123,6 +123,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       title: this.strings.createDate,
       name: FieldNames.Client.date,
       getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date)),
+      sortable: () => true
     }, {
       title: this.strings.name,
       name: 'name',
@@ -164,6 +165,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       title: this.strings.nextAction,
       name: 'nextAction',
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
+      sortable: () => true
     },
     {
       title: this.strings.nextAction,
