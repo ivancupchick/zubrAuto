@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { getClientStatus, ServerClient } from 'src/app/entities/client';
+import { getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/client';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ClientService } from 'src/app/services/client/client.service';
@@ -9,11 +9,9 @@ import { settingsClientsStrings } from './settings-clients.strings';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SessionService } from 'src/app/services/session/session.service';
-import { ManageCarShowingComponent } from '../modals/manage-car-showing/manage-car-showing.component';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
-import { CompleteClientDealComponent } from '../modals/complete-client-deal/complete-client-deal.component';
 import { Observable, Subject, zip } from 'rxjs';
 import { StringHash } from 'src/app/entities/constants';
 import { DateUtils } from 'src/app/entities/utils';
@@ -55,6 +53,13 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   availableStatuses: { label: FieldNames.DealStatus, value: FieldNames.DealStatus }[] = [];
   selectedStatus: FieldNames.DealStatus[] = [];
 
+  availableClientStatuses: { label: FieldNames.ClientStatus, value: FieldNames.ClientStatus }[] = [];
+  selectedClientStatus: FieldNames.ClientStatus[] = [];
+
+  dateFrom: Date | null = null;
+  dateTo: Date | null = null;
+
+
   destoyed = new Subject<void>();
 
   constructor(private clientService: ClientService, private dialogService: DialogService, private sessionService: SessionService, private carService: CarService) { }
@@ -71,6 +76,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
     });
 
     this.availableStatuses = availableStatuses.map(s => ({ label: s, value: s }));
+    this.availableClientStatuses = Object.values(FieldNames.ClientStatus).map(s => ({ label: s, value: s }));
 
     this.selectedStatus = [
       FieldNames.DealStatus.InProgress,
@@ -104,7 +110,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
   getGridColorConfig(){
     this.getColorConfig = (car) => {
-      const status = getClientStatus(car);
+      const status = getDealStatus(car);
 
       switch (status) {
         case FieldNames.DealStatus.Deny: return '#ff00002b'
@@ -270,8 +276,26 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
   sortClients() {
     this.sortedClients = this.rawClients.filter(c =>
-      this.selectedStatus.includes(getClientStatus(c)) || this.selectedStatus.length === 0
-    );
+      this.selectedStatus.includes(getDealStatus(c)) || this.selectedStatus.length === 0
+    ).filter(c =>
+      this.selectedClientStatus.includes(getClientStatus(c)) || this.selectedClientStatus.length === 0
+    ).filter(c => {
+      const createDate = FieldsUtils.getFieldNumberValue(c, FieldNames.Client.date);
+      if (!createDate) {
+        return true;
+      }
+
+      const dateTo = +(this.dateTo || 0) + 86390000; // 86400000 === day in ms
+      if (this.dateTo && createDate > +dateTo) {
+        return false;
+      }
+
+      if (this.dateFrom && createDate < +this.dateFrom) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
   openNewClientWindow() {

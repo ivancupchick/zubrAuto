@@ -76,6 +76,14 @@ export namespace FieldNames {
     OnDeposit = 'Дал задаток',
   }
 
+  export enum ClientStatus {
+    InProgress = 'Идёт оформление',
+    Thinking = 'Думает',
+    HavingWaiting = 'Ждёт наличие',
+    ProposalWaiting = 'Ждёт предложение',
+    AppointmentSigned = 'Записан на ТД',
+  }
+
   export enum CarOwner {
     name = 'name',
     ownerNumber = 'ownerNumber'

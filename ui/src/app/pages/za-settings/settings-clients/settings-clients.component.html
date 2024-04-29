@@ -24,6 +24,28 @@
         [maxSelectedLabels]="1"
       ></p-multiSelect>
     </div>
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <p-multiSelect
+        appendTo="body"
+        *ngIf="availableClientStatuses.length > 0"
+        [options]="availableClientStatuses"
+        [(ngModel)]="selectedClientStatus"
+        placeholder="Статус клиента"
+        optionLabel="label"
+        optionValue="value"
+        (onPanelHide)="sortClients()"
+        selectedItemsLabel="{0} статусов клиента выбрано"
+        [maxSelectedLabels]="1"
+      ></p-multiSelect>
+    </div>
+    <span>Дата создания от</span>
+    <div class="date-wrapper">
+      <p-calendar appendTo="body" [showButtonBar]="true" (onClose)="sortClients()" [(ngModel)]="dateFrom" [showTime]="false" hourFormat="24" [firstDayOfWeek]="1"></p-calendar>
+    </div>
+    <span>до</span>
+    <div class="date-wrapper">
+      <p-calendar appendTo="body" [showButtonBar]="true" (onClose)="sortClients()" [(ngModel)]="dateTo" [showTime]="false" hourFormat="24" [firstDayOfWeek]="1"></p-calendar>
+    </div>
   </div>
 </p-toolbar>
 <p></p>
