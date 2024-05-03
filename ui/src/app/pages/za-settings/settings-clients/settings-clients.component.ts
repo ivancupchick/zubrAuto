@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/client';
+import { getClientSource, getClientSpecialist, getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/client';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ClientService } from 'src/app/services/client/client.service';
@@ -15,6 +15,9 @@ import { ServerCar } from 'src/app/entities/car';
 import { Observable, Subject, zip } from 'rxjs';
 import { StringHash } from 'src/app/entities/constants';
 import { DateUtils } from 'src/app/entities/utils';
+import { UserService } from 'src/app/services/user/user.service';
+import { ServerUser } from 'src/app/entities/user';
+import { ServerRole } from 'src/app/entities/role';
 
 const availableStatuses = [
   FieldNames.DealStatus.Deny,
@@ -23,7 +26,6 @@ const availableStatuses = [
   FieldNames.DealStatus.Sold,
 ];
 
-
 @Component({
   selector: 'za-settings-clients',
   templateUrl: './settings-clients.component.html',
@@ -31,7 +33,8 @@ const availableStatuses = [
   providers: [
     DialogService,
     ClientService,
-    CarService
+    CarService,
+    UserService
   ]
 })
 export class SettingsClientsComponent implements OnInit, OnDestroy {
@@ -56,13 +59,28 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   availableClientStatuses: { label: FieldNames.ClientStatus, value: FieldNames.ClientStatus }[] = [];
   selectedClientStatus: FieldNames.ClientStatus[] = [];
 
+  availableClientSources: { label: FieldNames.ClientSource, value: FieldNames.ClientSource }[] = [];
+  selectedClientSource: FieldNames.ClientSource[] = [];
+
+  availableSpecialists: { label: string, value: number }[] = [];
+  selectedSpecialist: number[] = [];
+
+  specialists: ServerUser.Response[] = [];
+
   dateFrom: Date | null = null;
   dateTo: Date | null = null;
 
-
   destoyed = new Subject<void>();
 
-  constructor(private clientService: ClientService, private dialogService: DialogService, private sessionService: SessionService, private carService: CarService) { }
+  isCarSalesChiefOrAdmin = this.sessionService.isCarSalesChief || this.sessionService.isAdminOrHigher;
+
+  constructor(
+    private clientService: ClientService,
+    private dialogService: DialogService,
+    private sessionService: SessionService,
+    private carService: CarService,
+    private userService: UserService
+  ) {}
 
   ngOnInit(): void {
     this.loading = true;
@@ -71,12 +89,14 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       takeUntil(this.destoyed)
     ).subscribe(cars => {
       this.allCars = cars;
+      this.sortClients();
       this.loading = false;
       this.setGridSettings();
     });
 
     this.availableStatuses = availableStatuses.map(s => ({ label: s, value: s }));
     this.availableClientStatuses = Object.values(FieldNames.ClientStatus).map(s => ({ label: s, value: s }));
+    this.availableClientSources = Object.values(FieldNames.ClientSource).map(s => ({ label: s, value: s }));
 
     this.selectedStatus = [
       FieldNames.DealStatus.InProgress,
@@ -85,10 +105,22 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   }
 
   getData(): Observable<ServerCar.Response[]> {
-    return zip(this.getClients(), this.clientService.getClientFields()).pipe(
+    return zip(this.getClients(), this.clientService.getClientFields(), this.userService.getUsers()).pipe(
       takeUntil(this.destoyed),
-      switchMap(([clientsRes, clientFieldsRes]) => {
+      switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {
         this.fieldConfigs = clientFieldsRes;
+        this.specialists = usersFieldsRes
+          .filter(u => u.customRoleName === ServerRole.Custom.carSales
+                    || u.customRoleName === ServerRole.Custom.carSalesChief
+                    || u.customRoleName === ServerRole.Custom.customerService
+                    || u.customRoleName === ServerRole.Custom.customerServiceChief
+                    || (
+                      (
+                        u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
+                      )
+                    ));
+
+        this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: u.id }));
 
         const carIds = clientsRes.reduce<number[]>((prev, client) => {
           const clietnCarIds = client.carIds.split(',').map(id => +id);
@@ -125,60 +157,84 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
   getGridConfig(): GridConfigItem<ServerClient.Response>[] {
     return [
-    {
-      title: this.strings.createDate,
-      name: FieldNames.Client.date,
-      getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date)),
-      sortable: () => true
-    }, {
-      title: this.strings.name,
-      name: 'name',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.name),
-    }, {
-      title: this.strings.number,
-      name: 'number',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.number),
-    },
-    {
-      title: this.strings.carIds,
-      name: 'carIds',
-      getValue: (item) => {
-        const needCars = this.allCars.filter(c => item.carIds.split(',').map(id => +id).includes(+c.id));
+      {
+        title: this.strings.id,
+        name: 'id',
+        getValue: (item) => {
+          const userId = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.SpecialistId);
+          const specialist: ServerUser.Response = this.specialists.find(user => user.id === userId)!;
 
-        const nonCars: string[] = item.carIds.split(',').filter(a => Number.isNaN(+a));
+          if (userId && specialist) {
+            const specialistName = FieldsUtils.getFieldValue(specialist, FieldNames.User.name);
 
-        return [
-          ...needCars.map(c => {
-            return `
-            ${FieldsUtils.getFieldValue(c,FieldNames.Car.mark)}
-            ${FieldsUtils.getFieldValue(c,FieldNames.Car.model)}`;
-          }),
-          ...nonCars
-        ].join(', ')
+            return `${item.id} ${(specialistName || '').split(' ').map(word => word[0]).join('')}`;
+          } else {
+            return item.id
+          }
+        },
       },
-    },
-    {
-      title: this.strings.dealStatus,
-      name: 'dealStatus',
-      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
-    },
-    {
-      title: this.strings.clientStatus,
-      name: 'clientStatus',
-      getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.clientStatus),
-    },
-    {
-      title: this.strings.nextAction,
-      name: 'nextAction',
-      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
-      sortable: () => true
-    },
-    {
-      title: this.strings.nextAction,
-      name: 'dateNextAction',
-      getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.dateNextAction)),
-    }
-  ];
+      {
+        title: this.strings.createDate,
+        name: FieldNames.Client.date,
+        getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date)),
+        sortable: () => true
+      },
+      {
+        title: this.strings.source,
+        name: 'source',
+        sortable: () => true,
+        getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.source),
+      },
+      {
+        title: this.strings.name,
+        name: 'name',
+        getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.name),
+      },
+      {
+        title: this.strings.number,
+        name: 'number',
+        getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.number),
+      },
+      {
+        title: this.strings.carIds,
+        name: 'carIds',
+        getValue: (item) => {
+          const needCars = this.allCars.filter(c => item.carIds.split(',').map(id => +id).includes(+c.id));
+
+          const nonCars: string[] = item.carIds.split(',').filter(a => Number.isNaN(+a));
+
+          return [
+            ...needCars.map(c => {
+              return `
+              ${FieldsUtils.getFieldValue(c,FieldNames.Car.mark)}
+              ${FieldsUtils.getFieldValue(c,FieldNames.Car.model)}`;
+            }),
+            ...nonCars
+          ].join(', ')
+        },
+      },
+      {
+        title: this.strings.dealStatus,
+        name: 'dealStatus',
+        getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
+      },
+      {
+        title: this.strings.clientStatus,
+        name: 'clientStatus',
+        getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.clientStatus),
+      },
+      {
+        title: this.strings.nextAction,
+        name: 'nextAction',
+        getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
+      },
+      {
+        title: this.strings.nextAction,
+        name: 'dateNextAction',
+        sortable: () => true,
+        getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.dateNextAction)),
+      },
+    ];
   }
 
   getGridActionsConfig(): GridActionConfigItem<ServerClient.Response>[] {
@@ -230,7 +286,8 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
         client,
-        fieldConfigs: this.fieldConfigs
+        fieldConfigs: this.fieldConfigs,
+        specialists: this.specialists,
       },
       header: 'Редактировать клиента',
       width: '70%'
@@ -251,6 +308,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         client,
         fieldConfigs: specificFieldConfigs,
         hasSelectionOfCars: false,
+        specialists: this.specialists,
       },
       header: 'Редактировать следующее действие',
       width: '70%'
@@ -275,10 +333,21 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   }
 
   sortClients() {
-    this.sortedClients = this.rawClients.filter(c =>
+    this.sortedClients = this.rawClients.filter(c => {
+      if (this.sessionService.isCarSales) {
+        const specialistId = FieldsUtils.getFieldNumberValue(c, FieldNames.Client.SpecialistId);
+        return this.sessionService.userId === specialistId;
+      }
+
+      return true;
+    }).filter(c =>
+      this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
+    ).filter(c =>
       this.selectedStatus.includes(getDealStatus(c)) || this.selectedStatus.length === 0
     ).filter(c =>
       this.selectedClientStatus.includes(getClientStatus(c)) || this.selectedClientStatus.length === 0
+    ).filter(c =>
+      this.selectedClientSource.includes(getClientSource(c)) || this.selectedClientSource.length === 0
     ).filter(c => {
       const createDate = FieldsUtils.getFieldNumberValue(c, FieldNames.Client.date);
       if (!createDate) {
@@ -301,7 +370,8 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   openNewClientWindow() {
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
-        fieldConfigs: this.fieldConfigs
+        fieldConfigs: this.fieldConfigs,
+        specialists: this.specialists
       },
       header: 'Новый клиент',
       width: '70%',

@@ -19,6 +19,9 @@ export class SessionService {
   userSubj = new BehaviorSubject<ServerAuth.IPayload | null>(null);
   roleSubj = new Subject<ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin>();
 
+  get userId() {
+    return this.user.id;
+  }
   private get user() {
     return this.userSubj.getValue() || {} as ServerAuth.IPayload;
   }

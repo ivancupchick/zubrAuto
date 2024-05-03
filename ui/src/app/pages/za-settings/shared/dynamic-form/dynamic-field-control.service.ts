@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { FieldType, FieldsUtils, FlagField, UIRealField } from 'src/app/entities/field';
 import { DynamicFieldBase, DynamicFieldOptions } from './dynamic-fields/dynamic-field-base';
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 
 @Injectable()
@@ -36,7 +37,7 @@ export class DynamicFieldControlService {
   }
 
   getDynamicFieldsFromDBFields(dbFields: UIRealField[]) {
-    const requiredFields = ['name', 'number', 'deal-status']
+    const requiredFields: string[] = [FieldNames.Client.name,FieldNames.Client.number, FieldNames.Client.dealStatus, FieldNames.Client.source];
 
     const fields: DynamicFieldBase<string>[] = dbFields
       .filter(dbField => !FlagField.Is(dbField, FlagField.Flags.Virtual))

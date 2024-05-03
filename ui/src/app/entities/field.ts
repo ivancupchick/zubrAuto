@@ -39,6 +39,12 @@ export class UIRealField  {
     }));
     this.showUserLevel = options.showUserLevel;
     this.value = value;
+
+    if (options.type === FieldType.Dropdown) {
+      if (!this.variants.map(v => v.key).includes(value)) {
+        this.value = '';
+      }
+    }
   }
 }
 
@@ -80,11 +86,11 @@ export class FieldsUtils {
     }
 
     const fields = this.getFields(entityOrFieldsArray)
-  
+
     if (!fields || fields.length === 0) {
       return null;
     }
-  
+
     return fields.find((field) => field.name === name) || null;
   }
 

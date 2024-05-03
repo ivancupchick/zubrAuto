@@ -12,6 +12,7 @@ export namespace FieldNames {
     comment = 'comment',
     dateNextAction = 'date-next-action',
     clientStatus = 'client-status',
+    SpecialistId = 'specialist-id',
   }
 
   export enum Car {
@@ -82,6 +83,19 @@ export namespace FieldNames {
     HavingWaiting = 'Ждёт наличие',
     ProposalWaiting = 'Ждёт предложение',
     AppointmentSigned = 'Записан на ТД',
+  }
+
+  export enum ClientSource {
+    Street = 'Улица',
+    Site = 'Заявка с сайта',
+    Call = 'Звонок',
+    Av = 'av.by',
+    Chat = 'Чат',
+    Insta = 'Инста',
+    TikTok = 'Тик-Ток',
+    CallTC = 'Звонок ТЦ',
+    TC = 'Заявка ТЦ',
+    Other = 'Другое',
   }
 
   export enum CarOwner {

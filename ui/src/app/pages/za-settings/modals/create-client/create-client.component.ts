@@ -14,6 +14,8 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
 import { CarChip, SelectCarComponent } from '../select-car/select-car.component';
 import { StringHash } from 'src/app/entities/constants';
 import { CarStatusLists, QueryCarTypes } from '../../settings-cars/cars.enums';
+import { SessionService } from 'src/app/services/session/session.service';
+import { ServerUser } from 'src/app/entities/user';
 
 @Component({
   selector: 'za-create-client',
@@ -30,6 +32,7 @@ export class CreateClientComponent implements OnInit {
   @Input() predefinedCar: ServerCar.Response | undefined = undefined;
   @Input() client: ServerClient.Response | undefined = undefined;
   @Input() fieldConfigs: ServerField.Response[] = [];
+  @Input() specialists: ServerUser.Response[] = [];
 
   @Input()
   get hasSelectionOfCars(): boolean {
@@ -53,7 +56,8 @@ export class CreateClientComponent implements OnInit {
 
   excludeFields: FieldNames.Client[] = [
     FieldNames.Client.date,
-    'carIds' as FieldNames.Client
+    'carIds' as FieldNames.Client,
+    FieldNames.Client.SpecialistId,
   ];
 
   constructor(
@@ -63,6 +67,7 @@ export class CreateClientComponent implements OnInit {
     private config: DynamicDialogConfig,
     private dialogService: DialogService,
     private carService: CarService,
+    private sessionService: SessionService,
   ) {
     this.client = this.config?.data?.client || undefined;
     this.predefinedCar = this.config?.data?.predefinedCar || undefined;
@@ -70,6 +75,7 @@ export class CreateClientComponent implements OnInit {
 
   ngOnInit(): void {
     this.fieldConfigs = this.config.data.fieldConfigs;
+    this.specialists = this.config.data.specialists;
 
     this.isJustCall = new UntypedFormControl(false);
 
@@ -101,6 +107,24 @@ export class CreateClientComponent implements OnInit {
         return newField;
       }))
         .map(fc => this.updateFieldConfig(fc));
+
+    if (this.sessionService.isAdminOrHigher || this.sessionService.isCarSalesChief || this.sessionService.isCustomerServiceChief) {
+      const specialistId = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.SpecialistId);
+      formFields.push(
+        this.dfcs.getDynamicFieldFromOptions({
+          id: specialistId?.id || -1,
+          value: this.client?.fields.find(f => f.name === FieldNames.Client.SpecialistId)?.value || 'None',
+          key: FieldNames.Car.contactCenterSpecialistId,
+          label: 'Специалист',
+          order: 1,
+          controlType: FieldType.Dropdown,
+          variants: [
+            { value: 'Никто', key: 'None' },
+            ...this.specialists.map(u => ({ key: `${u.id}`, value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name) || u.email}` }))
+          ]
+        })
+      );
+    }
 
     this.dynamicFormFields = formFields;
 
