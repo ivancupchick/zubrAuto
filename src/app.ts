@@ -53,7 +53,7 @@ export class App {
   }
 
   private routes = () => {
-    const string = process.env.NODE_ENV !== 'production' ? "/build" : ""
+    const string = process.env.NODE_ENV !== 'production' ? "/build/public" : ""
 
     this.app.use(express.static(process.cwd()+string+"/ui/zubr-auto/"));
     this.app.use('/uploads/', express.static(process.cwd()+string+"/uploads/"));

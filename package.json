@@ -4,13 +4,13 @@
   "description": "node server",
   "main": "build/index.bundle.js",
   "scripts": {
-    "start": "rimraf build && cp -r public build/ && cd ui && npm run build && cd .. && tsc && node ./build/index.js",
+    "start": "rimraf build && cd ui && npm run build && cd .. && ls && nodemon",
     "build": "rimraf build && mkdir build && cp -r public build/public/ && tsc && webpack && cd ui && npm run build",
-    "dev": "rimraf build && cp -r public build/public/ && tsc && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\" \"cd ui && ng build --watch\"",
-    "dev-server": "rimraf build && cp -r public build/ && tsc && concurrently --kill-others \"tsc --watch\" \"nodemon ./build/index.js localhost 3080\"",
+    "dev": "rimraf build && tsc && concurrently --kill-others \"nodemon\" \"cd ui && npm start\"",
     "dev-ui": "cd ui && npm start",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start-server": "rimraf build && cp -r public build/ && tsc && node ./build/index.js"
+    "dev-server": "nodemon",
+    "dev-build-watch": "rimraf build && tsc && concurrently --kill-others \"nodemon\" \"cd ui && ng build --watch\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "aws-sdk": "^2.1050.0",
@@ -52,6 +52,7 @@
     "gulp-zip": "^5.0.1",
     "nodemon": "^2.0.12",
     "rimraf": "^3.0.2",
+    "ts-node": "^10.9.2",
     "webpack": "^4.42.1",
     "webpack-cli": "^4.8.0",
     "webpack-node-externals": "^3.0.0",
