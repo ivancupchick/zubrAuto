@@ -31,7 +31,7 @@ export class App {
   }
 
   private settings() {
-    this.app.set('port', this.port || process.env.PORT || 3080);
+    this.app.set('port', this.port || process.env.PORT || 4205);
   }
 
   private middlewares(routesHandler: () => void) {
