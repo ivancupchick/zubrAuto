@@ -22,6 +22,7 @@
     "chart.js": "^4.3.0",
     "crypto-js": "^4.1.1",
     "moment": "^2.29.4",
+    "ngx-highlightjs": "^7.0.1",
     "primeflex": "^3.3.1",
     "primeicons": "^6.0.1",
     "primeng": "^15.4.1",

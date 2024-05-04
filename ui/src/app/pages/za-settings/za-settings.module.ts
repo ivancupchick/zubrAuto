@@ -81,6 +81,8 @@ import { CompleteClientDealComponent } from './modals/complete-client-deal/compl
 import { ServerErrorMessageInterceptor } from 'src/app/services/interseptors/server-error-message-interceptor.service';
 import { MessageService } from 'primeng/api';
 import { ChangeCarOwnerNumberComponent } from './modals/change-car-owner-number/change-car-owner-number.component';
+import { ClientPreviewComponent } from './client/modals/client-preview/client-preview.component';
+import { HighlightModule } from 'ngx-highlightjs';
 
 
 
@@ -156,7 +158,8 @@ const routes: Routes = [{
     CreateCarShowingComponent,
     CustomerServiceCallComponent,
     CompleteClientDealComponent,
-    ChangeCarOwnerNumberComponent
+    ChangeCarOwnerNumberComponent,
+    ClientPreviewComponent,
   ],
   imports: [
     RouterModule.forChild(routes),
@@ -199,7 +202,8 @@ const routes: Routes = [{
     EditorModule,
     TooltipModule,
     ModalsAuthModule,
-    DynamicFormModule
+    DynamicFormModule,
+    HighlightModule,
   ],
   providers: [
     AuthService,

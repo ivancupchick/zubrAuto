@@ -16,6 +16,8 @@ import { StringHash } from 'src/app/entities/constants';
 import { CarStatusLists, QueryCarTypes } from '../../settings-cars/cars.enums';
 import { SessionService } from 'src/app/services/session/session.service';
 import { ServerUser } from 'src/app/entities/user';
+import { map, mergeMap, of } from 'rxjs';
+import { ClientPreviewComponent } from '../../client/modals/client-preview/client-preview.component';
 
 @Component({
   selector: 'za-create-client',
@@ -42,7 +44,7 @@ export class CreateClientComponent implements OnInit {
   selectedCars: CarChip[] = [];
   private originalCarChips: CarChip[] = [];
   private selectedRealCars: ServerCar.Response[] = [];
-  private allCars: ServerCar.Response[] = [];
+  // private allCars: ServerCar.Response[] = [];
 
   @ViewChild(DynamicFormComponent) clientForm!: DynamicFormComponent;
 
@@ -133,11 +135,11 @@ export class CreateClientComponent implements OnInit {
     const query: StringHash = {};
     query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
 
-    this.carService.getCarsByQuery(query).subscribe(cars => {
-      this.allCars = cars.filter(c => getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
-      // || getCarStatus(c) === FieldNames.CarStatus.customerService_InProgress
-      // || getCarStatus(c) === FieldNames.CarStatus.customerService_Ready
-      );
+    const obs = this.client && this.client.carIds && this.client.carIds.split(',').length
+      ? this.carService.getCarsByQuery(Object.assign(query, { id: this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a)}))
+      : of([])
+
+    obs.subscribe(cars => {
       if (this.client) {
         let carIds: (number | string)[] = [];
 
@@ -220,14 +222,35 @@ export class CreateClientComponent implements OnInit {
         })
       } else {
         // TODO create right expression for this error
-        console.log("Сфотографируйте ошибку и отправьте покажите фото администратору");
+        console.log("Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику");
       }
 
       const methodObs = this.client != undefined
         ? this.clientService.updateClient(client, (this.client as ServerClient.Response).id)
-        : this.clientService.createClient(client)
+        : this.clientService.getClientsByNumber({ [FieldNames.Client.number]: FieldsUtils.getFieldStringValue(client.fields, FieldNames.Client.number) }).pipe(
+          mergeMap((res) => {
+            if (res && res.length) {
+              console.log(this.specialists);
+              res.forEach((existClient, index) => {
+                this.dialogService.open(ClientPreviewComponent, {
+                  data: {
+                    client: existClient,
+                    users: this.specialists,
+                  },
+                  header: `Уже созданный клиент #${index + 1}`,
+                  width: '60%',
+                  height: '50%',
+                });
+              })
 
-      methodObs.subscribe(result => {
+              return of(false);
+            }
+
+            return this.clientService.createClient(client);
+          })
+        )
+
+      methodObs.subscribe((result: boolean) => {
         if (result) {
           this.cancel(true);
         } else {
@@ -249,27 +272,6 @@ export class CreateClientComponent implements OnInit {
   updateFieldConfig(field: DynamicFieldBase<string>) {
     if (settingsClientsStrings[field.key]) {
       field.label = settingsClientsStrings[field.key];
-    }
-
-    switch (field.key) {
-      case FieldNames.Client.paymentType:
-        field.label = settingsClientsStrings.paymentType;
-        break;
-      case FieldNames.Client.tradeInAuto:
-        field.label = settingsClientsStrings.tradeInAuto;
-        break;
-      case FieldNames.Client.dealStatus:
-        field.label = settingsClientsStrings.dealStatus;
-        break;
-      case FieldNames.Client.clientStatus:
-        field.label = settingsClientsStrings.clientStatus;
-        break;
-      case FieldNames.Client.nextAction:
-        field.label = settingsClientsStrings.nextAction;
-        break;
-      case FieldNames.Client.dateNextAction:
-        field.label = settingsClientsStrings.dateNextAction;
-        break;
     }
 
     return field;
@@ -294,10 +296,10 @@ export class CreateClientComponent implements OnInit {
       header: 'Выбор машины',
       width: '90%',
       height: '90%',
-    }).onClose.subscribe((res: CarChip[] | boolean) => {
-      if (res !== false && Array.isArray(res)) {
-        this.selectedRealCars = this.allCars.filter(ac => !!res.find(r => r.id === ac.id))
-        this.setCarsToForm([...res]);
+    }).onClose.subscribe((res: { chips: CarChip[], realCars: ServerCar.Response[] } | false) => {
+      if (res && Array.isArray(res.chips)) {
+        this.selectedRealCars = res.realCars;
+        this.setCarsToForm([...res.chips]);
       }
     });
   }

@@ -48,7 +48,7 @@ export class SelectCarComponent implements OnInit {
       }
     })
 
-    this.ref.close(result.filter(r => !!r));
+    this.ref.close({ chips: result.filter(r => !!r), realCars: this.selectedCars });
   }
 
   cancel() {

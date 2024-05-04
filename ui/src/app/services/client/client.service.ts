@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServerClient } from 'src/app/entities/client';
-import { Constants } from 'src/app/entities/constants';
+import { Constants, StringHash } from 'src/app/entities/constants';
 import { FieldDomains } from 'src/app/entities/field';
 import { environment } from 'src/environments/environment';
 import { FieldService } from '../field/field.service';
@@ -75,5 +75,12 @@ export class ClientService {
 
   getClientFields() {
     return this.fieldService.getFieldsByDomain(FieldDomains.Client);
+  }
+
+  getClientsByNumber(payloud: StringHash): Observable<ServerClient.Response[]> {
+    return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}`, payloud)
+      .pipe(map(result => {
+        return result;
+      }))
   }
 }

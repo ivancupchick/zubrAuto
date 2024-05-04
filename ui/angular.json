@@ -32,7 +32,8 @@
             "allowedCommonJsDependencies" : [
               "quill",
               "moment",
-              "crypto-js"
+              "crypto-js",
+              "highlight.js"
             ],
             "assets": [
               "src/favicon.ico",
@@ -45,7 +46,8 @@
               "node_modules/primeflex/primeflex.css",
               "node_modules/primeicons/primeicons.css",
               "node_modules/quill/dist/quill.core.css",
-              "node_modules/quill/dist/quill.snow.css"
+              "node_modules/quill/dist/quill.snow.css",
+              "node_modules/highlight.js/styles/googlecode.css"
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.js",
@@ -118,7 +120,8 @@
             "styles": [
               "src/styles.scss",
               "node_modules/quill/dist/quill.core.css",
-              "node_modules/quill/dist/quill.snow.css"
+              "node_modules/quill/dist/quill.snow.css",
+              "node_modules/highlight.js/styles/googlecode.css"
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.js",
