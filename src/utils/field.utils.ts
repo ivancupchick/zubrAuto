@@ -1,28 +1,30 @@
 import { Models } from "../entities/Models";
-import { RealField, ServerField } from "../entities/Field";
-import { BitHelper } from "./bit.utils";
+import { FieldType, RealField, ServerField } from "../entities/Field";
+import { StringHash } from "../models/hashes";
 
-export namespace FlagField {
-  export enum Flags {
-    System = 1,
-    Virtual = 2,
-  }
+export const getFieldChainsValue = (query: StringHash, fields: Models.Field[]): string[] => {
+  fields.forEach(f => {
+    if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
+      const needVariants = query[f.name].split(',');
+      query[f.name] = needVariants.map(v => {
+        if (f.variants) {
+          const index = f.variants.split(',').findIndex(vValue => vValue === v);
 
-  export function setFlagOn(v: { flags: number }, bit: Flags) {
-    // v.flags |= bit;
-    v.flags = BitHelper.setOn(v.flags, bit)
-  }
+          return `${f.name}-${index}`;
+        }
 
-  export function setFlagOff(v: { flags: number }, bit: Flags) {
-    // v.flags &= ~bit;
-    v.flags = BitHelper.setOff(v.flags, bit);
-  }
+        return query[f.name];
+      }).join(',')
+    }
+  });
 
-  export function Is(v: { flags: number } | number, bit: Flags) {
-    const value = typeof v === 'number' ? v : v.flags;
-// (value & bit) === bit;
-    return BitHelper.Is(value, bit);
-  }
+  const queryValues = fields.map(f => f.name).map(k => query[k].split(','));
+  const rValues: string[] = [];
+  queryValues.forEach(queryValue => {
+    queryValue.forEach(vv => rValues.push(vv));
+  })
+
+  return rValues;
 }
 
 export const getFieldsWithValues = (chainedFields: Models.Field[], chaines: Models.FieldChain[], sourceId: number): RealField.Response[] => {

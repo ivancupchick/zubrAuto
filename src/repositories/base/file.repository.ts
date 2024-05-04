@@ -5,7 +5,7 @@ import { BaseRepository } from "./base.repository";
 
 class FileRepository extends BaseRepository<Models.File> {
   constructor() {
-    super(Models.FILES_TABLE_NAME);
+    super(Models.Table.Files);
   }
 
   async updateById(id: number, item: Partial<Omit<Models.File, 'id'>>): Promise<Models.File> {

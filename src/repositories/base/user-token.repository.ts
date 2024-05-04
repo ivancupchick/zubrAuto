@@ -3,7 +3,7 @@ import { BaseRepository } from "./base.repository";
 
 class UserTokenRepository extends BaseRepository<Models.UserToken> {
   constructor() {
-    super(Models.USER_TOKENS_TABLE_NAME);
+    super(Models.Table.UserTokens);
   }
 }
 

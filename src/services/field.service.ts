@@ -60,19 +60,19 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
     let entities: { id: number }[] = [];
     switch (field.domain) {
       case FieldDomains.Car:
-        tableName = Models.CARS_TABLE_NAME
+        tableName = Models.Table.Cars
         entities = await carRepository.getAll();
         break;
       case FieldDomains.User:
-        tableName = Models.USERS_TABLE_NAME
+        tableName = Models.Table.Users
         entities = await userRepository.getAll();
         break;
       case FieldDomains.CarOwner:
-        tableName = Models.CAR_OWNERS_TABLE_NAME
+        tableName = Models.Table.CarOwners
         entities = await carOwnerRepository.getAll();
         break;
       case FieldDomains.Client:
-        tableName = Models.CLIENTS_TABLE_NAME
+        tableName = Models.Table.Clients
         entities = await clientRepository.getAll();
         break;
     }
@@ -141,19 +141,19 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
     let entities: { id: number }[] = [];
     switch (field.domain) {
       case FieldDomains.Car:
-        tableName = Models.CARS_TABLE_NAME
+        tableName = Models.Table.Cars
         entities = await carRepository.getAll();
         break;
       case FieldDomains.User:
-        tableName = Models.USERS_TABLE_NAME
+        tableName = Models.Table.Users
         entities = await userRepository.getAll();
         break;
       case FieldDomains.CarOwner:
-        tableName = Models.CAR_OWNERS_TABLE_NAME
+        tableName = Models.Table.CarOwners
         entities = await carOwnerRepository.getAll();
         break;
       case FieldDomains.Client:
-        tableName = Models.CLIENTS_TABLE_NAME
+        tableName = Models.Table.Clients
         entities = await clientRepository.getAll();
         break;
     }

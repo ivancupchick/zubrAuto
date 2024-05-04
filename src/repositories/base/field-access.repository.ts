@@ -3,7 +3,7 @@ import { BaseRepository } from "./base.repository";
 
 class FieldAccessRepository extends BaseRepository<Models.FieldAccess> {
   constructor() {
-    super(Models.FIELD_ACCESSES_TABLE_NAME);
+    super(Models.Table.FieldAccesses);
   }
 }
 

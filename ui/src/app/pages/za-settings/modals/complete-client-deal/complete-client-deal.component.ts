@@ -5,8 +5,8 @@ import { ServerClient } from 'src/app/entities/client';
 import { ClientService } from 'src/app/services/client/client.service';
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
 import { CarChip, SelectCarComponent } from '../select-car/select-car.component';
-import { FieldsUtils } from '../../../../../../../src/utils/field.utils';
-import { FieldNames } from '../../../../../../../src/entities/FieldNames';
+import { FieldNames } from 'src/app/entities/FieldNames';
+import { FieldsUtils } from 'src/app/entities/field';
 
 @Component({
   selector: 'za-complete-client-deal',
@@ -37,7 +37,7 @@ export class CompleteClientDealComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if(this.cars){      
+    if(this.cars){
       this.selectedCars = this.cars.map(item => {
         const car = this.cars.find(c => c.id === item.id);
         const markModel = car

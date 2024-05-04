@@ -3,7 +3,7 @@ import { BaseRepository } from "./base.repository";
 
 class ClientRepository extends BaseRepository<Models.Client> {
   constructor() {
-    super(Models.CLIENTS_TABLE_NAME);
+    super(Models.Table.Clients);
   }
 }
 

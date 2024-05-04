@@ -1,98 +1,90 @@
-import { NextFunction, Request, Response } from 'express'
-import { ServerClient } from '../entities/Client';
-import { validationResult } from 'express-validator';
-import { ApiError } from '../exceptions/api.error';
-import clientService from '../services/client.service';
+import { NextFunction, Request, Response } from "express";
+import { ServerClient } from "../entities/Client";
+import { validationResult } from "express-validator";
+import { ApiError } from "../exceptions/api.error";
+import clientService from "../services/client.service";
+import { BaseCrudController } from "./base.conroller";
+import { ParsedQs } from "qs";
+import { StringHash } from "../models/hashes";
 
-class ClientConntroller {
-  async getAllClient(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+class ClientConntroller extends BaseCrudController<ServerClient.Response> {
+  protected getAllEntities(req: Request, res: Response, next: NextFunction) {
+    const query: StringHash = req.query as StringHash;
+    const queryKeys = Object.keys(query);
 
-      const clients = await clientService.getAll();
-
-      return res.json(clients);
-    } catch (e) {
-      next(e);
-    }
+    return queryKeys.length > 0
+      ? clientService.getClientsByQuery(query)
+      : clientService.getAll();
   }
 
-  async getClient(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
-
-      const id = +req.params.clientId;
-      const client = await clientService.get(id);
-
-      return res.json(client);
-    } catch (e) {
-      next(e);
-    }
+  protected getEntity(
+    req: Request,
+    res: Response<ServerClient.Response, Record<string, any>>,
+    next: NextFunction
+  ): Promise<ServerClient.Response> {
+    const id = +req.params.clientId;
+    return clientService.get(id);
   }
 
-  async createClient(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
-
-      const newClient: ServerClient.CreateRequest = req.body;
-      const client = await clientService.create(newClient);
-
-      return res.json(client);
-    } catch (e) {
-      next(e);
-    }
+  protected createEntity(
+    req: Request<any, { id: number }, any, ParsedQs, Record<string, any>>,
+    res: Response<{ id: number }, Record<string, any>>,
+    next: NextFunction
+  ): Promise<{ id: number }> {
+    const newClient: ServerClient.CreateRequest = req.body;
+    return clientService.create(newClient);
   }
 
-  async updateClient(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
-
-      const id = +req.params.clientId;
-      const updatedClient: ServerClient.CreateRequest = req.body;
-      const client = await clientService.update(id, updatedClient);
-
-      return res.json(client);
-    } catch (e) {
-      next(e);
-    }
+  protected updateEntity(
+    req: Request<any, { id: number }, any, ParsedQs, Record<string, any>>,
+    res: Response<{ id: number }, Record<string, any>>,
+    next: NextFunction
+  ): Promise<{ id: number }> {
+    const id = +req.params.clientId;
+    const updatedClient: ServerClient.CreateRequest = req.body;
+    return clientService.update(id, updatedClient);
   }
 
-  async deleteClient(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
-
-      const id = +req.params.clientId;
-      const client = await clientService.delete(id);
-
-      return res.json(client);
-    } catch (e) {
-      next(e);
-    }
+  protected deleteEntity(
+    req: Request<any, { id: number }, any, ParsedQs, Record<string, any>>,
+    res: Response<{ id: number }, Record<string, any>>,
+    next: NextFunction
+  ): Promise<{ id: number }> {
+    const id = +req.params.clientId;
+    return clientService.delete(id);
   }
 
-  async completeDeal(req: Request<any, any, {clientId: number, carId: number}>, res: Response, next: NextFunction) {
+  protected deleteEntities(
+    req: Request<any, { id: number }, any, ParsedQs, Record<string, any>>,
+    res: Response<{ id: number }, Record<string, any>>,
+    next: NextFunction
+  ): Promise<any> {
+    // !TODO
+    const id = +req.params.clientId;
+    return clientService.delete(id);
+  }
+
+  // async completeDeal(req: Request<any, any, {clientId: number, carId: number}>, res: Response, next: NextFunction) {
+  //   return await this.request(req, res, next, (_req, _res, _next) => {
+  //     const {clientId, carId} = _req.body;
+  //     return clientService.completeDeal(clientId, carId);
+  //   });
+  // }
+
+  async completeDeal(
+    req: Request<any, any, { clientId: number; carId: number }>,
+    res: Response,
+    next: NextFunction
+  ) {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
+        return next(
+          ApiError.BadRequest("Ошибка при валидации", errors.array())
+        );
       }
 
-      const {clientId, carId} = req.body;
+      const { clientId, carId } = req.body;
       const client = await clientService.completeDeal(clientId, carId);
 
       return res.json(client);

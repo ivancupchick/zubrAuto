@@ -12,5 +12,5 @@ export namespace Activities {
     fieldChange,
   }
 
-  export type Response = Omit<Models.Activities, 'activities'> & { activities: Activity[] };
+  export type Response = Omit<Models.Table.Activities, 'activities'> & { activities: Activity[] };
 }

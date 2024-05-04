@@ -5,7 +5,7 @@ import { BaseRepository } from "./base.repository";
 
 class FieldRepository extends BaseRepository<Models.Field> {
   constructor() {
-    super(Models.FIELDS_TABLE_NAME);
+    super(Models.Table.Fields);
   }
 
   async updateById(id: number, item: Partial<Omit<Models.Field, 'id'>>): Promise<Models.Field> {

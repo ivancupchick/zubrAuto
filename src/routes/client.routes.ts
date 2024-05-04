@@ -6,13 +6,13 @@ import { Constants } from '../utils/constansts';
 const router = Router();
 
 router.route('/')
-    .get(clientController.getAllClient)
-    .post(clientController.createClient);
+    .get(clientController.getAll)
+    .post(clientController.create);
 
 router.route('/:clientId')
-    .get(clientController.getClient)
-    .delete(clientController.deleteClient)
-    .put(clientController.updateClient);
+    .get(clientController.getOne)
+    .delete(clientController.deleteOne)
+    .put(clientController.update);
 
 router.route(`/${Constants.API.COMPLETE_DEAL}`)
   .post(

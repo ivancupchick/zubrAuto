@@ -1,13 +1,8 @@
+import { StringHash } from "../models/hashes";
+
 export type ExpressionHash<T> = {
   [P in keyof Partial<T>]: string[];
 } & Object;
-export interface StringHash {
-  [key: string]: string;
-}
-
-export interface NumberHash {
-  [key: string]: number;
-}
 
 // TODO need to refactor
 

@@ -23,7 +23,7 @@ class ActivityService {
     // ]);
 
     // const chaines = clients.length > 0 ? await fieldChainRepository.find({
-    //   sourceName: [`${Models.CLIENTS_TABLE_NAME}`],
+    //   sourceName: [`${Models.Table.Clients}`],
     //   sourceId: clients.map(c => `${c.id}`),
     // }) : [];
 
@@ -47,7 +47,7 @@ class ActivityService {
     //   sourceId: client.id,
     //   fieldId: f.id,
     //   value: f.value,
-    //   sourceName: Models.CLIENTS_TABLE_NAME
+    //   sourceName: Models.Table.Clients
     // })))
 
     // return client;
@@ -63,7 +63,7 @@ class ActivityService {
     // }, {
     //   fieldId: [f.id].map(c => `${c}`),
     //   sourceId: [id].map(c => `${c}`),
-    //   sourceName: [Models.CLIENTS_TABLE_NAME]
+    //   sourceName: [Models.Table.Clients]
     // })))
 
     // return client
@@ -71,7 +71,7 @@ class ActivityService {
 
   async delete(id: number) {
   //   const chaines = await fieldChainRepository.find({
-  //     sourceName: [Models.CLIENTS_TABLE_NAME],
+  //     sourceName: [Models.Table.Clients],
   //     sourceId: [`${id}`],
   //   });
   //   await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
@@ -83,7 +83,7 @@ class ActivityService {
   //   const client = await clientRepository.findById(id);
   //   const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.Client);
   //   const chaines = await fieldChainRepository.find({
-  //     sourceName: [`${Models.CLIENTS_TABLE_NAME}`],
+  //     sourceName: [`${Models.Table.Clients}`],
   //     sourceId: [`${id}`],
   //   });
 
@@ -113,12 +113,12 @@ class ActivityService {
     //   carStatusChain,
     // ] = await Promise.all([
     //   fieldChainRepository.findOne({
-    //     sourceName: [`${Models.CLIENTS_TABLE_NAME}`],
+    //     sourceName: [`${Models.Table.Clients}`],
     //     sourceId: [`${clientId}`],
     //     fieldId: [`${clientStatusField.id}`], }
     //   ),
     //   fieldChainRepository.findOne({
-    //     sourceName: [`${Models.CARS_TABLE_NAME}`],
+    //     sourceName: [`${Models.Table.Cars}`],
     //     sourceId: [`${carId}`],
     //     fieldId: [`${carStatusField.id}`], }
     //   ),

@@ -1,44 +1,19 @@
 import { ServerCar } from "../entities/Car";
-import { FieldDomains, FieldType, RealField, ServerField } from "../entities/Field";
+import { FieldDomains, RealField, ServerField } from "../entities/Field";
 import { FieldNames } from "../entities/FieldNames";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
+import { StringHash } from "../models/hashes";
 import carFormRepository from "../repositories/base/car-form.repository";
 import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
 import fieldRepository from "../repositories/base/field.repository";
 import { FieldsUtils, getFieldsWithValues } from "../utils/field.utils";
-import { ExpressionHash, StringHash } from "../utils/sql-queries";
 import carInfoGetterService from "./car-info-getter.service";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
 import userService from "./user.service";
-
-function getFieldChainsValue(query: StringHash, fields: Models.Field[]): string[] {
-  fields.forEach(f => {
-    if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
-      const needVariants = query[f.name].split(',');
-      query[f.name] = needVariants.map(v => {
-        if (f.variants) {
-          const index = f.variants.split(',').findIndex(vValue => vValue === v);
-
-          return `${f.name}-${index}`;
-        }
-
-        return query[f.name];
-      }).join(',')
-    }
-  });
-
-  const queryValues = fields.map(f => f.name).map(k => query[k].split(','));
-  const rValues: string[] = [];
-  queryValues.forEach(queryValue => {
-    queryValue.forEach(vv => rValues.push(vv));
-  })
-
-  return rValues;
-}
 
 class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.CreateRequest, ServerCar.Response, ServerCar.IdResponse> {
   private async getCars(
@@ -58,11 +33,11 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       carForms
     ] = await Promise.all([
       (cars.length > 0 ? await fieldChainRepository.find({
-        sourceName: [`${Models.CARS_TABLE_NAME}`],
+        sourceName: [`${Models.Table.Cars}`],
         sourceId: cars.map(c => `${c.id}`),
       }) : []),
       (carOwners.length > 0 ? await fieldChainRepository.find({
-        sourceName: [`${Models.CAR_OWNERS_TABLE_NAME}`],
+        sourceName: [`${Models.Table.CarOwners}`],
         sourceId: carOwners.map(c => `${c.id}`),
       }) : []),
 
@@ -121,7 +96,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
             sourceId: car.id,
             fieldId: contactCenterSpecialistField.id,
             value: JSON.stringify(user),
-            sourceName: `${Models.CARS_TABLE_NAME}`
+            sourceName: `${Models.Table.Cars}`
           });
         }
       }
@@ -183,8 +158,8 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     delete query['page'];
     delete query['size'];
 
-    const searchCarIds = await this.getSearchCars(
-      Models.CARS_TABLE_NAME,
+    const searchCarIds = await fieldChainService.getEntityIdsByQuery(
+      Models.Table.Cars,
       FieldDomains.Car,
       query
     );
@@ -216,71 +191,6 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     return this.getCars(cars, carFields, carOwners, carOwnerFields);
   }
 
-  async getSearchCars(sourceName: string, domain: FieldDomains, query: StringHash) {
-    const carIds = new Set<string>((query['id'])?.split(',') || []);
-    delete query['id'];
-
-    const fieldNames = Object.keys(query);
-
-    if (fieldNames.length === 0 && carIds.size > 0) {
-      return [...carIds];
-    }
-
-    const carFields =
-      fieldNames.length > 0
-        ? await fieldRepository.find({
-            domain: [`${FieldDomains.Car}`],
-            name: fieldNames,
-          })
-        : [];
-
-    const needCarChainesOptions: ExpressionHash<Models.FieldChain> = {
-      sourceName: [sourceName],
-    }
-
-    if (carIds && carIds.size > 0) {
-      needCarChainesOptions.sourceId = [...carIds];
-    }
-
-    if (carFields.length > 0) {
-      needCarChainesOptions.fieldId = carFields.map(f => `${f.id}`);
-      needCarChainesOptions.value = getFieldChainsValue(query, carFields);
-    }
-
-    const needCarChaines = carFields.length > 0 ? await fieldChainRepository.find(needCarChainesOptions) : [];
-
-    const searchCarIds = new Set<string>();
-
-    const matchObj: ExpressionHash<any> = {};
-
-    if (needCarChaines.length > 0) {
-      needCarChaines.forEach(ch => {
-        if (!matchObj[ch.fieldId]) {
-          matchObj[ch.fieldId] = [];
-        }
-        matchObj[ch.fieldId].push(`${ch.sourceId}`);
-      });
-
-      const matchKeys = carFields.map(f => `${f.id}`);;
-
-      needCarChaines.forEach(ch => {
-        let currentMatch = 0;
-
-        matchKeys.forEach(key => {
-          if (matchObj[key] && matchObj[key].includes(`${ch.sourceId}`)) {
-            ++currentMatch;
-          }
-        })
-
-        if (currentMatch === matchKeys.length) {
-          searchCarIds.add(`${ch.sourceId}`);
-        }
-      });
-    }
-
-    return [...searchCarIds];
-  }
-
   private async getCarAndOwnerCarFields(carData: RealField.With.Request): Promise<[RealField.Request[], RealField.Request[]]> {
     const carOwnerFieldsConfigs = await fieldService.getFieldsByDomain(FieldDomains.CarOwner);
 
@@ -304,7 +214,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
 
     const searchFields = await fieldRepository.find({ name: [FieldNames.Car.linkToAd]});
     const existCarChain = await fieldChainRepository.find({
-      sourceName: [Models.CARS_TABLE_NAME],
+      sourceName: [Models.Table.Cars],
       fieldId: searchFields.map(f => `${f.id}`),
       value: [FieldsUtils.getFieldValue(carData, FieldNames.Car.linkToAd)]
     });
@@ -318,7 +228,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     //   const carFieldChains = (await Promise.all(
     //     existCarIds
     //       .map(car => fieldChainRepository.find({
-    //         sourceName: [Models.CARS_TABLE_NAME],
+    //         sourceName: [Models.Table.Cars],
     //         sourceId: [`${car.id}`],
     //         fieldId: fields.map(f => `${f.id}`)
     //       }))
@@ -372,7 +282,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
         sourceId: ownerId,
         fieldId: f.id,
         value: f.value,
-        sourceName: Models.CAR_OWNERS_TABLE_NAME
+        sourceName: Models.Table.CarOwners
       })));
     } else {
       // await carOwnerRepository.updateById(existCarOwner.id, { // not need
@@ -384,7 +294,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       }, {
         fieldId: [`${f.id}`],
         sourceId: [`${ownerId}`],
-        sourceName: [Models.CAR_OWNERS_TABLE_NAME]
+        sourceName: [Models.Table.CarOwners]
       })));
     }
 
@@ -411,7 +321,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       sourceId: car.id,
       fieldId: f.id,
       value: f.value,
-      sourceName: Models.CARS_TABLE_NAME
+      sourceName: Models.Table.Cars
     })));
 
     return { id: car.id };
@@ -431,7 +341,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
 
     // const searchFields = await fieldRepository.find({ name: [FieldNames.Car.linkToAd]});
     // const existCarChain = await fieldChainRepository.find({
-    //   sourceName: [Models.CARS_TABLE_NAME],
+    //   sourceName: [Models.Table.Cars],
     //   fieldId: searchFields.map(f => `${f.id}`),
     //   value: [FieldsUtils.getFieldValue(carData, FieldNames.Car.linkToAd)]
     // });
@@ -445,7 +355,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     //   const carFieldChains = (await Promise.all(
     //     existCarIds
     //       .map(car => fieldChainRepository.find({
-    //         sourceName: [Models.CARS_TABLE_NAME],
+    //         sourceName: [Models.Table.Cars],
     //         sourceId: [`${car.id}`],
     //         fieldId: fields.map(f => `${f.id}`)
     //       }))
@@ -499,7 +409,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
         sourceId: ownerId,
         fieldId: f.id,
         value: f.value,
-        sourceName: Models.CAR_OWNERS_TABLE_NAME
+        sourceName: Models.Table.CarOwners
       })));
     } else {
       // await carOwnerRepository.updateById(existCarOwner.id, { // not need
@@ -511,7 +421,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       }, {
         fieldId: [`${f.id}`],
         sourceId: [`${ownerId}`],
-        sourceName: [Models.CAR_OWNERS_TABLE_NAME]
+        sourceName: [Models.Table.CarOwners]
       })));
     }
 
@@ -538,7 +448,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       sourceId: car.id,
       fieldId: f.id,
       value: f.value,
-      sourceName: Models.CARS_TABLE_NAME
+      sourceName: Models.Table.Cars
     })));
 
     return { id: car.id };
@@ -569,7 +479,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     }, {
       fieldId: [`${f.id}`],
       sourceId: [`${carOwner.id}`],
-      sourceName: [Models.CAR_OWNERS_TABLE_NAME]
+      sourceName: [Models.Table.CarOwners]
     })));
 
     if (needUpdate) {
@@ -589,7 +499,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     }
 
     const fieldsExists = await fieldChainRepository.find({
-      sourceName: [Models.CARS_TABLE_NAME],
+      sourceName: [Models.Table.Cars],
       sourceId: [`${carId}`],
     });
 
@@ -601,7 +511,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     }, {
       fieldId: [`${f.id}`],
       sourceId: [`${carId}`],
-      sourceName: [Models.CARS_TABLE_NAME]
+      sourceName: [Models.Table.Cars]
     })));
 
     if (fieldChainForCreate.length > 0) {
@@ -609,7 +519,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
         sourceId: carId,
         fieldId: f.id,
         value: f.value,
-        sourceName: Models.CARS_TABLE_NAME
+        sourceName: Models.Table.Cars
       })));
     }
 
@@ -618,7 +528,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
 
   async delete(id: number) {
     const chaines = await fieldChainRepository.find({
-      sourceName: [Models.CARS_TABLE_NAME],
+      sourceName: [Models.Table.Cars],
       sourceId: [`${id}`],
     });
     await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
@@ -628,11 +538,11 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
 
   async deleteCars(ids: number[]) {
     // const chaines = await fieldChainRepository.find({
-    //   sourceName: [Models.CARS_TABLE_NAME],
+    //   sourceName: [Models.Table.Cars],
     //   sourceId: ids.map(id => `${id}`),
     // });
     await fieldChainRepository.delete({
-      sourceName: [Models.CARS_TABLE_NAME],
+      sourceName: [Models.Table.Cars],
       sourceId: ids.map(id => `${id}`),
     });
     // await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));

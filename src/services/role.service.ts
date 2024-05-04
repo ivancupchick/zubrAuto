@@ -11,13 +11,13 @@ class RoleService implements ICrudService<ServerRole.CreateRequest, ServerRole.U
       fieldAccesses
     ] = await Promise.all([
       roleRepository.getAll(),
-      fieldAccessRepository.find({ sourceName: [`${Models.ROLES_TABLE_NAME}`] })
+      fieldAccessRepository.find({ sourceName: [`${Models.Table.Roles}`] })
     ]);
 
     const result: ServerRole.Response[] = roles.map(role => ({
       id: role.id,
       systemName: role.systemName,
-      accesses: fieldAccesses.filter(fa => fa.sourceId === role.id && fa.sourceName === `${Models.ROLES_TABLE_NAME}`)
+      accesses: fieldAccesses.filter(fa => fa.sourceId === role.id && fa.sourceName === `${Models.Table.Roles}`)
     }))
 
     return result;
@@ -29,13 +29,13 @@ class RoleService implements ICrudService<ServerRole.CreateRequest, ServerRole.U
       fieldAccesses
     ] = await Promise.all([
       roleRepository.findById(id),
-      fieldAccessRepository.find({ sourceName: [`${Models.ROLES_TABLE_NAME}`] })
+      fieldAccessRepository.find({ sourceName: [`${Models.Table.Roles}`] })
     ]);
 
     const result: ServerRole.Response = {
       id: role.id,
       systemName: role.systemName,
-      accesses: fieldAccesses.filter(fa => fa.sourceId === role.id && fa.sourceName === `${Models.ROLES_TABLE_NAME}`)
+      accesses: fieldAccesses.filter(fa => fa.sourceId === role.id && fa.sourceName === `${Models.Table.Roles}`)
     };
 
     return result;
@@ -50,7 +50,7 @@ class RoleService implements ICrudService<ServerRole.CreateRequest, ServerRole.U
       sourceId: role.id,
       fieldId: a.fieldId,
       access: a.access,
-      sourceName: Models.ROLES_TABLE_NAME
+      sourceName: Models.Table.Roles
     })))
 
     return role;
@@ -64,7 +64,7 @@ class RoleService implements ICrudService<ServerRole.CreateRequest, ServerRole.U
     const createdAccess = roleData.accesses.length > 0 ? await fieldAccessRepository.find({
       fieldId: roleData.accesses.map(c => `${c.fieldId}`),
       sourceId: [id].map(c => `${c}`),
-      sourceName: [Models.ROLES_TABLE_NAME]
+      sourceName: [Models.Table.Roles]
     }) : [];
     const notCreatedAccess = roleData.accesses.filter(a => createdAccess.find((ca => ca.fieldId === a.fieldId)));
 
@@ -73,14 +73,14 @@ class RoleService implements ICrudService<ServerRole.CreateRequest, ServerRole.U
     }, {
       fieldId: [a.fieldId].map(c => `${c}`),
       sourceId: [id].map(c => `${c}`),
-      sourceName: [Models.ROLES_TABLE_NAME]
+      sourceName: [Models.Table.Roles]
     })))
 
     await Promise.all((notCreatedAccess || []).map(a => fieldAccessRepository.create({
       sourceId: id,
       fieldId: a.fieldId,
       access: a.access,
-      sourceName: Models.ROLES_TABLE_NAME
+      sourceName: Models.Table.Roles
     })))
 
     return role
@@ -89,7 +89,7 @@ class RoleService implements ICrudService<ServerRole.CreateRequest, ServerRole.U
   async delete(id: number) {
     const accesses = await fieldAccessRepository.find({
       sourceId: [id].map(c => `${c}`),
-      sourceName: [Models.ROLES_TABLE_NAME]
+      sourceName: [Models.Table.Roles]
     })
     await Promise.all(accesses.map(a => fieldAccessRepository.deleteById(a.id)));
     const role = await roleRepository.deleteById(id);

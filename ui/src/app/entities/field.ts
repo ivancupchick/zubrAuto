@@ -1,6 +1,6 @@
 import { RealField, ServerField, FieldDomains as domain, FieldType as type } from '../../../../src/entities/Field'
 import { FieldAccess } from './fieldAccess';
-import { FlagField as flagField } from '../../../../src/utils/field.utils'
+import { FlagField as flagField } from '../../../../src/utils/flag.utils'
 
 export interface UIVariant {
   key: string;
@@ -16,6 +16,9 @@ export import FieldDomains = domain;
 export import RealField = RealField;
 export import ServerField = ServerField;
 export import FlagField = flagField;
+
+type IAnyField = Pick<RealField.Response, 'name' | 'value' | 'variants'>
+type INotDropdownField = Pick<RealField.Response, 'name' | 'value'>
 
 export class UIRealField  {
   public id: number;
@@ -74,13 +77,13 @@ export class FieldsUtils {
     return newField;
   }
 
-  static getFields(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[]): RealField.Response[] {
+  static getFields<T extends INotDropdownField>(entityOrFieldsArray: { fields: T[] } | T[]): T[] {
     return Array.isArray(entityOrFieldsArray)
-    ? entityOrFieldsArray
-    : entityOrFieldsArray.fields;
+      ? entityOrFieldsArray
+      : entityOrFieldsArray.fields;
   }
 
-  static getField(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): RealField.Response | null {
+  static getField<T extends INotDropdownField>(entityOrFieldsArray: { fields: T[] } | T[], name: string): T | null {
     if (!name || !entityOrFieldsArray) {
       return null;
     }
@@ -94,7 +97,7 @@ export class FieldsUtils {
     return fields.find((field) => field.name === name) || null;
   }
 
-  static getFieldValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
+  static getFieldValue(entityOrFieldsArray: { fields: IAnyField[] } | IAnyField[], name: string): string {
     const field = this.getField(entityOrFieldsArray, name);
     if (field == null) {
       return '';
@@ -107,17 +110,17 @@ export class FieldsUtils {
     return field.value || '';
   }
 
-  static getFieldBooleanValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): boolean {
+  static getFieldBooleanValue(entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[], name: string): boolean {
     const field = this.getField(entityOrFieldsArray, name);
     return (!!field && !!+field.value);
   }
 
-  static getFieldNumberValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): number {
+  static getFieldNumberValue(entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[], name: string): number {
     const field = this.getField(entityOrFieldsArray, name);
     return field && field.value ? +field.value : 0;
   }
 
-  static getFieldStringValue(entityOrFieldsArray: { fields: RealField.Response[] } | RealField.Response[], name: string): string {
+  static getFieldStringValue(entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[], name: string): string {
     const field = this.getField(entityOrFieldsArray, name);
     return field && field.value != null ? field.value + '' : '';
   }

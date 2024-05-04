@@ -44,7 +44,7 @@ class CarImageService {
       dbFiles.map(dbFile => {
         return fileChainRepository.create({
           sourceId: carId,
-          sourceName: Models.CARS_TABLE_NAME,
+          sourceName: Models.Table.Cars,
           fileId: dbFile.id
         });
       })
@@ -87,7 +87,7 @@ class CarImageService {
       dbFiles.map(dbFile => {
         return fileChainRepository.create({
           sourceId: carId,
-          sourceName: Models.CARS_TABLE_NAME,
+          sourceName: Models.Table.Cars,
           fileId: dbFile.id
         });
       })
@@ -104,7 +104,7 @@ class CarImageService {
       throw new Error("Это не картинка");
     }
 
-    const allImageFileChains = await fileChainRepository.find({ sourceName: [`${Models.CARS_TABLE_NAME}`], sourceId: [`${carId}`] })
+    const allImageFileChains = await fileChainRepository.find({ sourceName: [`${Models.Table.Cars}`], sourceId: [`${carId}`] })
     const allImageFiles = await fileRepository.getAll();
 
     const existImage360 = allImageFiles.find(file => file.type === ServerFile.Types.Image360 && allImageFileChains.find(ch => ch.sourceId === carId));
@@ -130,7 +130,7 @@ class CarImageService {
 
     await fileChainRepository.create({
       sourceId: carId,
-      sourceName: Models.CARS_TABLE_NAME,
+      sourceName: Models.Table.Cars,
       fileId: dbFileRes.id
     });
 
@@ -139,7 +139,7 @@ class CarImageService {
 
   private async getFiles(sourceId: number = null): Promise<ServerFile.Response[]> {
     const fileChainesExpression = {
-      sourceName: [`${Models.CARS_TABLE_NAME}`]
+      sourceName: [`${Models.Table.Cars}`]
     }
 
     if (sourceId) {
@@ -174,7 +174,7 @@ class CarImageService {
   }
 
   async deleteCarImage(carId: number, imageId: number):Promise<ServerFile.IdResponse> {
-    const result = await fileChainRepository.delete({ fileId: [`${imageId}`], sourceName: [`${Models.CARS_TABLE_NAME}`], sourceId: [`${carId}`] });
+    const result = await fileChainRepository.delete({ fileId: [`${imageId}`], sourceName: [`${Models.Table.Cars}`], sourceId: [`${carId}`] });
     // const result = await fileRepository.deleteById(imageId);
 
     return result[0];

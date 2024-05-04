@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { ServerCar } from '../entities/Car';
 import carService from '../services/car.service';
-import { StringHash } from '../utils/sql-queries';
 import { BaseCrudController } from './base.conroller';
+import { StringHash } from '../models/hashes';
 // import { Activity } from '../decorators/activity.decorator';
 
 class CarController extends BaseCrudController<ServerCar.Response> {
