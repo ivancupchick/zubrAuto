@@ -38,7 +38,7 @@ export class ClientPreviewComponent implements OnInit {
       let value = FieldsUtils.getFieldValue([field], field.name);
 
       if (field.type === FieldType.Date || field.name === FieldNames.Client.date) {
-        value = moment(+FieldsUtils.getFieldValue([field], field.name)).format('dd.MM.yyyy');
+        value = moment(+FieldsUtils.getFieldValue([field], field.name)).format('DD.MM.yyyy');
       }
 
       if (field.type === FieldType.Dropdown) {
