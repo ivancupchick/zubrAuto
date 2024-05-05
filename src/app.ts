@@ -9,6 +9,7 @@ import FieldRoutes from './routes/field.routes'
 import ClientRoutes from './routes/client.routes'
 import RoleRoutes from './routes/role.routes'
 import UserRoutes from './routes/user.routes'
+import PhoneCallRoutes from './routes/phone-call.routes'
 
 
 import AuthRoutes from './routes/auth.routes'
@@ -64,6 +65,10 @@ export class App {
     this.app.use('/auth', AuthRoutes);
     this.app.use('/roles', RoleRoutes);
     this.app.use('/users', UserRoutes);
+    this.app.use('/phone-call', PhoneCallRoutes, cors({
+      credentials: false,
+      origin: '*'
+    }), setHeaders);
   }
 
   async listen(): Promise<void> {

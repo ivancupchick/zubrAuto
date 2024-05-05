@@ -14,6 +14,7 @@ export namespace Models {
     CarForms = 'carForms',
     CarStatistic = 'carStatistic',
     Activities = 'activities',
+    PhoneCalls = 'phoneCalls',
   }
 
   export interface Car {
@@ -26,12 +27,6 @@ export namespace Models {
     id: number;
     number: string;
   }
-
-  // export const FORMS_TABLE_NAME = 'forms';
-  // export interface Form {
-  //   id: number;
-  //   flags: number;
-  // }
 
   export interface Client {
     id: number;
@@ -126,5 +121,20 @@ export namespace Models {
     sourceName: string;
     date: number;
     activities: string;
+  }
+
+  export interface PhoneCall {
+    id: number;
+    originalNotifications: string; // interface
+    innerNumber: string;
+    clientNumber: string;
+    createdDate: number;
+    userId: number;
+    originalDate: string;
+    uuid: string;
+    type: string;
+    status: string;
+    isFinished: boolean;
+    recordUrl: string;
   }
 }

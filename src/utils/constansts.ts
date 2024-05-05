@@ -19,5 +19,6 @@ export namespace Constants {
     ADD_CUSTOMER_DISCOUNT = 'addCustomerDiscount',
     CAR_SHOWING = 'carShowing',
     COMPLETE_DEAL = 'completeDeal',
+    WEB_HOOK = 'web-hook',
   };
 }
