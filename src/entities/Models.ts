@@ -15,6 +15,7 @@ export namespace Models {
     CarStatistic = 'carStatistic',
     Activities = 'activities',
     PhoneCalls = 'phoneCalls',
+    CallRequests = 'callRequests',
   }
 
   export interface Car {
@@ -136,5 +137,15 @@ export namespace Models {
     status: string;
     isFinished: boolean;
     recordUrl: string;
+  }
+
+  export interface CallRequest {
+    id: number;
+    originalNotification: string;
+    innerNumber: string;
+    clientNumber: string;
+    createdDate: number;
+    userId: number;
+    comment: string;
   }
 }

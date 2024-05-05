@@ -20,5 +20,6 @@ export namespace Constants {
     CAR_SHOWING = 'carShowing',
     COMPLETE_DEAL = 'completeDeal',
     WEB_HOOK = 'web-hook',
+    CALL_REQUEST = 'call-request',
   };
 }

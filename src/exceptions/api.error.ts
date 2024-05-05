@@ -10,4 +10,8 @@ export class ApiError extends Error {
   static BadRequest(message: string, errors = []) {
     return new ApiError(400, message, errors)
   }
+
+  static CorsError() {
+    return new ApiError(401, 'Denied')
+  }
 }

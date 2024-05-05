@@ -122,6 +122,16 @@ CREATE TABLE `phoneCalls` (
   `recordUrl` varchar(255),
 );
 
+CREATE TABLE `callRequests` (
+  `id` int(11) NOT NULL,
+  `originalNotification` varchar(255) NOT NULL,
+  `innerNumber` varchar(15),
+  `clientNumber` varchar(15) NOT NULL,
+  `createdDate` bigint NOT NULL,
+  `userId` int(11),
+  `comment` varchar(255),
+);
+
 ALTER TABLE `carForms`
     ADD CONSTRAINT carForms_pk PRIMARY KEY (`id`);
 ALTER TABLE `carOwners`
@@ -152,10 +162,14 @@ ALTER TABLE `userTokens`
     ADD CONSTRAINT users_pk PRIMARY KEY (`id`);
 ALTER TABLE `phoneCalls`
     ADD CONSTRAINT phoneCalls_pk PRIMARY KEY (`id`);
+ALTER TABLE `callRequests`
+    ADD CONSTRAINT callRequests_pk PRIMARY KEY (`id`);
 
 CREATE INDEX fieldIds_FIND_INDEX ON fieldIds (sourceName, sourceId, fieldId);
 CREATE INDEX fieldIds_FIND_INDEX_BY_VALUE ON fieldIds (sourceName, fieldId, value);
 CREATE INDEX phoneCalls_FIND_INDEX ON phoneCalls (innerNumber, clientNumber);
+CREATE INDEX callRequests_FIND_INDEX ON callRequests (innerNumber, clientNumber);
+
 
 ALTER TABLE `activities`
   ADD CONSTRAINT FOREIGN KEY `fk_userId` (`userId`)

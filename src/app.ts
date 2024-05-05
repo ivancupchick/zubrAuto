@@ -10,12 +10,14 @@ import ClientRoutes from './routes/client.routes'
 import RoleRoutes from './routes/role.routes'
 import UserRoutes from './routes/user.routes'
 import PhoneCallRoutes from './routes/phone-call.routes'
+import CallRequestRoutes from './routes/call-request.routes'
 
 
 import AuthRoutes from './routes/auth.routes'
 import { errorMiddleware } from './middlewares/error.middleware';
 import { setHeaders } from './middlewares/set-headers.middleware';
 import fileUpload from 'express-fileupload';
+import { ApiError } from './exceptions/api.error';
 
 
 export class App {
@@ -69,6 +71,17 @@ export class App {
       credentials: false,
       origin: '*'
     }), setHeaders);
+
+    const requestWhitelist = ['zubrgroup.by', 'zubr-electro', 'electro-gee', 'zubr-premium', 'geometry-e.by', 'zubr-auto.by'];;
+    this.app.use('/call-requests', CallRequestRoutes, cors({
+      origin: function (origin, callback) {
+        if (requestWhitelist.find(site => origin.toLowerCase().indexOf(site) !== -1)) {
+          callback(null, true)
+        } else {
+          callback(ApiError.CorsError())
+        }
+      }
+    }));
   }
 
   async listen(): Promise<void> {
