@@ -147,5 +147,6 @@ export namespace Models {
     createdDate: number;
     userId: number;
     comment: string;
+    source: string;
   }
 }

@@ -23,7 +23,7 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
         recordUrl: null,
       }
 
-      return await phoneCallsRepository.create(phoneCall)
+      return await phoneCallsRepository.create(phoneCall);
     }
 
     if (webhook.notificationType === Webhook.NotificationType.State) {
@@ -53,6 +53,8 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
 
       return await phoneCallsRepository.updateById(phoneCall.id, phoneCall);
     }
+
+    return null;
   }
 
   // async getAll() {

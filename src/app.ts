@@ -68,9 +68,8 @@ export class App {
     this.app.use('/roles', RoleRoutes);
     this.app.use('/users', UserRoutes);
     this.app.use('/phone-call', PhoneCallRoutes, cors({
-      credentials: false,
       origin: '*'
-    }), setHeaders);
+    }));
 
     const requestWhitelist = ['zubrgroup.by', 'zubr-electro', 'electro-gee', 'zubr-premium', 'geometry-e.by', 'zubr-auto.by'];;
     this.app.use('/call-requests', CallRequestRoutes, cors({

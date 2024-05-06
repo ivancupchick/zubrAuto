@@ -10,11 +10,12 @@ class CallRequestService // implements ICrudService<ServerPhoneCall.CreateReques
   async callRequest(sitesCallRequest: SitesCallRequest): Promise<ServerCallRequest.IdResponse> {
     const callRequest: ServerCallRequest.CreateRequest = {
       originalNotification: JSON.stringify(sitesCallRequest),
-      innerNumber: sitesCallRequest.number,
-      clientNumber: null,
+      innerNumber: '',
+      clientNumber: sitesCallRequest.number,
       createdDate: +(new Date()),
       userId: null,
       comment: sitesCallRequest.comment,
+      source: sitesCallRequest.source,
     }
 
     return await callRequestsRepository.create(callRequest)

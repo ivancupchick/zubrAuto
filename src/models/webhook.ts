@@ -37,8 +37,8 @@ export namespace Webhook {
   }
 
   export enum NotificationType {
-    Start = 'START,',
-    State = 'STATE,',
+    Start = 'START',
+    State = 'STATE',
     Finish = 'FINISH'
   }
 
