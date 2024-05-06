@@ -111,10 +111,10 @@ export class CreateClientComponent implements OnInit {
         .map(fc => this.updateFieldConfig(fc));
 
     if (this.sessionService.isAdminOrHigher || this.sessionService.isCarSalesChief || this.sessionService.isCustomerServiceChief) {
-      const specialistId = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.SpecialistId);
+      const specialistIdField = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.SpecialistId);
       formFields.push(
         this.dfcs.getDynamicFieldFromOptions({
-          id: specialistId?.id || -1,
+          id: specialistIdField?.id || -1,
           value: this.client?.fields.find(f => f.name === FieldNames.Client.SpecialistId)?.value || 'None',
           key: FieldNames.Car.contactCenterSpecialistId,
           label: 'Специалист',
@@ -225,6 +225,24 @@ export class CreateClientComponent implements OnInit {
         console.log("Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику");
       }
 
+      if (!this.client && !(
+        this.sessionService.isAdminOrHigher || this.sessionService.isCarSalesChief || this.sessionService.isCustomerServiceChief
+      )) {
+        const specialistIdField = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.SpecialistId);
+        if (specialistIdField) {
+          client.fields.push({
+            id: specialistIdField.id,
+            name: specialistIdField.name,
+            value: `${this.sessionService.userId}`
+          })
+        } else {
+          // TODO create right expression for this error
+          console.error('specialistIdField is undefined');
+          console.log("Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику");
+        }
+      }
+
+
       const methodObs = this.client != undefined
         ? this.clientService.updateClient(client, (this.client as ServerClient.Response).id)
         : this.clientService.getClientsByNumber({ [FieldNames.Client.number]: FieldsUtils.getFieldStringValue(client.fields, FieldNames.Client.number) }).pipe(
@@ -272,6 +290,10 @@ export class CreateClientComponent implements OnInit {
   updateFieldConfig(field: DynamicFieldBase<string>) {
     if (settingsClientsStrings[field.key]) {
       field.label = settingsClientsStrings[field.key];
+    }
+
+    if (field.key === FieldNames.Client.number) {
+      field.mask = '+375999999999';
     }
 
     return field;

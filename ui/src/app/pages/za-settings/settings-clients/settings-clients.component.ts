@@ -70,6 +70,8 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   dateFrom: Date | null = null;
   dateTo: Date | null = null;
 
+  phoneNumber = '';
+
   destoyed = new Subject<void>();
 
   isCarSalesChiefOrAdmin = this.sessionService.isCarSalesChief || this.sessionService.isAdminOrHigher;
@@ -317,6 +319,15 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
     this.subscribeOnCloseModalRef(ref);
   }
 
+  refresh() {
+    this.loading = true;
+    this.getClients()
+      .pipe(takeUntil(this.destoyed))
+      .subscribe(() => {
+        this.loading = false;
+      });
+  }
+
   deleteClient(client: ServerClient.Response) {
     this.clientService.deleteClient(client.id)
     .pipe(takeUntil(this.destoyed))
@@ -324,10 +335,10 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         if(res){
           this.loading = true;
           this.getClients()
-          .pipe(takeUntil(this.destoyed))
-          .subscribe(() => {
-            this.loading = false;
-          });
+            .pipe(takeUntil(this.destoyed))
+            .subscribe(() => {
+              this.loading = false;
+            });
         }
       });
   }
@@ -341,6 +352,8 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
       return true;
     }).filter(c =>
+      FieldsUtils.getFieldStringValue(c, FieldNames.Client.number).toLowerCase().includes(this.phoneNumber.toLowerCase()) || this.phoneNumber === ''
+    ).filter(c =>
       this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
     ).filter(c =>
       this.selectedStatus.includes(getDealStatus(c)) || this.selectedStatus.length === 0

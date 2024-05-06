@@ -12,6 +12,7 @@ export interface DynamicFieldOptions<T> {
   order?: number;
   controlType?: FieldType;
   type?: string;
+  mask?: string;
   variants?: {key: string, value: string}[];
 }
 
@@ -26,6 +27,7 @@ export class DynamicFieldBase<T> {
   order: number;
   controlType: FieldType;
   type: string;
+  mask: string;
   variants: UIVariant[];
 
   constructor(options: DynamicFieldOptions<T>) {
@@ -39,6 +41,7 @@ export class DynamicFieldBase<T> {
     this.order = options.order === undefined ? 1 : options.order;
     this.controlType = options.controlType || FieldType.Text;
     this.type = options.type || '';
+    this.mask = options.mask || '';
     this.variants = options.variants || [];
   }
 }

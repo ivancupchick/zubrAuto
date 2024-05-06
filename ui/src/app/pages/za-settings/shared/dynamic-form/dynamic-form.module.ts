@@ -8,6 +8,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputTextModule } from 'primeng/inputtext';
 import { DateFormFieldsComponent } from './dynamic-form-fields/date-form-fields/date-form-fields.component';
 import { CalendarModule } from 'primeng/calendar';
+import { InputMaskModule } from 'primeng/inputmask';
 
 
 
@@ -28,6 +29,7 @@ import { CalendarModule } from 'primeng/calendar';
     ReactiveFormsModule,
     InputTextareaModule,
     CalendarModule,
+    InputMaskModule,
   ]
 })
 export class DynamicFormModule { }

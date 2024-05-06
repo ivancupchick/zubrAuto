@@ -17,3 +17,9 @@
 p-slider {
   width: 100%;
 }
+
+.card {
+  * + * {
+    margin-left: 7px;
+  }
+}

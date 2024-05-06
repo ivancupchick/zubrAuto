@@ -1,14 +1,29 @@
 <div [formGroup]="form" class="p-field p-col-12 p-md-12">
   <ng-container [ngSwitch]="field.controlType">
     <span class="p-float-label">
-      <input
-        *ngSwitchCase="FieldType.Text"
-        pInputText
-        [id]="field.key"
-        [formControlName]="field.key"
-        [type]="field.type || 'text'"
-        autocomplete="nope"
-      />
+      <ng-container  *ngSwitchCase="FieldType.Text">
+        <input
+          *ngIf="!field.mask"
+          pInputText
+          [id]="field.key"
+          [formControlName]="field.key"
+          [type]="field.type || 'text'"
+          autocomplete="nope"
+        />
+
+        <p-inputMask
+          *ngIf="field.mask"
+          [mask]="field.mask"
+          [placeholder]="field.mask"
+          [id]="field.key"
+          mask="{{field.mask}}"
+          [formControlName]="field.key"
+          [type]="field.type || 'text'"
+          autocomplete="nope"
+        />
+      </ng-container>
+
+
 
       <!-- need test -->
       <p-dropdown
