@@ -3,7 +3,6 @@ import { BaseCrudController } from './base.conroller';
 import { StringHash } from '../models/hashes';
 import { validationResult } from 'express-validator';
 import { ApiError } from '../exceptions/api.error';
-import { Webhook } from '../models/webhook';
 import { ServerCallRequest } from '../entities/CallRequest';
 import callRequestService from '../services/call-request.service';
 import { SitesCallRequest } from '../models/sites-call-request';
@@ -13,45 +12,36 @@ class CallRequestController extends BaseCrudController<ServerCallRequest.Respons
     const query: StringHash = req.query as StringHash;
     const queryKeys = Object.keys(query);
 
-    return null;
-
-    // return queryKeys.length > 0
-    //   ? phoneCallsService.getPhoneCallsByQuery(query)
-    //   : phoneCallsService.getAll();
+    return queryKeys.length > 0
+      ? callRequestService.getCallRequestsByQuery(query)
+      : callRequestService.getAll();
   }
 
   protected getEntity(req: Request<{ carId: string }>, res: Response, next: NextFunction) {
-    return null;
-    // const call = phoneCallsService.get(+req.params.carId);
+    const call = callRequestService.get(+req.params.carId);
 
-    // return call;
+    return call;
   }
 
   protected createEntity(req: Request<any, any, ServerCallRequest.CreateRequest>, res: Response, next: NextFunction) {
-    return null;
+    const call = callRequestService.create(req.body);
 
-    // const call = phoneCallsService.create(req.body);
-
-    // return call;
+    return call;
   }
 
   async updateEntity(req: Request, res: Response, next: NextFunction) {
-    return null;
+    const id = +req.params.carId;
+    const updatedCall: ServerCallRequest.UpdateRequest = req.body;
+    const call = await callRequestService.update(id, updatedCall);
 
-    // const id = +req.params.carId;
-    // const updatedCall: ServerPhoneCall.UpdateRequest = req.body;
-    // const call = await phoneCallsService.update(id, updatedCall);
-
-    // return call;
+    return call;
   }
 
   protected deleteEntity(req: Request, res: Response, next: NextFunction) {
-    return null;
+    const id = +req.params.carId;
+    const call = callRequestService.delete(id);
 
-    // const id = +req.params.carId;
-    // const call = phoneCallsService.delete(id);
-
-    // return call;
+    return call;
   }
 
   protected deleteEntities(req: Request, res: Response, next: NextFunction) { // !TODO

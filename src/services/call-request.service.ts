@@ -1,11 +1,15 @@
 import { ServerCallRequest } from "../entities/CallRequest";
 import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
+import { ApiError } from "../exceptions/api.error";
+import { StringHash } from "../models/hashes";
 import { SitesCallRequest } from "../models/sites-call-request";
 import callRequestsRepository from "../repositories/base/call-requests.repository";
+import { getEntityIdsByNaturalQuery } from "../utils/enitities-functions";
+import { ExpressionHash } from "../utils/sql-queries";
 
 
-class CallRequestService // implements ICrudService<ServerPhoneCall.CreateRequest, ServerPhoneCall.UpdateRequest, ServerPhoneCall.Response, ServerPhoneCall.IdResponse>
+class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest, ServerCallRequest.UpdateRequest, ServerCallRequest.Response, ServerCallRequest.IdResponse>
  {
   async callRequest(sitesCallRequest: SitesCallRequest): Promise<ServerCallRequest.IdResponse> {
     const callRequest: ServerCallRequest.CreateRequest = {
@@ -21,189 +25,71 @@ class CallRequestService // implements ICrudService<ServerPhoneCall.CreateReques
     return await callRequestsRepository.create(callRequest)
   }
 
-  // async getAll() {
-  //   const [
-  //     clients,
-  //     relatedFields
-  //   ] = await Promise.all([
-  //     clientRepository.getAll(),
-  //     fieldService.getFieldsByDomain(FieldDomains.Client)
-  //   ]);
+  async getAll() {
+    const [
+      requests,
+    ] = await Promise.all([
+      callRequestsRepository.getAll(),
+    ]);
 
-  //   return this.getClients(clients , relatedFields);
-  // }
+    return this.getCallRequests(requests);
+  }
 
-  // async getClients(clients: Models.Client[], clientsFields: ServerField.Response[]) {
-  //   const chaines = clients.length > 0 ? await fieldChainRepository.find({
-  //     sourceName: [`${Models.Table.Clients}`],
-  //     sourceId: clients.map(c => `${c.id}`),
-  //   }) : [];
+  async getCallRequests(requests: Models.CallRequest[]) {
 
-  //   const result: ServerClient.Response[] = clients.map(client => ({
-  //     id: client.id,
-  //     carIds: client.carIds,
-  //     fields: getFieldsWithValues(clientsFields, chaines, client.id)
-  //   }))
+    return requests;
+  }
 
-  //   return result;
-  // }
+  async getCallRequestsByQuery(query: StringHash) {
+    const {
+      page,
+      size,
+    } = query;
+    delete query['page'];
+    delete query['size'];
 
-  // async getPhoneCallsByQuery(query: StringHash) {
-  //   const {
-  //     page,
-  //     size,
-  //   } = query;
-  //   delete query['page'];
-  //   delete query['size'];
+    const searchCallRequestsIds = await getEntityIdsByNaturalQuery(
+      callRequestsRepository.find,
+      query
+    );
 
-  //   const searchClientsIds = await fieldChainService.getEntityIdsByQuery(
-  //     Models.Table.Clients,
-  //     FieldDomains.Client,
-  //     query
-  //   );
+    let callRequestsIds = [...searchCallRequestsIds];
 
-  //   let clientsIds = [...searchClientsIds];
+    if (page && size) {
+      const start = (+page - 1) * +size;
 
-  //   if (page && size) {
-  //     const start = (+page - 1) * +size;
+      callRequestsIds = callRequestsIds.slice(start, start + +size);
+    }
 
-  //     clientsIds = clientsIds.slice(start, start + +size);
-  //   }
+    const requests = callRequestsIds.length > 0 ? await callRequestsRepository.find({
+      id: callRequestsIds
+    }) : [];
 
-  //   const clients = clientsIds.length > 0 ? await clientRepository.find({
-  //     id: clientsIds
-  //   }) : [];
+    return this.getCallRequests(requests);
+  }
 
-  //   const [
-  //     clientsFields,
-  //   ] = await Promise.all([
-  //     fieldService.getFieldsByDomain(FieldDomains.Client),
-  //   ]);
+  async create(callRequestData: ServerCallRequest.CreateRequest) {
+    throw new ApiError(408, 'Create is not available');
 
-  //   return this.getClients(clients, clientsFields);
-  // }
+    return null;
+  }
 
-  // async create(clientData: ServerPhoneCall.CreateRequest) {
-  //   const client = await clientRepository.create({
-  //     carIds: clientData.carIds
-  //   });
+  async update(id: number, callRequestData: ServerCallRequest.UpdateRequest) {
+    const callRequest = await callRequestsRepository.updateById(id, callRequestData);
 
-  //   if (clientData.carIds && !Number.isNaN(+clientData.carIds)) { // TODO only one car
-  //     await carStatisticService.addCall(clientData.carIds.split(',').map(id => +id));
-  //   }
+    return callRequest
+  }
 
-  //   await Promise.all(clientData.fields.map(f => fieldChainService.createFieldChain({
-  //     sourceId: client.id,
-  //     fieldId: f.id,
-  //     value: f.value,
-  //     sourceName: Models.Table.Clients
-  //   })));
+  async delete(id: number) {
+    const callRequest = await callRequestsRepository.deleteById(id);
+    return callRequest
+  }
 
-  //   return client;
-  // }
+  async get(id: number): Promise<ServerCallRequest.Response> {
+    const callRequest = await callRequestsRepository.findById(id);
 
-  // async update(id: number, clientData: ServerClient.CreateRequest) {
-  //   const client = await clientRepository.updateById(id, {
-  //     carIds: clientData.carIds
-  //   });
-
-  //   const existsFieldChains = (await Promise.all(clientData.fields.map(f => fieldChainRepository.find({
-  //     fieldId: [f.id].map(c => `${c}`),
-  //     sourceId: [id].map(c => `${c}`),
-  //     sourceName: [Models.Table.Clients]
-  //   })))).reduce((prev, cur) => [...prev, ...cur], []);
-  //   const existFieldIds = existsFieldChains.map(ef => +ef.fieldId);
-
-  //   const existsFields = clientData.fields.filter(f => existFieldIds.includes(+f.id));
-  //   const nonExistFields = clientData.fields.filter(f => !existFieldIds.includes(+f.id));
-
-  //   existsFields.length > 0 && await Promise.all(existsFields.map(f => fieldChainRepository.update({
-  //     value: f.value
-  //   }, {
-  //     fieldId: [f.id].map(c => `${c}`),
-  //     sourceId: [id].map(c => `${c}`),
-  //     sourceName: [Models.Table.Clients]
-  //   })));
-
-  //   nonExistFields.length > 0 && await Promise.all(nonExistFields.map(f => fieldChainRepository.create({
-  //     fieldId: f.id,
-  //     sourceId: id,
-  //     sourceName: Models.Table.Clients,
-  //     value: f.value,
-  //   })));
-
-  //   return client
-  // }
-
-  // async delete(id: number) {
-  //   const chaines = await fieldChainRepository.find({
-  //     sourceName: [Models.Table.Clients],
-  //     sourceId: [`${id}`],
-  //   });
-  //   await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
-  //   const client = await clientRepository.deleteById(id);
-  //   return client
-  // }
-
-  // async get(id: number): Promise<ServerClient.Response> {
-  //   const client = await clientRepository.findById(id);
-  //   const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.Client);
-  //   const chaines = await fieldChainRepository.find({
-  //     sourceName: [`${Models.Table.Clients}`],
-  //     sourceId: [`${id}`],
-  //   });
-
-  //   const result: ServerClient.Response = {
-  //     id: client.id,
-  //     carIds: client.carIds,
-  //     fields: getFieldsWithValues(relatedFields, chaines, client.id)
-  //   };
-
-  //   return result;
-  // }
-
-  // async completeDeal(clientId: number, carId: number) {
-  //   const [
-  //     clientFields,
-  //     carFields,
-  //   ] = await Promise.all([
-  //     fieldService.getFieldsByDomain(FieldDomains.Client),
-  //     fieldService.getFieldsByDomain(FieldDomains.Car),
-  //   ]);
-
-  //   const clientStatusField = clientFields.find(cf => cf.name === FieldNames.Client.dealStatus);
-  //   const carStatusField = carFields.find(cf => cf.name === FieldNames.Car.status);
-
-  //   const [
-  //     clientStatusChain,
-  //     carStatusChain,
-  //   ] = await Promise.all([
-  //     fieldChainRepository.findOne({
-  //       sourceName: [`${Models.Table.Clients}`],
-  //       sourceId: [`${clientId}`],
-  //       fieldId: [`${clientStatusField.id}`], }
-  //     ),
-  //     fieldChainRepository.findOne({
-  //       sourceName: [`${Models.Table.Cars}`],
-  //       sourceId: [`${carId}`],
-  //       fieldId: [`${carStatusField.id}`], }
-  //     ),
-  //   ]);
-
-  //   const clientStatusIndex = clientStatusField.variants.split(',').findIndex(v => v === FieldNames.DealStatus.Sold);
-  //   const carStatusIndex = carStatusField.variants.split(',').findIndex(v => v === FieldNames.CarStatus.customerService_Sold);
-  //   const clientStatus = `${FieldNames.Client.dealStatus}-${clientStatusIndex !== -1 ? clientStatusIndex : 0}`;
-  //   const carStatus = `${FieldNames.Car.status}-${carStatusIndex !== -1 ? carStatusIndex : 0}`;
-
-  //   const res = await Promise.all([
-  //     fieldChainService.updateFieldChain(clientStatusChain.id, { value: clientStatus}),
-  //     fieldChainService.updateFieldChain(carStatusChain.id, { value: carStatus}),
-  //   ]);
-
-  //   // TODO Delete all related carShowings
-
-  //   return res;
-  // }
+    return callRequest;
+  }
 }
 
 export = new CallRequestService();

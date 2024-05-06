@@ -12,7 +12,7 @@ router.route('/')
 
 router.route('/:clientId')
     .get(callRequestController.getOne)
-    // .delete(phoneCallController.deleteOne)
-    // .put(phoneCallController.update);
+    .delete(callRequestController.deleteOne)
+    .put(callRequestController.update);
 
 export default router;
