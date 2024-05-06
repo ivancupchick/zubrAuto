@@ -6,23 +6,28 @@ import { StringHash } from "../models/hashes";
 import { SitesCallRequest } from "../models/sites-call-request";
 import callRequestsRepository from "../repositories/base/call-requests.repository";
 import { getEntityIdsByNaturalQuery } from "../utils/enitities-functions";
-import { ExpressionHash } from "../utils/sql-queries";
-
+import { convertClientNumber } from "../utils/number.utils";
 
 class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest, ServerCallRequest.UpdateRequest, ServerCallRequest.Response, ServerCallRequest.IdResponse>
  {
   async callRequest(sitesCallRequest: SitesCallRequest): Promise<ServerCallRequest.IdResponse> {
+    const allRequests = await this.getAll(); // !TODO
+
+    const usersIds = ['56', '57'];
+
+    const id = `${allRequests[allRequests.length - 1].userId}` === usersIds[0] ? usersIds[1] : usersIds[0];
+
     const callRequest: ServerCallRequest.CreateRequest = {
       originalNotification: JSON.stringify(sitesCallRequest),
       innerNumber: '',
-      clientNumber: sitesCallRequest.number,
+      clientNumber: convertClientNumber(sitesCallRequest.number) || sitesCallRequest.number,
       createdDate: +(new Date()),
-      userId: null,
+      userId: +id || null,
       comment: sitesCallRequest.comment,
       source: sitesCallRequest.source,
     }
 
-    return await callRequestsRepository.create(callRequest)
+    return await callRequestsRepository.create(callRequest);
   }
 
   async getAll() {
