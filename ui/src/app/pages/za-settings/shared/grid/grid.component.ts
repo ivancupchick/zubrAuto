@@ -1,6 +1,9 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CommonModule, NgStyle } from '@angular/common';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as moment from 'moment';
 import { MenuItem, SortEvent } from 'primeng/api';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { TableModule } from 'primeng/table';
 
 export interface GridConfigItem<GridItemType extends { id: number }> {
   title: string;
@@ -23,7 +26,13 @@ export interface GridActionConfigItem<GridItemType extends { id: number }> {
 @Component({
   selector: 'za-grid',
   templateUrl: './grid.component.html',
-  styleUrls: ['./grid.component.scss']
+  styleUrls: ['./grid.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    TableModule,
+    ContextMenuModule,
+  ]
 })
 export class GridComponent<GridItemType extends { id: number }> implements OnInit {
   @Input() gridConfig!: GridConfigItem<GridItemType>[];
@@ -33,10 +42,12 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() selectionMode = '';
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
+  @Input() fixedHeight: number = 0;
   @Input() set gridData(value: GridItemType[]) {
     if (Array.isArray(value)) {
       this._gridData = value;
-      this.scrollHeight = this.elem.nativeElement.offsetHeight  - 20;
+      const scrollHeight = this.elem.nativeElement.offsetHeight  - 20;
+      this.scrollHeight = this.fixedHeight || (scrollHeight > 0 ? scrollHeight : 300);
     }
   }
 
@@ -85,10 +96,10 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
         const v2 = gridConfig.getValue(data2)
 
         let value1 = gridConfig.isDate && v1
-          ? +moment(v1, 'DD.MM.YYYY').toDate()
+          ? +moment(v1, 'DD.MM.YYYY HH:mm').toDate()
           : v1;
         let value2 = gridConfig.isDate && v2
-          ? +moment(v2, 'DD.MM.YYYY').toDate()
+          ? +moment(v2, 'DD.MM.YYYY HH:mm').toDate()
           : v2;
         let result = null;
 

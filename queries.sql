@@ -2,100 +2,100 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone="+00:00";
 
 CREATE TABLE `carForms` (
-    `id` int(11) NOT NULL,
-    `content` varchar(255) NOT NULL,
-    `carId` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `content` varchar(255) NOT NULL,
+  `carId` int(11) NOT NULL
 );
 
 CREATE TABLE `carOwners` (
-    `id` int(11) NOT NULL,
-    `number` varchar(255)
+  `id` int(11) NOT NULL,
+  `number` varchar(255)
 );
 
 CREATE TABLE `carStatistic` (
-    `id` int(11) NOT NULL,
-    `content` varchar(255),
-    `carId` int(11) NOT NULL,
-    `type` int(11) NOT NULL,
-    `date` bigint NOT NULL
+  `id` int(11) NOT NULL,
+  `content` varchar(255),
+  `carId` int(11) NOT NULL,
+  `type` int(11) NOT NULL,
+  `date` bigint NOT NULL
 );
 
 CREATE TABLE `cars` (
-    `id` int(11) NOT NULL,
-    `createdDate` varchar(255) NOT NULL,
-    `ownerId` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `createdDate` varchar(255) NOT NULL,
+  `ownerId` int(11) NOT NULL
 );
 
 CREATE TABLE `clients` (
-    `id` int(11) NOT NULL,
-    `carIds` varchar(255) NOT NULL
+  `id` int(11) NOT NULL,
+  `carIds` varchar(255) NOT NULL
 );
 
 CREATE TABLE `fieldAccesses` (
-    `id` int(11) NOT NULL,
-    `fieldId` int(11) NOT NULL,
-    `sourceId` int(11) NOT NULL,
-    `sourceName` varchar(255) NOT NULL,
-    `access` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `fieldId` int(11) NOT NULL,
+  `sourceId` int(11) NOT NULL,
+  `sourceName` varchar(255) NOT NULL,
+  `access` int(11) NOT NULL
 );
 
 CREATE TABLE `fieldIds` (
-    `id` int(11) NOT NULL,
-    `sourceId` int(11) NOT NULL,
-    `fieldId` int(11) NOT NULL,
-    `value` varchar(255),
-    `sourceName` varchar(255)
+  `id` int(11) NOT NULL,
+  `sourceId` int(11) NOT NULL,
+  `fieldId` int(11) NOT NULL,
+  `value` varchar(255),
+  `sourceName` varchar(255)
 );
 
 CREATE TABLE `fields` (
-    `id` int(11) NOT NULL,
-    `flags` int(11) NOT NULL,
-    `type` int(11) NOT NULL,
-    `domain` int(11) NOT NULL,
-    `variants` varchar(255) NOT NULL,
-    `showUserLevel` int(11) NOT NULL,
-    `name` varchar(255)
+  `id` int(11) NOT NULL,
+  `flags` int(11) NOT NULL,
+  `type` int(11) NOT NULL,
+  `domain` int(11) NOT NULL,
+  `variants` varchar(255) NOT NULL,
+  `showUserLevel` int(11) NOT NULL,
+  `name` varchar(255)
 );
 
 CREATE TABLE `files` (
-    `id` int(11) NOT NULL,
-    `url` varchar(255) NOT NULL,
-    `type` int(11) NOT NULL,
-    `parent` int(11),
-    `name` varchar(255),
-    `fileMetadata` varchar(255)
+  `id` int(11) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `type` int(11) NOT NULL,
+  `parent` int(11),
+  `name` varchar(255),
+  `fileMetadata` varchar(255)
 );
 
 CREATE TABLE `filesIds` (
-    `id` int(11) NOT NULL,
-    `sourceId` int(11) NOT NULL,
-    `fileId` int(11) NOT NULL,
-    `sourceName` varchar(255)
+  `id` int(11) NOT NULL,
+  `sourceId` int(11) NOT NULL,
+  `fileId` int(11) NOT NULL,
+  `sourceName` varchar(255)
 );
 
 CREATE TABLE `forms` (
-    `id` int(11) NOT NULL,
-    `flags` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `flags` int(11) NOT NULL
 );
 
 CREATE TABLE `roles` (
-    `id` int(11) NOT NULL,
-    `systemName` varchar(255) NOT NULL
+  `id` int(11) NOT NULL,
+  `systemName` varchar(255) NOT NULL
 );
 
 CREATE TABLE `userTokens` (
-    `id` int(11) NOT NULL,
-    `userId` int(11) NOT NULL,
-    `refreshToken` varchar(255) NOT NULL
+  `id` int(11) NOT NULL,
+  `userId` int(11) NOT NULL,
+  `refreshToken` varchar(255) NOT NULL
 );
 
 CREATE TABLE `users` (
-    `id` int(11) NOT NULL,
-    `email` varchar(255) NOT NULL,
-    `password` varchar(255) NOT NULL,
-    `isActivated` boolean DEFAULT 0,
-    `activationLink` varchar(255),
-    `roleLevel` int(11) NOT NULL
+  `id` int(11) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `isActivated` boolean DEFAULT 0,
+  `activationLink` varchar(255),
+  `roleLevel` int(11) NOT NULL
 );
 
 CREATE TABLE `activities` (
@@ -104,7 +104,8 @@ CREATE TABLE `activities` (
   `sourceId` int(11),
   `sourceName` varchar(255),
   `date` bigint,
-  `activities` longtext
+  `activities` longtext,
+  `type` varchar(255)
 );
 
 CREATE TABLE `phoneCalls` (
@@ -131,6 +132,7 @@ CREATE TABLE `callRequests` (
   `userId` int(11),
   `comment` varchar(255),
   `source` varchar(255),
+  `isUsed` boolean DEFAULT 0,
 );
 
 ALTER TABLE `carForms`

@@ -50,7 +50,6 @@ import { CreateClientComponent } from './modals/create-client/create-client.comp
 import { FieldService } from 'src/app/services/field/field.service';
 import { SettingsCarsComponent } from './settings-cars/settings-cars.component';
 import { CreateCarComponent } from './modals/create-car/create-car.component';
-import { SpinnerModule } from 'src/app/shared/components/spinner/spinner.module';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AuthInterceptor } from 'src/app/interceptors/auth.interceptor';
 import { AuthGuard } from './auth.guard';
@@ -83,6 +82,8 @@ import { MessageService } from 'primeng/api';
 import { ChangeCarOwnerNumberComponent } from './modals/change-car-owner-number/change-car-owner-number.component';
 import { ClientPreviewComponent } from './client/modals/client-preview/client-preview.component';
 import { HighlightModule } from 'ngx-highlightjs';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 
 
 
@@ -136,8 +137,6 @@ const routes: Routes = [{
     CreateFieldComponent,
     FieldFormComponent,
     SettingsClientsComponent,
-    GridComponent,
-    CreateClientComponent,
     SettingsCarsComponent,
     CreateCarComponent,
     SettingsRolesComponent,
@@ -179,7 +178,7 @@ const routes: Routes = [{
     MessagesModule,
     MessageModule,
     ToastModule,
-    SpinnerModule,
+    SpinnerComponent,
     HttpClientModule,
     AvatarModule,
     AvatarGroupModule,
@@ -204,6 +203,9 @@ const routes: Routes = [{
     ModalsAuthModule,
     DynamicFormModule,
     HighlightModule,
+    DashboardModule,
+    GridComponent,
+    CreateClientComponent
   ],
   providers: [
     AuthService,

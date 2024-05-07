@@ -6,4 +6,10 @@ export namespace DateUtils {
       ? ''
       : moment(new Date(timestamp)).format('DD.MM.YYYY');
   }
+
+  export function getFormatedDateTime(timestamp: number) {
+    return timestamp === 0
+      ? ''
+      : moment(new Date(timestamp)).format('DD.MM.YYYY HH:mm');
+  }
 }

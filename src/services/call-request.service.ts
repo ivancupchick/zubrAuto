@@ -25,6 +25,7 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
       userId: +id || null,
       comment: sitesCallRequest.comment,
       source: sitesCallRequest.source,
+      isUsed: 0,
     }
 
     return await callRequestsRepository.create(callRequest);

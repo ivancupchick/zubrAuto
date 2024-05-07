@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { UntypedFormControl } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { getCarStatus, ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
@@ -18,11 +18,28 @@ import { SessionService } from 'src/app/services/session/session.service';
 import { ServerUser } from 'src/app/entities/user';
 import { map, mergeMap, of } from 'rxjs';
 import { ClientPreviewComponent } from '../../client/modals/client-preview/client-preview.component';
+import { CommonModule } from '@angular/common';
+import { DynamicFormModule } from '../../shared/dynamic-form/dynamic-form.module';
+import { CheckboxModule } from 'primeng/checkbox';
+import { ChipsModule } from 'primeng/chips';
+import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'za-create-client',
   templateUrl: './create-client.component.html',
   styleUrls: ['./create-client.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    DynamicFormModule,
+    CheckboxModule,
+    ChipsModule,
+    FormsModule,
+    ReactiveFormsModule,
+    SpinnerComponent,
+    ButtonModule
+  ],
   providers: [
     DynamicFieldControlService,
     CarService,

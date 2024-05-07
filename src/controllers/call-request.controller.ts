@@ -6,6 +6,9 @@ import { ApiError } from '../exceptions/api.error';
 import { ServerCallRequest } from '../entities/CallRequest';
 import callRequestService from '../services/call-request.service';
 import { SitesCallRequest } from '../models/sites-call-request';
+import { ControllerActivity } from '../decorators/activity.decorator';
+import { ActivityType } from '../enums/activity-type.enum';
+import { Models } from '../entities/Models';
 
 class CallRequestController extends BaseCrudController<ServerCallRequest.Response> {
   protected getAllEntities(req: Request, res: Response, next: NextFunction) {
@@ -17,33 +20,37 @@ class CallRequestController extends BaseCrudController<ServerCallRequest.Respons
       : callRequestService.getAll();
   }
 
-  protected getEntity(req: Request<{ carId: string }>, res: Response, next: NextFunction) {
-    const call = callRequestService.get(+req.params.carId);
+  protected getEntity(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+    const call = callRequestService.get(+req.params.id);
 
     return call;
   }
 
+  @ControllerActivity({ type: ActivityType.CreateCallRequest, sourceName: Models.Table.Activities })
   protected createEntity(req: Request<any, any, ServerCallRequest.CreateRequest>, res: Response, next: NextFunction) {
     const call = callRequestService.create(req.body);
 
     return call;
   }
 
+  @ControllerActivity({ type: ActivityType.UpdateCallRequest, sourceName: Models.Table.Activities })
   async updateEntity(req: Request, res: Response, next: NextFunction) {
-    const id = +req.params.carId;
+    const id = +req.params.id;
     const updatedCall: ServerCallRequest.UpdateRequest = req.body;
     const call = await callRequestService.update(id, updatedCall);
 
     return call;
   }
 
+  @ControllerActivity({ type: ActivityType.DeleteCallRequest, sourceName: Models.Table.Activities })
   protected deleteEntity(req: Request, res: Response, next: NextFunction) {
-    const id = +req.params.carId;
+    const id = +req.params.id;
     const call = callRequestService.delete(id);
 
     return call;
   }
 
+  @ControllerActivity({ type: ActivityType.DeleteSomeCallRequest, sourceName: Models.Table.Activities })
   protected deleteEntities(req: Request, res: Response, next: NextFunction) { // !TODO
     return null;
 

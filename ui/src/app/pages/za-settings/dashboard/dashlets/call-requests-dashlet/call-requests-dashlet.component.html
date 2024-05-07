@@ -1,0 +1,42 @@
+<p-panel *ngIf="allCallRequests.length" header="Заявки">
+  <p-tabView>
+    <p-tabPanel header="Мои">
+      <div class="h-20rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [gridConfig]="gridConfig"
+          [gridData]="myCallRequests"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel *ngIf="!isCarSales" header="Все">
+      <div class="h-20rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [gridConfig]="gridConfig"
+          [gridData]="allCallRequests"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel header="Использованные">
+      <div class="h-20rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [gridConfig]="gridConfig"
+          [gridData]="usedCallRequests"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</p-panel>
+
+<za-spinner *ngIf="loading"></za-spinner>

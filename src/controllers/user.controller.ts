@@ -3,6 +3,9 @@ import { validationResult } from 'express-validator';
 import { ServerUser } from '../entities/User';
 import { ApiError } from '../exceptions/api.error';
 import userService from '../services/user.service';
+import { ControllerActivity } from '../decorators/activity.decorator';
+import { ActivityType } from '../enums/activity-type.enum';
+import { Models } from '../entities/Models';
 
 class UserController {
   async getAll(req: Request, res: Response, next: NextFunction) {
@@ -36,6 +39,7 @@ class UserController {
     }
   }
 
+  @ControllerActivity({ type: ActivityType.CreateUser, sourceName: Models.Table.Users })
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);
@@ -52,6 +56,7 @@ class UserController {
     }
   }
 
+  @ControllerActivity({ type: ActivityType.UpdateUser, sourceName: Models.Table.Users })
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);

@@ -6,6 +6,9 @@ import clientService from "../services/client.service";
 import { BaseCrudController } from "./base.conroller";
 import { ParsedQs } from "qs";
 import { StringHash } from "../models/hashes";
+import { ControllerActivity } from "../decorators/activity.decorator";
+import { ActivityType } from "../enums/activity-type.enum";
+import { Models } from "../entities/Models";
 
 class ClientConntroller extends BaseCrudController<ServerClient.Response> {
   protected getAllEntities(req: Request, res: Response, next: NextFunction) {
@@ -26,6 +29,7 @@ class ClientConntroller extends BaseCrudController<ServerClient.Response> {
     return clientService.get(id);
   }
 
+  @ControllerActivity({ type: ActivityType.CreateClient, sourceName: Models.Table.Clients })
   protected createEntity(
     req: Request<any, { id: number }, any, ParsedQs, Record<string, any>>,
     res: Response<{ id: number }, Record<string, any>>,
@@ -35,6 +39,7 @@ class ClientConntroller extends BaseCrudController<ServerClient.Response> {
     return clientService.create(newClient);
   }
 
+  @ControllerActivity({ type: ActivityType.UpdateClient, sourceName: Models.Table.Clients })
   protected updateEntity(
     req: Request<any, { id: number }, any, ParsedQs, Record<string, any>>,
     res: Response<{ id: number }, Record<string, any>>,

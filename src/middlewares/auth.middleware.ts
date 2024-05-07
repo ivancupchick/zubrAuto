@@ -20,14 +20,9 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
       return next(ApiError.UnauthorizedError());
     }
 
-    Object.assign({}, req, { SERVER_DATA: {
-      userData: userData
-    } });
-    // req.SERVER_DATA = {};
-    // req.body.SERVER_DATA.userPayload = userData;
-
     next();
   } catch (e) {
+    console.log(e);
     return next(ApiError.UnauthorizedError())
   }
 }

@@ -1,5 +1,6 @@
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, HostBinding, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 export const fadeInFadeOut = trigger('fadeInFadeOut', [
   transition(':enter', [
@@ -17,7 +18,9 @@ export const fadeInFadeOut = trigger('fadeInFadeOut', [
   templateUrl: './spinner.component.html',
   styleUrls: ['./spinner.component.scss'],
   animations: [ fadeInFadeOut ],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  standalone: true,
+  imports: [ProgressSpinnerModule]
 })
 export class SpinnerComponent implements OnInit {
   @Input() zIndex: number = 99999;

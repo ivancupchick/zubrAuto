@@ -1,16 +1,10 @@
 import { Models } from "./Models";
 
-export namespace Activities {
-  export type Activity = {
-    type: ActivityType;
-    value: string;
-  }
+export namespace ServerActivity {
+  type Entity = Omit<Models.Activity, 'id'>;
 
-  export enum ActivityType {
-    entityCreate,
-    entityDelete,
-    fieldChange,
-  }
-
-  export type Response = Omit<Models.Table.Activities, 'activities'> & { activities: Activity[] };
+  export type CreateRequest = Entity;
+  export type UpdateRequest = Partial<Entity>;
+  export type Response = Models.Activity;
+  export type IdResponse = Pick<Response, 'id'>
 }

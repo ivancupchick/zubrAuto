@@ -10,7 +10,7 @@ router.route(`/${ Constants.API.CALL_REQUEST }/`)
 router.route('/')
   .get(callRequestController.getAll)
 
-router.route('/:clientId')
+router.route('/:id')
     .get(callRequestController.getOne)
     .delete(callRequestController.deleteOne)
     .put(callRequestController.update);

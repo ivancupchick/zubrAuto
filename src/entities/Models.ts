@@ -115,12 +115,13 @@ export namespace Models {
   }
 
 
-  export interface Activities {
+  export interface Activity {
     id: number;
     userId: number;
     sourceId: number;
     sourceName: string;
     date: number;
+    type: string; // TODO!
     activities: string;
   }
 
@@ -148,5 +149,6 @@ export namespace Models {
     userId: number;
     comment: string;
     source: string;
+    isUsed: number;
   }
 }

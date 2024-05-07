@@ -3,6 +3,9 @@ import { ServerCar } from '../entities/Car';
 import carService from '../services/car.service';
 import { BaseCrudController } from './base.conroller';
 import { StringHash } from '../models/hashes';
+import { ControllerActivity } from '../decorators/activity.decorator';
+import { ActivityType } from '../enums/activity-type.enum';
+import { Models } from '../entities/Models';
 // import { Activity } from '../decorators/activity.decorator';
 
 class CarController extends BaseCrudController<ServerCar.Response> {
@@ -37,12 +40,14 @@ class CarController extends BaseCrudController<ServerCar.Response> {
     return car;
   }
 
+  @ControllerActivity({ type: ActivityType.CreateCar, sourceName: Models.Table.Cars })
   protected createEntity(req: Request<any, any, ServerCar.CreateRequest>, res: Response, next: NextFunction) {
     const car = carService.manualCreate(req.body);
 
     return car;
   }
 
+  @ControllerActivity({ type: ActivityType.UpdateCar, sourceName: Models.Table.Cars })
   async updateEntity(req: Request, res: Response, next: NextFunction) {
     const id = +req.params.carId;
     const updatedCar: ServerCar.UpdateRequest = req.body;
