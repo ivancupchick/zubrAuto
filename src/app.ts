@@ -61,26 +61,35 @@ export class App {
     this.app.use(express.static(process.cwd()+string+"/ui/zubr-auto/"));
     this.app.use('/uploads/', express.static(process.cwd()+string+"/uploads/"));
     this.app.use(IndexRoutes);
+    this.app.use(express.urlencoded({ extended: true }));
     this.app.use('/cars', CarRoutes);
     this.app.use('/fields', FieldRoutes);
     this.app.use('/clients', ClientRoutes);
     this.app.use('/auth', AuthRoutes);
     this.app.use('/roles', RoleRoutes);
     this.app.use('/users', UserRoutes);
-    this.app.use('/phone-call', PhoneCallRoutes, cors({
-      origin: '*'
-    }));
+    this.app.use(
+      '/phone-call',
+      PhoneCallRoutes,
+      cors({
+        origin: '*'
+      })
+    );
 
     const requestWhitelist = ['zubrgroup.by', 'zubr-electro', 'electro-gee', 'zubr-premium', 'geometry-e.by', 'zubr-auto.by'];;
-    this.app.use('/call-requests', CallRequestRoutes, cors({
-      origin: function (origin, callback) {
-        if (requestWhitelist.find(site => origin.toLowerCase().indexOf(site) !== -1)) {
-          callback(null, true)
-        } else {
-          callback(ApiError.CorsError())
+    this.app.use(
+      '/call-requests',
+      CallRequestRoutes,
+      cors({
+        origin: function (origin, callback) {
+          if (requestWhitelist.find(site => origin.toLowerCase().indexOf(site) !== -1)) {
+            callback(null, true)
+          } else {
+            callback(ApiError.CorsError())
+          }
         }
-      }
-    }));
+      })
+    );
   }
 
   async listen(): Promise<void> {
