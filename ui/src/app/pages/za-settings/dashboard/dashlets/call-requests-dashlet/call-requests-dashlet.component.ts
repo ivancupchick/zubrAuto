@@ -68,7 +68,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
                     || u.customRoleName === ServerRole.Custom.carSalesChief
                     || u.customRoleName === ServerRole.Custom.customerService
                     || u.customRoleName === ServerRole.Custom.customerServiceChief
-                    || (
+                  || (
                       (
                         u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
                       )
@@ -86,11 +86,12 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   getCallRequests(): Observable<ServerCallRequest.Response[]> {
     return this.requestService.get<ServerCallRequest.Response[]>(`${environment.serverUrl}/${'call-requests'}`)
       .pipe(map(result => {
-        this.allCallRequests = result;
-        this.myCallRequests = result.filter(call => `${call.userId}` === `${this.sessionService.userId}` && !(+call.isUsed));
-        this.usedCallRequests = result.filter(call => (+call.isUsed));
 
-        return result;
+        this.allCallRequests = result.sort((a, b) => (a.createdDate > b.createdDate) ? -1 : (a.createdDate < b.createdDate) ? 1 : 0);
+        this.myCallRequests = this.allCallRequests.filter(call => `${call.userId}` === `${this.sessionService.userId}` && !(+call.isUsed));
+        this.usedCallRequests = this.allCallRequests.filter(call => (+call.isUsed));
+
+        return this.allCallRequests;
       }))
   }
 
@@ -182,38 +183,6 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       disabled: (c) => !c || !!(+c.isUsed),
       handler: (c) => this.requestIsUsed(c)
     },
-    // {
-    //   title: 'Следующее действие',
-    //   icon: 'question-circle',
-    //   buttonClass: 'success',
-    //   handler: (client) => this.updateSpecificField(client, FieldNames.Client.nextAction)
-    // },
-    // {
-    //   title: 'Изменить статус сделки',
-    //   icon: 'check-circle',
-    //   buttonClass: 'success',
-    //   handler: (client) => this.updateSpecificField(client, FieldNames.Client.dealStatus)
-    // },
-    // // {
-    // //   title: 'Показы',
-    // //   icon: 'list',
-    // //   buttonClass: 'success',
-    // //   handler: (client) => this.manageCarShowings(client)
-    // // },
-    // {
-    //   title: 'Удалить',
-    //   icon: 'times',
-    //   buttonClass: 'danger',
-    //   handler: (client) => this.deleteClient(client),
-    //   disabled: () => !this.sessionService.isAdminOrHigher,
-    //   available: () => this.sessionService.isAdminOrHigher
-    // }
-    // {
-    //   title: 'Завершить сделку',
-    //   icon: 'check-circle',
-    //   buttonClass: 'success',
-    //   handler: (client) => this.completeDeal(client)
-    // },
     ];
 
     return configs.filter(config => !config.available || config.available());

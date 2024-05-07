@@ -6,12 +6,14 @@ import { GridComponent } from '../shared/grid/grid.component';
 import { TabViewModule } from 'primeng/tabview';
 import { PanelModule } from 'primeng/panel';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
+import { ClientNextActionDashletComponent } from './dashlets/client-next-action-dashlet/client-next-action-dashlet.component';
 
 
 @NgModule({
   declarations: [
     DashboardComponent,
-    CallRequestsDashletComponent
+    CallRequestsDashletComponent,
+    ClientNextActionDashletComponent
   ],
   imports: [
     CommonModule,

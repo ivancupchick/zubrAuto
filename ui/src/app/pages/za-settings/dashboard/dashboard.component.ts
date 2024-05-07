@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SessionService } from 'src/app/services/session/session.service';
 
 @Component({
   selector: 'za-dashboard',
@@ -6,5 +7,12 @@ import { Component } from '@angular/core';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
+  isCarSales =
+    this.sessionService.isCarSales ||
+    this.sessionService.isCarSalesChief ||
+    this.sessionService.isCustomerService ||
+    this.sessionService.isCustomerServiceChief ||
+    this.sessionService.isAdminOrHigher
 
+  constructor(private sessionService: SessionService) { }
 }

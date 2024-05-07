@@ -19,6 +19,12 @@ export class ClientService {
     return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}`);
   }
 
+  getClientsByQuery(query: StringHash): Observable<ServerClient.Response[]> {
+    const queries = Object.keys(query).filter(key => !!query[key]).map(key => `${key}=${query[key]}`).join('&');
+
+    return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}?${queries}`)
+  }
+
   // Геттер для клиентов
   get clients$(): Observable<ServerClient.Response[]> {
     return this.getClients();

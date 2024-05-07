@@ -46,9 +46,9 @@ export class ActionsService {
 
   getHomePageRoutingAction(): ActionsItem {
     return {
-      label: 'Домой',
+      label: 'Главная',
       icon: 'pi pi-fw pi-home',
-      routerLink: '',
+      routerLink: './',
       visible: () => true,
     }
   }

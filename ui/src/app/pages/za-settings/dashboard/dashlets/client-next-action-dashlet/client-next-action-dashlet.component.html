@@ -1,0 +1,30 @@
+<p-panel *ngIf="allClients.length" header="Следующее действите по клиентам">
+  <p-tabView>
+    <p-tabPanel header="Мои">
+      <div class="h-20rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [gridConfig]="gridConfig"
+          [gridData]="myClients"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel *ngIf="!isCarSales" header="Все">
+      <div class="h-20rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [gridConfig]="gridConfig"
+          [gridData]="allClients"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</p-panel>
+
+<za-spinner *ngIf="loading"></za-spinner>
