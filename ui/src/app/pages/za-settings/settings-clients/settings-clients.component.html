@@ -93,7 +93,9 @@
     </p-button>
   </div>
 </p-toolbar>
-<za-grid [gridConfig]="gridConfig"
+<za-grid
+  [gridConfig]="gridConfig"
+  [getTooltipConfig]="getTooltipConfig"
   [gridData]="sortedClients"
   [actions]="gridActionsConfig"
   [getColorConfig]="getColorConfig"

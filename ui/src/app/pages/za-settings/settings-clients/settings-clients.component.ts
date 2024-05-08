@@ -76,6 +76,10 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
   isCarSalesChiefOrAdmin = this.sessionService.isCarSalesChief || this.sessionService.isAdminOrHigher;
 
+  getTooltipConfig: ((item: ServerClient.Response) => string) = (car) => {
+    return FieldsUtils.getFieldStringValue(car, FieldNames.Client.Description)
+  };
+
   constructor(
     private clientService: ClientService,
     private dialogService: DialogService,
@@ -330,17 +334,17 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
   deleteClient(client: ServerClient.Response) {
     this.clientService.deleteClient(client.id)
-    .pipe(takeUntil(this.destoyed))
-      .subscribe(res => {
-        if(res){
-          this.loading = true;
-          this.getClients()
-            .pipe(takeUntil(this.destoyed))
-            .subscribe(() => {
-              this.loading = false;
-            });
-        }
-      });
+      .pipe(takeUntil(this.destoyed))
+        .subscribe(res => {
+          if(res){
+            this.loading = true;
+            this.getClients()
+              .pipe(takeUntil(this.destoyed))
+              .subscribe(() => {
+                this.loading = false;
+              });
+          }
+        });
   }
 
   sortClients() {

@@ -78,7 +78,7 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       carIds: clientData.carIds
     });
 
-    if (clientData.carIds && !Number.isNaN(+clientData.carIds)) { // TODO only one car
+    if (clientData.carIds && !Number.isNaN(+clientData.carIds) && clientData.carIds.split) { // TODO only one car
       await carStatisticService.addCall(clientData.carIds.split(',').map(id => +id));
     }
 

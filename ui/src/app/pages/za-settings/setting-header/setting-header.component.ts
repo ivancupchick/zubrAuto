@@ -107,17 +107,18 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  onFileChange(event: any) {
-    this.xlsxService.onFileChange(event, (list: any) => {
-      const listr = this.convertXlsToJSON(list);
-      console.log(listr);
+  // onFileChange(event: any) {
+  //   this.xlsxService.onFileChange(event, (list: any) => {
+  //     const listr = this.convertXlsToJSON(list);
+  //     // console.log(listr);
 
-      // listr.forEach(c => {
-      //   this.clientService.createClient(c).subscribe();
-      // })
-    });
-
-  }
+  //     // listr.forEach(c => {
+  //     //   this.clientService.createClient(c).subscribe(r => {
+  //     //     console.log(r);
+  //     //   });
+  //     // })
+  //   });
+  // }
 
   convertXlsToJSON(list: any[]) {
     return list.map(item => {
@@ -126,12 +127,12 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         fields: [],
       }
 
-      if (item[' ']) {
+      if (item['номер']) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.name)!;
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: `${item[' ']} ${item['Имя']} `
+          value: `${item['номер']} ${item['Имя']} `
         })
       }
 
@@ -195,7 +196,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: `${+item['Следующее действие']}`,
+          value: `${item['Следующее действие']}`,
         });
       }
 
@@ -209,25 +210,37 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
           case 'Звонок с АВ':
           case 'ав':
           case 'АВ':
+          case 'av.by':
             value = FieldNames.ClientSource.Av;
             break;
           case 'Заявка в вотсап':
           case 'Запрос вайбер':
           case 'Запрос в вайбер':
-            value = FieldNames.ClientSource.Other;
+          case 'Viber':
+          case 'Telegram':
+          case 'Whatsup':
+            value = FieldNames.ClientSource.Messagers;
             break;
+          case 'Заявка с сайта':
+            value = FieldNames.ClientSource.Site;
+            break
+          case 'Эл почта"':
+            value = FieldNames.ClientSource.EMail;
+            break
           case 'Звонок ':
           case 'Звонок':
             value = FieldNames.ClientSource.Call;
             break;
           case 'Дживо':
           case 'Живо':
-            value = FieldNames.ClientSource.TC;
+          case 'Чат':
+            value = FieldNames.ClientSource.Chat;
             break;
-          case 'Инста':
+          case 'Instagram':
             value = FieldNames.ClientSource.Insta;
             break;
           case 'ТЦ':
+          case 'Заявка ТЦ':
             value = FieldNames.ClientSource.TC;
             break;
           case 'Арена сити':
@@ -235,11 +248,15 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
             value = FieldNames.ClientSource.TC;
             break;
           case 'Прямое':
+          case 'Улица':
             value = FieldNames.ClientSource.Street;
             break;
 
           case 'Звонок':
             value = FieldNames.ClientSource.Call;
+            break;
+          case 'Рекомендация':
+            value = FieldNames.ClientSource.Recommend;
             break;
         }
 
@@ -264,6 +281,20 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
           case ' Д ':
             value = '20';
             break;
+          case 'А':
+          case 'а':
+          case 'А ':
+          case ' А':
+          case ' А ':
+            value = '2';
+            break;
+          case 'М':
+          case 'M':
+          case 'М ':
+          case ' М':
+          case ' M ':
+            value = '17';
+            break;
           case 'И':
           case 'и':
           case 'И ':
@@ -283,8 +314,8 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
       if (item['Телефон']) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.number)!;
 
-        console.log(item['Телефон']);
-        console.log(convertClientNumber(`${item['Телефон']}`));
+        // console.log(item['Телефон']);
+        // console.log(convertClientNumber(`${item['Телефон']}`));
 
         client.fields.push({
           id: field.id,

@@ -1,8 +1,6 @@
 export const convertClientNumber: (n: string) => string = (number) => {
   const pureNumber = number.replace(/[^0-9]/g,"");
 
-  console.log(pureNumber);
-
   if (pureNumber.length === 9) {
     return `+375${pureNumber}`;
   }

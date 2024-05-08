@@ -97,6 +97,9 @@ export namespace FieldNames {
     CallTC = 'Звонок ТЦ',
     TC = 'Заявка ТЦ',
     Other = 'Другое',
+    Messagers = 'Viber Whatsup Telegram',
+    EMail = 'Эл почта',
+    Recommend = 'Рекомендация'
   }
 
   export enum CarOwner {
