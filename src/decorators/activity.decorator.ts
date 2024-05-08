@@ -1,9 +1,7 @@
 import { Request } from 'express'
 import activityService from '../services/activity.service';
-import { ServerAuth } from '../entities/Auth';
 import { ActivityType } from '../enums/activity-type.enum';
 import { Models } from '../entities/Models';
-import { IncomingMessage } from 'http';
 import tokenService from '../services/token.service';
 
 export function ControllerActivity(object: { type: ActivityType, sourceName: Models.Table }) {
@@ -22,19 +20,21 @@ export function ControllerActivity(object: { type: ActivityType, sourceName: Mod
 
       const result = method.apply(this, args);
 
-      activityService.createActivity({
-        userId: userData?.id || 0,
-        sourceId: result?.id || result?.clientId || 0,
-        sourceName: object.sourceName,
-        date: +(new Date()),
-        type: object.type,
-        activities: JSON.stringify({
-          request: {
-            params,
-            body
-          }
-        })
-      }).then();
+      result.then(res => {
+        activityService.createActivity({
+          userId: userData?.id || 0,
+          sourceId: res?.id || res?.clientId || 0,
+          sourceName: object.sourceName,
+          date: +(new Date()),
+          type: object.type,
+          activities: JSON.stringify({
+            request: {
+              params,
+              body
+            }
+          })
+        }).then();
+      });
 
       return result;
     };

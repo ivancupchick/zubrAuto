@@ -26,14 +26,14 @@ class CallRequestController extends BaseCrudController<ServerCallRequest.Respons
     return call;
   }
 
-  @ControllerActivity({ type: ActivityType.CreateCallRequest, sourceName: Models.Table.Activities })
+  @ControllerActivity({ type: ActivityType.CreateCallRequest, sourceName: Models.Table.CallRequests })
   protected createEntity(req: Request<any, any, ServerCallRequest.CreateRequest>, res: Response, next: NextFunction) {
     const call = callRequestService.create(req.body);
 
     return call;
   }
 
-  @ControllerActivity({ type: ActivityType.UpdateCallRequest, sourceName: Models.Table.Activities })
+  @ControllerActivity({ type: ActivityType.UpdateCallRequest, sourceName: Models.Table.CallRequests })
   async updateEntity(req: Request, res: Response, next: NextFunction) {
     const id = +req.params.id;
     const updatedCall: ServerCallRequest.UpdateRequest = req.body;
@@ -42,7 +42,7 @@ class CallRequestController extends BaseCrudController<ServerCallRequest.Respons
     return call;
   }
 
-  @ControllerActivity({ type: ActivityType.DeleteCallRequest, sourceName: Models.Table.Activities })
+  @ControllerActivity({ type: ActivityType.DeleteCallRequest, sourceName: Models.Table.CallRequests })
   protected deleteEntity(req: Request, res: Response, next: NextFunction) {
     const id = +req.params.id;
     const call = callRequestService.delete(id);
@@ -50,7 +50,7 @@ class CallRequestController extends BaseCrudController<ServerCallRequest.Respons
     return call;
   }
 
-  @ControllerActivity({ type: ActivityType.DeleteSomeCallRequest, sourceName: Models.Table.Activities })
+  @ControllerActivity({ type: ActivityType.DeleteSomeCallRequest, sourceName: Models.Table.CallRequests })
   protected deleteEntities(req: Request, res: Response, next: NextFunction) { // !TODO
     return null;
 
