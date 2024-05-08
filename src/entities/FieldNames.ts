@@ -13,6 +13,7 @@ export namespace FieldNames {
     dateNextAction = 'date-next-action',
     clientStatus = 'client-status',
     SpecialistId = 'specialist-id',
+    Description = 'description',
   }
 
   export enum Car {

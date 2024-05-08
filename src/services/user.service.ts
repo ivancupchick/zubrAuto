@@ -7,7 +7,6 @@ import { ApiError } from '../exceptions/api.error';
 import userRepository from '../repositories/base/user.repository';
 import fieldService from './field.service';
 import { FieldDomains } from '../entities/Field';
-import fieldChainRepository from '../repositories/base/field-chain.repository';
 import { getFieldsWithValues } from '../utils/field.utils';
 import fieldChainService from './field-chain.service';
 import { ICrudService } from '../entities/Types';
@@ -24,7 +23,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       fieldService.getFieldsByDomain(FieldDomains.User)
     ]);
 
-    const chaines = await fieldChainRepository.find({
+    const chaines = await fieldChainService.find({
       sourceName: [`${Models.Table.Users}`],
       sourceId: users.map(c => `${c.id}`),
     });
@@ -60,7 +59,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
     const fields = [...userData.fields];
     delete userData.fields;
     const user: Models.User = await userRepository.create(userData);
-    await Promise.all(fields.map(f => fieldChainService.createFieldChain({
+    await Promise.all(fields.map(f => fieldChainService.create({
       sourceId: user.id,
       fieldId: f.id,
       value: f.value,
@@ -83,7 +82,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
     delete userData.fields;
     const user = await userRepository.updateById(id, userData);
 
-    await Promise.all(fields.map(f => fieldChainRepository.update({
+    await Promise.all(fields.map(f => fieldChainService.update({
       value: f.value
     }, {
       fieldId: [f.id].map(c => `${c}`),
@@ -95,11 +94,11 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
   }
 
   async delete(id: number) { // TODO deleting userTokens
-    const chaines = await fieldChainRepository.find({
+    await fieldChainService.delete({
       sourceName: [Models.Table.Users],
       sourceId: [`${id}`],
     });
-    await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
+
     const user = await userRepository.deleteById(id);
     return user
   }
@@ -107,7 +106,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
   async get(id: number) {
     const user = await userRepository.findById(id);
     const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.User);
-    const chaines = await fieldChainRepository.find({
+    const chaines = await fieldChainService.find({
       sourceName: [`${Models.Table.Users}`],
       sourceId: [`${id}`],
     });

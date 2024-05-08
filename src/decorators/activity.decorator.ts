@@ -23,8 +23,8 @@ export function ControllerActivity(object: { type: ActivityType, sourceName: Mod
       const result = method.apply(this, args);
 
       activityService.createActivity({
-        userId: userData.id,
-        sourceId: result.id,
+        userId: userData?.id || 0,
+        sourceId: result?.id || result?.clientId || 0,
         sourceName: object.sourceName,
         date: +(new Date()),
         type: object.type,

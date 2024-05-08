@@ -47,6 +47,14 @@ CREATE TABLE `fieldIds` (
   `sourceName` varchar(255)
 );
 
+CREATE TABLE `longtextFieldsIds` (
+  `id` int(11) NOT NULL,
+  `sourceId` int(11) NOT NULL,
+  `fieldId` int(11) NOT NULL,
+  `value` TEXT,
+  `sourceName` varchar(255)
+);
+
 CREATE TABLE `fields` (
   `id` int(11) NOT NULL,
   `flags` int(11) NOT NULL,
@@ -149,6 +157,8 @@ ALTER TABLE `fieldAccesses`
     ADD CONSTRAINT fieldAccesses_pk PRIMARY KEY (`id`);
 ALTER TABLE `fieldIds`
     ADD CONSTRAINT fieldIds_pk PRIMARY KEY (`id`);
+ALTER TABLE `longtextFieldsIds`
+    ADD CONSTRAINT longtextFieldsIds_pk PRIMARY KEY (`id`);
 ALTER TABLE `fields`
     ADD CONSTRAINT fields_pk PRIMARY KEY (`id`);
 ALTER TABLE `filesIds`
@@ -170,6 +180,7 @@ ALTER TABLE `callRequests`
 
 CREATE INDEX fieldIds_FIND_INDEX ON fieldIds (sourceName, sourceId, fieldId);
 CREATE INDEX fieldIds_FIND_INDEX_BY_VALUE ON fieldIds (sourceName, fieldId, value);
+CREATE INDEX longtextFieldsIds_FIND_INDEX ON longtextFieldsIds (sourceName, sourceId, fieldId);
 CREATE INDEX phoneCalls_FIND_INDEX ON phoneCalls (innerNumber, clientNumber);
 CREATE INDEX callRequests_FIND_INDEX ON callRequests (innerNumber, clientNumber);
 
@@ -187,6 +198,9 @@ ALTER TABLE `fieldIds`
   ADD CONSTRAINT FOREIGN KEY `fk_fieldId` (`fieldId`)
     REFERENCES `fields` (`id`);
 
+ALTER TABLE `longtextFieldsIds`
+  ADD CONSTRAINT FOREIGN KEY `fk_longtextFieldsId` (`fieldId`)
+    REFERENCES `fields` (`id`);
 
 ALTER TABLE `fieldAccesses`
   ADD CONSTRAINT FOREIGN KEY `fk_fieldId` (`fieldId`)

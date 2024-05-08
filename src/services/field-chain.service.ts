@@ -1,20 +1,57 @@
-import { FieldDomains } from '../entities/Field';
+import { FieldDomains, FieldType } from '../entities/Field';
 import { Models } from '../entities/Models';
 import { ApiError } from '../exceptions/api.error';
 import { StringHash } from '../models/hashes';
 import fieldChainRepository from '../repositories/base/field-chain.repository';
 import fieldRepository from '../repositories/base/field.repository';
+import longtextFieldChainRepository from '../repositories/base/longtext-field-chain.repository';
 import { getFieldChainsValue } from '../utils/field.utils';
 import { ExpressionHash } from '../utils/sql-queries';
 
 class FieldChainService {
-  async getAllFieldChains() {
-    const fieldChains = await fieldChainRepository.getAll();
-    return fieldChains;
+  async find(expressionHash: ExpressionHash<Models.FieldChain>): Promise<Models.FieldChain[]> {
+    const [fieldChains, longtextFieldChains] = await Promise.all([fieldChainRepository.find(expressionHash), longtextFieldChainRepository.find(expressionHash)]);
+
+    return [...fieldChains, ...longtextFieldChains];
   }
 
-  async createFieldChain(fieldChainData: Omit<Models.FieldChain, 'id'>) {
-    const existFieldChain = await fieldChainRepository.findOne({
+  async update(newValues: Partial<Omit<Models.FieldChain, "id">>, expressionHash: ExpressionHash<Models.FieldChain>): Promise<Models.FieldChain[]> {
+    const [fieldChains, longtextFieldChains] = await Promise.all([fieldChainRepository.update(newValues, expressionHash), longtextFieldChainRepository.update(newValues, expressionHash)]);
+
+    return [...fieldChains, ...longtextFieldChains];
+  }
+
+  async findOne(expressionHash: ExpressionHash<Models.FieldChain>): Promise<Models.FieldChain> {
+    const [fieldChain, longtextFieldChain] = await Promise.all([fieldChainRepository.findOne(expressionHash), longtextFieldChainRepository.findOne(expressionHash)]);
+
+    return fieldChain || longtextFieldChain;
+  }
+
+  async delete(expressionHash: ExpressionHash<Models.FieldChain>): Promise<Models.FieldChain[]> {
+    const [fieldChains, longtextFieldChains] = await Promise.all([fieldChainRepository.delete(expressionHash), longtextFieldChainRepository.delete(expressionHash)]);
+
+    return [...fieldChains, ...longtextFieldChains];
+  }
+
+  async getAllFieldChains() {
+    const [fieldChains, longtextFieldChains] = await Promise.all([fieldChainRepository.getAll(), longtextFieldChainRepository.getAll()]);
+    return [...fieldChains, ...longtextFieldChains];
+  }
+
+  async create(fieldChainData: Omit<Models.FieldChain, 'id'>) {
+    const field = await fieldRepository.findById(+fieldChainData.fieldId);
+
+    let findOne = fieldChainRepository.findOne.bind(fieldChainRepository);
+    let create = fieldChainRepository.create.bind(fieldChainRepository);
+
+    switch (field.type) {
+      case FieldType.Textarea:
+        findOne = longtextFieldChainRepository.findOne.bind(longtextFieldChainRepository);
+        create = longtextFieldChainRepository.create.bind(longtextFieldChainRepository);
+        break;
+    }
+
+    const existFieldChain = await findOne({
       sourceName: [`${fieldChainData.sourceName}`],
       sourceId: [`${fieldChainData.sourceId}`],
       fieldId: [`${fieldChainData.fieldId}`],
@@ -23,7 +60,7 @@ class FieldChainService {
       throw ApiError.BadRequest(`This Field Chain exists`);
     }
 
-    const fieldChain: Models.FieldChain = await fieldChainRepository.create({
+    const fieldChain: Models.FieldChain = await create({
       fieldId: fieldChainData.fieldId,
       value: fieldChainData.value || '',
       sourceId: fieldChainData.sourceId,
@@ -33,18 +70,48 @@ class FieldChainService {
     return fieldChain;
   }
 
-  async updateFieldChain(id: number, fieldChainData: Partial<Omit<Models.FieldChain, 'id'>>) {
-    const fieldChain = await fieldChainRepository.updateById(id, fieldChainData);
+  async updateById(id: number, fieldId: number, fieldChainData: Partial<Omit<Models.FieldChain, 'id'>>) {
+    const field = await fieldRepository.findById(+fieldId);
+
+    let updateById = fieldChainRepository.updateById.bind(fieldChainRepository);
+
+    switch (field.type) {
+      case FieldType.Textarea:
+        updateById = longtextFieldChainRepository.updateById.bind(longtextFieldChainRepository);
+        break;
+    }
+
+    const fieldChain = await updateById(id, fieldChainData);
     return fieldChain
   }
 
-  async deleteFieldChain(id: number) {
-    const fieldChain = await fieldChainRepository.deleteById(id);
+  async deleteFieldChain(fieldId: number, id: number) {
+    const field = await fieldRepository.findById(+fieldId);
+
+    let deleteById = fieldChainRepository.deleteById.bind(fieldChainRepository);
+
+    switch (field.type) {
+      case FieldType.Textarea:
+        deleteById = longtextFieldChainRepository.deleteById.bind(longtextFieldChainRepository);
+        break;
+    }
+
+    const fieldChain = await deleteById(id);
     return fieldChain
   }
 
-  async getFieldChain(id: number) {
-    const fieldChain = await fieldChainRepository.findById(id);
+  async getFieldChain(fieldId: number, id: number) {
+    const field = await fieldRepository.findById(+fieldId);
+
+    let findById = fieldChainRepository.findById.bind(fieldChainRepository);
+
+    switch (field.type) {
+      case FieldType.Textarea:
+        findById = longtextFieldChainRepository.findById.bind(longtextFieldChainRepository);
+        break;
+    }
+
+    const fieldChain = await findById(id);
     return fieldChain;
   }
 

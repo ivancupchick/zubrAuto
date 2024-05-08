@@ -5,7 +5,6 @@ import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
 import { StringHash } from "../models/hashes";
 import clientRepository from "../repositories/base/client.repository";
-import fieldChainRepository from "../repositories/base/field-chain.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
 import carStatisticService from "./car-statistic.service";
 import fieldChainService from "./field-chain.service";
@@ -25,7 +24,7 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
   }
 
   async getClients(clients: Models.Client[], clientsFields: ServerField.Response[]) {
-    const chaines = clients.length > 0 ? await fieldChainRepository.find({
+    const chaines = clients.length > 0 ? await fieldChainService.find({
       sourceName: [`${Models.Table.Clients}`],
       sourceId: clients.map(c => `${c.id}`),
     }) : [];
@@ -83,7 +82,7 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       await carStatisticService.addCall(clientData.carIds.split(',').map(id => +id));
     }
 
-    await Promise.all(clientData.fields.map(f => fieldChainService.createFieldChain({
+    await Promise.all(clientData.fields.map(f => fieldChainService.create({
       sourceId: client.id,
       fieldId: f.id,
       value: f.value,
@@ -98,7 +97,7 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       carIds: clientData.carIds
     });
 
-    const existsFieldChains = (await Promise.all(clientData.fields.map(f => fieldChainRepository.find({
+    const existsFieldChains = (await Promise.all(clientData.fields.map(f => fieldChainService.find({
       fieldId: [f.id].map(c => `${c}`),
       sourceId: [id].map(c => `${c}`),
       sourceName: [Models.Table.Clients]
@@ -108,7 +107,7 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     const existsFields = clientData.fields.filter(f => existFieldIds.includes(+f.id));
     const nonExistFields = clientData.fields.filter(f => !existFieldIds.includes(+f.id));
 
-    existsFields.length > 0 && await Promise.all(existsFields.map(f => fieldChainRepository.update({
+    existsFields.length > 0 && await Promise.all(existsFields.map(f => fieldChainService.update({
       value: f.value
     }, {
       fieldId: [f.id].map(c => `${c}`),
@@ -116,7 +115,7 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       sourceName: [Models.Table.Clients]
     })));
 
-    nonExistFields.length > 0 && await Promise.all(nonExistFields.map(f => fieldChainRepository.create({
+    nonExistFields.length > 0 && await Promise.all(nonExistFields.map(f => fieldChainService.create({
       fieldId: f.id,
       sourceId: id,
       sourceName: Models.Table.Clients,
@@ -127,11 +126,11 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
   }
 
   async delete(id: number) {
-    const chaines = await fieldChainRepository.find({
+    await fieldChainService.delete({
       sourceName: [Models.Table.Clients],
       sourceId: [`${id}`],
     });
-    await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
+
     const client = await clientRepository.deleteById(id);
     return client
   }
@@ -139,7 +138,7 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
   async get(id: number): Promise<ServerClient.Response> {
     const client = await clientRepository.findById(id);
     const relatedFields = await fieldService.getFieldsByDomain(FieldDomains.Client);
-    const chaines = await fieldChainRepository.find({
+    const chaines = await fieldChainService.find({
       sourceName: [`${Models.Table.Clients}`],
       sourceId: [`${id}`],
     });
@@ -169,12 +168,12 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       clientStatusChain,
       carStatusChain,
     ] = await Promise.all([
-      fieldChainRepository.findOne({
+      fieldChainService.findOne({
         sourceName: [`${Models.Table.Clients}`],
         sourceId: [`${clientId}`],
         fieldId: [`${clientStatusField.id}`], }
       ),
-      fieldChainRepository.findOne({
+      fieldChainService.findOne({
         sourceName: [`${Models.Table.Cars}`],
         sourceId: [`${carId}`],
         fieldId: [`${carStatusField.id}`], }
@@ -187,8 +186,8 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     const carStatus = `${FieldNames.Car.status}-${carStatusIndex !== -1 ? carStatusIndex : 0}`;
 
     const res = await Promise.all([
-      fieldChainService.updateFieldChain(clientStatusChain.id, { value: clientStatus}),
-      fieldChainService.updateFieldChain(carStatusChain.id, { value: carStatus}),
+      fieldChainService.updateById(clientStatusChain.id, clientStatusChain.fieldId, { value: clientStatus}),
+      fieldChainService.updateById(carStatusChain.id,  clientStatusChain.fieldId, { value: carStatus}),
     ]);
 
     // TODO Delete all related carShowings

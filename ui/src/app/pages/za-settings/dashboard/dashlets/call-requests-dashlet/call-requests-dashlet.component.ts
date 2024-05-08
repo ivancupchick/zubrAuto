@@ -208,23 +208,29 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       data: {
         fieldConfigs: this.clientsFieldConfigs,
         specialists: this.specialists,
-        // predefinedFields: {
-        //   [FieldNames.Client.number]: call.clientNumber
-        // }
+        predefinedFields: {
+          [FieldNames.Client.number]: call.clientNumber,
+          [FieldNames.Client.name]: JSON.parse(call.originalNotification).name,
+          [FieldNames.Client.source]: 'source-1'
+        }
       },
       header: `Новый клиент по номеру ${call.clientNumber}`,
       width: '70%',
     });
 
-    this.subscribeOnCloseModalRef(ref);
+    this.subscribeOnCloseModalRef(ref, call);
   }
 
-  subscribeOnCloseModalRef(ref: DynamicDialogRef) {
+  subscribeOnCloseModalRef(ref: DynamicDialogRef, call: ServerCallRequest.Response) {
     ref.onClose.pipe(takeUntil(this.destoyed)).subscribe(res => {
       if (res) {
         this.loading = true;
-        this.getData().subscribe(() => {
-          this.loading = false;
+        this.requestService.put<ServerCallRequest.Response[]>(`${environment.serverUrl}/${'call-requests'}/${call.id}`, {
+          isUsed: 1
+        }).subscribe(() => {
+          this.getData().subscribe(() => {
+            this.loading = false;
+          });
         });
       }
     });

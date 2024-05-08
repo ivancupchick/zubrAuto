@@ -7,7 +7,6 @@ import { StringHash } from "../models/hashes";
 import carFormRepository from "../repositories/base/car-form.repository";
 import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
-import fieldChainRepository from "../repositories/base/field-chain.repository";
 import fieldRepository from "../repositories/base/field.repository";
 import { FieldsUtils, getFieldsWithValues } from "../utils/field.utils";
 import carInfoGetterService from "./car-info-getter.service";
@@ -32,11 +31,11 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       allCarOwnerChaines,
       carForms
     ] = await Promise.all([
-      (cars.length > 0 ? await fieldChainRepository.find({
+      (cars.length > 0 ? await fieldChainService.find({
         sourceName: [`${Models.Table.Cars}`],
         sourceId: cars.map(c => `${c.id}`),
       }) : []),
-      (carOwners.length > 0 ? await fieldChainRepository.find({
+      (carOwners.length > 0 ? await fieldChainService.find({
         sourceName: [`${Models.Table.CarOwners}`],
         sourceId: carOwners.map(c => `${c.id}`),
       }) : []),
@@ -213,7 +212,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     // const existCarIds = await carRepository.find({ ownerId: [`${existCarOwner?.id || -1}` ]});
 
     const searchFields = await fieldRepository.find({ name: [FieldNames.Car.linkToAd]});
-    const existCarChain = await fieldChainRepository.find({
+    const existCarChain = await fieldChainService.find({
       sourceName: [Models.Table.Cars],
       fieldId: searchFields.map(f => `${f.id}`),
       value: [FieldsUtils.getFieldValue(carData, FieldNames.Car.linkToAd)]
@@ -278,7 +277,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     // }
 
     if (!existCarOwner) {
-      await Promise.all(ownerFields.map(f => fieldChainService.createFieldChain({
+      await Promise.all(ownerFields.map(f => fieldChainService.create({
         sourceId: ownerId,
         fieldId: f.id,
         value: f.value,
@@ -289,7 +288,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       //   id: 0,
       //   number: carData.ownerNumber
       // })
-      await Promise.all(ownerFields.map(f => fieldChainRepository.update({
+      await Promise.all(ownerFields.map(f => fieldChainService.update({
         value: f.value
       }, {
         fieldId: [`${f.id}`],
@@ -317,7 +316,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       createdDate: `${(new Date()).getTime()}`,
       ownerId
     });
-    await Promise.all(carFields.map(f => fieldChainService.createFieldChain({
+    await Promise.all(carFields.map(f => fieldChainService.create({
       sourceId: car.id,
       fieldId: f.id,
       value: f.value,
@@ -405,7 +404,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     // }
 
     if (!existCarOwner) {
-      await Promise.all(ownerFields.map(f => fieldChainService.createFieldChain({
+      await Promise.all(ownerFields.map(f => fieldChainService.create({
         sourceId: ownerId,
         fieldId: f.id,
         value: f.value,
@@ -416,7 +415,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       //   id: 0,
       //   number: carData.ownerNumber
       // })
-      await Promise.all(ownerFields.map(f => fieldChainRepository.update({
+      await Promise.all(ownerFields.map(f => fieldChainService.update({
         value: f.value
       }, {
         fieldId: [`${f.id}`],
@@ -444,7 +443,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       createdDate: `${(new Date()).getTime()}`,
       ownerId
     });
-    await Promise.all(carFields.map(f => fieldChainService.createFieldChain({
+    await Promise.all(carFields.map(f => fieldChainService.create({
       sourceId: car.id,
       fieldId: f.id,
       value: f.value,
@@ -474,7 +473,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       needUpdate = true;
     }
 
-    await Promise.all(ownerFields.map(f => fieldChainRepository.update({
+    await Promise.all(ownerFields.map(f => fieldChainService.update({
       value: f.value
     }, {
       fieldId: [`${f.id}`],
@@ -498,7 +497,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       }
     }
 
-    const fieldsExists = await fieldChainRepository.find({
+    const fieldsExists = await fieldChainService.find({
       sourceName: [Models.Table.Cars],
       sourceId: [`${carId}`],
     });
@@ -506,7 +505,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     const fieldChainForCreate = carFields.filter(f => !fieldsExists.find(fe => fe.fieldId === f.id))
 
     const cf = carFields.filter(f => f.name !== FieldNames.Car.worksheet);
-    await Promise.all(cf.map(f => fieldChainRepository.update({
+    await Promise.all(cf.map(f => fieldChainService.update({
       value: f.value
     }, {
       fieldId: [`${f.id}`],
@@ -515,7 +514,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     })));
 
     if (fieldChainForCreate.length > 0) {
-      await Promise.all(fieldChainForCreate.map(f => fieldChainService.createFieldChain({
+      await Promise.all(fieldChainForCreate.map(f => fieldChainService.create({
         sourceId: carId,
         fieldId: f.id,
         value: f.value,
@@ -527,11 +526,11 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
   }
 
   async delete(id: number) {
-    const chaines = await fieldChainRepository.find({
+    await fieldChainService.delete({
       sourceName: [Models.Table.Cars],
       sourceId: [`${id}`],
     });
-    await Promise.all(chaines.map(ch => fieldChainService.deleteFieldChain(ch.id)));
+
     const car = await carRepository.deleteById(id);
     return car
   }
@@ -541,7 +540,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
     //   sourceName: [Models.Table.Cars],
     //   sourceId: ids.map(id => `${id}`),
     // });
-    await fieldChainRepository.delete({
+    await fieldChainService.delete({
       sourceName: [Models.Table.Cars],
       sourceId: ids.map(id => `${id}`),
     });

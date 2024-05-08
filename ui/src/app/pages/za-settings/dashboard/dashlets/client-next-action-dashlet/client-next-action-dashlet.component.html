@@ -1,11 +1,23 @@
-<p-panel *ngIf="allClients.length" header="Следующее действите по клиентам">
+<p-panel *ngIf="allClients.length" header="Следующее действите по моим клиентам">
   <p-tabView>
-    <p-tabPanel header="Мои">
+    <p-tabPanel header="Сегодня и прошлые">
       <div class="h-20rem">
         <za-grid
           *ngIf="gridConfig"
           [gridConfig]="gridConfig"
           [gridData]="myClients"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel header="Будущие">
+      <div class="h-20rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [gridConfig]="gridConfig"
+          [gridData]="myFutureClients"
           [actions]="gridActionsConfig"
           [getColorConfig]="getColorConfig"
           [fixedHeight]="300"

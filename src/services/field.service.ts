@@ -7,7 +7,6 @@ import userRepository from '../repositories/base/user.repository';
 import carOwnerRepository from '../repositories/base/car-owner.repository';
 import clientRepository from '../repositories/base/client.repository';
 import fieldChainService from './field-chain.service';
-import fieldChainRepository from '../repositories/base/field-chain.repository';
 import { ICrudService } from '../entities/Types';
 import fieldAccessRepository from '../repositories/base/field-access.repository';
 
@@ -162,15 +161,11 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
       fieldId: [`${id}`]
     })) || [];
 
-    const fieldIds = await fieldChainRepository.find({
+    await fieldChainService.delete({
       // maybe need to add sourceName
       sourceId: entities.map(e => `${e.id}`),
       fieldId: [`${field.id}`],
     });
-
-    await Promise.all([
-      ...fieldIds.map(fieldChain => fieldChainRepository.deleteById(fieldChain.id)),
-    ]);
 
     await Promise.all([
       ...createdAccess.map(a => fieldAccessRepository.deleteById(a.id))

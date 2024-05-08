@@ -32,6 +32,7 @@ export class FieldFormComponent implements OnInit {
     {name: 'Multiselect', code: FieldType.Multiselect},
     {name: 'Radio Button', code: FieldType.Radio},
     {name: 'Dropdown', code: FieldType.Dropdown},
+    {name: 'Textarea(больше 255)', code: FieldType.Textarea},
   ];
 
   roles: ServerRole.Response[] = [];

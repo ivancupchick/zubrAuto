@@ -3,8 +3,8 @@ import carStatisticRepository from "../repositories/base/car-statistic.repositor
 import { CarStatistic } from "../entities/CarStatistic";
 import fieldRepository from "../repositories/base/field.repository";
 import { FieldNames } from "../entities/FieldNames";
-import fieldChainRepository from "../repositories/base/field-chain.repository";
 import { ApiError } from "../exceptions/api.error";
+import fieldChainService from "./field-chain.service";
 
 class CarStatisticService {
   async addCall(carIds: number[]) {
@@ -120,16 +120,16 @@ class CarStatisticService {
 
     const fieldConfig = await fieldRepository.findOne({ name: [`${FieldNames.Car.dateOfLastCustomerCall}`] });
 
-    const fieldIdExist = await fieldChainRepository.findOne({
+    const fieldIdExist = await fieldChainService.findOne({
       sourceName: [`${Models.Table.Cars}`],
       sourceId: [`${carId}`],
       fieldId: [`${fieldConfig.id}`],
     });
 
     if (fieldIdExist) {
-      await fieldChainRepository.updateById(fieldIdExist.id, { value: `${timestamp}` })
+      await fieldChainService.updateById(fieldIdExist.id, fieldIdExist.fieldId, { value: `${timestamp}` })
     } else {
-      await fieldChainRepository.create({
+      await fieldChainService.create({
         fieldId: fieldConfig.id,
         sourceId: carId,
         sourceName: Models.Table.Cars,
@@ -142,7 +142,7 @@ class CarStatisticService {
 
   async addCustomerDiscount(carId: number, discount: number, amount: number) {
     const fieldConfig = await fieldRepository.findOne({ name: [`${FieldNames.Car.carOwnerPrice}`] });
-    const fieldChain = await fieldChainRepository.findOne({
+    const fieldChain = await fieldChainService.findOne({
       sourceName: [`${Models.Table.Cars}`],
       sourceId: [`${carId}`],
       fieldId: [`${fieldConfig.id}`],
@@ -160,7 +160,7 @@ class CarStatisticService {
       content: JSON.stringify({ amount, discount })
     })
 
-    await fieldChainRepository.updateById(fieldChain.id, { value: `${+fieldChain.value - discount}` })
+    await fieldChainService.updateById(fieldChain.id, fieldChain.fieldId, { value: `${+fieldChain.value - discount}` })
 
     return { carId };
   }

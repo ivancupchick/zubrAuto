@@ -50,6 +50,7 @@ export enum FieldType {
   'Number',
   'Dropdown',
   'Date',
+  'Textarea' // LongtextFieldsChainRepository
 }
 
 export function getTableNameByDomain(domain: FieldDomains): string {

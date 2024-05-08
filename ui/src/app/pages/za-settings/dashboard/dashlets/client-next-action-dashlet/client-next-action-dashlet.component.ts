@@ -32,6 +32,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   getColorConfig: ((item: ServerClient.Response) => string) | undefined;
 
   myClients: ServerClient.Response[] = [];
+  myFutureClients: ServerClient.Response[] = [];
   allClients: ServerClient.Response[] = [];
 
   specialists: ServerUser.Response[] = [];
@@ -93,7 +94,6 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         }));
 
         this.allClients = clientsRes
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${DateUtils.getFormatedDate(+(new Date))} 23:59`))
           .sort((a, b) => {
             const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
             const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
@@ -105,9 +105,26 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
                 : 0
           });
 
-        this.myClients = this.allClients.filter(
-          (c) => FieldsUtils.getFieldStringValue(c, FieldNames.Client.SpecialistId) === `${this.sessionService.userId}`
-        )
+        const myClients = this.allClients
+          .filter(
+            (c) => FieldsUtils.getFieldStringValue(c, FieldNames.Client.SpecialistId) === `${this.sessionService.userId}`
+          );
+
+        this.myClients = myClients
+          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`));
+
+        this.myFutureClients = [...myClients]
+          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`))
+          .sort((a, b) => {
+            const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
+            const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
+
+            return value1 < value2
+              ? -1
+              : value1 > value2
+                ? 1
+                : 0
+          });
 
         const carIds = this.allClients.reduce<number[]>((prev, client) => {
           const clietnCarIds = client.carIds.split(',').map(id => +id);

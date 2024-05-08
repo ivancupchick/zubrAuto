@@ -17,6 +17,11 @@
   </span>
 </div>
 
+
+<div class="p-field col-12" *ngIf="hasSelectionOfCars">
+  <textarea rows="5" class="w-full" pInputTextarea placeholder="Описание" [(ngModel)]="description"></textarea>
+</div>
+
 <za-spinner *ngIf="loading"></za-spinner>
 
 <div class="footer">

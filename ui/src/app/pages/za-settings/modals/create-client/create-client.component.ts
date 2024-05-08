@@ -24,6 +24,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ChipsModule } from 'primeng/chips';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { ButtonModule } from 'primeng/button';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 @Component({
   selector: 'za-create-client',
@@ -38,7 +39,8 @@ import { ButtonModule } from 'primeng/button';
     FormsModule,
     ReactiveFormsModule,
     SpinnerComponent,
-    ButtonModule
+    ButtonModule,
+    InputTextareaModule
   ],
   providers: [
     DynamicFieldControlService,
@@ -50,6 +52,7 @@ export class CreateClientComponent implements OnInit {
 
   @Input() predefinedCar: ServerCar.Response | undefined = undefined;
   @Input() client: ServerClient.Response | undefined = undefined;
+  @Input() predefinedFields: Partial<{ [key in FieldNames.Client]: string }> = {};
   @Input() fieldConfigs: ServerField.Response[] = [];
   @Input() specialists: ServerUser.Response[] = [];
 
@@ -71,12 +74,15 @@ export class CreateClientComponent implements OnInit {
 
   dynamicFormFields: DynamicFieldBase<string>[] = [];
 
+  description = '';
+
   @ViewChild(DynamicFormComponent) dynamicForm!: DynamicFormComponent;
 
   excludeFields: FieldNames.Client[] = [
     FieldNames.Client.date,
     'carIds' as FieldNames.Client,
     FieldNames.Client.SpecialistId,
+    FieldNames.Client.Description,
   ];
 
   constructor(
@@ -89,6 +95,7 @@ export class CreateClientComponent implements OnInit {
     private sessionService: SessionService,
   ) {
     this.client = this.config?.data?.client || undefined;
+    this.predefinedFields = this.config?.data?.predefinedFields || {};
     this.predefinedCar = this.config?.data?.predefinedCar || undefined;
   }
 
@@ -112,7 +119,7 @@ export class CreateClientComponent implements OnInit {
       .map(fc => {
         const fieldValue = !!this.client
           ? this.client.fields.find(f => f.id === fc.id)?.value || ''
-          : '';
+          : this.predefinedFields[fc.name as FieldNames.Client] || '';
 
         if (fc.name === FieldNames.Client.dateNextAction) {
           fc.type = FieldType.Date;
@@ -159,6 +166,8 @@ export class CreateClientComponent implements OnInit {
     obs.subscribe(cars => {
       if (this.client) {
         let carIds: (number | string)[] = [];
+
+        this.description = FieldsUtils.getFieldStringValue(this.client.fields, FieldNames.Client.Description);
 
         try {
           carIds = this.client.carIds
@@ -229,13 +238,25 @@ export class CreateClientComponent implements OnInit {
         fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
       }
 
-      const dateField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.date);
+      if (!this.client) {
+        const dateField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.date);
+        if (dateField) {
+          client.fields.push({
+            id: dateField.id,
+            name: dateField.name,
+            value: `${+(new Date())}`
+          })
+        } else {
+          console.log("Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику");
+        }
+      }
 
-      if (dateField && !this.client) {
+      const descriptionField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.Description);
+      if (descriptionField) {
         client.fields.push({
-          id: dateField.id,
-          name: dateField.name,
-          value: `${+(new Date())}`
+          id: descriptionField.id,
+          name: descriptionField.name,
+          value: this.description
         })
       } else {
         // TODO create right expression for this error

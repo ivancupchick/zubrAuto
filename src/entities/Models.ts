@@ -16,6 +16,7 @@ export namespace Models {
     Activities = 'activities',
     PhoneCalls = 'phoneCalls',
     CallRequests = 'callRequests',
+    LongtextFieldsChains = 'longtextFieldsIds',
   }
 
   export interface Car {

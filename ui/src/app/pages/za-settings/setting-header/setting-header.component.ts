@@ -10,6 +10,10 @@ import { LoginComponent } from '../modals/modals-auth/login/login.component';
 import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
 import { settingsUsersStrings } from '../settings-users/settings-users.strings';
 import { ActionsItem, ActionsService } from './actions.service';
+import { XlsxService } from 'src/app/services/xlsx/xlsx.service';
+import { ServerClient } from 'src/app/entities/client';
+import { FieldsUtils, ServerField } from 'src/app/entities/field';
+import { FieldNames, convertClientNumber } from 'src/app/entities/FieldNames';
 
 @Component({
   selector: 'za-setting-header',
@@ -41,7 +45,9 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
     // {name: 'Boolean', code: ServerRole.System.SuperAdmin}
   ];
 
+  isSuperAdmin = this.sessionService.isSuperAdminOrHigher;
   selectedRole: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin = ServerRole.System.Admin;
+  clientFieldsConfigs: ServerField.Response[] = [];
 
   destroyed = new Subject();
 
@@ -50,9 +56,15 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
     public sessionService: SessionService,
     private actionsService: ActionsService,
     private cdr: ChangeDetectorRef,
+    private clientService: ClientService,
+    private xlsxService: XlsxService,
   ) { }
 
   ngOnInit(): void {
+    this.clientService.getClientFields().subscribe(fields => {
+      this.clientFieldsConfigs = fields;
+    })
+
     this.sessionService.userSubj
       .pipe(
         takeUntil(this.destroyed)
@@ -93,5 +105,195 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
 
   rebuildActions() {;
     this.cdr.detectChanges();
+  }
+
+  onFileChange(event: any) {
+    this.xlsxService.onFileChange(event, (list: any) => {
+      const listr = this.convertXlsToJSON(list);
+      console.log(listr);
+
+      // listr.forEach(c => {
+      //   this.clientService.createClient(c).subscribe();
+      // })
+    });
+
+  }
+
+  convertXlsToJSON(list: any[]) {
+    return list.map(item => {
+      const client: ServerClient.CreateRequest = {
+        carIds: item['Автомобиль'] || '',
+        fields: [],
+      }
+
+      if (item[' ']) {
+        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.name)!;
+        client.fields.push({
+          id: field.id,
+          name: field.name,
+          value: `${item[' ']} ${item['Имя']} `
+        })
+      }
+
+      if (item['В работе']) {
+        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.dealStatus)!;
+        const fieldComment = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.Description)!;
+
+        let value = FieldNames.DealStatus.InProgress;
+        let comment = item['Комментарий'];
+
+        switch (item['В работе']) {
+          case 'Есть интерес':
+            comment = `Есть интерес; ${comment}`;
+            break;
+          case 'Отказ':
+            value = FieldNames.DealStatus.Deny;
+            break;
+          case 'Задаток':
+            value = FieldNames.DealStatus.OnDeposit;
+            break;
+          case 'Продано':
+            value = FieldNames.DealStatus.Sold;
+            break;
+        }
+
+        const v = FieldsUtils.setDropdownValue(field, value);
+
+        client.fields.push({
+          id: field.id,
+          name: field.name,
+          value: v.value,
+        });
+
+        client.fields.push({
+          id: fieldComment.id,
+          name: fieldComment.name,
+          value: comment,
+        });
+      }
+
+      if (item['Дата']) {
+        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.date)!;
+        client.fields.push({
+          id: field.id,
+          name: field.name,
+          value: `${+item['Дата']}`,
+        });
+      }
+
+      if (item['Дата след д-я']) {
+        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.dateNextAction)!;
+        client.fields.push({
+          id: field.id,
+          name: field.name,
+          value: `${+item['Дата след д-я']}`,
+        });
+      }
+
+      if (item['Следующее действие']) {
+        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.nextAction)!;
+        client.fields.push({
+          id: field.id,
+          name: field.name,
+          value: `${+item['Следующее действие']}`,
+        });
+      }
+
+      if (item['Источник']) {
+        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.source)!;
+
+        let value = FieldNames.ClientSource.Site;
+
+        switch (item['Источник']) {
+          case 'Звонок с ав':
+          case 'Звонок с АВ':
+          case 'ав':
+          case 'АВ':
+            value = FieldNames.ClientSource.Av;
+            break;
+          case 'Заявка в вотсап':
+          case 'Запрос вайбер':
+          case 'Запрос в вайбер':
+            value = FieldNames.ClientSource.Other;
+            break;
+          case 'Звонок ':
+          case 'Звонок':
+            value = FieldNames.ClientSource.Call;
+            break;
+          case 'Дживо':
+          case 'Живо':
+            value = FieldNames.ClientSource.TC;
+            break;
+          case 'Инста':
+            value = FieldNames.ClientSource.Insta;
+            break;
+          case 'ТЦ':
+            value = FieldNames.ClientSource.TC;
+            break;
+          case 'Арена сити':
+          case 'Арена':
+            value = FieldNames.ClientSource.TC;
+            break;
+          case 'Прямое':
+            value = FieldNames.ClientSource.Street;
+            break;
+
+          case 'Звонок':
+            value = FieldNames.ClientSource.Call;
+            break;
+        }
+
+        const v = FieldsUtils.setDropdownValue(field, value);
+
+        client.fields.push({
+          id: field.id,
+          name: field.name,
+          value: v.value,
+        });
+      }
+
+      if (item['М-р']) {
+        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.SpecialistId)!;
+        let value = '56';
+
+        switch (item['Источник']) {
+          case 'Д':
+          case 'д':
+          case 'Д ':
+          case ' Д':
+          case ' Д ':
+            value = '20';
+            break;
+          case 'И':
+          case 'и':
+          case 'И ':
+          case ' И':
+          case ' И ':
+            value = '57';
+            break;
+        }
+
+        client.fields.push({
+          id: field.id,
+          name: field.name,
+          value: value,
+        });
+      }
+
+      if (item['Телефон']) {
+        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.number)!;
+
+        console.log(item['Телефон']);
+        console.log(convertClientNumber(`${item['Телефон']}`));
+
+        client.fields.push({
+          id: field.id,
+          name: field.name,
+          value: convertClientNumber(`${item['Телефон']}`),
+        });
+      }
+
+      return client;
+    });
   }
 }
