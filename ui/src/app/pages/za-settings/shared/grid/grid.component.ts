@@ -50,6 +50,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
       this.scrollHeight = this.fixedHeight || (scrollHeight > 0 ? scrollHeight : 300);
     }
   }
+  @Input() virtualScroll = true;
 
   get gridData(): GridItemType[] {
     return this._gridData;

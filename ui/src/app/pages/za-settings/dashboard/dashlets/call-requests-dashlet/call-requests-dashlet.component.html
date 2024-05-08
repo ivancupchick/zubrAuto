@@ -1,38 +1,47 @@
 <p-panel *ngIf="allCallRequests.length" header="Заявки">
+  <ng-template pTemplate="icons">
+    <p-button size="small" (onClick)="refresh()" class="mr-2">
+      <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+    </p-button>
+  </ng-template>
+
   <p-tabView>
-    <p-tabPanel header="Мои">
-      <div class="h-20rem">
+    <p-tabPanel header="Мои ({{myCallRequests.length}})">
+      <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
+          [fixedHeight]="140"
+          [virtualScroll]="false"
           [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
           [gridData]="myCallRequests"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [fixedHeight]="300"
         ></za-grid>
       </div>
     </p-tabPanel>
-    <p-tabPanel *ngIf="!isCarSales" header="Все">
-      <div class="h-20rem">
+    <p-tabPanel *ngIf="!isCarSales" header="Все ({{allCallRequests.length}})">
+      <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
+          [fixedHeight]="140"
+          [virtualScroll]="false"
           [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
           [gridData]="allCallRequests"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [fixedHeight]="300"
         ></za-grid>
       </div>
     </p-tabPanel>
-    <p-tabPanel header="Использованные">
-      <div class="h-20rem">
+    <p-tabPanel header="Использованные ({{usedCallRequests.length}})">
+      <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
+          [fixedHeight]="140"
+          [virtualScroll]="false"
           [gridConfig]="gridConfig"
-          [gridData]="usedCallRequests"
           [actions]="gridActionsConfig"
           [getColorConfig]="getColorConfig"
-          [fixedHeight]="300"
+          [gridData]="usedCallRequests"
         ></za-grid>
       </div>
     </p-tabPanel>

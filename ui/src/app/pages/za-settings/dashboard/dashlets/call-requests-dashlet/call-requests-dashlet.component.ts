@@ -57,6 +57,13 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     });
   }
 
+  refresh() {
+    this.loading = true;
+    this.getCallRequests().subscribe(() => {
+      this.loading = false;
+    });
+  }
+
   getData(): Observable<ServerCallRequest.Response[]> {
     return zip(this.clientService.getClients(), this.clientService.getClientFields(), this.userService.getUsers()).pipe(
       takeUntil(this.destoyed),
@@ -225,12 +232,8 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     ref.onClose.pipe(takeUntil(this.destoyed)).subscribe(res => {
       if (res) {
         this.loading = true;
-        this.requestService.put<ServerCallRequest.Response[]>(`${environment.serverUrl}/${'call-requests'}/${call.id}`, {
-          isUsed: 1
-        }).subscribe(() => {
-          this.getData().subscribe(() => {
-            this.loading = false;
-          });
+        this.getCallRequests().subscribe(() => {
+          this.loading = false;
         });
       }
     });

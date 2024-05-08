@@ -34,6 +34,8 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   myClients: ServerClient.Response[] = [];
   myFutureClients: ServerClient.Response[] = [];
   allClients: ServerClient.Response[] = [];
+  someClients: ServerClient.Response[] = [];
+  someFutureClients: ServerClient.Response[] = [];
 
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string; id: number }[] = [];
@@ -68,10 +70,20 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     });
   }
 
+  refresh() {
+    this.loading = true;
+
+    this.getData().subscribe((cars) => {
+      this.allCars = cars;
+
+      this.loading = false;
+    });
+  }
+
   getData(): Observable<ServerCar.Response[]> {
     return zip(
       this.clientService.getClientsByQuery({
-        [FieldNames.Client.dealStatus]: [FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit].join(',')
+        [FieldNames.Client.dealStatus]: [FieldNames.DealStatus.InProgress].join(',')
       }),
       this.clientService.getClientFields(),
       this.userService.getUsers()
@@ -105,6 +117,22 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
                 : 0
           });
 
+        this.someClients = this.allClients
+          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`));
+
+        this.someFutureClients = this.allClients
+          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`))
+          .sort((a, b) => {
+            const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
+            const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
+
+            return value1 < value2
+              ? -1
+              : value1 > value2
+                ? 1
+                : 0
+          });
+
         const myClients = this.allClients
           .filter(
             (c) => FieldsUtils.getFieldStringValue(c, FieldNames.Client.SpecialistId) === `${this.sessionService.userId}`
@@ -129,7 +157,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         const carIds = this.allClients.reduce<number[]>((prev, client) => {
           const clietnCarIds = client.carIds.split(',').map(id => +id);
           return [...prev, ...clietnCarIds];
-        }, []);
+        }, []).filter(id => id && !Number.isNaN(id));
 
         if (carIds.length === 0) {
           return of([]);

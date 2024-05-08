@@ -7,6 +7,8 @@ import { TabViewModule } from 'primeng/tabview';
 import { PanelModule } from 'primeng/panel';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { ClientNextActionDashletComponent } from './dashlets/client-next-action-dashlet/client-next-action-dashlet.component';
+import { ButtonModule } from 'primeng/button';
+import { BadgeModule } from 'primeng/badge';
 
 
 @NgModule({
@@ -20,7 +22,9 @@ import { ClientNextActionDashletComponent } from './dashlets/client-next-action-
     GridComponent,
     TabViewModule,
     PanelModule,
-    SpinnerComponent
+    SpinnerComponent,
+    ButtonModule,
+    BadgeModule
   ],
   exports: [
     DashboardComponent

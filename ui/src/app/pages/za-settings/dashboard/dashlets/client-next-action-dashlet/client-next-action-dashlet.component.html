@@ -1,41 +1,78 @@
-<p-panel *ngIf="allClients.length" header="Следующее действите по моим клиентам">
+<p-panel *ngIf="allClients.length" header="Следующие действия по моим клиентам">
+  <ng-template pTemplate="icons">
+    <p-button size="small" (onClick)="refresh()" class="mr-2">
+      <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+    </p-button>
+  </ng-template>
+
   <p-tabView>
-    <p-tabPanel header="Сегодня и прошлые">
+    <p-tabPanel header="Сегодня и прошлые ({{myClients.length}})">
       <div class="h-20rem">
         <za-grid
-          *ngIf="gridConfig"
+          *ngIf="gridConfig && myClients && myClients.length"
           [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+          [virtualScroll]="false"
           [gridData]="myClients"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [fixedHeight]="300"
         ></za-grid>
       </div>
     </p-tabPanel>
-    <p-tabPanel header="Будущие">
+    <p-tabPanel header="Будущие ({{myFutureClients.length}})">
       <div class="h-20rem">
         <za-grid
-          *ngIf="gridConfig"
+          *ngIf="gridConfig && myFutureClients && myFutureClients.length"
           [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+          [virtualScroll]="false"
           [gridData]="myFutureClients"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [fixedHeight]="300"
         ></za-grid>
       </div>
     </p-tabPanel>
-    <p-tabPanel *ngIf="!isCarSales" header="Все">
-      <div class="h-20rem">
-        <za-grid
-          *ngIf="gridConfig"
-          [gridConfig]="gridConfig"
-          [gridData]="allClients"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [fixedHeight]="300"
-        ></za-grid>
-      </div>
-    </p-tabPanel>
+    <ng-container *ngIf="!isCarSales">
+      <p-tabPanel *ngIf="!isCarSales" header="Все ({{allClients.length}})">
+        <div class="h-20rem">
+          <za-grid
+            *ngIf="gridConfig && allClients && allClients.length"
+            [gridConfig]="gridConfig"
+            [actions]="gridActionsConfig"
+            [getColorConfig]="getColorConfig"
+            [fixedHeight]="300"
+            [virtualScroll]="false"
+            [gridData]="allClients"
+          ></za-grid>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel *ngIf="!isCarSales" header="Сегодня и прошлые сотрудников ({{someClients.length}})">
+        <div class="h-20rem">
+          <za-grid
+            *ngIf="gridConfig && someClients && someClients.length"
+            [gridConfig]="gridConfig"
+            [actions]="gridActionsConfig"
+            [getColorConfig]="getColorConfig"
+            [fixedHeight]="300"
+            [virtualScroll]="false"
+            [gridData]="someClients"
+          ></za-grid>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel *ngIf="!isCarSales" header="Будущие сотрудников ({{someFutureClients.length}})">
+        <div class="h-20rem">
+          <za-grid
+            *ngIf="gridConfig && someFutureClients && someFutureClients.length"
+            [gridConfig]="gridConfig"
+            [actions]="gridActionsConfig"
+            [getColorConfig]="getColorConfig"
+            [fixedHeight]="300"
+            [virtualScroll]="false"
+            [gridData]="someFutureClients"
+          ></za-grid>
+        </div>
+      </p-tabPanel>
+    </ng-container>
   </p-tabView>
 </p-panel>
 
