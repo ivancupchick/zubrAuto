@@ -17,6 +17,10 @@ export class PrimitiveFormFieldComponent implements OnInit {
     return this.form.controls[this.field.key].valid;
   }
 
+  get isNumberInvalid() {
+    return this.form.controls[this.field.key].errors;
+  }
+
   constructor() { }
 
   ngOnInit(): void {

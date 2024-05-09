@@ -82,13 +82,15 @@
     </p-button>
   </div>
 </p-toolbar>
-<za-grid
-  [gridConfig]="gridConfig"
-  [getTooltipConfig]="getTooltipConfig"
-  [actions]="gridActionsConfig"
-  [getColorConfig]="getColorConfig"
-  [doubleClickFuction]="updateClient"
-  [gridData]="sortedClients"
-></za-grid>
+<div class="grid-wrapper">
+  <za-grid
+    [gridConfig]="gridConfig"
+    [getTooltipConfig]="getTooltipConfig"
+    [actions]="gridActionsConfig"
+    [getColorConfig]="getColorConfig"
+    [doubleClickFuction]="updateClient"
+    [gridData]="sortedClients"
+  ></za-grid>
+</div>
 
 <za-spinner *ngIf="loading"></za-spinner>

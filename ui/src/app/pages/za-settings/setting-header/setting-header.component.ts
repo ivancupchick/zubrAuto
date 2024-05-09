@@ -107,18 +107,18 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // onFileChange(event: any) {
-  //   this.xlsxService.onFileChange(event, (list: any) => {
-  //     const listr = this.convertXlsToJSON(list);
-  //     // console.log(listr);
+  onFileChange(event: any) {
+    this.xlsxService.onFileChange(event, (list: any) => {
+      const listr = this.convertXlsToJSON(list);
+      // console.log(listr);
 
-  //     // listr.forEach(c => {
-  //     //   this.clientService.createClient(c).subscribe(r => {
-  //     //     console.log(r);
-  //     //   });
-  //     // })
-  //   });
-  // }
+      // listr.forEach(c => {
+      //   this.clientService.createClient(c).subscribe(r => {
+      //     console.log(r);
+      //   });
+      // })
+    });
+  }
 
   convertXlsToJSON(list: any[]) {
     return list.map(item => {
@@ -127,25 +127,28 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         fields: [],
       }
 
-      if (item['номер']) {
+      if (item['№']) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.name)!;
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: `${item['номер']} ${item['Имя']} `
+          value: `${item['№']} ${item['Имя']} `
         })
       }
 
-      if (item['В работе']) {
+      if (item['Статус']) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.dealStatus)!;
+        const fieldClientStatus = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.clientStatus)!;
         const fieldComment = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.Description)!;
 
         let value = FieldNames.DealStatus.InProgress;
         let comment = item['Комментарий'];
+        let clientStatus = '';
 
-        switch (item['В работе']) {
+        switch (item['Статус']) {
           case 'Есть интерес':
-            comment = `Есть интерес; ${comment}`;
+            // comment = `Есть интерес; ${comment}`;
+            clientStatus = FieldNames.ClientStatus.HavingInteresting;
             break;
           case 'Отказ':
             value = FieldNames.DealStatus.Deny;
@@ -160,6 +163,16 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
 
         const v = FieldsUtils.setDropdownValue(field, value);
 
+        if (clientStatus) {
+          const vv = FieldsUtils.setDropdownValue(fieldClientStatus, clientStatus);
+
+          client.fields.push({
+            id: fieldClientStatus.id,
+            name: fieldClientStatus.name,
+            value: vv.value,
+          });
+        }
+
         client.fields.push({
           id: field.id,
           name: field.name,
@@ -173,92 +186,106 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         });
       }
 
-      if (item['Дата']) {
+      if (item['Дата зая-ки']) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.date)!;
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: `${+item['Дата']}`,
+          value: `${+item['Дата зая-ки']}`,
         });
       }
 
-      if (item['Дата след д-я']) {
+      if (item['Дата след дей-я']) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.dateNextAction)!;
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: `${+item['Дата след д-я']}`,
+          value: `${+item['Дата след дей-я']}`,
         });
       }
 
-      if (item['Следующее действие']) {
+      if (item['Пометка']) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.nextAction)!;
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: `${item['Следующее действие']}`,
+          value: `${item['ТЦ'] || ''} ${item['Пометка']}`,
         });
       }
 
-      if (item['Источник']) {
+      // if (item['Источник']) {
+      //   const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.source)!;
+
+      //   let value = FieldNames.ClientSource.Site;
+
+      //   switch (item['Источник']) {
+      //     case 'Звонок с ав':
+      //     case 'Звонок с АВ':
+      //     case 'ав':
+      //     case 'АВ':
+      //     case 'av.by':
+      //       value = FieldNames.ClientSource.Av;
+      //       break;
+      //     case 'Заявка в вотсап':
+      //     case 'Запрос вайбер':
+      //     case 'Запрос в вайбер':
+      //     case 'Viber':
+      //     case 'Telegram':
+      //     case 'Whatsup':
+      //       value = FieldNames.ClientSource.Messagers;
+      //       break;
+      //     case 'Заявка с сайта':
+      //       value = FieldNames.ClientSource.Site;
+      //       break
+      //     case 'Эл почта"':
+      //       value = FieldNames.ClientSource.EMail;
+      //       break
+      //     case 'Звонок ':
+      //     case 'Звонок':
+      //       value = FieldNames.ClientSource.Call;
+      //       break;
+      //     case 'Дживо':
+      //     case 'Живо':
+      //     case 'Чат':
+      //       value = FieldNames.ClientSource.Chat;
+      //       break;
+      //     case 'Instagram':
+      //       value = FieldNames.ClientSource.Insta;
+      //       break;
+      //     case 'ТЦ':
+      //     case 'Заявка ТЦ':
+      //       value = FieldNames.ClientSource.TC;
+      //       break;
+      //     case 'Арена сити':
+      //     case 'Арена':
+      //       value = FieldNames.ClientSource.TC;
+      //       break;
+      //     case 'Прямое':
+      //     case 'Улица':
+      //       value = FieldNames.ClientSource.Street;
+      //       break;
+
+      //     case 'Звонок':
+      //       value = FieldNames.ClientSource.Call;
+      //       break;
+      //     case 'Рекомендация':
+      //       value = FieldNames.ClientSource.Recommend;
+      //       break;
+      //   }
+
+      //   const v = FieldsUtils.setDropdownValue(field, value);
+
+      //   client.fields.push({
+      //     id: field.id,
+      //     name: field.name,
+      //     value: v.value,
+      //   });
+      // }
+
+      if (true) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.source)!;
 
-        let value = FieldNames.ClientSource.Site;
-
-        switch (item['Источник']) {
-          case 'Звонок с ав':
-          case 'Звонок с АВ':
-          case 'ав':
-          case 'АВ':
-          case 'av.by':
-            value = FieldNames.ClientSource.Av;
-            break;
-          case 'Заявка в вотсап':
-          case 'Запрос вайбер':
-          case 'Запрос в вайбер':
-          case 'Viber':
-          case 'Telegram':
-          case 'Whatsup':
-            value = FieldNames.ClientSource.Messagers;
-            break;
-          case 'Заявка с сайта':
-            value = FieldNames.ClientSource.Site;
-            break
-          case 'Эл почта"':
-            value = FieldNames.ClientSource.EMail;
-            break
-          case 'Звонок ':
-          case 'Звонок':
-            value = FieldNames.ClientSource.Call;
-            break;
-          case 'Дживо':
-          case 'Живо':
-          case 'Чат':
-            value = FieldNames.ClientSource.Chat;
-            break;
-          case 'Instagram':
-            value = FieldNames.ClientSource.Insta;
-            break;
-          case 'ТЦ':
-          case 'Заявка ТЦ':
-            value = FieldNames.ClientSource.TC;
-            break;
-          case 'Арена сити':
-          case 'Арена':
-            value = FieldNames.ClientSource.TC;
-            break;
-          case 'Прямое':
-          case 'Улица':
-            value = FieldNames.ClientSource.Street;
-            break;
-
-          case 'Звонок':
-            value = FieldNames.ClientSource.Call;
-            break;
-          case 'Рекомендация':
-            value = FieldNames.ClientSource.Recommend;
-            break;
-        }
+        let value = FieldNames.ClientSource.TC;
 
         const v = FieldsUtils.setDropdownValue(field, value);
 
@@ -269,40 +296,40 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         });
       }
 
-      if (item['М-р']) {
+      if (true) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.SpecialistId)!;
-        let value = '56';
+        let value = '58';
 
-        switch (item['М-р']) {
-          case 'Д':
-          case 'д':
-          case 'Д ':
-          case ' Д':
-          case ' Д ':
-            value = '20';
-            break;
-          case 'А':
-          case 'а':
-          case 'А ':
-          case ' А':
-          case ' А ':
-            value = '2';
-            break;
-          case 'М':
-          case 'M':
-          case 'М ':
-          case ' М':
-          case ' M ':
-            value = '17';
-            break;
-          case 'И':
-          case 'и':
-          case 'И ':
-          case ' И':
-          case ' И ':
-            value = '57';
-            break;
-        }
+        // switch (item['М-р']) {
+        //   case 'Д':
+        //   case 'д':
+        //   case 'Д ':
+        //   case ' Д':
+        //   case ' Д ':
+        //     value = '20';
+        //     break;
+        //   case 'А':
+        //   case 'а':
+        //   case 'А ':
+        //   case ' А':
+        //   case ' А ':
+        //     value = '2';
+        //     break;
+        //   case 'М':
+        //   case 'M':
+        //   case 'М ':
+        //   case ' М':
+        //   case ' M ':
+        //     value = '17';
+        //     break;
+        //   case 'И':
+        //   case 'и':
+        //   case 'И ':
+        //   case ' И':
+        //   case ' И ':
+        //     value = '57';
+        //     break;
+        // }
 
         client.fields.push({
           id: field.id,
@@ -320,7 +347,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: convertClientNumber(`${item['Телефон']}`),
+          value: convertClientNumber(`${item['Телефон']}`) || item['Телефон'],
         });
       }
 

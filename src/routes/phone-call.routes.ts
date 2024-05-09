@@ -5,6 +5,7 @@ import phoneCallController from '../controllers/phone-call.controller';
 const router = Router();
 
 router.route(`/${ Constants.API.WEB_HOOK }/`)
+  .get(phoneCallController.webHookNotify)
   .post(phoneCallController.webHookNotify)
   .put(phoneCallController.webHookNotify)
   .patch(phoneCallController.webHookNotify)

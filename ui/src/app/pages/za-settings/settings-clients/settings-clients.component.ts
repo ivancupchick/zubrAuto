@@ -12,7 +12,7 @@ import { SessionService } from 'src/app/services/session/session.service';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
-import { Observable, Subject, zip } from 'rxjs';
+import { Observable, Subject, of, zip } from 'rxjs';
 import { StringHash } from 'src/app/entities/constants';
 import { DateUtils } from 'src/app/entities/utils';
 import { UserService } from 'src/app/services/user/user.service';
@@ -135,9 +135,14 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         const carIds = clientsRes.reduce<number[]>((prev, client) => {
           const clietnCarIds = client.carIds.split(',').map(id => +id);
           return [...prev, ...clietnCarIds];
-        }, []);
+        }, []).filter(id => id && !Number.isNaN(id));
 
-        const query: StringHash = { id: carIds.join(',') };
+        if (carIds.length === 0) {
+          return of([]);
+        };
+
+        const query: StringHash = { id: [...(new Set(carIds))].join(',') };
+
 
         return this.carService.getCarsByQuery(query);
       })

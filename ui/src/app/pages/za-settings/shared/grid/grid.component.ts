@@ -46,7 +46,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() set gridData(value: GridItemType[]) {
     if (Array.isArray(value)) {
       this._gridData = value;
-      const scrollHeight = this.elem.nativeElement.offsetHeight  - 20;
+      const scrollHeight = this.elem.nativeElement.offsetHeight  - 100;
       this.scrollHeight = this.fixedHeight || (scrollHeight > 0 ? scrollHeight : 300);
     }
   }

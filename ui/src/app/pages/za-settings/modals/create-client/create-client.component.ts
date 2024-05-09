@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
+import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormControl, ValidationErrors } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { getCarStatus, ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
@@ -331,7 +331,21 @@ export class CreateClientComponent implements OnInit {
     }
 
     if (field.key === FieldNames.Client.number) {
-      field.mask = '+375999999999';
+      field.validators.push((control: AbstractControl): ValidationErrors | null => {
+        const controlValue = control.value;
+
+        if (controlValue.length === 13 && controlValue[0] === '+' && controlValue[1] === '3' && controlValue[2] === '7' && controlValue[3] === '5') {
+          return null;
+        }
+
+        if (controlValue.length === 12 && controlValue[0] === '+' && controlValue[1] === '7') {
+          return null;
+        }
+
+        return {
+          numberIsInvalid: { value: control.value }
+        };
+      });
     }
 
     return field;

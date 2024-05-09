@@ -21,6 +21,10 @@
           [type]="field.type || 'text'"
           autocomplete="nope"
         />
+
+        <div *ngIf="!isValid && isNumberInvalid?.numberIsInvalid">
+          +375000000000 или +70000000000
+        </div>
       </ng-container>
 
 

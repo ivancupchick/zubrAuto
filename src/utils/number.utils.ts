@@ -13,5 +13,9 @@ export const convertClientNumber: (n: string) => string = (number) => {
     return `+${pureNumber}`;
   }
 
+  if (pureNumber.length === 11 && pureNumber[0] === '7') {
+    return `+${pureNumber}`;
+  }
+
   return '';
 }
