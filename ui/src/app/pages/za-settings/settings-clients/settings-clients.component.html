@@ -63,6 +63,9 @@
 
 <p-toolbar>
   <div class="p-toolbar-group-left">
+    <span>
+      Кол-во: {{ sortedClients.length }}
+    </span>
     <button
       pButton
       type="button"
@@ -71,20 +74,6 @@
       icon="pi pi-plus"
       (click)="openNewClientWindow()"
     ></button>
-
-    <div style="display: flex; flex-direction: column; align-items: center;">
-
-    </div>
-    <div style="display: flex; flex-direction: column; align-items: center;">
-
-    </div>
-    <div style="display: flex; flex-direction: column; align-items: center;">
-
-    </div>
-    <div *ngIf="isCarSalesChiefOrAdmin" style="display: flex; flex-direction: column; align-items: center;">
-
-    </div>
-
   </div>
 
   <div class="p-toolbar-group-right">
@@ -96,9 +85,10 @@
 <za-grid
   [gridConfig]="gridConfig"
   [getTooltipConfig]="getTooltipConfig"
-  [gridData]="sortedClients"
   [actions]="gridActionsConfig"
   [getColorConfig]="getColorConfig"
+  [doubleClickFuction]="updateClient"
+  [gridData]="sortedClients"
 ></za-grid>
 
 <za-spinner *ngIf="loading"></za-spinner>

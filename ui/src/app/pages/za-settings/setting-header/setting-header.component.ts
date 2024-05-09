@@ -273,7 +273,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.SpecialistId)!;
         let value = '56';
 
-        switch (item['Источник']) {
+        switch (item['М-р']) {
           case 'Д':
           case 'д':
           case 'Д ':

@@ -3,7 +3,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ClientService } from 'src/app/services/client/client.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid.component';
-import { ServerClient, getDealStatus } from 'src/app/entities/client';
+import { ServerClient, getClientSpecialist, getClientStatus, getDealStatus } from 'src/app/entities/client';
 import { ServerUser } from 'src/app/entities/user';
 import { Observable, Subject, map, of, switchMap, takeUntil, zip } from 'rxjs';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
@@ -49,6 +49,9 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
 
   readonly strings = settingsClientsStrings;
 
+  selectedSpecialist: number[] = [];
+  activeIndex = 0;
+
   constructor(
     private sessionService: SessionService,
     private userService: UserService,
@@ -60,6 +63,34 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.fetchData();
   }
+
+  filterClients() {
+    this.someClients = this.allClients
+      .filter(c =>
+        this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
+      )
+      .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`));
+
+    this.someFutureClients = this.allClients
+      .filter(c =>
+        this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
+      )
+      .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`))
+      .sort((a, b) => {
+        const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
+        const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
+
+        return value1 < value2
+          ? -1
+          : value1 > value2
+            ? 1
+            : 0
+      });
+  }
+
+  getTooltipConfig: ((item: ServerClient.Response) => string) = (car) => {
+    return FieldsUtils.getFieldStringValue(car, FieldNames.Client.Description)
+  };
 
   fetchData() {
     this.getData().subscribe((cars) => {
@@ -177,14 +208,13 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   }
 
   setGridColorConfig(){
-    this.getColorConfig = (car) => {
-      const status = getDealStatus(car);
+    this.getColorConfig = (client) => {
+      const status = getClientStatus(client);
 
       switch (status) {
-        case FieldNames.DealStatus.Deny: return '#ff00002b'
-        case FieldNames.DealStatus.InProgress: return '#fff'
-        case FieldNames.DealStatus.OnDeposit: return '#07ff003d'
-        case FieldNames.DealStatus.Sold: return '#005dff3d'
+        case FieldNames.ClientStatus.Thinking: return '#EFD334'
+        case FieldNames.ClientStatus.InProgress: return '#99FF99'
+        case FieldNames.ClientStatus.HavingInteresting: return '#7FC7FF'
 
         default: return '';
       }
@@ -319,7 +349,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     this.subscribeOnCloseModalRef(ref);
   }
 
-  updateClient(client: ServerClient.Response) {
+  updateClient = (client: ServerClient.Response) => {
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
         client,

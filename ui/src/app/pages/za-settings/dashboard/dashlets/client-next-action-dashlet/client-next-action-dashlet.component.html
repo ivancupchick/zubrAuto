@@ -1,11 +1,27 @@
 <p-panel *ngIf="allClients.length" header="Следующие действия по моим клиентам">
   <ng-template pTemplate="icons">
-    <p-button size="small" (onClick)="refresh()" class="mr-2">
-      <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
-    </p-button>
+    <div>
+      <p-multiSelect
+        appendTo="body"
+        size="small"
+        *ngIf="availableSpecialists.length > 0 && activeIndex === 3 || activeIndex === 4"
+        [options]="availableSpecialists"
+        [(ngModel)]="selectedSpecialist"
+        placeholder="Специалист"
+        optionLabel="name"
+        optionValue="id"
+        (onPanelHide)="filterClients()"
+        selectedItemsLabel="{0} спициалистов выбрано"
+        [maxSelectedLabels]="1"
+      ></p-multiSelect>
+
+      <p-button size="small" (onClick)="refresh()" class="mx-2">
+        <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+      </p-button>
+    </div>
   </ng-template>
 
-  <p-tabView>
+  <p-tabView [(activeIndex)]="activeIndex">
     <p-tabPanel header="Сегодня и прошлые ({{myClients.length}})">
       <div class="h-20rem">
         <za-grid
@@ -15,6 +31,8 @@
           [getColorConfig]="getColorConfig"
           [fixedHeight]="300"
           [virtualScroll]="false"
+          [doubleClickFuction]="updateClient"
+          [getTooltipConfig]="getTooltipConfig"
           [gridData]="myClients"
         ></za-grid>
       </div>
@@ -28,6 +46,8 @@
           [getColorConfig]="getColorConfig"
           [fixedHeight]="300"
           [virtualScroll]="false"
+          [doubleClickFuction]="updateClient"
+          [getTooltipConfig]="getTooltipConfig"
           [gridData]="myFutureClients"
         ></za-grid>
       </div>
@@ -42,6 +62,8 @@
             [getColorConfig]="getColorConfig"
             [fixedHeight]="300"
             [virtualScroll]="false"
+            [doubleClickFuction]="updateClient"
+            [getTooltipConfig]="getTooltipConfig"
             [gridData]="allClients"
           ></za-grid>
         </div>
@@ -55,6 +77,8 @@
             [getColorConfig]="getColorConfig"
             [fixedHeight]="300"
             [virtualScroll]="false"
+            [doubleClickFuction]="updateClient"
+            [getTooltipConfig]="getTooltipConfig"
             [gridData]="someClients"
           ></za-grid>
         </div>
@@ -68,6 +92,8 @@
             [getColorConfig]="getColorConfig"
             [fixedHeight]="300"
             [virtualScroll]="false"
+            [doubleClickFuction]="updateClient"
+            [getTooltipConfig]="getTooltipConfig"
             [gridData]="someFutureClients"
           ></za-grid>
         </div>

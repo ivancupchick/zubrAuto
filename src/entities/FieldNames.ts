@@ -81,9 +81,7 @@ export namespace FieldNames {
   export enum ClientStatus {
     InProgress = 'Идёт оформление',
     Thinking = 'Думает',
-    HavingWaiting = 'Ждёт наличие',
-    ProposalWaiting = 'Ждёт предложение',
-    AppointmentSigned = 'Записан на ТД',
+    HavingInteresting = 'Есть интерес',
   }
 
   export enum ClientSource {

@@ -93,10 +93,15 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   getCallRequests(): Observable<ServerCallRequest.Response[]> {
     return this.requestService.get<ServerCallRequest.Response[]>(`${environment.serverUrl}/${'call-requests'}`)
       .pipe(map(result => {
+        const allRequests = result.sort((a, b) => (a.createdDate > b.createdDate) ? -1 : (a.createdDate < b.createdDate) ? 1 : 0)
 
-        this.allCallRequests = result.sort((a, b) => (a.createdDate > b.createdDate) ? -1 : (a.createdDate < b.createdDate) ? 1 : 0);
-        this.myCallRequests = this.allCallRequests.filter(call => `${call.userId}` === `${this.sessionService.userId}` && !(+call.isUsed));
-        this.usedCallRequests = this.allCallRequests.filter(call => (+call.isUsed));
+        this.allCallRequests = allRequests.filter(call => !(+call.isUsed));
+        this.myCallRequests = allRequests.filter(call => `${call.userId}` === `${this.sessionService.userId}` && !(+call.isUsed));
+        this.usedCallRequests = allRequests.filter(call => (+call.isUsed));
+
+        if (!this.sessionService.isAdminOrHigher) {
+          this.usedCallRequests = allRequests.filter(call => `${call.userId}` === `${this.sessionService.userId}` && (+call.isUsed));
+        }
 
         return this.allCallRequests;
       }))

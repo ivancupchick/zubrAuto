@@ -9,6 +9,8 @@ import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.comp
 import { ClientNextActionDashletComponent } from './dashlets/client-next-action-dashlet/client-next-action-dashlet.component';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -24,7 +26,10 @@ import { BadgeModule } from 'primeng/badge';
     PanelModule,
     SpinnerComponent,
     ButtonModule,
-    BadgeModule
+    BadgeModule,
+    MultiSelectModule,
+    FormsModule,
+    ReactiveFormsModule,
   ],
   exports: [
     DashboardComponent

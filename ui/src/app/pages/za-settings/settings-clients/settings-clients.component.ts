@@ -108,6 +108,10 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       FieldNames.DealStatus.InProgress,
       FieldNames.DealStatus.OnDeposit,
     ];
+
+    // setTimeout(() => {
+    //   this.rawClients.forEach(c => this.deleteClient(c));
+    // }, 20000);
   }
 
   getData(): Observable<ServerCar.Response[]> {
@@ -288,7 +292,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
     return configs.filter(config => !config.available || config.available());
   }
 
-  updateClient(client: ServerClient.Response) {
+  updateClient = (client: ServerClient.Response) => {
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
         client,

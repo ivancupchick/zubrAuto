@@ -33,6 +33,7 @@
   </ng-template>
   <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
     <tr
+      (dblclick)="rowDoubleClick(gridItem)"
       style="height:24px"
       [pSelectableRow]="gridItem" [pSelectableRowIndex]="rowIndex"
       [pTooltip]="getTooltipConfig && getTooltipConfig(gridItem) || ''" tooltipPosition="top" [tooltipDisabled]="!getTooltipConfig" appendTo="body" [showDelay]="1000"

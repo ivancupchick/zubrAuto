@@ -51,6 +51,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
     }
   }
   @Input() virtualScroll = true;
+  @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
 
   get gridData(): GridItemType[] {
     return this._gridData;
@@ -69,6 +70,10 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   ngOnInit(): void {
     this.selectedKeys = [...this.selected];
     this.updateActions();
+  }
+
+  rowDoubleClick(item: GridItemType) {
+    this.doubleClickFuction && this.doubleClickFuction(item)
   }
 
   onSelect(c: any) {
