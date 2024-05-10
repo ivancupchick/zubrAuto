@@ -126,7 +126,7 @@ export class CreateClientComponent implements OnInit {
         if (fc.name === FieldNames.Client.dateNextAction) {
           fc.type = FieldType.Date;
 
-          if (fieldValue) {
+          if (fieldValue && Number.isNaN(+fieldValue)) {
             fieldValue = `${+moment(fieldValue)}`;
           }
         }
@@ -300,7 +300,6 @@ export class CreateClientComponent implements OnInit {
         : this.clientService.getClientsByNumber({ [FieldNames.Client.number]: FieldsUtils.getFieldStringValue(client.fields, FieldNames.Client.number) }).pipe(
           mergeMap((res) => {
             if (res && res.length) {
-              console.log(this.specialists);
               res.forEach((existClient, index) => {
                 this.dialogService.open(ClientPreviewComponent, {
                   data: {

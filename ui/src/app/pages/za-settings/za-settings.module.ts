@@ -84,6 +84,7 @@ import { ClientPreviewComponent } from './client/modals/client-preview/client-pr
 import { HighlightModule } from 'ngx-highlightjs';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
+import { UserService } from 'src/app/services/user/user.service';
 
 
 
@@ -224,7 +225,8 @@ const routes: Routes = [{
       useClass: AuthInterceptor,
       multi: true
     },
-    RequestService
+    RequestService,
+    UserService
   ]
 })
 export class ZASettingsModule { }

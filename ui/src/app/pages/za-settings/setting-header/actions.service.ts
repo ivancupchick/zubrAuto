@@ -9,6 +9,8 @@ import { CreateCarComponent } from '../modals/create-car/create-car.component';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
 import { QueryCarTypes } from '../settings-cars/cars.enums';
+import { UserService } from 'src/app/services/user/user.service';
+import { zip } from 'rxjs';
 
 export interface ActionsItem {
   label: string,
@@ -23,7 +25,7 @@ export interface ActionsItem {
 export class ActionsService {
   // selectedRole: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin = ServerRole.System.Admin;
 
-  constructor(private sessionService: SessionService, private dialogService: DialogService, private clientService: ClientService) {}
+  constructor(private sessionService: SessionService, private dialogService: DialogService, private clientService: ClientService, private userService: UserService) {}
 
   getActions(): ActionsItem[] {
     return [
@@ -210,11 +212,20 @@ export class ActionsService {
       // routerLink: 'roles',
       handler: () => {
         // TODO: globalLoading = true;
-        this.clientService.getClientFields().subscribe(result => {
+        zip(this.clientService.getClientFields(), this.userService.getUsers()).subscribe(([fieldConfigs, specialists]) => {
           // TODO: globalLoading = false;
           const ref = this.dialogService.open(CreateClientComponent, {
             data: {
-              fieldConfigs: result
+              fieldConfigs: fieldConfigs,
+              specialists: specialists.filter(
+                (u) =>
+                  u.customRoleName === ServerRole.Custom.carSales ||
+                  u.customRoleName === ServerRole.Custom.carSalesChief ||
+                  u.customRoleName === ServerRole.Custom.customerService ||
+                  u.customRoleName === ServerRole.Custom.customerServiceChief ||
+                  u.roleLevel === ServerRole.System.Admin ||
+                  u.roleLevel === ServerRole.System.SuperAdmin
+              ),
             },
             header: 'Новый клиент',
             width: '70%',

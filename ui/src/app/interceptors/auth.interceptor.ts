@@ -3,13 +3,14 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, throwError } from "rxjs";
 import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
 import { SessionService } from "../services/session/session.service";
+import { Router } from "@angular/router";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string>('');
 
-  constructor(private sessionService: SessionService) {}
+  constructor(private sessionService: SessionService, private router: Router) {}
 
   // TODO! check this with parametrs: accesstoken duration = 15s, refreshtoken duration = 30s,
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -24,10 +25,14 @@ export class AuthInterceptor implements HttpInterceptor {
             if (err.status === 401) {
               return this.handle401Error(request, next);
             } else {
+              this.router.navigateByUrl('/');
+
               throw err;
               // return throwError(error);
             }
           }
+          this.router.navigateByUrl('/');
+
           throw err;
         })
       );
@@ -49,6 +54,12 @@ export class AuthInterceptor implements HttpInterceptor {
       this.refreshTokenSubject.next('');
 
       return this.sessionService.checkAuth().pipe(
+        catchError((err, caught) => {
+          console.log(2);
+          this.router.navigateByUrl('/');
+
+          throw err;
+        }),
         switchMap((token) => {
           this.isRefreshing = false;
           this.refreshTokenSubject.next(token.accessToken);
@@ -58,6 +69,13 @@ export class AuthInterceptor implements HttpInterceptor {
       return this.refreshTokenSubject.pipe(
         filter(token => token != null),
         take(1),
+        catchError((err, caught) => {
+          console.log(2);
+
+          this.router.navigateByUrl('/');
+
+          throw err;
+        }),
         switchMap(accessToken => {
           return accessToken ? next.handle(this.addToken(request, accessToken)) : next.handle(request);
         }));

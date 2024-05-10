@@ -156,17 +156,25 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   }
 
   getGridColorConfig(){
-    this.getColorConfig = (car) => {
-      const status = getDealStatus(car);
+    this.getColorConfig = (client) => {
+      const status = getDealStatus(client);
 
       switch (status) {
         case FieldNames.DealStatus.Deny: return '#ff00002b'
-        case FieldNames.DealStatus.InProgress: return '#fff'
+        // case FieldNames.DealStatus.InProgress: return '#fff'
         case FieldNames.DealStatus.OnDeposit: return '#07ff003d'
         case FieldNames.DealStatus.Sold: return '#005dff3d'
-
-        default: return '';
       }
+
+      const clientStatus = getClientStatus(client);
+
+      switch (clientStatus) {
+        case FieldNames.ClientStatus.Thinking: return '#EFD334'
+        case FieldNames.ClientStatus.InProgress: return '#99FF99'
+        case FieldNames.ClientStatus.HavingInteresting: return '#7FC7FF'
+      }
+
+      return '';
     }
   }
 

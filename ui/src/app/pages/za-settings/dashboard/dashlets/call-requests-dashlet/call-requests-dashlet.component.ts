@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject, map, switchMap, takeUntil, zip } from 'rxjs';
+import { Observable, Subject, map, mergeMap, switchMap, takeUntil, zip } from 'rxjs';
 import { ServerCallRequest } from 'src/app/entities/call-request';
 import { RequestService } from 'src/app/services/request/request.service';
 import { SessionService } from 'src/app/services/session/session.service';
@@ -223,27 +223,53 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
         predefinedFields: {
           [FieldNames.Client.number]: call.clientNumber,
           [FieldNames.Client.name]: JSON.parse(call.originalNotification).name,
-          [FieldNames.Client.source]: 'source-1'
-        }
+          [FieldNames.Client.source]: 'source-1',
+        },
       },
       header: `Новый клиент по номеру ${call.clientNumber}`,
       width: '70%',
     });
 
-    this.subscribeOnCloseModalRef(ref, call);
-  }
-
-  subscribeOnCloseModalRef(ref: DynamicDialogRef, call: ServerCallRequest.Response) {
-    ref.onClose.pipe(takeUntil(this.destoyed)).subscribe(res => {
+    ref.onClose.pipe(takeUntil(this.destoyed)).subscribe((res) => {
       if (res) {
         this.loading = true;
-        this.getCallRequests().subscribe(() => {
-          this.loading = false;
-        });
+        this.requestService
+          .put<ServerCallRequest.Response[]>(
+            `${environment.serverUrl}/${'call-requests'}/${call.id}`,
+            {
+              isUsed: 1,
+            }
+          )
+          .pipe(
+            mergeMap(() => {
+              return this.getCallRequests();
+            })
+          )
+          .subscribe({
+            next: () => {
+              this.loading = false;
+            },
+            error: () => {
+              this.loading = false;
+            },
+            complete: () => {
+              this.loading = false;
+            },
+          });
       }
     });
   }
 
+  // subscribeOnCloseModalRef(ref: DynamicDialogRef, call: ServerCallRequest.Response) {
+  //   ref.onClose.pipe(takeUntil(this.destoyed)).subscribe(res => {
+  //     if (res) {
+  //       this.loading = true;
+  //       this.getCallRequests().subscribe(() => {
+  //         this.loading = false;
+  //       });
+  //     }
+  //   });
+  // }
 
   ngOnDestroy(): void {
     this.destoyed.next(null);

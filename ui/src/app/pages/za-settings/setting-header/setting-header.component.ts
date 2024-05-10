@@ -142,7 +142,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         const fieldComment = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.Description)!;
 
         let value = FieldNames.DealStatus.InProgress;
-        let comment = item['Комментарий'];
+        let comment = `${item['ТЦ'] || ''} ${item['Комментарий']}`;
         let clientStatus = '';
 
         switch (item['Статус']) {
@@ -209,7 +209,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: `${item['ТЦ'] || ''} ${item['Пометка']}`,
+          value: `${item['Пометка']}`,
         });
       }
 
@@ -298,7 +298,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
 
       if (true) {
         const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.SpecialistId)!;
-        let value = '58';
+        let value = '59';
 
         // switch (item['М-р']) {
         //   case 'Д':
