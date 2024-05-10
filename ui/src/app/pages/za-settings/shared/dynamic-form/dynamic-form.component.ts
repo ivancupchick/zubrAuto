@@ -84,10 +84,20 @@ export class DynamicFormComponent implements OnInit {
 
   getAllValue(): RealField.Request[] {
     return this.fields
-      .map((field) => ({
-        id: field.id,
-        name: field.key,
-        value: this.formGroup.controls[field.key].value
-      }))
+      .map((field) => {
+        if (field.controlType === FieldType.Date) {
+          return {
+            id: field.id,
+            name: field.key,
+            value: +this.formGroup.controls[field.key].value
+          }
+        }
+
+        return {
+          id: field.id,
+          name: field.key,
+          value: this.formGroup.controls[field.key].value
+        };
+      });
   }
 }

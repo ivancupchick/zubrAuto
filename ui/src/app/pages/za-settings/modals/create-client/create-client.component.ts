@@ -25,6 +25,7 @@ import { ChipsModule } from 'primeng/chips';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { ButtonModule } from 'primeng/button';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import * as moment from 'moment';
 
 @Component({
   selector: 'za-create-client',
@@ -118,12 +119,16 @@ export class CreateClientComponent implements OnInit {
     const formFields = this.dfcs.getDynamicFieldsFromDBFields(this.fieldConfigs
       .filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
       .map(fc => {
-        const fieldValue = !!this.client
+        let fieldValue = !!this.client
           ? this.client.fields.find(f => f.id === fc.id)?.value || ''
           : this.predefinedFields[fc.name as FieldNames.Client] || '';
 
         if (fc.name === FieldNames.Client.dateNextAction) {
           fc.type = FieldType.Date;
+
+          if (fieldValue) {
+            fieldValue = `${+moment(fieldValue)}`;
+          }
         }
 
         const newField = new UIRealField(
