@@ -45,6 +45,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
   providers: [
     DynamicFieldControlService,
     CarService,
+    ClientService,
   ]
 })
 export class CreateClientComponent implements OnInit {
@@ -230,7 +231,7 @@ export class CreateClientComponent implements OnInit {
         }
       })
     } else {
-      const fields = this.dynamicForm.getValue();
+      const fields = this.dynamicForm.getAllValue();
 
       const carIds = this.selectedCars.map(sc => sc.id).join(',');
       const client: ServerClient.CreateRequest = {
@@ -278,6 +279,14 @@ export class CreateClientComponent implements OnInit {
           console.error('specialistIdField is undefined');
           console.log("Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику");
         }
+      }
+
+
+      if (!FieldsUtils.getFieldStringValue(client.fields, FieldNames.Client.number)) {
+        console.error("Нету номера");
+
+        this.loading = false;
+        return;
       }
 
 
