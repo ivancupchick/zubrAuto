@@ -12,10 +12,10 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
  {
   async callRequest(sitesCallRequest: SitesCallRequest): Promise<ServerCallRequest.IdResponse> {
     const allRequests = await callRequestsRepository.find({
-      userId: ['56', '57']
+      userId: ['66', '57']
     });
 
-    const usersIds = ['56', '57'];
+    const usersIds = ['66', '57'];
 
     let id = `${allRequests[allRequests.length - 1].userId}` === usersIds[0] ? usersIds[1] : usersIds[0];
     if (sitesCallRequest.source === 'zubrgroup.by') {
