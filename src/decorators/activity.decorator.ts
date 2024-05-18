@@ -13,7 +13,7 @@ export function ControllerActivity(object: { type: ActivityType, sourceName: Mod
 
       const authorizationHeader = req.headers.authorization;
       const accessToken = authorizationHeader.split(' ')[1];
-      const userData = tokenService.validateAccessToken(accessToken);
+      const userData = tokenService.decodeAccessToken(accessToken);
 
       const params = req.params;
       const body = req.body;

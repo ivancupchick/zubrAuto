@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { finalize, take } from 'rxjs';
 import { CarService } from 'src/app/services/car/car.service';
 
 @Component({
@@ -40,8 +41,9 @@ export class ChangeCarOwnerNumberComponent implements OnInit {
     this.carService.updateCar(
       { ownerNumber, fields: [] },
       this.carId,
+    ).pipe(
+      finalize(() => this.loading = false)
     ).subscribe(res => {
-      this.loading = false;
 
       if (res) {
         alert('Телефон изменен');
@@ -52,7 +54,6 @@ export class ChangeCarOwnerNumberComponent implements OnInit {
     }, e => {
       console.error(e);
       alert('Телефон не изменен');
-      this.loading = false;
     })
   }
 

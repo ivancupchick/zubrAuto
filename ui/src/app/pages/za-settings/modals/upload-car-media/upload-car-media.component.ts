@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FileUpload } from 'primeng/fileupload';
-import { tap } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { ServerFile, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -79,6 +79,7 @@ export class UploadCarMediaComponent implements OnInit {
     this.loading = true;
     return this.carService.getCarsImages(this.car.id)
       .pipe(
+        finalize(() => this.loading = false),
         tap(images => {
           this.images = images.filter(image => image.type === ServerFile.Types.Image);
           this.image360 = images.find(image => image.type === ServerFile.Types.Image360);
@@ -126,7 +127,9 @@ export class UploadCarMediaComponent implements OnInit {
 
     this.loading = true;
 
-    this.carService.uploadCarImages(this.car.id, this.uplo, '').subscribe(res => {
+    this.carService.uploadCarImages(this.car.id, this.uplo, '').pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       this.getImages().subscribe();
 
       this.fileUpload.clear();
@@ -138,13 +141,14 @@ export class UploadCarMediaComponent implements OnInit {
 
     this.loading = true;
 
-    this.carService.uploadCarImage360(this.car.id, this.uplo[0], '').subscribe(res => {
+    this.carService.uploadCarImage360(this.car.id, this.uplo[0], '').pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       this.image360FileUpload.clear();
 
       this.getImages().subscribe();
     }, e => {
       console.log(e);
-      this.loading = false;
     })
   }
 
@@ -153,7 +157,9 @@ export class UploadCarMediaComponent implements OnInit {
 
     this.loading = true;
 
-    this.carService.uploadCarStateImages(this.car.id, this.uplo, '').subscribe(res => {
+    this.carService.uploadCarStateImages(this.car.id, this.uplo, '').pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       this.getImages().subscribe();
 
       this.fileUpload.clear();
@@ -162,70 +168,70 @@ export class UploadCarMediaComponent implements OnInit {
 
   selectMainPhoto(image: ServerFile.Response) {
     this.loading = true;
-    this.carService.selectMainPhoto(this.car.id, image.id).subscribe(res => {
+    this.carService.selectMainPhoto(this.car.id, image.id).pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       this.getImages().subscribe();
-      this.carService.getCar(this.car.id).subscribe(car => {
+      this.carService.getCar(this.car.id).pipe(
+        finalize(() => this.loading = false),
+      ).subscribe(car => {
         this.setCar(car);
-
-        this.loading = false;
       }, e => {
-        this.loading = false;
         console.error(e);
       })
     }, e => {
-      this.loading = false;
       console.error(e);
     })
   }
 
   deletePhoto(image: ServerFile.Response) {
     this.loading = true;
-    this.carService.deleteCarImage(this.car.id, image.id).subscribe(res => {
+    this.carService.deleteCarImage(this.car.id, image.id).pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       this.getImages().subscribe();
-      this.carService.getCar(this.car.id).subscribe(car => {
+      this.carService.getCar(this.car.id).pipe(
+        finalize(() => this.loading = false),
+      ).subscribe(car => {
         this.setCar(car);
-
-        this.loading = false;
       }, e => {
-        this.loading = false;
         console.error(e);
       })
     }, e => {
-      this.loading = false;
       console.error(e);
     })
   }
 
   saveLink() {
     this.loading = true;
-    this.carService.saveVideo(this.car.id, this.link).subscribe(res => {
-      this.carService.getCar(this.car.id).subscribe(car => {
+    this.carService.saveVideo(this.car.id, this.link).pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
+      this.carService.getCar(this.car.id).pipe(
+        finalize(() => this.loading = false),
+      ).subscribe(car => {
         this.setCar(car);
-
-        this.loading = false;
       }, e => {
-        this.loading = false;
         console.error(e);
       })
     }, e => {
-      this.loading = false;
       console.error(e);
     })
   }
 
   saveOldWorksheet() {
     this.loading = true;
-    this.carService.saveOldWorksheet(this.car.id, this.oldWorksheet).subscribe(res => {
-      this.carService.getCar(this.car.id).subscribe(car => {
+    this.carService.saveOldWorksheet(this.car.id, this.oldWorksheet).pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
+      this.carService.getCar(this.car.id).pipe(
+        finalize(() => this.loading = false),
+      ).subscribe(car => {
         this.setCar(car);
-
-        this.loading = false;
       }, e => {
-        this.loading = false;
         console.error(e);
       })
     }, e => {
-      this.loading = false;
       console.error(e);
     })
   }

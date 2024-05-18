@@ -4,7 +4,7 @@ import { ServerRole } from 'src/app/entities/role';
 import { RoleService } from 'src/app/services/role/role.service';
 import { CreateRoleComponent } from '../modals/create-role/create-role.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
-import { tap } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -38,10 +38,11 @@ export class SettingsRolesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true
-    this.getRoles().subscribe((result) => {
+    this.getRoles().pipe(
+      finalize(() => this.loading = false),
+    ).subscribe((result) => {
       this.rawRoles = result;
       this.sortRoles();
-      this.loading = false;
     })
 
     this.createGridConfig();

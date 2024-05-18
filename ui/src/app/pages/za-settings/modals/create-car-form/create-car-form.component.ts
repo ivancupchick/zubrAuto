@@ -8,6 +8,7 @@ import { CarService } from 'src/app/services/car/car.service';
 import { CarFormEnumsStrings } from './car-form.strings';
 import { SessionService } from 'src/app/services/session/session.service';
 import * as CryptoJS from 'crypto-js';
+import { finalize } from 'rxjs';
 
 type CarFormEnum = CarFormEnums.CarQuestionnaire | CarFormEnums.Checkboxes | CarFormEnums.ExteriorInspection | CarFormEnums.GeneralCondition | CarFormEnums.Inspection;
 
@@ -236,9 +237,9 @@ export class CreateCarFormComponent implements OnInit {
       this.carForm.description = descriptionControl.value;
     }
 
-    this.carService.editCarForm(this.car.id, this.carForm).subscribe(res => {
-      this.loading = false;
-
+    this.carService.editCarForm(this.car.id, this.carForm).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(res => {
       if (res) {
         alert('Форма сохранена');
         this.ref.close(true);
@@ -248,7 +249,6 @@ export class CreateCarFormComponent implements OnInit {
     }, e => {
       console.error(e);
       alert('Форма не сохранена');
-      this.loading = false;
     })
   }
 

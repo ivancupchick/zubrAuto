@@ -3,7 +3,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { FieldType } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
 import { DynamicFieldControlService } from '../../../shared/dynamic-form/dynamic-field-control.service';
@@ -72,6 +72,7 @@ export class SignUpComponent implements OnInit {
 
     this.sessionService.registration(email, password)
       .pipe(
+        finalize(() => this.loading = false),
         catchError((err: any, c) => {
           if (err instanceof HttpErrorResponse) {
             alert(err.message);
@@ -81,8 +82,6 @@ export class SignUpComponent implements OnInit {
         })
       )
       .subscribe(res => {
-        this.loading = false;
-
         if (res) {
           alert('Вы зарегистрировались!');
           this.ref.close(true);

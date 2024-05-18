@@ -13,6 +13,7 @@ import { settingsCarsStrings } from '../../settings-cars/settings-cars.strings';
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
 import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'za-create-car',
@@ -280,7 +281,9 @@ export class CreateCarComponent implements OnInit {
           ownerNumber
         });
 
-    methodObs.subscribe(result => {
+    methodObs.pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(result => {
       if (result.id === -1) {
         alert('Мащина уже существует в базе.');
         return;

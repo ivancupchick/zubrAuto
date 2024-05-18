@@ -16,7 +16,7 @@ import { StringHash } from 'src/app/entities/constants';
 import { CarStatusLists, QueryCarTypes } from '../../settings-cars/cars.enums';
 import { SessionService } from 'src/app/services/session/session.service';
 import { ServerUser } from 'src/app/entities/user';
-import { map, mergeMap, of } from 'rxjs';
+import { finalize, map, mergeMap, of } from 'rxjs';
 import { ClientPreviewComponent } from '../../client/modals/client-preview/client-preview.component';
 import { CommonModule } from '@angular/common';
 import { DynamicFormModule } from '../../shared/dynamic-form/dynamic-form.module';
@@ -169,7 +169,9 @@ export class CreateClientComponent implements OnInit {
       ? this.carService.getCarsByQuery(Object.assign(query, { id: this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a)}))
       : of([])
 
-    obs.subscribe(cars => {
+    obs.pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(cars => {
       if (this.client) {
         let carIds: (number | string)[] = [];
 
@@ -208,8 +210,6 @@ export class CreateClientComponent implements OnInit {
 
         this.setCarsToForm(this.originalCarChips)
       }
-
-      this.loading = false;
     })
   }
 
@@ -225,13 +225,13 @@ export class CreateClientComponent implements OnInit {
         return;
       }
 
-      this.carService.addCall(carIds).subscribe(result => {
+      this.carService.addCall(carIds).pipe(
+        finalize(() => this.loading = false)
+      ).subscribe(result => {
         if (result) {
           alert('Звонки учтены');
-          this.loading = false;
           this.cancel(true);
         } else {
-          this.loading = false;
           alert('Звонки не учтены, нажмите F12, заскриньте красные ошибки в консоли и отправьте администратору.');
         }
       })
@@ -319,11 +319,12 @@ export class CreateClientComponent implements OnInit {
           })
         )
 
-      methodObs.subscribe((result: boolean) => {
+      methodObs.pipe(
+        finalize(() => this.loading = false)
+      ).subscribe((result: boolean) => {
         if (result) {
           this.cancel(true);
         } else {
-          this.loading = false;
           alert(!!this.client ? 'Клиент не обновлён' : 'Клиент не создан');
         }
       })

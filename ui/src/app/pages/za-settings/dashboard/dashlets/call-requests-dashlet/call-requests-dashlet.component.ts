@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject, map, mergeMap, switchMap, takeUntil, zip } from 'rxjs';
+import { Observable, Subject, finalize, map, mergeMap, switchMap, take, takeUntil, zip } from 'rxjs';
 import { ServerCallRequest } from 'src/app/entities/call-request';
 import { RequestService } from 'src/app/services/request/request.service';
 import { SessionService } from 'src/app/services/session/session.service';
@@ -59,9 +59,9 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
 
   refresh() {
     this.loading = true;
-    this.getCallRequests().subscribe(() => {
-      this.loading = false;
-    });
+    this.getCallRequests().pipe(
+      finalize(() => this.loading = false)
+    ).subscribe();
   }
 
   getData(): Observable<ServerCallRequest.Response[]> {
@@ -206,11 +206,11 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     if (res) {
       this.requestService.put<ServerCallRequest.Response[]>(`${environment.serverUrl}/${'call-requests'}/${call.id}`, {
         isUsed: 1
-      }).subscribe(() => {
+      }).pipe(
+        finalize(() => this.loading = false)
+      ).subscribe(() => {
         this.loading = true;
-        this.getData().subscribe(() => {
-          this.loading = false;
-        });
+        this.getData().subscribe();
       });
     }
   }
@@ -243,19 +243,10 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
           .pipe(
             mergeMap(() => {
               return this.getCallRequests();
-            })
+            }),
+            finalize(() => this.loading = false)
           )
-          .subscribe({
-            next: () => {
-              this.loading = false;
-            },
-            error: () => {
-              this.loading = false;
-            },
-            complete: () => {
-              this.loading = false;
-            },
-          });
+          .subscribe();
       }
     });
   }

@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { finalize } from 'rxjs';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 
@@ -77,9 +78,9 @@ export class ChangeCarStatusComponent implements OnInit {
       this.comment,
       this.isNextActionDateAvailable ? this.dateOfNextAction : undefined,
       this.dateOfFirstStatusChangeAvailable ? this.dateOfFirstStatusChange : undefined
+    ).pipe(
+      finalize(() => this.loading = false)
     ).subscribe(res => {
-      this.loading = false;
-
       if (res) {
         alert('Статус изменен');
         this.ref.close(true);
@@ -89,7 +90,6 @@ export class ChangeCarStatusComponent implements OnInit {
     }, e => {
       console.error(e);
       alert('Статус не изменен');
-      this.loading = false;
     })
   }
 

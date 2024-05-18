@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import * as moment from 'moment';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable, of, Subject, Subscription, zip } from 'rxjs';
-import { map, takeUntil, tap } from 'rxjs/operators';
+import { finalize, map, takeUntil, tap } from 'rxjs/operators';
 import { ServerFile, getCarStatus, ICarForm, RealCarForm, ServerCar } from 'src/app/entities/car';
 import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entities/field';
@@ -331,8 +331,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           }
 
           this.carService.getCar(carId)
+            .pipe(
+              finalize(() => this.loading = false),
+            )
             .subscribe(res => {
-              this.loading = false;
               this.addRawCarToRawCars(res);
             });
         }
@@ -516,9 +518,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       getCarsObs = this.carService.getCarsByQuery(query)
     }
     this.getCarsSubs = getCarsObs.pipe(
+      finalize(() => this.loading = false),
       takeUntil(this.destroyed),
       tap(res2 => {
-        this.loading = false;
         console.log(res2);
         this.rawCars = this.carsToSelect.length > 0 ? [...this.carsToSelect, ...res2] : [...res2];
         this.selectedCars = this.carsToSelect.length > 0 ? [...this.carsToSelect] : [];
@@ -590,8 +592,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       this.loading = true;
 
       this.carService.deleteCar(car.id)
+        .pipe(
+          finalize(() => this.loading = false),
+        )
         .subscribe(res => {
-          this.loading = false;
           this.rawCars = this.rawCars.filter(c => c.id !== res.id);
           this.sortCars();
         });
@@ -633,8 +637,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
               }],
               ownerNumber: car.ownerNumber
             }, car.id))
+          ).pipe(
+            finalize(() => this.loading = false),
           ).subscribe(res => {
-            this.loading = false;
             const deletedCarIds = res.map(c => c.id);
             this.rawCars = this.rawCars.filter(c => !deletedCarIds.includes(c.id));
             this.sortCars();
@@ -668,8 +673,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         this.loading = true;
 
         this.carService.deleteCars(cars.map(c => c.id))
+          .pipe(
+            finalize(() => this.loading = false),
+          )
           .subscribe(res => {
-            this.loading = false;
             const deletedCarIds = res.map(c => c.id);
             this.rawCars = this.rawCars.filter(c => !deletedCarIds.includes(c.id));
             this.sortCars();
@@ -1382,9 +1389,9 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   transformToCustomerService(car: ServerCar.Response) {
     this.loading = true;
 
-    this.validatePublish(car).subscribe(res => {
-      this.loading = false;
-
+    this.validatePublish(car).pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       if (res) {
         const ref = this.dialogService.open(ChangeCarStatusComponent, {
           data: {
@@ -1403,17 +1410,15 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, err => {
       alert('Произошла ошибка, запомните шаги которые привели к такой ситуации, сообщите администарутору.')
       console.error(err);
-    }, () => {
-      this.loading = false;
     });
   }
 
   transformToCustomerServiceAprooved(car: ServerCar.Response) {
     this.loading = true;
 
-    this.validatePublish(car).subscribe(res => {
-      this.loading = false;
-
+    this.validatePublish(car).pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       if (res) {
         const ref = this.dialogService.open(ChangeCarStatusComponent, {
           data: {
@@ -1432,8 +1437,6 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }, err => {
       alert('Произошла ошибка, запомните шаги которые привели к такой ситуации, сообщите администарутору.')
       console.error(err);
-    }, () => {
-      this.loading = false;
     });
   }
 

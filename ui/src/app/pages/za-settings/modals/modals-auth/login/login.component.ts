@@ -3,7 +3,7 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, finalize } from 'rxjs/operators';
 import { FieldType } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
 import { DynamicFieldControlService } from '../../../shared/dynamic-form/dynamic-field-control.service';
@@ -71,17 +71,16 @@ export class LoginComponent implements OnInit {
 
     this.sessionService.login(email, password)
       .pipe(
+        finalize(() => this.loading = false),
         catchError((err: any, c) => {
           if (err instanceof HttpErrorResponse) {
             alert(err.message);
           }
 
           return of(null);
-        })
+        }),
       )
       .subscribe(res => {
-        this.loading = false;
-
         if (res) {
           alert('Вы залогинились!');
           this.ref.close(true);

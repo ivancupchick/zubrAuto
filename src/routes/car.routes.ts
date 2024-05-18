@@ -3,8 +3,11 @@ import { body } from 'express-validator';
 import carController from '../controllers/car.controller';
 import { Constants } from '../utils/constansts';
 import carFunctionsController from '../controllers/car-functions.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 router.route(`/${ Constants.API.CRUD }/`)
   .get(carController.getAll)

@@ -5,7 +5,7 @@ import { UserService } from 'src/app/services/user/user.service';
 import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid.component';
 import { ServerClient, getClientSpecialist, getClientStatus, getDealStatus } from 'src/app/entities/client';
 import { ServerUser } from 'src/app/entities/user';
-import { Observable, Subject, map, of, switchMap, takeUntil, zip } from 'rxjs';
+import { Observable, Subject, finalize, map, of, switchMap, take, takeUntil, zip } from 'rxjs';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
 import { FieldNames } from '../../../../../../../../src/entities/FieldNames';
@@ -93,10 +93,11 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   };
 
   fetchData() {
-    this.getData().subscribe((cars) => {
+    this.loading = true;
+    this.getData().pipe(
+      finalize(() => this.loading = false)
+    ).subscribe((cars) => {
       this.allCars = cars;
-
-      this.loading = false;
       this.setGridSettings();
     });
   }
@@ -104,10 +105,10 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   refresh() {
     this.loading = true;
 
-    this.getData().subscribe((cars) => {
+    this.getData().pipe(
+      finalize(() => this.loading = false)
+    ).subscribe((cars) => {
       this.allCars = cars;
-
-      this.loading = false;
     });
   }
 
@@ -367,7 +368,6 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
     ref.onClose.pipe(takeUntil(this.destoyed)).subscribe((res) => {
       if (res) {
-        this.loading = true;
         this.fetchData();
       }
     });

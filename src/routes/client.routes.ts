@@ -2,8 +2,11 @@ import { Router } from 'express'
 import { body } from 'express-validator';
 import clientController from '../controllers/client.controller'
 import { Constants } from '../utils/constansts';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 router.route('/')
     .get(clientController.getAll)

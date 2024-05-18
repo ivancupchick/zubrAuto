@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { finalize } from 'rxjs';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { CarService } from 'src/app/services/car/car.service';
@@ -65,9 +66,9 @@ export class TransformToCarShooting implements OnInit {
   create() {
     this.loading = true;
 
-    this.carService.transformToCarShooting(this.carId, +this.shootingDate, +this.selectedCarShootingUser, this.comment).subscribe(res => {
-      this.loading = false;
-
+    this.carService.transformToCarShooting(this.carId, +this.shootingDate, +this.selectedCarShootingUser, this.comment).pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       if (res) {
         alert('Статус изменен');
         this.ref.close(true);
@@ -77,7 +78,6 @@ export class TransformToCarShooting implements OnInit {
     }, e => {
       console.error(e);
       alert('Статус не изменен');
-      this.loading = false;
     })
   }
 

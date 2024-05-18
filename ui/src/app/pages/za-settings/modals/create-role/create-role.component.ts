@@ -7,6 +7,7 @@ import { RoleService } from 'src/app/services/role/role.service';
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
 import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'za-create-role',
@@ -71,12 +72,13 @@ export class CreateRoleComponent implements OnInit {
       ? this.roleService.updateRole(role, (this.role as ServerRole.Response).id)
       : this.roleService.createRole(role)
 
-    methodObs.subscribe(result => {
+    methodObs.pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(result => {
       if (result) {
         this.ref.close(true);
       } else {
         alert(!!this.role ? 'Роль не обновлена' : 'Роль не создана');
-        this.loading = false;
       }
     })
   }

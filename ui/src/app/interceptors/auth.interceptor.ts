@@ -1,18 +1,17 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, throwError } from "rxjs";
 import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
 import { SessionService } from "../services/session/session.service";
-import { Router } from "@angular/router";
+import { MessageService } from "primeng/api";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string>('');
 
-  constructor(private sessionService: SessionService, private router: Router) {}
+  constructor(private sessionService: SessionService, private messageService: MessageService) {}
 
-  // TODO! check this with parametrs: accesstoken duration = 15s, refreshtoken duration = 30s,
+  // TODO! check this with parametrs: accesstoken duration = 15s, refreshtoken duration = 30s, !second interation!
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const accessToken = localStorage.getItem('token');
 
@@ -20,20 +19,25 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request)
       .pipe(
-        catchError((err, caught) => {
-          if (err instanceof HttpErrorResponse) {
-            if (err.status === 401) {
+        catchError((error, caught) => {
+          if (error instanceof HttpErrorResponse) {
+            console.log(error);
+
+            if (error.status === 401 && !error.url?.includes('/auth/refresh')) {
               return this.handle401Error(request, next);
             } else {
-              this.router.navigateByUrl('/');
+              console.log(3);
 
-              throw err;
-              // return throwError(error);
+              this.showError(error);
+
+              return throwError(() => error);
             }
           }
-          this.router.navigateByUrl('/');
+          console.log(4);
 
-          throw err;
+          this.showError(error);
+
+          return throwError(() => error);
         })
       );
   }
@@ -49,36 +53,37 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   private handle401Error(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!this.isRefreshing) {
-      this.isRefreshing = true;
-      this.refreshTokenSubject.next('');
+    this.refreshTokenSubject.next('');
 
-      return this.sessionService.checkAuth().pipe(
-        catchError((err, caught) => {
-          console.log(2);
-          this.router.navigateByUrl('/');
+    return this.sessionService.checkAuth().pipe(
+      catchError((error, caught) => {
+        console.log('4.5');
 
-          throw err;
-        }),
-        switchMap((token) => {
-          this.isRefreshing = false;
-          this.refreshTokenSubject.next(token.accessToken);
-          return next.handle(this.addToken(request, token.accessToken));
-        }));
-    } else {
-      return this.refreshTokenSubject.pipe(
-        filter(token => token != null),
-        take(1),
-        catchError((err, caught) => {
-          console.log(2);
+        this.showError(error);
 
-          this.router.navigateByUrl('/');
+        return throwError(() => error);
+      }),
+      switchMap((token) => {
+        console.log(5);
 
-          throw err;
-        }),
-        switchMap(accessToken => {
-          return accessToken ? next.handle(this.addToken(request, accessToken)) : next.handle(request);
-        }));
-    }
+        this.refreshTokenSubject.next(token.accessToken);
+        return next.handle(this.addToken(request, token.accessToken));
+      }),
+      catchError((error, caught) => {
+        console.log(6);
+
+        this.showError(error);
+
+        return throwError(() => error);
+      }));
+  }
+
+  showError(error: HttpErrorResponse) {
+    this.messageService.add({
+      severity: 'error',
+      summary: `${error.name || error.statusText}, code: ${error.status}`,
+      detail: `${error.message}`,
+      life: 7000
+    });
   }
 }

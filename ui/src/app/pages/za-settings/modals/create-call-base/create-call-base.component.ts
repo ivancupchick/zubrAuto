@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { finalize } from 'rxjs';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
@@ -59,6 +60,9 @@ carsControlscarsControls: any;
     this.loading = true;
 
     this.userService.getUsers()
+      .pipe(
+        finalize(() => this.loading = false)
+      )
       .subscribe(users => {
         this.contactCenterUsers = [
           { value: 'Никто', key: 'None' },
@@ -68,13 +72,12 @@ carsControlscarsControls: any;
                       || (this.sessionService.isRealAdminOrHigher && (u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin)) )
             .map(u => ({ value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name)}`, key: `${u.id}` }))
         ];
-        this.loading = false;
 
         this.form = this.fb.group({
           specialist: [null],
           cars: this.fb.array([this.fb.control('')])
         });
-      }, () => { this.loading = false; });
+      });
   }
 
   cancel() {
@@ -84,13 +87,13 @@ carsControlscarsControls: any;
   create() {
     this.loading = true;
 
-    this.carService.createCarsByLink(this.link, +this.selectedContactUser).subscribe(res => {
+    this.carService.createCarsByLink(this.link, +this.selectedContactUser).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(res => {
       alert('Новые машины успешно добавлены');
-      this.loading = false;
     }, e => {
       console.error(e);
       alert('Новые машины не добавлены');
-      this.loading = false;
     })
   }
 
@@ -102,13 +105,13 @@ carsControlscarsControls: any;
 
     this.loading = true;
 
-    this.carService.createManualCars(this.form?.value).subscribe(res => {
+    this.carService.createManualCars(this.form?.value).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(res => {
       alert('Новые машины успешно добавлены');
-      this.loading = false;
     }, e => {
       console.error(e);
       alert('Новые машины не добавлены');
-      this.loading = false;
     })
   }
 

@@ -1,6 +1,5 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { sign, verify, decode } from 'jsonwebtoken';
 import { ServerAuth } from '../entities/Auth';
-import { Models } from '../entities/Models';
 import { ServerUser } from '../entities/User';
 import userTokenRepository from '../repositories/base/user-token.repository';
 
@@ -8,8 +7,8 @@ import userTokenRepository from '../repositories/base/user-token.repository';
 
 class TokenService {
   generateTokens(payload: object) {
-    const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '1d' });
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' });
+    const accessToken = sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '30m' });
+    const refreshToken = sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' }); // change to 5d
     return {
       accessToken,
       refreshToken
@@ -18,7 +17,16 @@ class TokenService {
 
   validateAccessToken(token: string) {
     try {
-      const userData: ServerAuth.Payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET) as ServerAuth.Payload;
+      const userData: ServerAuth.Payload = verify(token, process.env.JWT_ACCESS_SECRET) as ServerAuth.Payload;
+      return userData;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  decodeAccessToken(token: string) {
+    try {
+      const userData: ServerAuth.Payload = decode(token) as ServerAuth.Payload;
       return userData;
     } catch (e) {
       return null;
@@ -28,7 +36,7 @@ class TokenService {
   validateRefreshToken(token: string) {
     try {
        // ServerUser.Payload
-       const userData: ServerAuth.Payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET) as ServerAuth.Payload;
+       const userData: ServerAuth.Payload = verify(token, process.env.JWT_REFRESH_SECRET) as ServerAuth.Payload;
        return userData;
     } catch (e) {
       return null;

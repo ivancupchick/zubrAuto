@@ -12,6 +12,7 @@ import { settingsUsersStrings } from '../../settings-users/settings-users.string
 import { Validators } from '@angular/forms';
 import { StringHash } from 'src/app/entities/constants';
 import { SessionService } from 'src/app/services/session/session.service';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'za-create-user',
@@ -169,7 +170,9 @@ export class CreateUserComponent implements OnInit {
       ? this.userService.updateUser(userForUpdate, (this.user as ServerUser.Response).id)
       : this.userService.createUser(user)
 
-    methodObs.subscribe(result => {
+    methodObs.pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(result => {
       if (result) {
         this.ref.close(true);
       } else {

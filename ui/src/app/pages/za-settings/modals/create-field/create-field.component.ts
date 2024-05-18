@@ -3,6 +3,7 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FieldDomains, ServerField } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
 import { FieldFormComponent } from '../../shared/fields/field-form/field-form.component';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'za-create-field',
@@ -42,14 +43,14 @@ export class CreateFieldComponent implements OnInit {
       ? this.fieldService.updateField(this.fieldForm.getValue(), this.id)
       : this.fieldService.createField(this.fieldForm.getValue())
 
-    methodObs.subscribe(result => {
+    methodObs.pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(result => {
       if (result) {
         this.ref.close(true);
       } else {
         alert(this.isEdit ? 'Поле не обновлено' :'Поле не создано');
       }
-    },() => {
-      this.loading = false;
     })
   }
 

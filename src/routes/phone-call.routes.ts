@@ -1,8 +1,11 @@
 import { Router } from 'express'
 import { Constants } from '../utils/constansts';
 import phoneCallController from '../controllers/phone-call.controller';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
+
+router.use(authMiddleware);
 
 router.route(`/${ Constants.API.WEB_HOOK }/`)
   .get(phoneCallController.webHookNotify)

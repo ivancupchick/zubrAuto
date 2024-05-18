@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import * as moment from 'moment';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { finalize } from 'rxjs';
 import { ServerCar, UICarStatistic, CarStatistic } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -225,9 +226,9 @@ export class CustomerServiceCallComponent implements OnInit {
   save() {
     this.loading = true;
 
-    this.carService.addCustomerCall(this.car.id).subscribe(res => {
-      this.loading = false;
-
+    this.carService.addCustomerCall(this.car.id).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(res => {
       if (res) {
         alert('Звонок записан');
         this.ref.close(true);
@@ -237,7 +238,6 @@ export class CustomerServiceCallComponent implements OnInit {
     }, e => {
       console.error(e);
       alert('Звонок не записан');
-      this.loading = false;
     })
     this.ref.close(false);
   }
@@ -259,9 +259,9 @@ export class CustomerServiceCallComponent implements OnInit {
       return;
     }
 
-    this.carService.addCustomerDiscount(this.car.id, discount, amount).subscribe(res => {
-      this.loading = false;
-
+    this.carService.addCustomerDiscount(this.car.id, discount, amount).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(res => {
       if (res) {
         alert('Уценка совершена');
         this.fetchStatistics();
@@ -270,7 +270,6 @@ export class CustomerServiceCallComponent implements OnInit {
       }
     }, e => {
       console.error(e);
-      this.loading = false;
     })
     // this.ref.close(false);
   }

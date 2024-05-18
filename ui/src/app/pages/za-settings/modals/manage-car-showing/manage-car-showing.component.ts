@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Subject, takeUntil, zip } from 'rxjs';
+import { Subject, finalize, map, mergeMap, takeUntil, zip } from 'rxjs';
 import { CarStatistic, ServerCar, UICarShowingStatistic } from 'src/app/entities/car';
 import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils } from 'src/app/entities/field';
@@ -41,55 +41,56 @@ export class ManageCarShowingComponent implements OnInit {
   ngOnInit(): void {
     this.carIds = this.config.data.carIds;
     this.clientId = this.config.data.clientId;
-    this.loading = true;
 
     this.setGridSettings();
     this.getShows();
   }
 
   getShows(){
+    this.loading = true;
     const query: StringHash = {};
     query['id'] = this.carIds.join(',')
     // query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
 
-    this.carService.getCarsByQuery(query).subscribe(cars => {
-      const clientCars = cars.filter(car => this.carIds.includes(car.id));
-      this.cars = clientCars;
+    this.carService.getCarsByQuery(query).pipe(
+      finalize(() => this.loading = false),
+      map(cars => {
+        const clientCars = cars.filter(car => this.carIds.includes(car.id));
+        this.cars = clientCars;
+        return null;
+      }),
+      mergeMap(() => {
+        return zip(...this.carIds.map(id => this.carService.getShowingCarStatistic(id)))
+      })
+    ).subscribe(statistics => {
+      const result: UICarShowingStatistic[] = [];
 
-      // `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
+      statistics.forEach(carStatistics => {
+        const car = this.cars.find(car => car.id === (carStatistics[0] || {}).carId);
 
-      zip(...this.carIds.map(id => this.carService.getShowingCarStatistic(id)))
-        .subscribe(statistics => {
-          const result: UICarShowingStatistic[] = [];
+        if (!car) {
+          return;
+        }
 
-          statistics.forEach(carStatistics => {
-            const car = clientCars.find(car => car.id === (carStatistics[0] || {}).carId);
+        const statistics: (CarStatistic.CarShowingResponse & { content: CarStatistic.ShowingContent })[] = carStatistics.filter(statistic => statistic.type === CarStatistic.Type.showing) as any;
 
-            if (!car) {
-              return;
-            }
+        statistics.forEach(statistic => {
 
-            const statistics: (CarStatistic.CarShowingResponse & { content: CarStatistic.ShowingContent })[] = carStatistics.filter(statistic => statistic.type === CarStatistic.Type.showing) as any;
+          if (!car) {
+            console.error('path: ui/src/app/pages/za-settings/modals/manage-car-showing/manage-car-showing.component.ts : 61');
+            alert('Произошла ошибка, запомните в каком месте и с какими данными она произошла. Сообщите администратору, следуйте инструкции сообщения об ошибке. Сайт работает здесь некорректно, перезагрузите страницу.')
+          }
 
-            statistics.forEach(statistic => {
-
-              if (!car) {
-                console.error('path: ui/src/app/pages/za-settings/modals/manage-car-showing/manage-car-showing.component.ts : 61');
-                alert('Произошла ошибка, запомните в каком месте и с какими данными она произошла. Сообщите администратору, следуйте инструкции сообщения об ошибке. Сайт работает здесь некорректно, перезагрузите страницу.')
-              }
-
-              result.push({
-                ...statistic,
-                car
-              })
-            })
-
-            this.carStatistics = [...result];
-          });
-
-          this.setGridSettings();
-          this.loading = false;
+          result.push({
+            ...statistic,
+            car
+          })
         })
+
+        this.carStatistics = [...result];
+      });
+
+      this.setGridSettings();
     })
   }
 

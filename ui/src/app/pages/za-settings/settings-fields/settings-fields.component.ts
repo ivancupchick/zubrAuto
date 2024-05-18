@@ -3,12 +3,12 @@ import { FieldDomains, FieldType, RealField, ServerField } from 'src/app/entitie
 import { FieldService } from 'src/app/services/field/field.service';
 import {DialogService} from 'primeng/dynamicdialog';
 import { CreateFieldComponent } from '../modals/create-field/create-field.component';
-import { tap } from 'rxjs/operators';
+import { finalize, mergeMap, tap } from 'rxjs/operators';
 import { settingsClientsStrings } from '../settings-clients/settings-clients.strings';
 import { settingsCarsStrings } from '../settings-cars/settings-cars.strings';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { StringHash } from 'src/app/entities/constants';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
 export interface GridField {
   name: string;
@@ -42,12 +42,13 @@ export class SettingsFieldsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    this.getFields().subscribe(() => {
+    this.getFields().pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(() => {
       this.sortFields();
-      this.loading = false;
     });
   }
-  
+
   getFields(): Observable<ServerField.Response[]> {
     return this.fieldService.getFields().pipe(
       tap((res) => {
@@ -66,22 +67,19 @@ export class SettingsFieldsComponent implements OnInit {
     }).onClose.subscribe((res: boolean) => {
       if (res) {
         this.loading = true;
-        this.getFields().subscribe(() => {
-          this.loading = false;
-        });
+        this.getFields().pipe(
+          finalize(() => this.loading = false),
+        ).subscribe();
       }
     });
   }
 
   deleteField(field: RealField.Response) {
-    this.fieldService.deleteField(field.id).subscribe(res => {
-      if (res) {
-        this.loading = true;
-        this.getFields().subscribe(() => {
-          this.loading = false;
-        });
-      }
-
+    this.loading = true;
+    this.fieldService.deleteField(field.id).pipe(
+      finalize(() => this.loading = false),
+      mergeMap(res => res && this.getFields() || of(res))
+    ).subscribe(res => {
       if (res) {
         alert('Удаление прошло успешно');
       } else {
@@ -103,9 +101,9 @@ export class SettingsFieldsComponent implements OnInit {
     }).onClose.subscribe((res: boolean) => {
       if (res) {
         this.loading = true;
-        this.getFields().subscribe(() => {
-          this.loading = false;
-        });
+        this.getFields().pipe(
+          finalize(() => this.loading = false),
+        ).subscribe();
       }
     });;
   }

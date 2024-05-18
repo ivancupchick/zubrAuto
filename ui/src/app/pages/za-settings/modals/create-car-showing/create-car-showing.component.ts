@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { finalize } from 'rxjs';
 import { CarStatistic, ServerCar, UICarShowingStatistic } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -87,7 +88,9 @@ export class CreateCarShowingComponent implements OnInit {
           status: this.selectedStatus as CarStatistic.ShowingStatus
         });
 
-    methodObs.subscribe(result => {
+    methodObs.pipe(
+      finalize(() => this.loading = false)
+    ).subscribe(result => {
       if (result) {
         this.ref.close(true);
       } else {

@@ -7,6 +7,7 @@ import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-fi
 import { CarChip, SelectCarComponent } from '../select-car/select-car.component';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { FieldsUtils } from 'src/app/entities/field';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'za-complete-client-deal',
@@ -86,20 +87,20 @@ export class CompleteClientDealComponent implements OnInit {
     }
 
     this.clientService.completeDeal(this.client.id, this.selectedCars[0].id)
+      .pipe(
+        finalize(() => this.loading = false)
+      )
       .subscribe(res => {
         if (res) {
-          this.loading = false;
           alert('Сделка успешно завершена');
           this.ref.close(true);
           return;
         }
 
         alert('Сделка не завершена');
-        this.loading = false;
       }, error => {
         alert('Сделка не завершена');
         console.error(error);
-        this.loading = false;
       });
   }
 

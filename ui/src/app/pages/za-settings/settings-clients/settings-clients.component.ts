@@ -9,7 +9,7 @@ import { settingsClientsStrings } from './settings-clients.strings';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SessionService } from 'src/app/services/session/session.service';
-import { switchMap, takeUntil, tap } from 'rxjs/operators';
+import { finalize, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { Observable, Subject, of, zip } from 'rxjs';
@@ -92,11 +92,11 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     this.getData().pipe(
-      takeUntil(this.destoyed)
+      takeUntil(this.destoyed),
+      finalize(() => this.loading = false)
     ).subscribe(cars => {
       this.allCars = cars;
       this.sortClients();
-      this.loading = false;
       this.setGridSettings();
     });
 
@@ -343,25 +343,21 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   refresh() {
     this.loading = true;
     this.getClients()
-      .pipe(takeUntil(this.destoyed))
-      .subscribe(() => {
-        this.loading = false;
-      });
+      .pipe(
+        finalize(() => this.loading = false),
+        takeUntil(this.destoyed)
+      )
+      .subscribe();
   }
 
   deleteClient(client: ServerClient.Response) {
     this.clientService.deleteClient(client.id)
-      .pipe(takeUntil(this.destoyed))
-        .subscribe(res => {
-          if(res){
-            this.loading = true;
-            this.getClients()
-              .pipe(takeUntil(this.destoyed))
-              .subscribe(() => {
-                this.loading = false;
-              });
-          }
-        });
+      .pipe(
+        finalize(() => this.loading = false),
+        takeUntil(this.destoyed),
+        mergeMap(res => res && this.getClients() || of(null))
+      )
+        .subscribe();
   }
 
   sortClients() {

@@ -7,10 +7,11 @@ import { Constants } from '../utils/constansts';
 
 const router = Router();
 
+router.use(authMiddleware);
+
 router.route(`/${ Constants.API.CRUD }/`)
-    .get(authMiddleware, userController.getAll)
+    .get(userController.getAll)
     .post(
-      authMiddleware,
       body('email').isEmail(),
       body('password').isLength({ min: 3, max: 32 }),
       // body('password').matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/),
@@ -18,9 +19,9 @@ router.route(`/${ Constants.API.CRUD }/`)
     );
 
 router.route(`/${ Constants.API.CRUD }/:userId`)
-    .get(authMiddleware, userController.get)
-    .delete(authMiddleware, userController.delete)
-    .put(authMiddleware, userController.update);
+    .get(userController.get)
+    .delete(userController.delete)
+    .put(userController.update);
 
 // router.route('/getUsersByDomain/:domain')
 //     .get(getUsersByDomain)

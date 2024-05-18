@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { DialogService } from 'primeng/dynamicdialog';
 import { StringHash } from 'src/app/entities/constants';
@@ -8,6 +8,7 @@ import { ServerRole } from 'src/app/entities/role';
 import { RoleService } from 'src/app/services/role/role.service';
 import { SelectAccessComponent } from '../../../modals/select-access/select-access.component';
 import { settingsUsersStrings } from '../../../settings-users/settings-users.strings';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'za-field-form',
@@ -75,7 +76,9 @@ export class FieldFormComponent implements OnInit {
 
     this.formGroup.controls['accesses'].disable();
 
-    this.roleService.getRoles().subscribe(roles => {
+    this.roleService.getRoles().pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(roles => {
       this.roles = roles;
 
       if (this.field) {
@@ -88,8 +91,6 @@ export class FieldFormComponent implements OnInit {
 
         this.setAccessesToForm(this.originalAccesses)
       }
-
-      this.loading = false;
     })
   }
 
