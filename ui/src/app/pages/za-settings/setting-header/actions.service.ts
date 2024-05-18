@@ -121,7 +121,8 @@ export class ActionsService {
       handler: () => {
         const ref = this.dialogService.open(CreateCallBaseComponent, {
           header: 'Добавить базу обзвона',
-          width: '40%'
+          width: '90%',
+          height: '90%',
         });
       },
       visible: () => this.sessionService.isContactCenterChief,

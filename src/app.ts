@@ -39,7 +39,7 @@ export class App {
 
   private middlewares(routesHandler: () => void) {
     this.app.use(fileUpload({}))
-    this.app.use(express.json());
+    this.app.use(express.json({limit: '50mb'}));
     this.app.use(cookieParser());
     if (process.env.NODE_ENV !== 'production') {
       this.app.use(cors({
@@ -48,7 +48,6 @@ export class App {
       }));
       // this.app.use(setHeaders);
     }
-
 
     routesHandler();
 

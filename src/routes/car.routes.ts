@@ -50,6 +50,9 @@ router.route(`/${ Constants.API.STATISTIC }/${ Constants.API.CAR_SHOWING }/:carI
 router.route(`/${Constants.API.CREATE_CARS_BY_LINK}`)
   .post(carFunctionsController.createCarsByLink);
 
+router.route(`/${Constants.API.CREATE_CARS_BY_MANAGER}`)
+  .post(carFunctionsController.createCarsByManager);
+
 router.route(`/${Constants.API.IMAGES}/:carId`)
   .get(carFunctionsController.getImages);
 

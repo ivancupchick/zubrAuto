@@ -11,6 +11,7 @@ export namespace Constants {
     ROLES = 'roles',
     GET_FIELDS_BY_DOMAIN = 'getFieldsByDomain',
     CREATE_CARS_BY_LINK = 'createCarsByLink',
+    CREATE_CARS_BY_MANAGER = 'createCarsByManager',
     IMAGES = 'images',
     IMAGE360 = 'image360',
     STATE_IMAGES = 'stateImages',

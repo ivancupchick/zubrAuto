@@ -10,6 +10,22 @@ import carService from '../services/car.service';
 import { BaseController } from './base.conroller';
 
 class CarFunctionsController extends BaseController {
+  async createCarsByManager(req: Request, res: Response, next: NextFunction) {
+    try {
+      const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      throw ApiError.BadRequest('Ошибка при валидации', errors.array());
+    }
+
+      const body: ServerCar.CreateByManager = req.body;
+      const cars = await carService.createCarsByManager(body);
+      return res.json(cars);
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async createCarsByLink(req: Request, res: Response, next: NextFunction) {
     try {
       const errors = validationResult(req);

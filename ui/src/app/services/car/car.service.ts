@@ -87,6 +87,15 @@ export class CarService {
       }))
   }
 
+  createManualCars(payload: { specialist: number, cars: string[] }) {
+    return this.requestService.post<any>(`${environment.serverUrl}/${API}/${ Constants.API.CREATE_CARS_BY_MANAGER }`, { ...payload })
+      .pipe(map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  }
+
   getCarsImages(id: number) {
     return this.requestService.get<ServerFile.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`)
       .pipe(map(result => {

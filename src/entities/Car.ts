@@ -14,6 +14,11 @@ export namespace ServerCar {
     link: string;
     userId: number;
   }
+
+  export type CreateByManager = {
+    cars: string[];
+    specialist: number;
+  }
 }
 
 export namespace ServerCarImage {

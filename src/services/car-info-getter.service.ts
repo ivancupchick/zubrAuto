@@ -4,9 +4,9 @@ import { RealField, ServerField } from '../entities/Field';
 import { FieldNames } from '../entities/FieldNames';
 
 // const CARS_INFO_LINK = process.env.CARS_INFO_LINK;
-const getPhoneLink = (id: number) => {
-  return `${process.env.CARS_PHONE_LINK}/${id}/phones`
-}
+// const getPhoneLink = (id: number) => {
+//   return `${process.env.CARS_PHONE_LINK}/${id}/phones`
+// }
 
 enum PropertyName {
   brand = 'brand',
@@ -212,6 +212,31 @@ class CarInfoGetter {
     return result;
   }
 
+  async getCarsInfoByManualInfo(
+    carsManualInfo: string[],
+    carFieldConfigs: ServerField.Response[],
+    carOwnerFieldConfigs: ServerField.Response[],
+    userId: number
+  ): Promise<ServerCar.CreateRequest[]> {
+    const carsInfo = JSON.parse(carsManualInfo[0]);
+    let additionalInform: ICarsInfo[] = carsManualInfo.filter((a, i) => i !== 0).map(a => JSON.parse(a));
+
+    const statuses = ['removed', 'archived', 'purged'];
+    const allCars: ICar[] = carsInfo.adverts.filter(car => !(car.organizationId || car.organizationTitle) && !statuses.includes(car.status));
+    additionalInform.forEach(info => { allCars.push(...info.adverts.filter(car => !(car.organizationId || car.organizationTitle) && !statuses.includes(car.status))); })
+
+    const result = this.converCarsInfoToServerCars(
+      allCars,
+      [],
+      carFieldConfigs,
+      carOwnerFieldConfigs,
+      userId
+    );
+
+    return result;
+  }
+
+
   private async getResponseFromLink<T>(link: string, timeout: number): Promise<T | null> {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -251,8 +276,6 @@ class CarInfoGetter {
     carOwnerFieldConfigs: ServerField.Response[],
     userId: number
   ): ServerCar.CreateRequest[] {
-    console.log(cars);
-
     return cars.map(carInfo => {
       // const number = phoneNumbers.find(num => num.id === carInfo.id)?.number || 0;
 
