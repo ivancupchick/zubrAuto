@@ -5,8 +5,6 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.use(authMiddleware);
-
 router.route(`/${ Constants.API.WEB_HOOK }/`)
   .get(phoneCallController.webHookNotify)
   .post(phoneCallController.webHookNotify)
@@ -14,11 +12,11 @@ router.route(`/${ Constants.API.WEB_HOOK }/`)
   .patch(phoneCallController.webHookNotify)
 
 router.route('/')
-  .get(phoneCallController.getAll)
+  .get(authMiddleware, phoneCallController.getAll)
 
 router.route('/:clientId')
-    .get(phoneCallController.getOne)
-    // .delete(phoneCallController.deleteOne)
-    // .put(phoneCallController.update);
+    .get(authMiddleware, phoneCallController.getOne)
+    // .delete(authMiddleware, phoneCallController.deleteOne)
+    // .put(authMiddleware, phoneCallController.update);
 
 export default router;

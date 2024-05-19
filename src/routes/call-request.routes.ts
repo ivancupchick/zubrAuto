@@ -5,17 +5,15 @@ import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.use(authMiddleware);
-
 router.route(`/${ Constants.API.CALL_REQUEST }/`)
   .post(callRequestController.callRequest)
 
 router.route('/')
-  .get(callRequestController.getAll)
+  .get(authMiddleware, callRequestController.getAll)
 
 router.route('/:id')
-    .get(callRequestController.getOne)
-    .delete(callRequestController.deleteOne)
-    .put(callRequestController.update);
+    .get(authMiddleware, callRequestController.getOne)
+    .delete(authMiddleware, callRequestController.deleteOne)
+    .put(authMiddleware, callRequestController.update);
 
 export default router;

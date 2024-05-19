@@ -75,7 +75,8 @@ class PhoneCallController extends BaseCrudController<ServerPhoneCall.Response> {
         );
       }
 
-      const hook = await phoneCallsService.webHookNotify(req.body);
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      const hook = await phoneCallsService.webHookNotify(body);
 
       return res.json(hook);
     } catch (e) {

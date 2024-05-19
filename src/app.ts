@@ -60,7 +60,7 @@ export class App {
     this.app.use(express.static(process.cwd()+string+"/ui/zubr-auto/"));
     this.app.use('/uploads/', express.static(process.cwd()+string+"/uploads/"));
     this.app.use(IndexRoutes);
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.text());
     this.app.use('/cars', CarRoutes);
     this.app.use('/fields', FieldRoutes);
     this.app.use('/clients', ClientRoutes);
