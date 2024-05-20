@@ -8,7 +8,7 @@ import userTokenRepository from '../repositories/base/user-token.repository';
 class TokenService {
   generateTokens(payload: object) {
     const accessToken = sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '30m' });
-    const refreshToken = sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' }); // change to 5d
+    const refreshToken = sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '5d' }); // change to 5d
     return {
       accessToken,
       refreshToken

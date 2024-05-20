@@ -3,6 +3,10 @@ import { ApiError } from "../exceptions/api.error";
 import tokenService from "../services/token.service";
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+  if (+process.env.UNSECURE_AUTH) {
+    next();
+  }
+
   try {
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader) {
