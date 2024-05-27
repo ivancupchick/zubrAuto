@@ -37,7 +37,7 @@ export class ClientPreviewComponent implements OnInit {
     this.client.fields.forEach(field => {
       let value = FieldsUtils.getFieldValue([field], field.name);
 
-      if (field.type === FieldType.Date || field.name === FieldNames.Client.date) {
+      if (field.type === FieldType.Date || field.name === FieldNames.Client.date || field.name === FieldNames.Client.dateNextAction) {
         value = moment(+FieldsUtils.getFieldValue([field], field.name)).format('DD.MM.yyyy');
       }
 

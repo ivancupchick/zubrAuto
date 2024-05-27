@@ -254,7 +254,9 @@ class CarInfoGetter {
   }
 
   private async get<T>(link: string): Promise<T> {
-    return await request.get(link).then(res => JSON.parse(res));
+    return await request.get(link, { headers: {
+      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    }}).then(res => JSON.parse(res));
   }
 
   // private async post<T>(url: string, body: Object, headers: StringHash = {'Content-Type': 'application/json'}): Promise<T> {

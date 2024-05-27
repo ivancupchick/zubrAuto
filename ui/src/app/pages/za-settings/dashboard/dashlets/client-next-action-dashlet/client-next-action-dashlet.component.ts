@@ -99,6 +99,9 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     ).subscribe((cars) => {
       this.allCars = cars;
       this.setGridSettings();
+      if (this.selectedSpecialist.length) {
+        this.filterClients();
+      }
     });
   }
 

@@ -11,13 +11,15 @@ import { convertClientNumber } from "../utils/number.utils";
 class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest, ServerCallRequest.UpdateRequest, ServerCallRequest.Response, ServerCallRequest.IdResponse>
  {
   async callRequest(sitesCallRequest: SitesCallRequest): Promise<ServerCallRequest.IdResponse> {
-    const allRequests = await callRequestsRepository.find({
-      userId: ['66', '57']
-    });
+    // const allRequests = await callRequestsRepository.find({
+    //   userId: ['66', '57']
+    // });
 
-    const usersIds = ['66', '57'];
+    // const usersIds = ['66', '57'];
 
-    let id = `${allRequests[allRequests.length - 1].userId}` === usersIds[0] ? usersIds[1] : usersIds[0];
+    // let id = `${allRequests[allRequests.length - 1].userId}` === usersIds[0] ? usersIds[1] : usersIds[0];
+
+    let id = '56';
     if (sitesCallRequest.source === 'zubrgroup.by') {
       id = '20';
     }
