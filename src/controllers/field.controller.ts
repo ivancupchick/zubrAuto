@@ -88,6 +88,7 @@ class FieldConntroller {
   async getFieldsByDomain(req: Request<{ domain: string; }, ServerField.Response[]>, res: Response<ServerField.Response[]>, next: NextFunction) {
     try {
       const errors = validationResult(req);
+
       if (!errors.isEmpty()) {
         return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
       }
@@ -98,6 +99,7 @@ class FieldConntroller {
 
       return res.json(fields);
     } catch (e) {
+      console.log(e);
       next(e);
     }
   }

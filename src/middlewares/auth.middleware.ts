@@ -4,7 +4,7 @@ import tokenService from "../services/token.service";
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
   if (+process.env.UNSECURE_AUTH) {
-    next();
+    return next();
   }
 
   try {

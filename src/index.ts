@@ -5,7 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
     dotenv.config()
 }
 
-const PORT = process.env.PORT || 4205;
+const PORT = process.env.PORT || 3080;
 
 async function main() {
     const app = new App(PORT);

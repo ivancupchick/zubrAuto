@@ -8,16 +8,32 @@ import phoneCallsRepository from "../repositories/base/phone-calls.repository";
 class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest, ServerPhoneCall.UpdateRequest, ServerPhoneCall.Response, ServerPhoneCall.IdResponse>
  {
   async webHookNotify(webhook: Webhook.Notification): Promise<ServerPhoneCall.IdResponse> {
-    if (webhook.notificationType === Webhook.NotificationType.Start) {
+    let existPhoneCall = null;
+    if (webhook.notificationType === Webhook.NotificationType.State || webhook.notificationType === Webhook.NotificationType.Finish) {
+      existPhoneCall = await phoneCallsRepository.findOne({
+        innerNumber: [webhook.numberB],
+        clientNumber: [webhook.numberA],
+      });
+    }
+
+    if (webhook.notificationType === Webhook.NotificationType.Start || !existPhoneCall) {
+      const date = webhook.notificationType === Webhook.NotificationType.Start
+        ? webhook.date
+        : (new Date()).toString();
+
+      const crmCallType =  webhook.notificationType === Webhook.NotificationType.Start
+        ? webhook.crmCallType
+        : Webhook.CallType.Internal;
+
       const phoneCall: ServerPhoneCall.CreateRequest = {
         originalNotifications: JSON.stringify([webhook]),
         innerNumber: webhook.numberB,
         clientNumber: webhook.numberA,
         createdDate: +(new Date()),
         userId: null,
-        originalDate: webhook.date,
+        originalDate: date,
         uuid: webhook.uuid,
-        type: webhook.crmCallType,
+        type: crmCallType,
         status: null,
         isFinished: false,
         recordUrl: null,
@@ -32,10 +48,12 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
         clientNumber: [webhook.numberA],
       });
 
-      const oldNotifications: Webhook.Notification[] = JSON.parse(phoneCall.originalNotifications)
-      phoneCall.originalNotifications = JSON.stringify([...oldNotifications, webhook]);
+      if (phoneCall) {
+        const oldNotifications: Webhook.Notification[] = JSON.parse(phoneCall.originalNotifications)
+        phoneCall.originalNotifications = JSON.stringify([...oldNotifications, webhook]);
 
-      return await phoneCallsRepository.updateById(phoneCall.id, phoneCall);
+        return await phoneCallsRepository.updateById(phoneCall.id, phoneCall);
+      }
     }
 
     if (webhook.notificationType === Webhook.NotificationType.Finish) {
@@ -44,14 +62,16 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
         clientNumber: [webhook.numberA],
       });
 
-      const oldNotifications: Webhook.Notification[] = JSON.parse(phoneCall.originalNotifications)
-      phoneCall.originalNotifications = JSON.stringify([...oldNotifications, webhook]);
+      if (phoneCall) {
+        const oldNotifications: Webhook.Notification[] = JSON.parse(phoneCall.originalNotifications)
+        phoneCall.originalNotifications = JSON.stringify([...oldNotifications, webhook]);
 
-      phoneCall.status = webhook.crmCallFinishedStatus;
-      phoneCall.isFinished = webhook.isCallFinished;
-      phoneCall.recordUrl = webhook.fullUrl;
+        phoneCall.status = webhook.crmCallFinishedStatus;
+        phoneCall.isFinished = webhook.isCallFinished;
+        phoneCall.recordUrl = webhook.fullUrl;
 
-      return await phoneCallsRepository.updateById(phoneCall.id, phoneCall);
+        return await phoneCallsRepository.updateById(phoneCall.id, phoneCall);
+      }
     }
 
     return null;

@@ -15,7 +15,6 @@ import CallRequestRoutes from './routes/call-request.routes'
 
 import AuthRoutes from './routes/auth.routes'
 import { errorMiddleware } from './middlewares/error.middleware';
-import { setHeaders } from './middlewares/set-headers.middleware';
 import fileUpload from 'express-fileupload';
 import { ApiError } from './exceptions/api.error';
 
@@ -34,12 +33,13 @@ export class App {
   }
 
   private settings() {
-    this.app.set('port', this.port || process.env.PORT || 4205);
+    this.app.set('port', this.port || process.env.PORT || 3080);
   }
 
   private middlewares(routesHandler: () => void) {
     this.app.use(fileUpload({}))
     this.app.use(express.json({limit: '50mb'}));
+    this.app.use(express.text());
     this.app.use(cookieParser());
     if (process.env.NODE_ENV !== 'production') {
       this.app.use(cors({
@@ -60,7 +60,6 @@ export class App {
     this.app.use(express.static(process.cwd()+string+"/ui/zubr-auto/"));
     this.app.use('/uploads/', express.static(process.cwd()+string+"/uploads/"));
     this.app.use(IndexRoutes);
-    this.app.use(express.text());
     this.app.use('/cars', CarRoutes);
     this.app.use('/fields', FieldRoutes);
     this.app.use('/clients', ClientRoutes);
