@@ -6,7 +6,7 @@ import { FieldDomains, getAccessName, getDomainName } from 'src/app/entities/fie
 import { AccessChip } from 'src/app/entities/fieldAccess';
 import { ServerRole } from 'src/app/entities/role';
 import { settingsUsersStrings } from '../../settings-users/settings-users.strings';
-import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid.component';
+import { GridActionConfigItem } from '../../shared/grid/grid';
 
 interface IAccessSource {
   name: string;

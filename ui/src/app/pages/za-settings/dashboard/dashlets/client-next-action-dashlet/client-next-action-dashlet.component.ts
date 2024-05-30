@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ClientService } from 'src/app/services/client/client.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid.component';
+import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid';
 import { ServerClient, getClientSpecialist, getClientStatus, getDealStatus } from 'src/app/entities/client';
 import { ServerUser } from 'src/app/entities/user';
 import { Observable, Subject, finalize, map, of, switchMap, take, takeUntil, zip } from 'rxjs';
@@ -69,13 +69,13 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       .filter(c =>
         this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
       )
-      .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`));
+      .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`));
 
     this.someFutureClients = this.allClients
       .filter(c =>
         this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
       )
-      .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`))
+      .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`))
       .sort((a, b) => {
         const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
         const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
@@ -153,10 +153,10 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
           });
 
         this.someClients = this.allClients
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`));
+          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`));
 
         this.someFutureClients = this.allClients
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`))
+          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`))
           .sort((a, b) => {
             const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
             const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
@@ -174,10 +174,10 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
           );
 
         this.myClients = myClients
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`));
+          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`));
 
         this.myFutureClients = [...myClients]
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('MM.DD.YYYY')} 23:59`))
+          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`))
           .sort((a, b) => {
             const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
             const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
@@ -230,7 +230,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       {
         title: 'ID',
         name: 'id',
-        getValue: (item) => {
+        getValue: (item: ServerClient.Response) => {
           const userId = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.SpecialistId);
           const specialist: ServerUser.Response = this.specialists.find(user => user.id === userId)!;
 
@@ -246,29 +246,29 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       {
         title: this.strings[FieldNames.Client.date],
         name: FieldNames.Client.date,
-        getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date)),
+        getValue: (item: ServerClient.Response) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date)),
         sortable: () => true
       },
       {
         title: this.strings[FieldNames.Client.source],
         name: FieldNames.Client.source,
         sortable: () => true,
-        getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.source),
+        getValue: (item: ServerClient.Response) => FieldsUtils.getDropdownValue(item, FieldNames.Client.source),
       },
       {
         title: this.strings[FieldNames.Client.name],
         name: FieldNames.Client.name,
-        getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.name),
+        getValue: (item: ServerClient.Response) => FieldsUtils.getFieldValue(item, FieldNames.Client.name),
       },
       {
         title: this.strings[FieldNames.Client.number],
         name: FieldNames.Client.number,
-        getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.number),
+        getValue: (item: ServerClient.Response) => FieldsUtils.getFieldValue(item, FieldNames.Client.number),
       },
       {
         title: this.strings.carIds,
         name: 'carIds',
-        getValue: (item) => {
+        getValue: (item: ServerClient.Response) => {
           const needCars = this.allCars.filter(c => item.carIds.split(',').map(id => +id).includes(+c.id));
 
           const nonCars: string[] = item.carIds.split(',').filter(a => Number.isNaN(+a));
@@ -286,23 +286,23 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       {
         title: this.strings[FieldNames.Client.dealStatus],
         name: FieldNames.Client.dealStatus,
-        getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
+        getValue: (item: ServerClient.Response) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
       },
       {
         title: this.strings[FieldNames.Client.clientStatus],
         name: FieldNames.Client.clientStatus,
-        getValue: (item) => FieldsUtils.getDropdownValue(item, FieldNames.Client.clientStatus),
+        getValue: (item: ServerClient.Response) => FieldsUtils.getDropdownValue(item, FieldNames.Client.clientStatus),
       },
       {
         title: this.strings[FieldNames.Client.nextAction],
         name: FieldNames.Client.nextAction,
-        getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
+        getValue: (item: ServerClient.Response) => FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
       },
       {
         title: this.strings[FieldNames.Client.dateNextAction],
         name: FieldNames.Client.dateNextAction,
         sortable: () => true,
-        getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.dateNextAction)),
+        getValue: (item: ServerClient.Response) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.dateNextAction)),
       },
     ];
   }
@@ -313,19 +313,19 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: () => false,
-      handler: (client) => this.updateClient(client)
+      handler: (item: ServerClient.Response) => this.updateClient(item)
     },
     {
       title: 'Следующее действие',
       icon: 'question-circle',
       buttonClass: 'success',
-      handler: (client) => this.updateSpecificField(client, FieldNames.Client.nextAction)
+      handler: (item: ServerClient.Response) => this.updateSpecificField(item, FieldNames.Client.nextAction)
     },
     {
       title: 'Изменить статус сделки',
       icon: 'check-circle',
       buttonClass: 'success',
-      handler: (client) => this.updateSpecificField(client, FieldNames.Client.dealStatus)
+      handler: (item: ServerClient.Response) => this.updateSpecificField(item, FieldNames.Client.dealStatus)
     },
     ];
 

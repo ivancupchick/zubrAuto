@@ -1,0 +1,56 @@
+<div class="card">
+  <!-- <div class="card-body">
+    <form
+      (ngSubmit)="onFilter()"
+      *ngIf="form"
+      [formGroup]="form">
+
+      <div class="flex flex-row justify-content-start align-items-center row-gap-1 col-12">
+        <p-dropdown
+          formControlName="sourceName"
+          [options]="domains"
+          optionLabel="name"
+          optionValue="value"
+          placeholder="Выберите таблицу"
+          class="ng-dirty"
+        />
+      </div>
+    </form>
+  </div> -->
+
+  <div class="flex flex-row justify-content-end align-items-center row-gap-1 col-12">
+    <p-button label="Filter" (onClick)="onFilter()"/>
+  </div>
+</div>
+
+<!-- <p-toolbar>
+  <div class="p-toolbar-group-left">
+    <span>
+      Кол-во: {{ list.length }}
+    </span>
+    <button
+      pButton
+      type="button"
+      [disabled]="fieldConfigs.length === 0"
+      label="Добавить клиента"
+      icon="pi pi-plus"
+      (click)="openNewClientWindow()"
+    ></button>
+  </div>
+
+  <div class="p-toolbar-group-right">
+    <p-button size="small" (onClick)="refresh()" class="mr-2">
+      <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+    </p-button>
+  </div>
+</p-toolbar> -->
+<div class="grid-wrapper">
+  <za-pageagle-grid
+    [gridConfig]="gridConfig"
+    [actions]="gridActionsConfig"
+    [getColorConfig]="getColorConfig"
+    [dataService]="changeLogDataService"
+  ></za-pageagle-grid>
+</div>
+
+<za-spinner *ngIf="loading"></za-spinner>

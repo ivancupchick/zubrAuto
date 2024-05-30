@@ -1,0 +1,73 @@
+<p-contextMenu #cm appendTo="body" [model]="contextActions" (onShow)="onShow($event)"></p-contextMenu>
+
+<ng-container *ngIf="{ loading: (dataService.loading$ | async)!, data: (dataService.list$ | async)! } as uiData">
+  <p-table
+    [lazy]="true" (onLazyLoad)="updatePage($event)"
+    [(contextMenuSelection)]="contextSelectedItem" [contextMenu]="cm"
+    styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
+    [value]="uiData.data.list"
+    (sortFunction)="customSort($event)"
+    [customSort]="true"
+    [selectionMode]="selectionMode || 'single'"
+    [metaKeySelection]="true"
+    [(selection)]="selectedKeys" (selectionChange)="onSelect($event)"
+    dataKey="id"
+    responsiveLayout="scroll"
+    [paginator]="true" [rows]="size" [totalRecords]="uiData.data.total" [loading]="uiData.loading"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th *ngIf="checkboxMode" style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <ng-container *ngFor="let config of gridConfig">
+          <th *ngIf="config.sortable && config.sortable()" [pSortableColumn]="config.name">
+            {{ config.title }} <p-sortIcon [field]="config.name"></p-sortIcon>
+          </th>
+          <th *ngIf="!config.sortable || !config.sortable()">
+            {{ config.title }}
+          </th>
+        </ng-container>
+
+        <!-- <th></th> -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
+      <tr
+        (dblclick)="rowDoubleClick(gridItem)"
+        [ngStyle]="{height: gridItemHeight + 'px'}"
+        [pSelectableRow]="gridItem" [pSelectableRowIndex]="rowIndex"
+        [pTooltip]="getTooltipConfig && getTooltipConfig(gridItem) || ''" tooltipPosition="top" [tooltipDisabled]="!getTooltipConfig" appendTo="body" [showDelay]="1000"
+        [ngStyle]="{backgroundColor: getColorConfig && getColorConfig(gridItem) ? getColorConfig(gridItem) : ''}"
+        [pContextMenuRow]="gridItem" [pSelectableRow]="gridItem"
+      >
+        <td *ngIf="checkboxMode">
+          <!-- <p-tableCheckbox [value]="gridItem"></p-tableCheckbox> -->
+        </td>
+        <td *ngFor="let config of gridConfig">
+          {{ config.getValue(gridItem) }}
+        </td>
+        <!-- <td class="buttons">
+          <button
+            *ngFor="let actionConfig of actions"
+            type="button"
+            pButton
+            [disabled]="actionConfig.disabled ? actionConfig.disabled() : false"
+            pRipple
+            icon="pi pi-{{actionConfig.icon}}"
+            class="p-button-{{actionConfig.buttonClass}}"
+            (click)="actionConfig.handler(gridItem)"
+          >
+            {{ actionConfig?.title }}
+          </button>
+        </td> -->
+      </tr>
+    </ng-template>
+    <!-- <ng-template pTemplate="paginatorleft">
+      <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
+    </ng-template>
+    <ng-template pTemplate="paginatorright">
+      <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
+    </ng-template> -->
+  </p-table>
+</ng-container>

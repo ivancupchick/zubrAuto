@@ -86,6 +86,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { UserService } from 'src/app/services/user/user.service';
 import { CarService } from 'src/app/services/car/car.service';
+import { ChangeLogModule } from './pages/change-log/change-log.module';
 
 
 
@@ -126,6 +127,9 @@ const routes: Routes = [{
       path: 'new-questionnaire',
       canActivate: [AuthGuard],
       component: NewQuestionnaireComponent
+    }, {
+      path: 'change-log',
+      loadChildren: () => import('./pages/change-log/change-log.module').then(m => m.ChangeLogModule)
     }
   ]
 }]
@@ -207,7 +211,7 @@ const routes: Routes = [{
     HighlightModule,
     DashboardModule,
     GridComponent,
-    CreateClientComponent
+    CreateClientComponent,
   ],
   providers: [
     AuthService,

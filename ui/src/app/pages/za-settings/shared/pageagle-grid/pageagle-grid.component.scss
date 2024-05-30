@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+p-table ::ng-deep {
+  .p-datatable-responsive-scroll > .p-datatable-wrapper {
+    overflow-x: inherit;
+  }
+
+  td, th {
+    padding: 0.1rem 0.1rem !important;
+    text-align: center !important;
+    font-size: 0.8rem;
+  }
+
+  th {
+    justify-content: center;
+    text-align: center !important;
+    white-space: nowrap;
+  }
+
+  td:not(.buttons) {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  td.buttons {
+    white-space: nowrap;
+
+    button + button {
+      margin-left: 2px;
+    }
+
+    button {
+      width: 1.2rem;
+      height: 1.2rem;
+      padding: 0;
+
+      span.pi {
+        font-size: .8rem;
+      }
+    }
+  }
+}

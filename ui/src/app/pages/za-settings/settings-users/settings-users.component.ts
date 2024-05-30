@@ -8,7 +8,7 @@ import { ServerUser } from 'src/app/entities/user';
 import { RoleService } from 'src/app/services/role/role.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { CreateUserComponent } from '../modals/create-user/create-user.component';
-import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
+import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid';
 import { settingsUsersStrings } from './settings-users.strings';
 import { FieldNames } from '../../../../../../src/entities/FieldNames';
 import { finalize, tap } from 'rxjs/operators';

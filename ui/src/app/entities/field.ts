@@ -17,7 +17,7 @@ export import RealField = RealField;
 export import ServerField = ServerField;
 export import FlagField = flagField;
 
-type IAnyField = Pick<RealField.Response, 'name' | 'value' | 'variants'>
+type IAnyField = Pick<RealField.Response, 'name' | 'value' | 'variants'> & Partial<Pick<RealField.Response, 'type'>>
 type INotDropdownField = Pick<RealField.Response, 'name' | 'value'>
 
 export class UIRealField  {
@@ -104,7 +104,7 @@ export class FieldsUtils {
       return '';
     }
 
-    if (['engine', 'transmission'].includes(field.name)) {
+    if (['engine', 'transmission'].includes(field.name)) { // TODO why it is here?
       return field.variants.split(',')[+field.value.split('-')[1]];
     }
 

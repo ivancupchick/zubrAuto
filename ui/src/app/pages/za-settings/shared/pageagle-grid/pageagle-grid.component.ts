@@ -1,23 +1,29 @@
-import { CommonModule, NgStyle } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import * as moment from 'moment';
-import { MenuItem, SortEvent } from 'primeng/api';
-import { ContextMenuModule } from 'primeng/contextmenu';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { GridActionConfigItem, GridConfigItem, getGridFieldsCompare, gridItemHeight } from '../grid/grid';
+import { LazyLoadEvent, MenuItem, SortEvent } from 'primeng/api';
+import { PageagleGridService } from './pageagle-grid.service';
+import { Observable, finalize } from 'rxjs';
 import { TableModule } from 'primeng/table';
-import { GridActionConfigItem, GridConfigItem, getGridFieldsCompare } from './grid';
+import { CommonModule } from '@angular/common';
+import { TooltipModule } from 'primeng/tooltip';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { BaseList } from 'src/app/entities/constants';
+import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 
 @Component({
-  selector: 'za-grid',
-  templateUrl: './grid.component.html',
-  styleUrls: ['./grid.component.scss'],
+  selector: 'za-pageagle-grid',
+  templateUrl: './pageagle-grid.component.html',
+  styleUrls: ['./pageagle-grid.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
     TableModule,
+    TooltipModule,
     ContextMenuModule,
+    SpinnerComponent
   ]
 })
-export class GridComponent<GridItemType extends { id: number }> implements OnInit {
+export class PageagleGridComponent<GridItemType extends { id: number }> implements OnInit {
   @Input() gridConfig!: GridConfigItem<GridItemType>[];
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
@@ -25,34 +31,38 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() selectionMode = '';
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
-  @Input() fixedHeight: number = 0;
-  @Input() set gridData(value: GridItemType[]) {
-    if (Array.isArray(value)) {
-      this._gridData = value;
-      const scrollHeight = this.elem.nativeElement.offsetHeight  - 100;
-      this.scrollHeight = this.fixedHeight || (scrollHeight > 0 ? scrollHeight : 300);
-    }
-  }
-  @Input() virtualScroll = true;
+  @Input() dataService!: PageagleGridService<GridItemType>;
   @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
 
-  get gridData(): GridItemType[] {
-    return this._gridData;
-  }
+  // @Input() set gridData(value: GridItemType[]) {
+  //   if (Array.isArray(value)) {
+  //     this._gridData = value;
+  //   } else {
+  //     this._gridData = [];
+  //   }
+  // }
+
+  // get gridData(): GridItemType[] {
+  //   return this._gridData;
+  // }
+
+  gridItemHeight = gridItemHeight;
+  size = 10;
 
   @Output() onSelectEntity = new EventEmitter<GridItemType[]>();
 
   contextSelectedItem!: GridItemType;
   contextActions: MenuItem[] = [];
   selectedKeys!: GridItemType[];
-  scrollHeight: number = 0;
-  private _gridData: GridItemType[] = [];
+  // private _gridData: GridItemType[] = [];
 
   constructor(private elem: ElementRef<HTMLElement>) {}
 
   ngOnInit(): void {
     this.selectedKeys = [...this.selected];
     this.updateActions();
+
+    this.size = Math.floor(this.elem.nativeElement.offsetHeight / gridItemHeight);
   }
 
   rowDoubleClick(item: GridItemType) {
@@ -80,9 +90,9 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
       return;
     }
 
-    this.gridData = [...this.gridData.sort(
-      getGridFieldsCompare(gridConfig, event)
-    )];
+    // this.gridData = [...this.gridData.sort(
+    //   getGridFieldsCompare(gridConfig, event)
+    // )];
   }
 
   onShow(e: any) {
@@ -96,5 +106,20 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
       command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem),
       disabled: !!action.disabled && action.disabled(this.contextSelectedItem)
     }))
+  }
+
+  // fetchData(event: LazyLoadEvent) {
+
+  // }
+
+  updatePage(event: LazyLoadEvent) {
+
+    this.dataService.updatePage({ size: event.rows!, page: (event.first! + event.rows!) / event.rows! });
+      // .pipe(
+      //   finalize(() => this.loading = false)
+      // ).subscribe(data => {
+      //   this.gridData = data.list;
+      //   this.totalRecords = data.total;
+      // });
   }
 }

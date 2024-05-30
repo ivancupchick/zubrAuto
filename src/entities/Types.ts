@@ -11,3 +11,8 @@ export type ICrudService<TUpdate, TCreate, TResponse, TIdResponse> = {
   update: (id: number, data: TUpdate) => Promise<TIdResponse>;
   delete: (id: number) => Promise<TIdResponse>;
 }
+
+export type BaseList<T> = {
+  list: T[];
+  total: number;
+}

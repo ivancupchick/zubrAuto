@@ -22,7 +22,7 @@ import { CreateClientComponent } from '../modals/create-client/create-client.com
 import { CustomerServiceCallComponent } from '../modals/customer-service-call/customer-service-call.component';
 import { TransformToCarShooting } from '../modals/transform-to-car-shooting/transform-to-car-shooting.component';
 import { UploadCarMediaComponent } from '../modals/upload-car-media/upload-car-media.component';
-import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
+import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid';
 import { settingsCarsStrings } from './settings-cars.strings';
 import { CarStatusLists, QueryCarTypes } from './cars.enums';
 import { ChangeCarOwnerNumberComponent } from '../modals/change-car-owner-number/change-car-owner-number.component';
@@ -805,7 +805,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
           const contactCenterSpecialist: ServerUser.Response = JSON.parse(user || '{}');
           const contactCenterSpecialistName = FieldsUtils.getFieldValue(contactCenterSpecialist, FieldNames.User.name);
 
-          return `${item.id} ${(contactCenterSpecialistName || '').split(' ').map(word => word[0]).join('')}`;
+          return `${item.id} ${(contactCenterSpecialistName || '').split(' ').map(word => word.match(/\d/g) ? word : word[0]).join('')}`;
         } else {
           return item.id
         }

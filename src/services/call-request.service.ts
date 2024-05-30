@@ -62,7 +62,7 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
     delete query['size'];
 
     const searchCallRequestsIds = await getEntityIdsByNaturalQuery(
-      callRequestsRepository.find,
+      callRequestsRepository,
       query
     );
 

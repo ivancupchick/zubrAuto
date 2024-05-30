@@ -7,7 +7,7 @@ import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { DateUtils } from 'src/app/entities/utils';
 import { CarService } from 'src/app/services/car/car.service';
-import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid.component';
+import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid';
 import { CreateCarShowingComponent } from '../create-car-showing/create-car-showing.component';
 
 @Component({

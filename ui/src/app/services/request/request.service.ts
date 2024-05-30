@@ -8,7 +8,7 @@ export class RequestService {
 
   constructor(private httpClient: HttpClient) {}
 
-  get<T>(url: string, params: StringHash = {}) {
+  get<T>(url: string, params: StringHash<string | number> = {}) {
     return this.httpClient.get<T>(url, { params: { ...params} }).pipe( take(1) );
   }
 

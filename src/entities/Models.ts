@@ -1,3 +1,5 @@
+import { ActivityType } from "../enums/activity-type.enum";
+
 export namespace Models {
   export enum Table {
     Cars = 'cars',
@@ -84,12 +86,10 @@ export namespace Models {
     showUserLevel: number; // delete
   }
 
-
   export interface Role {
     id: number;
     systemName: string;
   }
-
 
   export interface FieldAccess {
     id: number;
@@ -99,13 +99,11 @@ export namespace Models {
     access: number;
   }
 
-
   export interface CarForm {
     id: number;
     carId: number;
     content: string;
   }
-
 
   export interface CarStatistic {
     id: number;
@@ -115,14 +113,13 @@ export namespace Models {
     date: number;
   }
 
-
   export interface Activity {
     id: number;
     userId: number;
     sourceId: number;
     sourceName: string;
     date: number;
-    type: string; // TODO!
+    type: ActivityType;
     activities: string;
   }
 

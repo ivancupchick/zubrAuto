@@ -3,7 +3,7 @@ import { getClientSource, getClientSpecialist, getClientStatus, getDealStatus, S
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ClientService } from 'src/app/services/client/client.service';
-import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid.component';
+import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid';
 import { settingsClientsStrings } from './settings-clients.strings';
 
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';

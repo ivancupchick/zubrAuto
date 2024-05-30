@@ -1,6 +1,6 @@
-import { ServerActivity } from "../entities/Activities";
+import { ServerActivity } from "../entities/Activity";
 import { Models } from "../entities/Models";
-import { ICrudService } from "../entities/Types";
+import { BaseList, ICrudService } from "../entities/Types";
 import { ActivityType } from "../enums/activity-type.enum";
 import { ApiError } from "../exceptions/api.error";
 import { StringHash } from "../models/hashes";
@@ -35,11 +35,10 @@ class ActivityService implements ICrudService<ServerActivity.CreateRequest, Serv
   }
 
   async getEntities(requests: Models.Activity[]) {
-
     return requests;
   }
 
-  async getEntitiesByQuery(query: StringHash) {
+  async getEntitiesByQuery(query: StringHash): Promise<BaseList<ServerActivity.Response>> {
     const {
       page,
       size,
@@ -48,7 +47,7 @@ class ActivityService implements ICrudService<ServerActivity.CreateRequest, Serv
     delete query['size'];
 
     const searchEntitiesIds = await getEntityIdsByNaturalQuery(
-      activitiesRepository.find,
+      activitiesRepository,
       query
     );
 
@@ -64,7 +63,12 @@ class ActivityService implements ICrudService<ServerActivity.CreateRequest, Serv
       id: entitiesIds
     }) : [];
 
-    return this.getEntities(requests);
+    const list = await this.getEntities(requests);
+
+    return {
+      list: list,
+      total: searchEntitiesIds.length
+    };
   }
 
   async create(activityData: ServerActivity.CreateRequest) {

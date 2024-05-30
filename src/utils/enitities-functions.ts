@@ -1,23 +1,27 @@
 import { StringHash } from "../models/hashes";
+import { BaseRepository } from "../repositories/base/base.repository";
 import { ExpressionHash } from "./sql-queries";
 
-export async function getEntityIdsByNaturalQuery<T extends { id: number }>(findFunc: ((expressionHash: ExpressionHash<T>) => Promise<T[]>), query: StringHash) {
+export async function getEntityIdsByNaturalQuery<T extends { id: number }>(repository: BaseRepository<T>, query: StringHash) {
   const ids = new Set<string>((query['id'])?.split(',') || []);
   delete query['id'];
 
   const columnsNames = Object.keys(query);
 
-  if (columnsNames.length === 0 && ids.size > 0) {
-    return [...ids];
+  if (columnsNames.length === 0) {
+    if (ids.size > 0) {
+      return [...ids];
+    } else {
+      const entities = await repository.getAll();
+      return entities.map(e => e.id).map(String);
+    }
   }
 
-  const entitiesByQuery = await findFunc(columnsNames.reduce((prev, curr) => {
+  const entitiesByQuery = await repository.find(columnsNames.reduce((prev, curr) => {
     return Object.assign(prev, {
       [curr]: [query[curr]]
     })
   }, {} as ExpressionHash<T>));
-
-  console.log(entitiesByQuery);
 
   const searchIds = new Set<string>();
 

@@ -4,7 +4,7 @@ import { ServerCallRequest } from 'src/app/entities/call-request';
 import { RequestService } from 'src/app/services/request/request.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { environment } from 'src/environments/environment';
-import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid.component';
+import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid';
 import { UserService } from 'src/app/services/user/user.service';
 import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';

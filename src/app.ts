@@ -3,17 +3,18 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
 // Routes
-import IndexRoutes from './routes/index.routes'
-import CarRoutes from './routes/car.routes'
-import FieldRoutes from './routes/field.routes'
-import ClientRoutes from './routes/client.routes'
-import RoleRoutes from './routes/role.routes'
-import UserRoutes from './routes/user.routes'
-import PhoneCallRoutes from './routes/phone-call.routes'
-import CallRequestRoutes from './routes/call-request.routes'
+import IndexRoutes from './routes/index.routes';
+import CarRoutes from './routes/car.routes';
+import FieldRoutes from './routes/field.routes';
+import ClientRoutes from './routes/client.routes';
+import RoleRoutes from './routes/role.routes';
+import UserRoutes from './routes/user.routes';
+import ChangeLogRoutes from './routes/change-log.routes';
+import PhoneCallRoutes from './routes/phone-call.routes';
+import CallRequestRoutes from './routes/call-request.routes';
 
 
-import AuthRoutes from './routes/auth.routes'
+import AuthRoutes from './routes/auth.routes';
 import { errorMiddleware } from './middlewares/error.middleware';
 import fileUpload from 'express-fileupload';
 import { ApiError } from './exceptions/api.error';
@@ -66,6 +67,7 @@ export class App {
     this.app.use('/auth', AuthRoutes);
     this.app.use('/roles', RoleRoutes);
     this.app.use('/users', UserRoutes);
+    this.app.use('/change-log', ChangeLogRoutes);
     this.app.use(
       '/phone-call',
       PhoneCallRoutes,

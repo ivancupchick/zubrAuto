@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { validationResult } from "express-validator";
 import { ApiError } from "../exceptions/api.error";
+import { BaseList } from '../entities/Types';
 
 type Id = {
   id: number;
@@ -47,7 +48,7 @@ export abstract class BaseController {
 }
 
 export abstract class BaseCrudController<TGetResponse extends Id, TCreateRequest = any, TUpdateRequest = any> extends BaseController {
-  protected abstract getAllEntities(req: Request, res: Response<TGetResponse[]>, next: NextFunction): Promise<TGetResponse[]>;
+  protected abstract getAllEntities(req: Request, res: Response<TGetResponse[] | BaseList<TGetResponse>>, next: NextFunction): Promise<TGetResponse[] | BaseList<TGetResponse>>;
   protected abstract getEntity(req: Request, res: Response<TGetResponse>, next: NextFunction): Promise<TGetResponse>;
   protected abstract createEntity(req: Request<any, Id, TCreateRequest>, res: Response<Id>, next: NextFunction): Promise<Id>;
   protected abstract updateEntity(req: Request<any, Id, TUpdateRequest>, res: Response<Id>, next: NextFunction): Promise<Id>;
@@ -58,7 +59,7 @@ export abstract class BaseCrudController<TGetResponse extends Id, TCreateRequest
     req: Request,
     res: Response<TGetResponse[]>,
     next: NextFunction
-  ): Promise<Response<TGetResponse[]>> => {
+  ): Promise<Response<TGetResponse[] | BaseList<TGetResponse>>> => {
     return await this.request(req, res, next, this.getAllEntities)
   }
 

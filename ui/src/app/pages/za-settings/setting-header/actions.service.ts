@@ -35,6 +35,7 @@ export class ActionsService {
       this.getClientSettingsPageRoutingAction(),
       this.getUserSettingsPageRoutingAction(),
       this.getRoleSettingsPageRoutingAction(),
+      this.getChangeLogSettingsPageRoutingAction(),
       ...this.getContactServiceActions(),
       ...this.getCarShootingActions(),
       ...this.getCustomerServiceActions(),
@@ -97,6 +98,15 @@ export class ActionsService {
       label: 'Роли',
       icon: 'pi pi-fw pi-users',
       routerLink: 'roles',
+      visible: () => this.sessionService.isAdminOrHigher,
+    }
+  }
+
+  getChangeLogSettingsPageRoutingAction() {
+    return {
+      label: 'Логи',
+      icon: 'pi pi-fw pi-users',
+      routerLink: 'change-log',
       visible: () => this.sessionService.isAdminOrHigher,
     }
   }

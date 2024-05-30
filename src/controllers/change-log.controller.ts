@@ -1,20 +1,16 @@
 import { NextFunction, Request, Response } from "express";
-import { validationResult } from "express-validator";
-import { ApiError } from "../exceptions/api.error";
 import { BaseCrudController } from "./base.conroller";
 import { ParsedQs } from "qs";
 import { StringHash } from "../models/hashes";
-import { ServerActivity } from "../entities/Activities";
+import { ServerActivity } from "../entities/Activity";
 import activityService from "../services/activity.service";
+import { BaseList } from "../entities/Types";
 
-class ClientConntroller extends BaseCrudController<ServerActivity.Response> {
-  protected getAllEntities(req: Request, res: Response, next: NextFunction) {
+class ChangeLogConntroller extends BaseCrudController<ServerActivity.Response> {
+  protected getAllEntities(req: Request, res: Response, next: NextFunction): Promise<BaseList<ServerActivity.Response>> {
     const query: StringHash = req.query as StringHash;
-    const queryKeys = Object.keys(query);
 
-    return queryKeys.length > 0
-      ? activityService.getEntitiesByQuery(query)
-      : activityService.getAll();
+    return activityService.getEntitiesByQuery(query);
   }
 
   protected getEntity(
@@ -22,7 +18,7 @@ class ClientConntroller extends BaseCrudController<ServerActivity.Response> {
     res: Response<ServerActivity.Response, Record<string, any>>,
     next: NextFunction
   ): Promise<ServerActivity.Response> {
-    const id = +req.params.clientId;
+    const id = +req.params.id;
     return activityService.get(id);
   }
 
@@ -40,7 +36,7 @@ class ClientConntroller extends BaseCrudController<ServerActivity.Response> {
     res: Response<{ id: number }, Record<string, any>>,
     next: NextFunction
   ): Promise<{ id: number }> {
-    const id = +req.params.clientId;
+    const id = +req.params.id;
     const updatedClient: ServerActivity.CreateRequest = req.body;
     return activityService.update(id, updatedClient);
   }
@@ -50,7 +46,7 @@ class ClientConntroller extends BaseCrudController<ServerActivity.Response> {
     res: Response<{ id: number }, Record<string, any>>,
     next: NextFunction
   ): Promise<{ id: number }> {
-    const id = +req.params.clientId;
+    const id = +req.params.id;
     return activityService.delete(id);
   }
 
@@ -60,9 +56,9 @@ class ClientConntroller extends BaseCrudController<ServerActivity.Response> {
     next: NextFunction
   ): Promise<any> {
     // !TODO
-    const id = +req.params.clientId;
+    const id = +req.params.id;
     return activityService.delete(id);
   }
 }
 
-export = new ClientConntroller();
+export = new ChangeLogConntroller();
