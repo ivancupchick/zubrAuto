@@ -37,18 +37,11 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
       type: FieldType
     }
   }> = {};
-
-  set gridData(value: string[][]) {
+  set gridData(value: (string | null)[][]) {
     if (Array.isArray(value)) {
 
       this._gridData = value;
-      // console.log(this._gridData)
-      // for (let log = 0; log < this._gridData.length; log++){
 
-      //   this._gridData[log].activities = JSON.parse(this._gridData[log].activities)
-
-      // }
-      // console.log(this._gridData)
 
     } else {
       this._gridData = [];
@@ -57,7 +50,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   get gridData() {
     return this._gridData;
   }
-  private _gridData: string[][] = [];
+  private _gridData: (string | null)[][] = [];
 
   private rows: {
     title: string,
@@ -120,7 +113,6 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
     }[] = logs.map(d => {
       try {
         const activities = this.matchQuetes(d.activities.replace(/\n/g, '/n'));
-        console.log(activities);
 
         const obj = JSON.parse(activities);
 
@@ -147,7 +139,8 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
       this.rows.map(row => row.title),
       ...originalRequest.map(log => this.createRowByChangeLog(log.request?.body))
     ];
-    const gridData: string[][] = [];
+
+    const gridData: (string | null)[][] = [];
 
     collumnedGridData[0].forEach((columnName, columnIndex) => {
       gridData.push([columnName]);
@@ -158,10 +151,25 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
       })
     });
 
+    gridData.forEach((row, rowIndex) =>{
+      const indexes: any[] = []
+      row.forEach((value, valueIndex) =>{
+        if (
+          (valueIndex > 1 && value === row[valueIndex - 1]) ||
+          (row[valueIndex - 1] === null && value === '')
+        ) {
+          indexes.push(valueIndex);
+        }
+      })
+      indexes.forEach((el, elIndex)=> {
+        row[el] = null;
+      })
+    })
+
     this.gridData = gridData;
   }
 
-  createRowByChangeLog(log: ServerClient.UpdateRequest | ServerClient.CreateRequest): string[] {
+  createRowByChangeLog(log: ServerClient.UpdateRequest | ServerClient.CreateRequest): (string | null)[] {
     const fields = log?.fields.map(field => ({ ...field, variants: this.fieldConfigVariants[field.name as FieldNames.Client]?.variants!, type: this.fieldConfigVariants[field.name as FieldNames.Client]?.type! })) || [];
 
     return this.rows.map(row => this.getFieldValue(fields, row.name));
@@ -177,7 +185,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
     const field = FieldsUtils.getField(fields, fieldName)!;
 
     if (!field) {
-      return '';
+      return null;
     }
 
     if (field?.type === FieldType.Dropdown) {
@@ -188,7 +196,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
       return DateUtils.getFormatedDateTime(+field.value);
     }
 
-    return FieldsUtils.getFieldValue(fields, fieldName)
+    return FieldsUtils.getFieldValue(fields, fieldName);
   }
 
   replaceEnterChar(obj: any) {
@@ -206,13 +214,11 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   }
 
   matchQuetes(activities: string) {
-    const match = activities.match(/(description\"\,\"value\"\:\").*(").*(").*(?=\"\})/ig);
+    const match = activities.match(/(description\"\,\"value\"\:\").*?[^{,:\\](")[^}:,].*?(?=\"\})/ig);
 
     if (match?.length) {
       const matchOriginal = match[0].replace(`description","value":"`, '');
-      console.log('matchOriginal', matchOriginal);
       const matchFixed = matchOriginal.replace(/"/g, '\\"');
-      console.log('matchFixed', matchFixed);
 
       return activities.replace(matchOriginal, matchFixed);
     } else {

@@ -1,0 +1,11 @@
+td {
+  &:has(.backgroundGray) {
+    background:#dddbdb;
+  }
+  &:has(.backgroundMint) {
+    background:#cfe9cc;
+  }
+  &:has(.backgroundRed) {
+    background:#FFCCCB;
+  }
+}
