@@ -14,6 +14,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { ClientChangeLogsComponent } from './componets/client-change-logs/client-change-logs.component';
 import { ClientService } from 'src/app/services/client/client.service';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 
 @Component({
   selector: 'za-change-log',
@@ -87,6 +88,11 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
     private fb: UntypedFormBuilder,
   ) {}
 
+  users: {
+    name: string,
+    id:number
+  }[] = [];
+
   ngOnInit(): void {
     this.loading = true;
 
@@ -95,9 +101,14 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       finalize(() => this.loading = false)
     ).subscribe(() => {
       this.setGridSettings();
+      this.users = this.allUsers.map((user) => ({
+        name: FieldsUtils.getFieldValue(user, FieldNames.User.name),
+        id: user.id,
+      }))
 
       this.form = this.fb.group({
-        sourceName: ['clients', [Validators.required]],
+        sourceName: [''],
+        userId: [''],
       })
     });
 
@@ -119,7 +130,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
     return zip(
       // this.getClients(),
       this.clientService.getClientFields(),
-      this.userService.getUsers()
+      this.userService.getUsers(true)
     ).pipe(
       takeUntil(this.destoyed),
       map(([clientFieldsRes, usersFieldsRes]) => {
@@ -195,7 +206,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
         title: 'Дата',
         name: 'date',
         getValue: (item) => DateUtils.getFormatedDate(item.date),
-        // sortable: () => true
+        sortable: () => true
       },
       {
         title: 'Пользователь',
@@ -249,12 +260,11 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   }
 
   onFilter() {
-    // if (this.form.invalid) {
-    //   this.form.markAllAsTouched();
-    //   return;
-    // }
-
-    this.changeLogDataService.onFilter(this.form.value);
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    this.changeLogDataService.onFilter(skipEmptyFilters(this.form.value));
   }
 
   ngOnDestroy(): void {

@@ -1,6 +1,6 @@
 import { IWrite } from '../interfaces/write.interface';
 import { IRead } from '../interfaces/read.interface';
-import { ExpressionHash, getDeleteByAndExpressions, getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllQuery, getGetByIdQuery, getInsertOneQuery, getResultInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from '../../utils/sql-queries';
+import { ExpressionHash, getDeleteByAndExpressions, getDeleteByIdQuery, getGetAllByExpressionAndQuery, getGetAllQuery, getGetByIdQuery, getGetSortedAllByExpressionAndQuery, getGetSortedAllQuery, getInsertOneQuery, getResultInsertOneQuery, getUpdateByAndExpressionQuery, getUpdateByIdQuery } from '../../utils/sql-queries';
 import { ApiError } from '../../exceptions/api.error';
 import { SSHConnection } from '../../mysql-connect';
 import { OkPacket, ResultSetHeader, RowDataPacket } from 'mysql2';
@@ -79,8 +79,12 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
     return result2;
   }
 
-  async find(expressionHash: ExpressionHash<T>): Promise<T[]> {
-    const query = getGetAllByExpressionAndQuery<T>(this.tableName, expressionHash);
+  async find(expressionHash: ExpressionHash<T>, sortField?: string, sortOrder?: string): Promise<T[]> {
+    let query = getGetAllByExpressionAndQuery<T>(this.tableName, expressionHash);
+
+    if (sortField && sortOrder) {
+      query = getGetSortedAllByExpressionAndQuery<T>(this.tableName, expressionHash, sortField, sortOrder);
+    }
 
     const dbResult = await this.query<RowDataPacket[]>(query);
     return this.getAllRows(dbResult);
@@ -102,8 +106,12 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
     return this.getOneRow(dbResult);
   }
 
-  async getAll(): Promise<T[]> {
-    const query = getGetAllQuery(this.tableName);
+  async getAll(sortField?: string, sortOrder?: string): Promise<T[]> {
+    let query = getGetAllQuery(this.tableName);
+
+    if (sortField && sortOrder) {
+      query = getGetSortedAllQuery(this.tableName, sortField, sortOrder);
+    }
 
     const dbResult = await this.query<RowDataPacket[]>(query)
     return this.getAllRows(dbResult);

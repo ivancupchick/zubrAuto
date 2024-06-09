@@ -34,6 +34,7 @@ export class ActionsService {
       this.getUserSettingsPageRoutingAction(),
       this.getRoleSettingsPageRoutingAction(),
       this.getChangeLogSettingsPageRoutingAction(),
+      // this.getClientSettingsPageRoutingAction2(),
       ...this.getContactServiceActions(),
       ...this.getCarShootingActions(),
       ...this.getCustomerServiceActions(),
@@ -257,4 +258,13 @@ export class ActionsService {
       visible: () => this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
     }]
   }
+
+  // getClientSettingsPageRoutingAction2() {
+  //   return {
+  //     label: 'База клиентов2',
+  //     icon: 'pi pi-fw pi-users',
+  //     routerLink: 'clients2',
+  //     visible: () => this.sessionService.isAdminOrHigher,
+  //   }
+  // }
 }

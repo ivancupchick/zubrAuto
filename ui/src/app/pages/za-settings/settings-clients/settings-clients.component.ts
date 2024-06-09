@@ -18,6 +18,8 @@ import { DateUtils } from 'src/app/entities/utils';
 import { UserService } from 'src/app/services/user/user.service';
 import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';
+import { ClientChangeLogsComponent } from '../pages/change-log/componets/client-change-logs/client-change-logs.component';
+
 
 const availableStatuses = [
   FieldNames.DealStatus.Deny,
@@ -261,18 +263,18 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
     ];
   }
 
-  // showClientUpdates(client: ServerClient.Response){
-  //   const ref = this.dialogService.open(ClientChangeLogsComponent, {
-  //     data: {
-  //       clientId: client.id,
-  //       fieldConfigs: this.fieldConfigs,
-  //       allUsers: this.allUsers
-  //     },
-  //     header: 'Изменения клиента',
-  //     width: '90%'
-  //   });
-  //   // this.subscribeOnCloseModalRef(ref);
-  // }
+  showClientUpdates(client: ServerClient.Response){
+    const ref = this.dialogService.open(ClientChangeLogsComponent, {
+      data: {
+        clientId: client.id,
+        fieldConfigs: this.fieldConfigs,
+        allUsers: this.allUsers
+      },
+      header: 'Изменения клиента',
+      width: '90%'
+    });
+    // this.subscribeOnCloseModalRef(ref);
+  }
 
 
   getGridActionsConfig(): GridActionConfigItem<ServerClient.Response>[] {
@@ -309,13 +311,13 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       disabled: () => !this.sessionService.isAdminOrHigher,
       available: () => this.sessionService.isAdminOrHigher
     },
-    // {
-    //   title: 'Показать все изменения по клиенту',
-    //   icon: 'pencil',
-    //   buttonClass: 'secondary',
-    //   disabled: (client) => false,
-    //   handler: (client) => this.showClientUpdates(client)
-    // }
+    {
+      title: 'Показать все изменения по клиенту',
+      icon: 'pencil',
+      buttonClass: 'secondary',
+      disabled: (client) => false,
+      handler: (client) => this.showClientUpdates(client)
+    }
     // {
     //   title: 'Завершить сделку',
     //   icon: 'check-circle',

@@ -2,10 +2,11 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import { ChangeLogItem } from '../interfaces/change-log';
 import { BehaviorSubject, Observable, Subject, finalize, takeUntil } from 'rxjs';
-import { BDModels, BaseList, StringHash } from 'src/app/entities/constants';
+import { BaseList } from 'src/app/entities/constants';
 import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
-import { ServerClient } from 'src/app/entities/client';
+import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 
 const API = 'change-log';
 
@@ -37,7 +38,7 @@ export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> imp
   public fetchData() {
     this.loading.next(true);
 
-    this.requestService.get<BaseList<ChangeLogItem>>(`${environment.serverUrl}/${API}`, Object.assign({ ...this.payload }, { sourceName: 'clients' }))
+    this.requestService.get<BaseList<ChangeLogItem>>(`${environment.serverUrl}/${API}`, this.payload)
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.loading.next(false))
@@ -48,7 +49,7 @@ export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> imp
       });
   }
 
-  public updatePage(payload: { size: number; page: number; }) {
+  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: SortDirection; }): void {
     [
       this.payload.size,
       this.payload.page
@@ -57,15 +58,38 @@ export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> imp
       payload.page
     ];
 
+    if (payload.sortField && payload.sortOrder) {
+      [
+        this.payload.sortField,
+        this.payload.sortOrder
+      ] = [
+        payload.sortField,
+        payload.sortOrder
+      ];
+    }
+
     this.fetchData();
   }
 
   public onFilter(filters: Filters) {
-    this.payload = {
+    const payload = {
       size: this.payload.size,
       page: 1,
-      ...filters
+      ...skipEmptyFilters(filters)
     };
+
+    if (this.payload.sortField && this.payload.sortOrder) {
+      [
+        payload.sortField,
+        payload.sortOrder
+      ] = [
+        this.payload.sortField,
+        this.payload.sortOrder
+      ];
+    }
+
+    this.payload = payload;
+
     this.fetchData();
   }
 

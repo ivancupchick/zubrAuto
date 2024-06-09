@@ -6,13 +6,20 @@ export async function getEntityIdsByNaturalQuery<T extends { id: number }>(repos
   const ids = new Set<string>((query['id'])?.split(',') || []);
   delete query['id'];
 
+  const {
+    sortOrder,
+    sortField
+  } = query;
+  delete query['sortOrder'];
+  delete query['sortField'];
+
   const columnsNames = Object.keys(query);
 
   if (columnsNames.length === 0) {
     if (ids.size > 0) {
       return [...ids];
     } else {
-      const entities = await repository.getAll();
+      const entities = await repository.getAll(sortField, sortOrder);
       return entities.map(e => e.id).map(String);
     }
   }
@@ -21,7 +28,7 @@ export async function getEntityIdsByNaturalQuery<T extends { id: number }>(repos
     return Object.assign(prev, {
       [curr]: [query[curr]]
     })
-  }, {} as ExpressionHash<T>));
+  }, {} as ExpressionHash<T>), sortField, sortOrder);
 
   const searchIds = new Set<string>();
 

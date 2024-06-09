@@ -3,11 +3,10 @@
 <ng-container *ngIf="{ loading: (dataService.loading$ | async)!, data: (dataService.list$ | async)! } as uiData">
   <p-table
     [lazy]="true" (onLazyLoad)="updatePage($event)"
+    [sortField]="sortField" [sortOrder]="-1"
     [(contextMenuSelection)]="contextSelectedItem" [contextMenu]="cm"
     styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
     [value]="uiData.data.list"
-    (sortFunction)="customSort($event)"
-    [customSort]="true"
     [selectionMode]="selectionMode || 'single'"
     [metaKeySelection]="true"
     [(selection)]="selectedKeys" (selectionChange)="onSelect($event)"

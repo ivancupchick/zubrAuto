@@ -101,6 +101,10 @@ export const getGetAllQuery = (tableName: string) => {
   return `SELECT * FROM \`${tableName}\`;`
 }
 
+export const getGetSortedAllQuery = (tableName: string, sortField: string, sortOrder: string) => {
+  return `SELECT * FROM \`${tableName}\` ORDER BY ${sortField} ${sortOrder};`
+}
+
 export const getGetByIdQuery = (tableName: string, id: number) => {
   return `SELECT * FROM \`${tableName}\` WHERE id = ${id};`
 }
@@ -184,6 +188,15 @@ export const getGetAllByExpressionAndQuery = <T>(tableName: string, expressions:
   return `SELECT * FROM \`${tableName}\` WHERE (${
     Object.keys(expressions).map(key => `${key} IN (${expressions[key].map(e => `'${e}'`).join(',')})`).join(' AND ')
   });`
+}
+
+export const getGetSortedAllByExpressionAndQuery = <T>(tableName: string, expressions: ExpressionHash<T>, sortField: string, sortOrder: string) => {
+  // expressions = Object.keys(expressions).reduce((prev, curKey) => {
+
+  // }, {})
+  return `SELECT * FROM \`${tableName}\` WHERE (${
+    Object.keys(expressions).map(key => `${key} IN (${expressions[key].map(e => `'${e}'`).join(',')})`).join(' AND ')
+  }) ORDER BY ${sortField} ${sortOrder};`
 }
 
 export const getGetAllByExpressionOrQuery = <T>(tableName: string, expressions: ExpressionHash<T>) => {

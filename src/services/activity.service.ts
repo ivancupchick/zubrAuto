@@ -42,6 +42,7 @@ class ActivityService implements ICrudService<ServerActivity.CreateRequest, Serv
     const {
       page,
       size,
+      sortOrder,
     } = query;
     delete query['page'];
     delete query['size'];
@@ -63,7 +64,11 @@ class ActivityService implements ICrudService<ServerActivity.CreateRequest, Serv
       id: entitiesIds
     }) : [];
 
-    const list = await this.getEntities(requests);
+    let list = await this.getEntities(requests);
+
+    if (sortOrder === 'DESC') {
+      list = list.reverse();
+    }
 
     return {
       list: list,

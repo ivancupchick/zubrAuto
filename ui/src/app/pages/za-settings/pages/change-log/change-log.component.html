@@ -1,5 +1,5 @@
 <div class="card">
-  <!-- <div class="card-body">
+  <div class="card-body">
     <form
       (ngSubmit)="onFilter()"
       *ngIf="form"
@@ -14,9 +14,18 @@
           placeholder="Выберите таблицу"
           class="ng-dirty"
         />
+        <p-dropdown
+          [options]="users"
+          formControlName="userId"
+          [filter]="true"
+          filterBy="name"
+          optionLabel="name"
+          optionValue="id"
+          [showClear]="true"
+          placeholder="Выберите пользователя"/>
       </div>
     </form>
-  </div> -->
+  </div>
 
   <div class="flex flex-row justify-content-end align-items-center row-gap-1 col-12">
     <p-button label="Filter" (onClick)="onFilter()"/>
@@ -50,6 +59,7 @@
     [actions]="gridActionsConfig"
     [getColorConfig]="getColorConfig"
     [dataService]="changeLogDataService"
+    [sortField]="'date'"
   ></za-pageagle-grid>
 </div>
 

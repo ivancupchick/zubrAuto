@@ -1,14 +1,13 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { GridActionConfigItem, GridConfigItem, getGridFieldsCompare, gridItemHeight } from '../grid/grid';
+import { GridActionConfigItem, GridConfigItem, gridItemHeight } from '../grid/grid';
 import { LazyLoadEvent, MenuItem, SortEvent } from 'primeng/api';
 import { PageagleGridService } from './pageagle-grid.service';
-import { Observable, finalize } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { ContextMenuModule } from 'primeng/contextmenu';
-import { BaseList } from 'src/app/entities/constants';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
+import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-direction.enum';
 
 @Component({
   selector: 'za-pageagle-grid',
@@ -29,6 +28,7 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
   @Input() selectionMode = '';
+  @Input() sortField = '';
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
   @Input() dataService!: PageagleGridService<GridItemType>;
@@ -113,8 +113,10 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   // }
 
   updatePage(event: LazyLoadEvent) {
+    const sortOrder: SortDirection | undefined = event.sortOrder && SortEventDirection[event.sortOrder] || undefined;
+    const sortField = event.sortField || undefined;
 
-    this.dataService.updatePage({ size: event.rows!, page: (event.first! + event.rows!) / event.rows! });
+    this.dataService.updatePage({ size: event.rows!, page: (event.first! + event.rows!) / event.rows!, sortField, sortOrder });
       // .pipe(
       //   finalize(() => this.loading = false)
       // ).subscribe(data => {

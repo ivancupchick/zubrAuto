@@ -86,7 +86,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { UserService } from 'src/app/services/user/user.service';
 import { CarService } from 'src/app/services/car/car.service';
-import { ChangeLogModule } from './pages/change-log/change-log.module';
+import { ClientChangeLogsComponent } from './pages/change-log/componets/client-change-logs/client-change-logs.component';
 
 
 
@@ -130,7 +130,11 @@ const routes: Routes = [{
     }, {
       path: 'change-log',
       loadChildren: () => import('./pages/change-log/change-log.module').then(m => m.ChangeLogModule)
-    }
+    },
+    // {
+    //   path: 'clients2',
+    //   loadChildren: () => import('./pages/change-log/change-log.module').then(m => m.ChangeLogModule)
+    // }
   ]
 }]
 
@@ -212,6 +216,7 @@ const routes: Routes = [{
     DashboardModule,
     GridComponent,
     CreateClientComponent,
+    ClientChangeLogsComponent,
   ],
   providers: [
     AuthService,

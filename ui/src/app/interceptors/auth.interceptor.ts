@@ -23,7 +23,7 @@ export class AuthInterceptor implements HttpInterceptor {
         takeUntil(this.logout),
         catchError((error, caught) => {
           if (error instanceof HttpErrorResponse) {
-            console.log(error);
+            // console.log(error);
 
             if (error.status === 401 && !error.url?.includes('/auth/refresh')) {
               return this.handle401Error(request, next);
