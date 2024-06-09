@@ -89,8 +89,7 @@ class AuthService {
   }
 
   async refresh(refreshToken: string): Promise<ServerAuth.AuthGetResponse> {
-    //
-    const start = new Date().getTime();
+    // const start = new Date().getTime();
 
     if (!refreshToken) {
       throw ApiError.UnauthorizedError();

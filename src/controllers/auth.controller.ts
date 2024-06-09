@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
-import { ServerUser } from '../entities/User';
 import authService from '../services/auth.service';
 import { validationResult } from 'express-validator';
 import { ApiError } from '../exceptions/api.error';
+import { REFRESH_TOKEN_MAX_AGE_MS } from '../constants/refresh-token-max-age.constant';
 
 class AuthConntroller {
   async registration(req: Request, res: Response, next: NextFunction) {
@@ -15,7 +15,7 @@ class AuthConntroller {
       const {email, password} = req.body;
       const userData = await authService.registration(email, password);
 
-      res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true }) // secure: true    if https
+      res.cookie('refreshToken', userData.refreshToken, { maxAge: REFRESH_TOKEN_MAX_AGE_MS, httpOnly: true }) // secure: true    if https
 
       return res.json(userData);
     } catch (e) {
@@ -28,7 +28,7 @@ class AuthConntroller {
       const {email, password} = req.body;
       const userData = await authService.login(email, password);
 
-      res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true }) // secure: true    if https
+      res.cookie('refreshToken', userData.refreshToken, { maxAge: REFRESH_TOKEN_MAX_AGE_MS, httpOnly: true }) // secure: true    if https
       return res.json(userData);
     } catch (e) {
       next(e);
@@ -61,7 +61,7 @@ class AuthConntroller {
       const { refreshToken } = req.cookies;
       const userData = await authService.refresh(refreshToken);
 
-      res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true }) // secure: true    if https
+      res.cookie('refreshToken', userData.refreshToken, { maxAge: REFRESH_TOKEN_MAX_AGE_MS, httpOnly: true }) // secure: true    if https
       return res.json(userData);
     } catch (e) {
       next(e);

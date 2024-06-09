@@ -65,7 +65,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   }
 
   getData(): Observable<ServerCallRequest.Response[]> {
-    return zip(this.clientService.getClients(), this.clientService.getClientFields(), this.userService.getUsers()).pipe(
+    return zip(this.clientService.getClients(), this.clientService.getClientFields(), this.userService.getUsers(true)).pipe(
       takeUntil(this.destoyed),
       switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {
         this.clientsFieldConfigs = clientFieldsRes;

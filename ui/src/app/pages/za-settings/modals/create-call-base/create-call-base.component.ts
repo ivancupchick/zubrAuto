@@ -59,7 +59,7 @@ carsControlscarsControls: any;
   ngOnInit(): void {
     this.loading = true;
 
-    this.userService.getUsers()
+    this.userService.getUsers(true)
       .pipe(
         finalize(() => this.loading = false)
       )

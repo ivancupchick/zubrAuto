@@ -25,7 +25,8 @@ import { DateUtils } from 'src/app/entities/utils';
    TooltipModule,
    ContextMenuModule,
    CommonModule,
-  ]
+  ],
+  providers: [ChangeLogDataService]
 })
 export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   loading = false;

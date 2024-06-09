@@ -2,13 +2,15 @@ import { sign, verify, decode } from 'jsonwebtoken';
 import { ServerAuth } from '../entities/Auth';
 import { ServerUser } from '../entities/User';
 import userTokenRepository from '../repositories/base/user-token.repository';
+import { REFRESH_TOKEN_MAX_AGE_MS } from '../constants/refresh-token-max-age.constant';
 
 // TODO! only one session can exist
 
 class TokenService {
   generateTokens(payload: object) {
-    const accessToken = sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '30m' });
-    const refreshToken = sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '5d' }); // change to 5d
+    const accessToken = sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+    const refreshToken = sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_MAX_AGE_MS }); // change to 5d
+
     return {
       accessToken,
       refreshToken
@@ -35,7 +37,6 @@ class TokenService {
 
   validateRefreshToken(token: string) {
     try {
-       // ServerUser.Payload
        const userData: ServerAuth.Payload = verify(token, process.env.JWT_REFRESH_SECRET) as ServerAuth.Payload;
        return userData;
     } catch (e) {

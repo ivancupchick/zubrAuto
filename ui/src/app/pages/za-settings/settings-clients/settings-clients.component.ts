@@ -42,7 +42,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   rawClients: ServerClient.Response[] = [];
 
   loading = false;
-
+  allUsers: ServerUser.Response[] = [];
   allCars: ServerCar.Response[] = [];
 
   gridConfig!: GridConfigItem<ServerClient.Response>[];
@@ -115,10 +115,11 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   }
 
   getData(): Observable<ServerCar.Response[]> {
-    return zip(this.getClients(), this.clientService.getClientFields(), this.userService.getUsers()).pipe(
+    return zip(this.getClients(), this.clientService.getClientFields(), this.userService.getUsers(true)).pipe(
       takeUntil(this.destoyed),
       switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {
         this.fieldConfigs = clientFieldsRes;
+        this.allUsers = usersFieldsRes
         this.specialists = usersFieldsRes
           .filter(u => u.customRoleName === ServerRole.Custom.carSales
                     || u.customRoleName === ServerRole.Custom.carSalesChief
@@ -260,6 +261,20 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
     ];
   }
 
+  // showClientUpdates(client: ServerClient.Response){
+  //   const ref = this.dialogService.open(ClientChangeLogsComponent, {
+  //     data: {
+  //       clientId: client.id,
+  //       fieldConfigs: this.fieldConfigs,
+  //       allUsers: this.allUsers
+  //     },
+  //     header: 'Изменения клиента',
+  //     width: '90%'
+  //   });
+  //   // this.subscribeOnCloseModalRef(ref);
+  // }
+
+
   getGridActionsConfig(): GridActionConfigItem<ServerClient.Response>[] {
     const configs: GridActionConfigItem<ServerClient.Response>[] = [{
       title: 'Редактировать',
@@ -293,7 +308,14 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       handler: (client) => this.deleteClient(client),
       disabled: () => !this.sessionService.isAdminOrHigher,
       available: () => this.sessionService.isAdminOrHigher
-    }
+    },
+    // {
+    //   title: 'Показать все изменения по клиенту',
+    //   icon: 'pencil',
+    //   buttonClass: 'secondary',
+    //   disabled: (client) => false,
+    //   handler: (client) => this.showClientUpdates(client)
+    // }
     // {
     //   title: 'Завершить сделку',
     //   icon: 'check-circle',

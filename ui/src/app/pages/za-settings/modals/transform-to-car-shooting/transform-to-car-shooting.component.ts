@@ -49,7 +49,10 @@ export class TransformToCarShooting implements OnInit {
   ngOnInit(): void {
     this.carId = this.config.data.carId;
 
-    this.userService.getUsers()
+    this.userService.getUsers(true)
+      .pipe(
+        finalize(() => this.loading = false)
+      )
       .subscribe(users => {
         this.carShootingUsers = [
           { value: 'Никто', key: 'None' },
@@ -59,8 +62,7 @@ export class TransformToCarShooting implements OnInit {
                       || (this.sessionService.isRealAdminOrHigher && (u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin)) )
             .map(u => ({ value: u.email, key: `${u.id}` }))
         ];
-        this.loading = false;
-      }, () => { this.loading = false; })
+      })
   }
 
   create() {

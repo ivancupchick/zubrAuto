@@ -121,7 +121,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         [FieldNames.Client.dealStatus]: [FieldNames.DealStatus.InProgress].join(',')
       }),
       this.clientService.getClientFields(),
-      this.userService.getUsers()
+      this.userService.getUsers(true)
     ).pipe(
       takeUntil(this.destoyed),
       switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {

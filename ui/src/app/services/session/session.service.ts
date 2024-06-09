@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { ServerRole } from 'src/app/entities/role';
 import { LocalStorageKey, ServerAuth } from 'src/app/entities/user';
 import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class SessionService {
+  defer: Subject<ServerAuth.AuthGetResponse> | null = null;
+
   get token(): string | null {
     return localStorage.getItem(LocalStorageKey.Token);
   }
@@ -76,19 +78,43 @@ export class SessionService {
   logout() {
     return this.authService.logout()
       .pipe(map(res => {
-        localStorage.removeItem(LocalStorageKey.Token);
-        this.setUser(null);
+        this.zaLogout();
         return res;
       }))
   }
 
+  zaLogout() {
+    localStorage.removeItem(LocalStorageKey.Token);
+    this.setUser(null);
+  }
+
   checkAuth() {
-    return this.authService.refresh()
-      .pipe(map((res) => {
-        localStorage.setItem(LocalStorageKey.Token, res.accessToken);
-        this.setUser(res.user);
-        return res;
-      }))
+    if (this.defer) {
+      return this.defer.asObservable().pipe(
+        map((res) => {
+          localStorage.setItem(LocalStorageKey.Token, res.accessToken);
+          this.setUser(res.user);
+          return res;
+        })
+      )
+    } else {
+      this.defer = new Subject();
+
+      return this.authService.refresh()
+        .pipe(
+          tap(res => {
+            this.defer?.next(res);
+            this.defer?.complete();
+
+            this.defer = null;
+          }),
+          map((res) => {
+            localStorage.setItem(LocalStorageKey.Token, res.accessToken);
+            this.setUser(res.user);
+            return res;
+          })
+        );
+    }
   }
 
   setCustomRole(role: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin) {

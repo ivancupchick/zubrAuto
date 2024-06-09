@@ -263,7 +263,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
         // this.getCars(true).subscribe();
       });
 
-    zip(this.carService.getCarFields(), this.carService.getCarOwnersFields(), this.userService.getUsers())
+    zip(this.carService.getCarFields(), this.carService.getCarOwnersFields(), this.userService.getUsers(true))
       .subscribe(([carFieldConfigs, carOwnerFieldConfigs, users]) => {
         this.carFieldConfigs = carFieldConfigs;
         this.carOwnerFieldConfigs = carOwnerFieldConfigs;

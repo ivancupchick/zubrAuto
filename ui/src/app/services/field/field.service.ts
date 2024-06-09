@@ -20,7 +20,7 @@ export class FieldService {
   getFields(): Observable<ServerField.Response[]> {
     return this.allFields.length > 0
       ? of(this.allFields)
-      : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`)
+      : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`, {}, true)
         .pipe(
           tap(result => {
             this.allFields = result;
@@ -68,6 +68,6 @@ export class FieldService {
   getFieldsByDomain(domain: FieldDomains): Observable<ServerField.Response[]> {
     return this.allFields.length > 0
       ? of(this.allFields.filter(f => `${f.domain}` === `${domain}`))
-      : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.GET_FIELDS_BY_DOMAIN}/${domain}`);
+      : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.GET_FIELDS_BY_DOMAIN}/${domain}`, {}, true);
   }
 }

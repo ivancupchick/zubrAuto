@@ -3,6 +3,7 @@ import { map } from 'rxjs/operators';
 import { ServerAuth } from 'src/app/entities/user';
 import { environment } from 'src/environments/environment';
 import { RequestService } from '../request/request.service';
+import { cacheService } from '../request/cache.service';
 
 const API = 'auth';
 
@@ -12,6 +13,8 @@ export class AuthService {
   constructor(private requestService: RequestService) {}
 
   login(email: string, password: string) {
+    cacheService.dropAllCache();
+
     return this.requestService.post<ServerAuth.AuthGetResponse>(`${environment.serverUrl}/${API}/${'login'}`, { email, password })
       .pipe(map(res => {
         return res;
@@ -33,7 +36,7 @@ export class AuthService {
   }
 
   refresh() {
-    return this.requestService.get<ServerAuth.AuthGetResponse>(`${environment.serverUrl}/${API}/${'refresh'}`)
+    return this.requestService.get<ServerAuth.AuthGetResponse>(`${environment.serverUrl}/${API}/${'refresh'}`, {})
       .pipe(
         map(res => {
           return res;

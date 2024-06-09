@@ -5,9 +5,7 @@ import { ServerRole } from 'src/app/entities/role';
 import { ClientService } from 'src/app/services/client/client.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { CreateCallBaseComponent } from '../modals/create-call-base/create-call-base.component';
-import { CreateCarComponent } from '../modals/create-car/create-car.component';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
-import { SignUpComponent } from '../modals/modals-auth/sign-up/sign-up.component';
 import { QueryCarTypes } from '../settings-cars/cars.enums';
 import { UserService } from 'src/app/services/user/user.service';
 import { zip } from 'rxjs';
@@ -223,26 +221,27 @@ export class ActionsService {
       // routerLink: 'roles',
       handler: () => {
         // TODO: globalLoading = true;
-        zip(this.clientService.getClientFields(), this.userService.getUsers()).subscribe(([fieldConfigs, specialists]) => {
-          // TODO: globalLoading = false;
-          const ref = this.dialogService.open(CreateClientComponent, {
-            data: {
-              fieldConfigs: fieldConfigs,
-              specialists: specialists.filter(
-                (u) =>
-                  u.customRoleName === ServerRole.Custom.carSales ||
-                  u.customRoleName === ServerRole.Custom.carSalesChief ||
-                  u.customRoleName === ServerRole.Custom.customerService ||
-                  u.customRoleName === ServerRole.Custom.customerServiceChief ||
-                  u.roleLevel === ServerRole.System.Admin ||
-                  u.roleLevel === ServerRole.System.SuperAdmin
-              ),
-            },
-            header: 'Новый клиент',
-            width: '70%',
-            height: '90%',
-          });
-        })
+        zip(this.clientService.getClientFields(), this.userService.getUsers(true))
+          .subscribe(([fieldConfigs, specialists]) => {
+            // TODO: globalLoading = false;
+            const ref = this.dialogService.open(CreateClientComponent, {
+              data: {
+                fieldConfigs: fieldConfigs,
+                specialists: specialists.filter(
+                  (u) =>
+                    u.customRoleName === ServerRole.Custom.carSales ||
+                    u.customRoleName === ServerRole.Custom.carSalesChief ||
+                    u.customRoleName === ServerRole.Custom.customerService ||
+                    u.customRoleName === ServerRole.Custom.customerServiceChief ||
+                    u.roleLevel === ServerRole.System.Admin ||
+                    u.roleLevel === ServerRole.System.SuperAdmin
+                ),
+              },
+              header: 'Новый клиент',
+              width: '70%',
+              height: '90%',
+            });
+          })
       },
       visible: () => this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
     }, {

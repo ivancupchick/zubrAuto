@@ -14,8 +14,8 @@ export class UserService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
-  getUsers(): Observable<ServerUser.Response[]> {
-    return this.requestService.get<ServerUser.Response[]>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`)
+  getUsers(isCachableRequest = false): Observable<ServerUser.Response[]> {
+    return this.requestService.get<ServerUser.Response[]>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, {}, isCachableRequest);
   }
 
   createUser(value: ServerUser.CreateRequest): Observable<boolean> {

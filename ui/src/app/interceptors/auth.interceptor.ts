@@ -1,13 +1,14 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, of, throwError } from "rxjs";
-import { catchError, filter, map, switchMap, take, tap } from "rxjs/operators";
+import { BehaviorSubject, Observable, Subject, throwError } from "rxjs";
+import { catchError, switchMap, takeUntil } from "rxjs/operators";
 import { SessionService } from "../services/session/session.service";
 import { MessageService } from "primeng/api";
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private refreshTokenSubject = new BehaviorSubject<string>('');
+  private logout = new Subject();
 
   constructor(private sessionService: SessionService, private messageService: MessageService) {}
 
@@ -19,6 +20,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request)
       .pipe(
+        takeUntil(this.logout),
         catchError((error, caught) => {
           if (error instanceof HttpErrorResponse) {
             console.log(error);
@@ -26,16 +28,20 @@ export class AuthInterceptor implements HttpInterceptor {
             if (error.status === 401 && !error.url?.includes('/auth/refresh')) {
               return this.handle401Error(request, next);
             } else {
-              console.log(3);
+              // console.log(3); // expire refresh step1
 
-              this.showError(error);
+              if (error.status !== 401) {
+                this.showError(error);
+              }
 
               return throwError(() => error);
             }
           }
-          console.log(4);
+          // console.log(4);
 
-          this.showError(error);
+          if (error.status !== 401) {
+            this.showError(error);
+          }
 
           return throwError(() => error);
         })
@@ -56,21 +62,29 @@ export class AuthInterceptor implements HttpInterceptor {
     this.refreshTokenSubject.next('');
 
     return this.sessionService.checkAuth().pipe(
+      takeUntil(this.logout),
       catchError((error, caught) => {
-        console.log('4.5');
+        // console.log('4.5'); // expire refresh step2
 
-        this.showError(error);
+        if (error.status !== 401) {
+          this.showError(error);
+        }
 
         return throwError(() => error);
       }),
       switchMap((token) => {
-        console.log(5);
+        // console.log(5); // expire access
 
         this.refreshTokenSubject.next(token.accessToken);
         return next.handle(this.addToken(request, token.accessToken));
       }),
       catchError((error, caught) => {
-        console.log(6);
+        if (error.status === 401) {
+          this.logout.next(null);
+          this.sessionService.zaLogout();
+        }
+
+        // console.log(6); // expire refresh step3
 
         this.showError(error);
 
