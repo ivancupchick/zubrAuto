@@ -26,6 +26,7 @@ class AuthService {
       password: hashPassword,
       activationLink,
       roleLevel: ServerRole.System.None,
+      deleted: false,
     });
 
     const payloadUser: ServerAuth.IPayload = {

@@ -152,6 +152,7 @@ export class CreateUserComponent implements OnInit {
       password,
       isActivated: true,
       roleLevel,
+      deleted: false,
       fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.User))
     }
 

@@ -19,7 +19,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       users,
       relatedFields
     ] = await Promise.all([
-      userRepository.getAll(),
+      userRepository.find({ deleted: ['0']}),
       fieldService.getFieldsByDomain(FieldDomains.User)
     ]);
 
@@ -37,6 +37,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       isActivated: user.isActivated,
       activationLink: user.activationLink,
       roleLevel: user.roleLevel,
+      deleted: user.deleted,
       customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
       fields: getFieldsWithValues(relatedFields, chaines, user.id)
     }))
@@ -94,12 +95,15 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
   }
 
   async delete(id: number) { // TODO deleting userTokens
-    await fieldChainService.delete({
-      sourceName: [Models.Table.Users],
-      sourceId: [`${id}`],
-    });
+    // await fieldChainService.delete({
+    //   sourceName: [Models.Table.Users],
+    //   sourceId: [`${id}`],
+    // });
 
-    const user = await userRepository.deleteById(id);
+    // const user = await userRepository.deleteById(id);
+
+    const user = await userRepository.updateById(id, { deleted: 1 as any });
+
     return user
   }
 
@@ -117,6 +121,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       id: user.id,
       email: user.email,
       isActivated: user.isActivated,
+      deleted: user.deleted,
       roleLevel: user.roleLevel,
       customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
       fields: getFieldsWithValues(relatedFields, chaines, user.id)

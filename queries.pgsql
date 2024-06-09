@@ -97,6 +97,7 @@ CREATE TABLE "public.users" (
   "password" VARCHAR(255) NOT NULL,
   "isActivated" boolean DEFAULT FALSE,
   "activationLink" VARCHAR(255),
+  "deleted": boolean DEFAULT FALSE,
 	"roleLevel" integer NOT NULL
   CONSTRAINT "users_pk" PRIMARY KEY ("id")
 ) WITH (

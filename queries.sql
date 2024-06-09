@@ -103,7 +103,8 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `isActivated` boolean DEFAULT 0,
   `activationLink` varchar(255),
-  `roleLevel` int(11) NOT NULL
+  `roleLevel` int(11) NOT NULL,
+  `deleted` boolean DEFAULT 0,
 );
 
 CREATE TABLE `activities` (

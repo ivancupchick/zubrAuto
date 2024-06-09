@@ -44,6 +44,7 @@ export namespace Models {
     isActivated: boolean; // default = false
     activationLink?: string;
     roleLevel: number;
+    deleted: boolean;
   }
 
   export interface UserToken {
