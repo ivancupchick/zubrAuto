@@ -83,13 +83,30 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
     delete userData.fields;
     const user = await userRepository.updateById(id, userData);
 
-    await Promise.all(fields.map(f => fieldChainService.update({
+    const existsFieldChains = (await Promise.all(fields.map(f => fieldChainService.find({
+      fieldId: [f.id].map(c => `${c}`),
+      sourceId: [id].map(c => `${c}`),
+      sourceName: [Models.Table.Users]
+    })))).reduce((prev, cur) => [...prev, ...cur], []);
+    const existFieldIds = existsFieldChains.map(ef => +ef.fieldId);
+
+    const existsFields = fields.filter(f => existFieldIds.includes(+f.id));
+    const nonExistFields = fields.filter(f => !existFieldIds.includes(+f.id));
+
+    existsFields.length > 0 && await Promise.all(existsFields.map(f => fieldChainService.update({
       value: f.value
     }, {
       fieldId: [f.id].map(c => `${c}`),
       sourceId: [id].map(c => `${c}`),
       sourceName: [Models.Table.Users]
-    })))
+    })));
+
+    nonExistFields.length > 0 && await Promise.all(nonExistFields.map(f => fieldChainService.create({
+      fieldId: f.id,
+      sourceId: id,
+      sourceName: Models.Table.Users,
+      value: f.value,
+    })));
 
     return user
   }

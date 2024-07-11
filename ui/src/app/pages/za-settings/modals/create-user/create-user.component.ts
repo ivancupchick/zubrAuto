@@ -199,9 +199,9 @@ export class CreateUserComponent implements OnInit {
       case FieldNames.User.name:
         field.label = settingsUsersStrings.name;
         break;
-      // case FieldNames.User.tradeInAuto:
-      //   field.label = settingsUsersStrings.tradeInAuto;
-      //   break;
+      case FieldNames.User.callRequestSources:
+        field.label = settingsUsersStrings.callRequestSources;
+        break;
     }
 
     return field;

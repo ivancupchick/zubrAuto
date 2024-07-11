@@ -8,5 +8,6 @@ export const settingsUsersStrings = {
   carSales: 'Сотрудник ОПА',
   carSalesChief: 'Начальник ОПА',
 
-  name: 'ФИО'
+  name: 'ФИО',
+  callRequestSources: 'Заявки с сайтов',
 };
