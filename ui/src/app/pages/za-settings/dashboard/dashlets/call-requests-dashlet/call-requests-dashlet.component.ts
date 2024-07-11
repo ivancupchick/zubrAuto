@@ -130,6 +130,14 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     }
   }
 
+  JSONParse(string: string) {
+    try {
+      return JSON.parse(string)
+    } catch (error) {
+      return {}
+    }
+  }
+
   getGridConfig(): GridConfigItem<ServerCallRequest.Response>[] {
     return [
       {
@@ -146,7 +154,13 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       {
         title: 'Имя',
         name: 'name',
-        getValue: (item) => JSON.parse(item.originalNotification).name,
+        getValue: (item) => {
+          try {
+            return this.JSONParse(item.originalNotification).name
+          } catch (error) {
+            return 'нету'
+          }
+        },
       },
       {
         title: 'Описание',
@@ -222,7 +236,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
         specialists: this.specialists,
         predefinedFields: {
           [FieldNames.Client.number]: call.clientNumber,
-          [FieldNames.Client.name]: JSON.parse(call.originalNotification).name,
+          [FieldNames.Client.name]: this.JSONParse(call.originalNotification).name,
           [FieldNames.Client.source]: 'source-1',
         },
       },
