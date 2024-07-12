@@ -142,6 +142,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
                     || u.customRoleName === ServerRole.Custom.carSalesChief
                     || u.customRoleName === ServerRole.Custom.customerService
                     || u.customRoleName === ServerRole.Custom.customerServiceChief
+                    || u.customRoleName === ServerRole.Custom.contactCenter
                     || (
                       (
                         u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
