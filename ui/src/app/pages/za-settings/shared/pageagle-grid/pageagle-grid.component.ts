@@ -9,6 +9,14 @@ import { ContextMenuModule } from 'primeng/contextmenu';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-direction.enum';
 
+enum SelectedCategories {
+  clients = 'Клиентам',
+  cars = 'Машинам',
+  users = 'Пользователям',
+  callRequests = 'Колл-запросам',
+  other = 'другим категориям',
+}
+
 @Component({
   selector: 'za-pageagle-grid',
   templateUrl: './pageagle-grid.component.html',
@@ -22,7 +30,7 @@ import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-dir
     SpinnerComponent
   ]
 })
-export class PageagleGridComponent<GridItemType extends { id: number }> implements OnInit {
+export class PageagleGridComponent<GridItemType extends { id: number, sourceName: string; }> implements OnInit {
   @Input() gridConfig!: GridConfigItem<GridItemType>[];
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
@@ -54,6 +62,7 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   contextSelectedItem!: GridItemType;
   contextActions: MenuItem[] = [];
   selectedKeys!: GridItemType[];
+  selectedCategory: string = '';
   // private _gridData: GridItemType[] = [];
 
   constructor(private elem: ElementRef<HTMLElement>) {}
@@ -96,12 +105,29 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   }
 
   onShow(e: any) {
+    let selectedCategory = this.contextSelectedItem.sourceName;
+    switch (selectedCategory) {
+      case 'clients':
+        this.selectedCategory = SelectedCategories.clients.toLocaleLowerCase();
+        break;
+      case 'users':
+        this.selectedCategory = SelectedCategories.users.toLocaleLowerCase();
+        break;
+      case 'cars':
+        this.selectedCategory = SelectedCategories.cars.toLocaleLowerCase();
+        break;
+      case 'callRequests':
+        this.selectedCategory = SelectedCategories.callRequests.toLocaleLowerCase();
+        break;
+      default:
+        this.selectedCategory = SelectedCategories.other.toLocaleLowerCase();
+    }
     this.updateActions();
   }
 
   updateActions() {
     this.contextActions = this.actions.map(action => ({
-      label: action.title,
+      label: `${action.title} по ${this.selectedCategory}`,
       icon: `pi pi-fw pi-${action.icon}`,
       command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem),
       disabled: !!action.disabled && action.disabled(this.contextSelectedItem)

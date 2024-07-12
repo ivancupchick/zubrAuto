@@ -251,7 +251,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   }
   getGridActionsConfig(): GridActionConfigItem<ChangeLogItem>[] {
     const configs: GridActionConfigItem<ChangeLogItem>[] = [{
-    title: 'Показать все изменения по клиенту',
+    title: 'Показать все изменения',
     icon: 'pencil',
     buttonClass: 'secondary',
     disabled: (client) => false,
