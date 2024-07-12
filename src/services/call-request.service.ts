@@ -5,23 +5,38 @@ import { ApiError } from "../exceptions/api.error";
 import { StringHash } from "../models/hashes";
 import { SitesCallRequest } from "../models/sites-call-request";
 import callRequestsRepository from "../repositories/base/call-requests.repository";
+import fieldChainRepository from "../repositories/base/field-chain.repository";
 import { getEntityIdsByNaturalQuery } from "../utils/enitities-functions";
 import { convertClientNumber } from "../utils/number.utils";
 
 class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest, ServerCallRequest.UpdateRequest, ServerCallRequest.Response, ServerCallRequest.IdResponse>
  {
   async callRequest(sitesCallRequest: SitesCallRequest): Promise<ServerCallRequest.IdResponse> {
+    let users = await fieldChainRepository.findWithValue({
+      fieldId: [50].map(c => `${c}`),
+      sourceName: [Models.Table.Users],
+    }, [sitesCallRequest.source]);
+
+    if (!users.length) {
+      users = await fieldChainRepository.findWithValue({
+        fieldId: [50].map(c => `${c}`),
+        sourceName: [Models.Table.Users],
+      }, ['all']);
+    }
+
+    const userIds = users.map(ef => +ef.sourceId);
+
     const allRequests = await callRequestsRepository.find({
-      userId: ['66', '56']
-    });
+      userId: userIds.map(id => `${id}`)
+    }, 'createdDate', 'DESC');
 
-    const usersIds = ['66', '56'];
+    let id = 0;
 
-    let id = `${allRequests[allRequests.length - 1].userId}` === usersIds[0] ? usersIds[1] : usersIds[0];
-
-    // let id = '66';
-    if (sitesCallRequest.source === 'zubrgroup.by') {
-      id = '65';
+    if (!allRequests.length) {
+      id = userIds[0];
+    } else {
+      const lastUserIndex = userIds.findIndex(id => +id === +allRequests[0].userId);
+      id = userIds[lastUserIndex + 1] || userIds[0];
     }
 
     const callRequest: ServerCallRequest.CreateRequest = {
