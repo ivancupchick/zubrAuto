@@ -213,7 +213,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
         title: 'Пользователь',
         name: 'userId',
         getValue: (item) => {
-          const specialist: ServerUser.Response = this.specialists.find(user => user.id === item.userId)!;
+          const specialist: ServerUser.Response = this.allUsers.find(user => user.id === item.userId)!;
 
           if (item.userId && specialist) {
             return FieldsUtils.getFieldValue(specialist, FieldNames.User.name);
