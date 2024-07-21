@@ -10,4 +10,5 @@ export const settingsUsersStrings = {
 
   name: 'ФИО',
   callRequestSources: 'Заявки с сайтов',
+  number: 'Номер',
 };

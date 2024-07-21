@@ -7,7 +7,7 @@ import { SessionService } from 'src/app/services/session/session.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent {
-  isCarSales =
+  isCarSalesOrAdmin =
     this.sessionService.isCarSales ||
     this.sessionService.isCarSalesChief ||
     this.sessionService.isCustomerService ||

@@ -107,6 +107,7 @@ export namespace FieldNames {
 
   export enum User {
     name = 'name',
+    number = 'number',
     callRequestSources = 'call-request-sources',
   }
 }

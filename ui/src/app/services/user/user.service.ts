@@ -28,11 +28,11 @@ export class UserService {
   }
 
   getUser(id: number): Observable<ServerUser.Response> {
-    return this.requestService.get<ServerUser.Response[]>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`)
+    return this.requestService.get<ServerUser.Response>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`)
       .pipe(map(result => {
         console.log(result);
 
-        return result[0];
+        return result;
       }))
   }
 

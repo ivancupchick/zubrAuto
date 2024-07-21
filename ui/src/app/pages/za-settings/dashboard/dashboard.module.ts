@@ -11,13 +11,15 @@ import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CallsDashletComponent } from './dashlets/calls-dashlet/calls-dashlet.component';
 
 
 @NgModule({
   declarations: [
     DashboardComponent,
     CallRequestsDashletComponent,
-    ClientNextActionDashletComponent
+    ClientNextActionDashletComponent,
+    CallsDashletComponent
   ],
   imports: [
     CommonModule,

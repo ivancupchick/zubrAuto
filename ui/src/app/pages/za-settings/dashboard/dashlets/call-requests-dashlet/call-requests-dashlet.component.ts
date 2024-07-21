@@ -191,7 +191,32 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
         sortable: () => true,
         getValue: (item) => this.allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === item.clientNumber) ? 'Да' : 'Нет',
       },
+      {
+        title: 'ID клиента',
+        name: 'clientIsCreated',
+        sortable: () => true,
+        getValue: (item) => this.getClientSpecialist(item),
+      },
     ];
+  }
+
+  getClientSpecialist(callRequest: ServerCallRequest.Response): string  { // TODO refactor this and isPhoneCallUsed
+    const client =  this.allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === callRequest.clientNumber)!;
+
+    if (!client) {
+      return '';
+    }
+
+    const userId = FieldsUtils.getFieldNumberValue(client, FieldNames.Client.SpecialistId);
+    const specialist: ServerUser.Response = this.specialists.find(user => user.id === userId)!;
+
+    if (userId && specialist) {
+      const specialistName = FieldsUtils.getFieldValue(specialist, FieldNames.User.name);
+
+      return `${client.id} ${(specialistName || '').split(' ').map(word => word[0]).join('')}`;
+    } else {
+      return `${client.id}`
+    }
   }
 
   getGridActionsConfig(): GridActionConfigItem<ServerCallRequest.Response>[] {

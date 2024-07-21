@@ -6,53 +6,51 @@ import phoneCallsService from '../services/phone-calls.service';
 import { validationResult } from 'express-validator';
 import { ApiError } from '../exceptions/api.error';
 import { Webhook } from '../models/webhook';
+import { ControllerActivity } from '../decorators/activity.decorator';
+import { ActivityType } from '../enums/activity-type.enum';
+import { Models } from '../entities/Models';
 
 class PhoneCallController extends BaseCrudController<ServerPhoneCall.Response> {
   protected getAllEntities(req: Request, res: Response, next: NextFunction) {
     const query: StringHash = req.query as StringHash;
     const queryKeys = Object.keys(query);
 
-    return null;
-
-    // return queryKeys.length > 0
-    //   ? phoneCallsService.getPhoneCallsByQuery(query)
-    //   : phoneCallsService.getAll();
+    return queryKeys.length > 0
+      ? phoneCallsService.getPhoneCallsByQuery(query)
+      : phoneCallsService.getAll();
   }
 
-  protected getEntity(req: Request<{ carId: string }>, res: Response, next: NextFunction) {
-    return null;
-    // const call = phoneCallsService.get(+req.params.carId);
+  protected getEntity(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+    const call = phoneCallsService.get(+req.params.id);
 
-    // return call;
+    return call;
   }
 
+  @ControllerActivity({ type: ActivityType.CreatePhoneCall, sourceName: Models.Table.PhoneCalls })
   protected createEntity(req: Request<any, any, ServerPhoneCall.CreateRequest>, res: Response, next: NextFunction) {
-    return null;
+    const call = phoneCallsService.create(req.body);
 
-    // const call = phoneCallsService.create(req.body);
-
-    // return call;
+    return call;
   }
 
+  @ControllerActivity({ type: ActivityType.UpdatePhoneCall, sourceName: Models.Table.PhoneCalls })
   async updateEntity(req: Request, res: Response, next: NextFunction) {
-    return null;
+    const id = +req.params.id;
+    const updatedCall: ServerPhoneCall.UpdateRequest = req.body;
+    const call = await phoneCallsService.update(id, updatedCall);
 
-    // const id = +req.params.carId;
-    // const updatedCall: ServerPhoneCall.UpdateRequest = req.body;
-    // const call = await phoneCallsService.update(id, updatedCall);
-
-    // return call;
+    return call;
   }
 
+  @ControllerActivity({ type: ActivityType.DeletePhoneCall, sourceName: Models.Table.PhoneCalls })
   protected deleteEntity(req: Request, res: Response, next: NextFunction) {
-    return null;
+    const id = +req.params.id;
+    const call = phoneCallsService.delete(id);
 
-    // const id = +req.params.carId;
-    // const call = phoneCallsService.delete(id);
-
-    // return call;
+    return call;
   }
 
+  @ControllerActivity({ type: ActivityType.DeleteSomePhoneCall, sourceName: Models.Table.PhoneCalls })
   protected deleteEntities(req: Request, res: Response, next: NextFunction) { // !TODO
     return null;
 

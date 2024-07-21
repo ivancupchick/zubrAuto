@@ -82,8 +82,16 @@ export class SettingsUsersComponent implements OnInit {
       getValue: (item) => item.id,
     }, {
       title: this.strings.name,
-      name: 'name',
+      name: FieldNames.User.name,
       getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.User.name),
+    }, {
+      title: this.strings.callRequestSources,
+      name: FieldNames.User.callRequestSources,
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.User.callRequestSources),
+    }, {
+      title: this.strings.number,
+      name: FieldNames.User.number,
+      getValue: (item) => FieldsUtils.getFieldValue(item, FieldNames.User.number),
     }, {
       title: 'Электронная почта',
       name: 'email',

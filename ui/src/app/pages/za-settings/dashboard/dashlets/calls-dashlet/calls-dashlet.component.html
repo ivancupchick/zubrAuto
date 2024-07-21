@@ -1,0 +1,51 @@
+<p-panel *ngIf="allPhoneCalls.length" header="Звонки">
+  <ng-template pTemplate="icons">
+    <p-button size="small" (onClick)="refresh()" class="mr-2">
+      <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+    </p-button>
+  </ng-template>
+
+  <p-tabView>
+    <p-tabPanel header="Мои ({{myPhoneCalls.length}})">
+      <div class="h-8rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [fixedHeight]="140"
+          [virtualScroll]="false"
+          [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [gridData]="myPhoneCalls"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel *ngIf="!isCarSales" header="Все ({{allPhoneCalls.length}})">
+      <div class="h-8rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [fixedHeight]="140"
+          [virtualScroll]="false"
+          [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [gridData]="allPhoneCalls"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+    <p-tabPanel header="Использованные ({{usedPhoneCalls.length}})">
+      <div class="h-8rem">
+        <za-grid
+          *ngIf="gridConfig"
+          [fixedHeight]="140"
+          [virtualScroll]="false"
+          [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [gridData]="usedPhoneCalls"
+        ></za-grid>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</p-panel>
+
+<za-spinner *ngIf="loading"></za-spinner>

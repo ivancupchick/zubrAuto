@@ -1,4 +1,5 @@
 <div class="card m-2">
-  <za-call-requests-dashlet *ngIf="isCarSales"></za-call-requests-dashlet>
-  <za-client-next-action-dashlet class="mt-2" *ngIf="isCarSales"></za-client-next-action-dashlet>
+  <za-call-requests-dashlet *ngIf="isCarSalesOrAdmin"></za-call-requests-dashlet>
+  <za-calls-dashlet *ngIf="isCarSalesOrAdmin"></za-calls-dashlet>
+  <za-client-next-action-dashlet class="mt-2" *ngIf="isCarSalesOrAdmin"></za-client-next-action-dashlet>
 </div>

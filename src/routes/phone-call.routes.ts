@@ -14,7 +14,7 @@ router.route(`/${ Constants.API.WEB_HOOK }/`)
 router.route('/')
   .get(authMiddleware, phoneCallController.getAll)
 
-router.route('/:clientId')
+router.route('/:id')
     .get(authMiddleware, phoneCallController.getOne)
     // .delete(authMiddleware, phoneCallController.deleteOne)
     // .put(authMiddleware, phoneCallController.update);

@@ -13,6 +13,11 @@ export enum ActivityType {
   CreateUser = 'CreateUser',
   UpdateUser = 'UpdateUser',
 
+  CreatePhoneCall = 'CreatePhoneCall',
+  UpdatePhoneCall = 'UpdatePhoneCall',
+  DeletePhoneCall = 'DeletePhoneCall',
+  DeleteSomePhoneCall = 'DeleteSomePhoneCall',
+
 
   // entityCreate,
   // entityDelete,
