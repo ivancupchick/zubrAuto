@@ -19,6 +19,7 @@ export interface GridActionConfigItem<GridItemType extends { id: number }> {
   disabled?: (item: GridItemType) => boolean;
   available?: () => boolean;
   handler: (item: GridItemType) => void; // TODO a
+  updater?: (instance: this, item: GridItemType) => this;
 }
 
 export function getGridFieldsCompare<GridItemType extends { id: number }>(gridConfig: GridConfigItem<GridItemType>, event: SortEvent) {

@@ -11,9 +11,10 @@ import { FieldNames } from 'src/app/entities/FieldNames';
 import { settingsClientsStrings } from 'src/app/pages/za-settings/settings-clients/settings-clients.strings';
 import { ServerClient } from 'src/app/entities/client';
 import { FieldType, FieldsUtils, ServerField } from 'src/app/entities/field';
-import { StringHash } from 'src/app/entities/constants';
+import { BDModels, StringHash } from 'src/app/entities/constants';
 import { ServerUser } from 'src/app/entities/user';
 import { DateUtils } from 'src/app/entities/utils';
+import { settingsCarsStrings } from 'src/app/pages/za-settings/settings-cars/settings-cars.strings';
 
 @Component({
   selector: 'za-client-change-logs',
@@ -30,14 +31,16 @@ import { DateUtils } from 'src/app/entities/utils';
 })
 export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   loading = false;
-  @Input() private clientId: number;
+  @Input() private itemId: number;
+  @Input() private sourceName: BDModels.Table;
   @Input() private allUsers: ServerUser.Response[] = [];
-  @Input() private fieldConfigVariants: Partial<{
-    [key in FieldNames.Client]: {
+
+  @Input() private fieldConfigVariants:{
+    [key: string]: {
       variants: string,
       type: FieldType
     }
-  }> = {};
+  } = {};
   set gridData(value: (string | null)[][]) {
     if (Array.isArray(value)) {
 
@@ -55,11 +58,8 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
 
   private rows: {
     title: string,
-    name: FieldNames.Client,
-  }[] = Object.values(FieldNames.Client).map(name => ({
-    title: settingsClientsStrings[name],
-    name: name
-  }));
+    name: string,
+  }[] = [];
 
   tableHeader: {
     title: string;
@@ -73,10 +73,11 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
     private config: DynamicDialogConfig,
 
   ){
-    this.clientId = this.config?.data?.clientId;
+    this.itemId = this.config?.data?.itemId;
     this.allUsers = this.config?.data?.allUsers;
+    this.sourceName = this.config?.data?.sourceName;
     this.fieldConfigVariants = (this.config?.data?.fieldConfigs as ServerField.Response[])
-      .filter(f => Object.values(FieldNames.Client).includes(f.name as FieldNames.Client))
+      .filter(f => Object.values(FieldNames.Car).includes(f.name as FieldNames.Car))
       .reduce((prev, cur) => ({
         ...prev,
         [cur.name]: {
@@ -87,6 +88,18 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const rowsByEntity: StringHash<StringHash> = {
+      [BDModels.Table.Clients]: FieldNames.Client,
+      [BDModels.Table.Users]: FieldNames.User,
+      [BDModels.Table.Cars]: FieldNames.Car,
+      [BDModels.Table.CallRequests]: {},
+    }
+
+    this.rows = Object.values(rowsByEntity[this.sourceName]).map(name => ({
+      title: settingsClientsStrings[name] || settingsCarsStrings[name] || name,
+      name: name
+    }));
+
     this.fetchData();
   }
 
@@ -95,7 +108,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   fetchData(): void {
     this.loading = true;
 
-    this.changeLogDataService.fetchChangeLogsById({ size: 100000, page: 1, sourceName: 'clients', sourceId: this.clientId }, )
+    this.changeLogDataService.fetchChangeLogsById({ size: 100000, page: 1, sourceName: this.sourceName, sourceId: this.itemId }, )
       .pipe(
         finalize(() => this.loading = false)
       ).subscribe(data => {
@@ -109,6 +122,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
     const originalRequest: {
       request: {
         params: StringHash,
+        // вопросики по сервер клиент
         body: ServerClient.UpdateRequest | ServerClient.CreateRequest
       }
     }[] = logs.map(d => {
@@ -171,9 +185,13 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   }
 
   createRowByChangeLog(log: ServerClient.UpdateRequest | ServerClient.CreateRequest): (string | null)[] {
-    const fields = log?.fields.map(field => ({ ...field, variants: this.fieldConfigVariants[field.name as FieldNames.Client]?.variants!, type: this.fieldConfigVariants[field.name as FieldNames.Client]?.type! })) || [];
+    if (log?.fields) {
+      const fields = log?.fields.map(field => ({ ...field, variants: this.fieldConfigVariants[field.name]?.variants, type: this.fieldConfigVariants[field.name]?.type })) || [];
 
-    return this.rows.map(row => this.getFieldValue(fields, row.name));
+      return this.rows.map(row => this.getFieldValue(fields, row.name));
+    }
+
+    return [];
   }
 
   getFieldValue(fields: {
@@ -182,7 +200,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
     id: number;
     name: string;
     value: string;
-  }[], fieldName: FieldNames.Client) {
+  }[], fieldName: string) {
     const field = FieldsUtils.getField(fields, fieldName)!;
 
     if (!field) {

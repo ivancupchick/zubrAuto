@@ -22,7 +22,7 @@ import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-dir
     SpinnerComponent
   ]
 })
-export class PageagleGridComponent<GridItemType extends { id: number }> implements OnInit {
+export class PageagleGridComponent<GridItemType extends { id: number, sourceName: string; }> implements OnInit {
   @Input() gridConfig!: GridConfigItem<GridItemType>[];
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
@@ -33,6 +33,7 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
   @Input() dataService!: PageagleGridService<GridItemType>;
   @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
+  @Input() first!: number;
 
   // @Input() set gridData(value: GridItemType[]) {
   //   if (Array.isArray(value)) {
@@ -57,7 +58,6 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   // private _gridData: GridItemType[] = [];
 
   constructor(private elem: ElementRef<HTMLElement>) {}
-
   ngOnInit(): void {
     this.selectedKeys = [...this.selected];
     this.updateActions();
@@ -96,6 +96,15 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   }
 
   onShow(e: any) {
+  //   const categoryByTableName: StringHash = {
+  //     [BDModels.Table.Clients]: SelectedCategories.clients,
+  //     [BDModels.Table.Users]: SelectedCategories.users,
+  //     [BDModels.Table.Cars]: SelectedCategories.cars,
+  //     [BDModels.Table.CallRequests]: SelectedCategories.callRequests,
+  //   }
+
+  //   this.selectedCategory = categoryByTableName[this.contextSelectedItem.sourceName] || SelectedCategories.other;
+
     this.updateActions();
   }
 
