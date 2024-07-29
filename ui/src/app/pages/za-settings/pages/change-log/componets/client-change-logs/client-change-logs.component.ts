@@ -8,7 +8,7 @@ import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { ChangeLogItem } from '../../interfaces/change-log';
 import { CommonModule } from '@angular/common';
 import { FieldNames } from 'src/app/entities/FieldNames';
-import { settingsClientsStrings } from 'src/app/pages/za-settings/settings-clients/settings-clients.strings';
+import { generalSettingsStrings, settingsClientsStrings } from 'src/app/pages/za-settings/settings-clients/settings-clients.strings';
 import { ServerClient } from 'src/app/entities/client';
 import { FieldType, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { BDModels, StringHash } from 'src/app/entities/constants';
@@ -34,6 +34,8 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   @Input() private itemId: number;
   @Input() private sourceName: BDModels.Table;
   @Input() private allUsers: ServerUser.Response[] = [];
+
+  andrewData: any;
 
   @Input() private fieldConfigVariants:{
     [key: string]: {
@@ -65,7 +67,6 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
     title: string;
     tooltip: string;
   }[] = [];
-
   destroy$ = new Subject();
 
   constructor(
@@ -94,12 +95,11 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
       [BDModels.Table.Cars]: FieldNames.Car,
       [BDModels.Table.CallRequests]: {},
     }
-
     this.rows = Object.values(rowsByEntity[this.sourceName]).map(name => ({
-      title: settingsClientsStrings[name] || settingsCarsStrings[name] || name,
+      // Вместо отдельных замен в разных файликах, можно искать по одной константе, общей. И в будущем добавлять новые переменные в одну консту. Не сверяясь что похожая есть в другой "или константе"
+      title: generalSettingsStrings[name] || name,
       name: name
     }));
-
     this.fetchData();
   }
 
@@ -112,44 +112,72 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
       .pipe(
         finalize(() => this.loading = false)
       ).subscribe(data => {
+        this.tableHeader = data.list.map(log => {
+          const user = this.allUsers.find(u => +u.id === log.userId)!;
+          const userName = FieldsUtils.getFieldValue(user, FieldNames.User.name);
+          const userShortName = (userName || '').split(' ').map(word => word[0]).join('');
+          return {
+            title: `${userShortName} <b>${log.type}</b><br> ${DateUtils.getFormatedDateTime(log.date)}`,
+            tooltip: `${userName}, ${user.email}`,
+          }
+        });
 
         this.convertClientActivities(data.list);
-
       });
   }
 
   convertClientActivities(logs: ChangeLogItem[]): void {
+    const fieldsFromLogs = logs.reduce((prev:any, curr: any)=>{
+      try {
+        const changeLogField = this.replaceEnterChar(JSON.parse(this.matchQuetes(curr.activities.replace(/\n/g, '/n')))).request.body.fields;
+        prev.push(changeLogField);
+        return prev;
+      } catch (e) {
+        console.log(e)
+        prev.push(`${e}`);
+        return prev;
+      }
+    }, []);
+
+    console.log(fieldsFromLogs);
+    console.log(this.rows);
+
+
+    const andrewData = this.rows.reduce((prev: any, curr: any, index)=> {
+      prev.push([curr.title]);
+      fieldsFromLogs.forEach((f: any) => {
+        f.forEach((arr: any) => {
+          if(arr.name == curr.name && arr.name != 'date-next-action' && arr.name != 'date'){
+            prev[index].push(arr.value);
+          } 
+          if (arr.name == curr.name && (arr.name == 'date-next-action' || arr.name == 'date')) {
+            prev[index].push(DateUtils.getFormatedDateTime(+arr.value))
+          }
+        })
+      });
+      return prev
+    }, [])
+
+    console.log(andrewData);
+
+
     const originalRequest: {
       request: {
         params: StringHash,
-        // вопросики по сервер клиент
         body: ServerClient.UpdateRequest | ServerClient.CreateRequest
       }
     }[] = logs.map(d => {
       try {
-        const activities = this.matchQuetes(d.activities.replace(/\n/g, '/n'));
 
-        const obj = JSON.parse(activities);
+        const changeLogItem = this.replaceEnterChar(JSON.parse(this.matchQuetes(d.activities.replace(/\n/g, '/n'))))
+        return changeLogItem;
 
-        return this.replaceEnterChar(obj);
       } catch (e) {
         console.error(e);
         return {};
       }
     });
-
-    this.tableHeader = logs.map(log => {
-      const user = this.allUsers.find(u => +u.id === log.userId)!;
-
-      const userName = FieldsUtils.getFieldValue(user, FieldNames.User.name);
-      const userShortName = (userName || '').split(' ').map(word => word[0]).join('');
-
-      return {
-        title: `${userShortName} <b>${log.type}</b><br> ${DateUtils.getFormatedDateTime(log.date)}`,
-        tooltip: `${userName}, ${user.email}`,
-      }
-    });
-
+    
     const collumnedGridData = [
       this.rows.map(row => row.title),
       ...originalRequest.map(log => this.createRowByChangeLog(log.request?.body))
@@ -182,6 +210,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
     })
 
     this.gridData = gridData;
+    console.log(this.gridData); // для сверкимоего алгоритма с Ваниным
   }
 
   createRowByChangeLog(log: ServerClient.UpdateRequest | ServerClient.CreateRequest): (string | null)[] {

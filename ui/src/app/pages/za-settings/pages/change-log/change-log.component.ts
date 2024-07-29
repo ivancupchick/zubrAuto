@@ -267,8 +267,6 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       header: `Изменения по ${modalHeader}`,
       width: '90%'
     });
-    console.log(this.fieldConfigs); // тут уже что-то очень похожее на нужные филды. Но они естественно для клиентов
-    // this.subscribeOnCloseModalRef(ref);
   }
   getGridActionsConfig(): GridActionConfigItem<ChangeLogItem>[] {
     const configs: GridActionConfigItem<ChangeLogItem>[] = [{

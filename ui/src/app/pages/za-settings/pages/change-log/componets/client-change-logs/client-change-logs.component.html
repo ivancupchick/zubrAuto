@@ -32,3 +32,56 @@
     </tr>
   </ng-template>
 </p-table>
+
+<p-table
+  styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
+  [value]="gridData"
+>
+  <ng-template pTemplate="header">
+    <tr>
+      <th>
+      </th>
+      <th *ngFor="let headerItem of tableHeader" [innerHTML]="headerItem.title"></th>
+    </tr>
+  </ng-template>
+  
+  <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
+    <tr
+      style="height:24px"
+    >
+    <!-- Отказ от tableHeader в пользу gridItem, тейбл буду чекать еще в след. рабочей сессии, но можно уже без него обойтись. В итемГриде есть все нужные данные -->
+      <td *ngFor="let colItem of gridItem; let index = index">
+        <div *ngIf="index == 0; else firstCols">
+          {{colItem}}
+        </div>
+        <ng-template #firstCols>
+          <!-- Не может быть серых колонок!-->
+          <div *ngIf="index == 1; else elseCols">
+            <!--Какие-то данные есть, присвоить зеленый-->
+            <div *ngIf="colItem != '' && colItem != null" [class.backgroundMint]="true">
+              {{ colItem }}
+            </div>
+            <!-- Есть или пустая строка или нал, в первом столбе с данными останется просто белый цвет ячейки пустой-->
+            <div *ngIf="colItem == '' || colItem == null">
+              {{ colItem }}
+            </div>
+          </div>
+          <ng-template #elseCols>
+            <!-- Индекс >=2 Белых колонок уже нет. Есть смысл проверять только на нал, на пустую строку нет смысла. И даже на предыдущее значение -->
+            <div *ngIf="colItem == null" [class.backgroundGray]="true">
+              --//--
+            </div>
+            <div *ngIf="colItem != null" [class.backgroundMint]="true">
+              {{ colItem }}
+            </div>
+            
+            <!-- Проверка на удаленные значения, ред-->
+            <div *ngIf="colItem == '' && gridItem[index-1] != ''" [class.backgroundRed]="true">
+              {{ colItem }}
+            </div>
+          </ng-template>
+        </ng-template>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
