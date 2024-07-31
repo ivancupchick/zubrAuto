@@ -90,11 +90,17 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   }
 
   updateActions() {
-    this.contextActions = this.actions.map(action => ({
-      label: action.title,
-      icon: `pi pi-fw pi-${action.icon}`,
-      command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem),
-      disabled: !!action.disabled && action.disabled(this.contextSelectedItem)
-    }))
+    this.contextActions = this.actions.map((action) => {
+      const updatedAction = action.updater ? action.updater(action, this.contextSelectedItem) : action;
+
+      return {
+        label: updatedAction.title,
+        icon: `pi pi-fw pi-${updatedAction.icon}`,
+        command: (e: { originalEvent: PointerEvent; item: MenuItem }) =>
+          updatedAction.handler(this.contextSelectedItem),
+        disabled:
+          !!updatedAction.disabled && updatedAction.disabled(this.contextSelectedItem),
+      };
+    });
   }
 }

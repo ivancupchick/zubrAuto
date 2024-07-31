@@ -2,7 +2,7 @@ interface StringHash {
   [key: string]: string;
 }
 
-export const settingsCarsStrings = {
+export const settingsCarsStrings: StringHash = {
   id: '№',
   date: 'Дата',
   ownerNumber: 'Телефон',

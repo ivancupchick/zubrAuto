@@ -33,6 +33,7 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
   @Input() dataService!: PageagleGridService<GridItemType>;
   @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
+  @Input() first!: number;
 
   // @Input() set gridData(value: GridItemType[]) {
   //   if (Array.isArray(value)) {
@@ -57,7 +58,6 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   // private _gridData: GridItemType[] = [];
 
   constructor(private elem: ElementRef<HTMLElement>) {}
-
   ngOnInit(): void {
     this.selectedKeys = [...this.selected];
     this.updateActions();
@@ -100,12 +100,18 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   }
 
   updateActions() {
-    this.contextActions = this.actions.map(action => ({
-      label: action.title,
-      icon: `pi pi-fw pi-${action.icon}`,
-      command: (e: { originalEvent: PointerEvent, item: MenuItem }) => action.handler(this.contextSelectedItem),
-      disabled: !!action.disabled && action.disabled(this.contextSelectedItem)
-    }))
+    this.contextActions = this.actions.map((action) => {
+      const updatedAction = action.updater ? action.updater(action, this.contextSelectedItem) : action;
+
+      return {
+        label: updatedAction.title,
+        icon: `pi pi-fw pi-${updatedAction.icon}`,
+        command: (e: { originalEvent: PointerEvent; item: MenuItem }) =>
+          updatedAction.handler(this.contextSelectedItem),
+        disabled:
+          !!updatedAction.disabled && updatedAction.disabled(this.contextSelectedItem),
+      };
+    });
   }
 
   // fetchData(event: LazyLoadEvent) {

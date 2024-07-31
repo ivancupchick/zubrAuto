@@ -13,6 +13,7 @@
           optionValue="value"
           placeholder="Выберите таблицу"
           class="ng-dirty"
+          [showClear]="true"
         />
         <p-dropdown
           [options]="users"
@@ -60,6 +61,7 @@
     [getColorConfig]="getColorConfig"
     [dataService]="changeLogDataService"
     [sortField]="'date'"
+    [first] = "first"
   ></za-pageagle-grid>
 </div>
 

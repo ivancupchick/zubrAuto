@@ -15,6 +15,8 @@ import { ClientChangeLogsComponent } from './componets/client-change-logs/client
 import { ClientService } from 'src/app/services/client/client.service';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
+import { FieldService } from 'src/app/services/field/field.service';
+import { BDModels, StringHash } from 'src/app/entities/constants';
 
 @Component({
   selector: 'za-change-log',
@@ -26,6 +28,7 @@ import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
   ]
 })
 export class ChangeLogComponent implements OnInit, OnDestroy {
+  first: number = 0;
   // sortedClients: ChangeLogItem[] = [];
   // rawClients: ChangeLogItem[] = [];
   list: ChangeLogItem[] = [];
@@ -35,9 +38,11 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   protected form!: UntypedFormGroup;
 
   domains = [
-    {name: 'Машины', value: 'cars'},
-    {name: 'Клиент', value: 'clients'},
-    {name: 'Пользователь', value: 'users'},
+    {name: 'Машины', value:  BDModels.Table.Cars},
+    {name: 'Клиент', value: BDModels.Table.Clients},
+    {name: 'Пользователь', value: BDModels.Table.Users},
+    {name: 'Заявки', value: BDModels.Table.CallRequests},
+    {name: 'Звонки', value: BDModels.Table.PhoneCalls},
   ];
 
   // allCars: ServerCar.Response[] = [];
@@ -81,6 +86,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   constructor(
     public changeLogDataService: ChangeLogDataService,
     private clientService: ClientService,
+    private fieldService: FieldService,
     private dialogService: DialogService,
     private sessionService: SessionService,
     // private carService: CarService,
@@ -129,13 +135,12 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   getData(): Observable<any> {
     return zip(
       // this.getClients(),
-      this.clientService.getClientFields(),
+      this.fieldService.getFields(),
       this.userService.getUsers(true)
     ).pipe(
       takeUntil(this.destoyed),
-      map(([clientFieldsRes, usersFieldsRes]) => {
-        this.fieldConfigs = clientFieldsRes;
-
+      map(([fieldConfigs, usersFieldsRes]) => {
+        this.fieldConfigs = fieldConfigs;
         this.allUsers = usersFieldsRes;
         this.specialists = usersFieldsRes
           .filter(u => u.customRoleName === ServerRole.Custom.carSales
@@ -212,7 +217,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
         title: 'Пользователь',
         name: 'userId',
         getValue: (item) => {
-          const specialist: ServerUser.Response = this.specialists.find(user => user.id === item.userId)!;
+          const specialist: ServerUser.Response = this.allUsers.find(user => user.id === item.userId)!;
 
           if (item.userId && specialist) {
             return FieldsUtils.getFieldValue(specialist, FieldNames.User.name);
@@ -236,26 +241,58 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       },
     ];
   }
-  showClientUpdates(changeLogItem: ChangeLogItem){
+
+  showItemUpdates(changeLogItem: ChangeLogItem){
+    let modalHeader;
+    switch (changeLogItem.sourceName) {
+      case BDModels.Table.Cars:
+        modalHeader = 'машинам';
+        break
+      case BDModels.Table.Users:
+        modalHeader = 'пользователям';
+        break
+      case BDModels.Table.Clients:
+        modalHeader = 'клиентам';
+        break
+      default:
+        modalHeader = 'категории';
+    }
     const ref = this.dialogService.open(ClientChangeLogsComponent, {
       data: {
-        clientId: changeLogItem.sourceId,
+        itemId: changeLogItem.sourceId,
         fieldConfigs: this.fieldConfigs,
-        allUsers: this.allUsers
+        allUsers: this.allUsers,
+        sourceName:  changeLogItem.sourceName,
       },
-      header: 'Изменения клиента',
+      header: `Изменения по ${modalHeader}`,
       width: '90%'
     });
     // this.subscribeOnCloseModalRef(ref);
   }
   getGridActionsConfig(): GridActionConfigItem<ChangeLogItem>[] {
     const configs: GridActionConfigItem<ChangeLogItem>[] = [{
-    title: 'Показать все изменения по клиенту',
-    icon: 'pencil',
-    buttonClass: 'secondary',
-    disabled: (client) => false,
-    handler: (clientById) => this.showClientUpdates(clientById)
-  }];
+      title: 'Показать все изменения',
+      icon: 'pencil',
+      buttonClass: 'secondary',
+      disabled: (client) => false,
+      updater: (instance, item) => {
+        const categoryByTableName: StringHash = {
+          [BDModels.Table.Clients]: 'клиенту',
+          [BDModels.Table.Users]: 'пользователю',
+          [BDModels.Table.Cars]: 'машине',
+          [BDModels.Table.CallRequests]: 'заявке',
+        }
+
+        const entity = categoryByTableName[item.sourceName];
+        if (entity) {
+          instance.title = `Посмотеть все изменения по ${entity} c id = ${item.sourceId}`
+        }
+
+        return instance;
+      },
+      handler: (itemById) => this.showItemUpdates(itemById),
+    }];
+
     return configs.filter(config => !config.available || config.available());
   }
 
@@ -265,6 +302,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       return;
     }
     this.changeLogDataService.onFilter(skipEmptyFilters(this.form.value));
+    this.first = 0;
   }
 
   ngOnDestroy(): void {
