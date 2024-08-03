@@ -14,7 +14,7 @@ import roleRepository from '../repositories/base/role.repository';
 import { ServerRole } from '../entities/Role';
 
 class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.UpdateRequest, ServerUser.Response, ServerUser.IdResponse> {
-  async getAll(): Promise<ServerUser.Response[]> {
+  async getAll() {
     const [
       users,
       relatedFields
@@ -42,7 +42,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       fields: getFieldsWithValues(relatedFields, chaines, user.id)
     }))
 
-    return result;
+    return result as any; //TODO
   }
 
   async create(userData: ServerUser.CreateRequest) {

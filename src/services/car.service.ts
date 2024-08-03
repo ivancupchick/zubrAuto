@@ -112,7 +112,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       }
     });
 
-    return result;
+    return result as any; //TODO
   }
 
   async get(id: number) {

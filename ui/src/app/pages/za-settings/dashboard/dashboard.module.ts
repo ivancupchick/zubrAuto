@@ -12,6 +12,7 @@ import { BadgeModule } from 'primeng/badge';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CallsDashletComponent } from './dashlets/calls-dashlet/calls-dashlet.component';
+import { PageagleGridComponent } from '../shared/pageagle-grid/pageagle-grid.component';
 
 
 @NgModule({
@@ -32,6 +33,7 @@ import { CallsDashletComponent } from './dashlets/calls-dashlet/calls-dashlet.co
     MultiSelectModule,
     FormsModule,
     ReactiveFormsModule,
+    PageagleGridComponent,
   ],
   exports: [
     DashboardComponent

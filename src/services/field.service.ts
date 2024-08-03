@@ -28,7 +28,7 @@ class FieldService implements ICrudService<ServerField.CreateRequest, ServerFiel
       })),
     }));
 
-    return result;
+    return result as any; //TODO
   }
 
   async create(fieldData: ServerField.CreateRequest) {

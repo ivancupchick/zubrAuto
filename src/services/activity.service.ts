@@ -31,7 +31,7 @@ class ActivityService implements ICrudService<ServerActivity.CreateRequest, Serv
       activitiesRepository.getAll(),
     ]);
 
-    return this.getEntities(entities);
+    return this.getEntities(entities) as any; // TODO
   }
 
   async getEntities(requests: Models.Activity[]) {

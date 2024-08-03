@@ -5,7 +5,7 @@ import { UserService } from 'src/app/services/user/user.service';
 import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid';
 import { ServerClient, getClientSpecialist, getClientStatus, getDealStatus } from 'src/app/entities/client';
 import { ServerUser } from 'src/app/entities/user';
-import { Observable, Subject, finalize, map, of, switchMap, take, takeUntil, zip } from 'rxjs';
+import { Subject, takeUntil, tap, zip } from 'rxjs';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
 import { FieldNames } from '../../../../../../../../src/entities/FieldNames';
@@ -17,25 +17,38 @@ import { StringHash } from 'src/app/entities/constants';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { CreateClientComponent } from '../../../modals/create-client/create-client.component';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { ClientNextActionDataService } from './client-next-action-data.service';
+import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
+import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+
+export enum TabIndex {
+  MyClients = 0,
+  MyFutureClients = 1,
+  AllClients = 2,
+  SomeClients = 3,
+  SomeFutureClients = 4,
+}
 
 @Component({
   selector: 'za-client-next-action-dashlet',
   templateUrl: './client-next-action-dashlet.component.html',
   styleUrls: ['./client-next-action-dashlet.component.scss'],
-  providers: [UserService, ClientService, DialogService, CarService],
+  providers: [UserService, ClientService, DialogService, CarService, ClientNextActionDataService],
 })
 export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
-  loading = true;
+  first: number = 0;
+  sortField = FieldNames.Client.dateNextAction;
 
   gridConfig!: GridConfigItem<ServerClient.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
   getColorConfig: ((item: ServerClient.Response) => string) | undefined;
 
-  myClients: ServerClient.Response[] = [];
-  myFutureClients: ServerClient.Response[] = [];
-  allClients: ServerClient.Response[] = [];
-  someClients: ServerClient.Response[] = [];
-  someFutureClients: ServerClient.Response[] = [];
+  myClientsTotal: number = 0;
+  myFutureClientsTotal: number = 0;
+  allClientsTotal: number = 0;
+  someClientsTotal: number = 0;
+  someFutureClientsTotal: number = 0;
 
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string; id: number }[] = [];
@@ -43,6 +56,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   allCars: ServerCar.Response[] = [];
 
   destoyed = new Subject();
+  loading$ = this.clientNextActionDataService.loading$;
 
   fieldConfigs: ServerField.Response[] = []; // !TODO replace away
   isCarSales = this.sessionService.isCarSales;
@@ -52,79 +66,137 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   selectedSpecialist: number[] = [];
   activeIndex = 0;
 
+  form: UntypedFormGroup | null = null;
+
+  queriesByTabIndex = {
+    [TabIndex.MyClients]: {
+      [FieldNames.Client.SpecialistId]:  `${this.sessionService.userId}`,
+      [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [`filter-operator-${FieldNames.Client.dateNextAction}`]: '<',
+    },
+    [TabIndex.MyFutureClients]: {
+      [FieldNames.Client.SpecialistId]: `${this.sessionService.userId}`,
+      [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [`filter-operator-${FieldNames.Client.dateNextAction}`]: '>',
+      [`sortField`]: FieldNames.Client.dateNextAction,
+      [`sortOrder`]: SortDirection.Desc,
+    },
+    [TabIndex.AllClients]: {
+      [`sortField`]: FieldNames.Client.dateNextAction,
+      [`sortOrder`]: SortDirection.Desc, // ?
+    },
+    [TabIndex.SomeClients]: {
+      [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [`filter-operator-${FieldNames.Client.dateNextAction}`]: '<',
+    },
+    [TabIndex.SomeFutureClients]: {
+      [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [`filter-operator-${FieldNames.Client.dateNextAction}`]: '>',
+      [`sortField`]: FieldNames.Client.dateNextAction,
+      [`sortOrder`]: SortDirection.Desc,
+    },
+  }
+
   constructor(
     private sessionService: SessionService,
     private userService: UserService,
     private clientService: ClientService,
     private dialogService: DialogService,
-    private carService: CarService
+    private fb: UntypedFormBuilder,
+    public clientNextActionDataService: ClientNextActionDataService
   ) {}
 
   ngOnInit(): void {
-    this.fetchData();
-  }
+    this.getAdditionalData();
 
-  filterClients() {
-    this.someClients = this.allClients
-      .filter(c =>
-        this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
-      )
-      .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`));
+    this.form = this.fb.group({
+      specialist: '',
+      number: '',
+    });
 
-    this.someFutureClients = this.allClients
-      .filter(c =>
-        this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
-      )
-      .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`))
-      .sort((a, b) => {
-        const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
-        const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
-
-        return value1 < value2
-          ? -1
-          : value1 > value2
-            ? 1
-            : 0
-      });
+    this.clientNextActionDataService.clientCars$.pipe(
+      takeUntil(this.destoyed),
+    ).subscribe((cars) => {
+      this.allCars = cars;
+      this.setGridSettings();
+    })
   }
 
   getTooltipConfig: ((item: ServerClient.Response) => string) = (car) => {
     return FieldsUtils.getFieldStringValue(car, FieldNames.Client.Description)
   };
 
-  fetchData() {
-    this.loading = true;
-    this.getData().pipe(
-      finalize(() => this.loading = false)
-    ).subscribe((cars) => {
-      this.allCars = cars;
-      this.setGridSettings();
-      if (this.selectedSpecialist.length) {
-        this.filterClients();
-      }
-    });
+  onFilter() {
+    this.first = 0;
+    this.refresh();
   }
 
   refresh() {
-    this.loading = true;
+    const query = this.getQuery(this.activeIndex);
 
-    this.getData().pipe(
-      finalize(() => this.loading = false)
-    ).subscribe((cars) => {
-      this.allCars = cars;
-    });
+    this.clientNextActionDataService.onFilter(skipEmptyFilters(query));
   }
 
-  getData(): Observable<ServerCar.Response[]> {
-    return zip(
-      this.clientService.getClientsByQuery({
-        [FieldNames.Client.dealStatus]: [FieldNames.DealStatus.InProgress].join(',')
-      }),
+  getQuery(index: TabIndex): StringHash {
+    const query: StringHash = {
+      [FieldNames.Client.dealStatus]: [FieldNames.DealStatus.InProgress].join(','),
+      ...this.queriesByTabIndex[index],
+    };
+
+    const { specialist, number } = this.form?.value || {};
+    if ([TabIndex.SomeClients, TabIndex.SomeFutureClients].includes(index)) {
+      if (specialist) {
+        query[FieldNames.Client.SpecialistId] = specialist;
+      }
+      if (number) {
+        query[FieldNames.Client.number] = `%${number}%`;
+        query['filter-operator-' + FieldNames.Client.number] = 'LIKE';
+      }
+    }
+
+    return query;
+  }
+
+  getAdditionalData(): void { // TODO separate these requests
+    zip(
       this.clientService.getClientFields(),
-      this.userService.getUsers(true)
+      this.userService.getUsers(true),
+      this.clientService.getClientsByQuery({
+        page: 0,
+        size: 0,
+        ...this.getQuery(TabIndex.MyClients)
+      }),
+      this.clientService.getClientsByQuery({
+        page: 0,
+        size: 0,
+        ...this.getQuery(TabIndex.MyFutureClients)
+      }),
+      this.clientService.getClientsByQuery({
+        page: 0,
+        size: 0,
+        ...this.getQuery(TabIndex.AllClients)
+      }),
+      this.clientService.getClientsByQuery({
+        page: 0,
+        size: 0,
+        ...this.getQuery(TabIndex.SomeClients)
+      }),
+      this.clientService.getClientsByQuery({
+        page: 0,
+        size: 0,
+        ...this.getQuery(TabIndex.SomeFutureClients)
+      }),
     ).pipe(
       takeUntil(this.destoyed),
-      switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {
+      tap(([clientFieldsRes, usersFieldsRes, first, second, thirt, fourth, fifth]) => {
+        [
+          this.myClientsTotal,
+          this.myFutureClientsTotal,
+          this.allClientsTotal,
+          this.someClientsTotal,
+          this.someFutureClientsTotal
+        ] = [first.total, second.total, thirt.total, fourth.total, fifth.total];
+
         this.fieldConfigs = clientFieldsRes;
         this.specialists = usersFieldsRes.filter(
           (u) =>
@@ -139,70 +211,8 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
           name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name),
           id: +u.id,
         }));
-
-        this.allClients = clientsRes
-          .sort((a, b) => {
-            const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
-            const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
-
-            return value1 > value2
-              ? -1
-              : value1 < value2
-                ? 1
-                : 0
-          });
-
-        this.someClients = this.allClients
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`));
-
-        this.someFutureClients = this.allClients
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`))
-          .sort((a, b) => {
-            const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
-            const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
-
-            return value1 < value2
-              ? -1
-              : value1 > value2
-                ? 1
-                : 0
-          });
-
-        const myClients = this.allClients
-          .filter(
-            (c) => FieldsUtils.getFieldStringValue(c, FieldNames.Client.SpecialistId) === `${this.sessionService.userId}`
-          );
-
-        this.myClients = myClients
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) < +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`));
-
-        this.myFutureClients = [...myClients]
-          .filter(a => FieldsUtils.getFieldNumberValue(a, FieldNames.Client.dateNextAction) > +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`))
-          .sort((a, b) => {
-            const value1 = FieldsUtils.getFieldStringValue(a, FieldNames.Client.dateNextAction);
-            const value2 = FieldsUtils.getFieldStringValue(b, FieldNames.Client.dateNextAction);
-
-            return value1 < value2
-              ? -1
-              : value1 > value2
-                ? 1
-                : 0
-          });
-
-        const carIds = this.allClients.reduce<number[]>((prev, client) => {
-          const clietnCarIds = client.carIds.split(',').map(id => +id);
-          return [...prev, ...clietnCarIds];
-        }, []).filter(id => id && !Number.isNaN(id));
-
-        if (carIds.length === 0) {
-          return of([]);
-        }
-
-        const query: StringHash = { id: [...(new Set(carIds))].join(',') };
-
-        return this.carService.getCarsByQuery(query);
       })
-    );
+    ).subscribe();
   }
 
   setGridSettings() {
@@ -371,7 +381,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
     ref.onClose.pipe(takeUntil(this.destoyed)).subscribe((res) => {
       if (res) {
-        this.fetchData();
+        this.refresh();
       }
     });
   }

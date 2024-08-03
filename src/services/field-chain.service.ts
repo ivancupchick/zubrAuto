@@ -9,8 +9,10 @@ import { getFieldChainsValue } from '../utils/field.utils';
 import { ExpressionHash } from '../utils/sql-queries';
 
 class FieldChainService {
-  async find(expressionHash: ExpressionHash<Models.FieldChain>): Promise<Models.FieldChain[]> {
-    const [fieldChains, longtextFieldChains] = await Promise.all([fieldChainRepository.find(expressionHash), longtextFieldChainRepository.find(expressionHash)]);
+  async find(expressionHash: ExpressionHash<Models.FieldChain>, sortOrder?: string): Promise<Models.FieldChain[]> {
+    const [fieldChains, longtextFieldChains] = sortOrder
+      ? await Promise.all([fieldChainRepository.find(expressionHash, 'value', sortOrder), longtextFieldChainRepository.find(expressionHash, 'value', sortOrder)])
+      : await Promise.all([fieldChainRepository.find(expressionHash), longtextFieldChainRepository.find(expressionHash)]);
 
     return [...fieldChains, ...longtextFieldChains];
   }
@@ -115,14 +117,59 @@ class FieldChainService {
     return fieldChain;
   }
 
-  async getEntityIdsByQuery(sourceName: string, entityDomain: FieldDomains, query: StringHash) {
+  async getEntityIdsByQuery(sourceName: string, entityDomain: FieldDomains, query: StringHash): Promise<string[]> {
     const ids = new Set<string>((query['id'])?.split(',') || []);
     delete query['id'];
 
-    const fieldNames = Object.keys(query);
+    let fieldNames = Object.keys(query);
+
+    const specialFieldNameOperators = fieldNames.filter((fn) =>
+      fn.includes("filter-operator")
+    ); // TODO select startof 'filter-operator-';
+    const specialFieldNames = specialFieldNameOperators.map(
+      (n) => n.split("filter-operator-")[1]
+    );
+
+    const specialFieldIds = specialFieldNames.length > 0
+      ? await fieldRepository.find({
+        domain: [`${entityDomain}`],
+        name: specialFieldNames,
+      })
+      : [];
+
+    const specialFieldChaines = specialFieldIds.length ? await Promise.all(
+      specialFieldNames.map((fn) => {
+        const id = specialFieldIds.find(fc => fc.name === fn);
+        const operatorName = specialFieldNameOperators.find(fc => fc.includes(fn));
+
+        const queryRequest = `SELECT * FROM \`${Models.Table.FieldChains}\` WHERE (sourceName IN ('${Models.Table.Clients}') AND fieldId IN (${id.id}) AND value ${query[operatorName]} '${query[fn]}');`;
+
+        console.log(queryRequest);
+
+        return fieldChainRepository.queryRequest(queryRequest);
+      })
+    ) : [];
+
+    const specialIds = specialFieldChaines.map(s => s.map(item => item.sourceId)).reduce((prev, cur) => {
+      if (!prev.length) {
+        return [...cur];
+      }
+
+      return cur.filter(id => prev.includes(id))
+    }, []);
+
+    fieldNames = fieldNames.filter(
+      (n) =>
+        !specialFieldNameOperators.includes(n) && !specialFieldNames.includes(n)
+    );
 
     if (fieldNames.length === 0 && ids.size > 0) {
-      return [...ids];
+      if (specialIds && specialIds.length > 0) {
+        ids
+        return specialIds.filter(id => ids.has(`${id}`)).map(id => `${id}`); // TODO test
+      } else {
+        return [...ids];
+      }
     }
 
     const fields =
@@ -135,44 +182,53 @@ class FieldChainService {
 
     const needChainesOptions: ExpressionHash<Models.FieldChain> = {
       sourceName: [sourceName],
-    }
+    };
 
     if (ids && ids.size > 0) {
       needChainesOptions.sourceId = [...ids];
     }
 
     if (fields.length > 0) {
-      needChainesOptions.fieldId = fields.map(f => `${f.id}`);
+      needChainesOptions.fieldId = fields.map((f) => `${f.id}`);
       needChainesOptions.value = getFieldChainsValue(query, fields);
     }
 
-    const needChaines = fields.length > 0 ? await fieldChainRepository.find(needChainesOptions) : [];
+    const needChaines =
+      fields.length > 0
+        ? await fieldChainRepository.find(needChainesOptions)
+        : [];
 
     const searchIds = new Set<string>();
 
     const matchObj: ExpressionHash<any> = {};
 
     if (needChaines.length > 0) {
-      needChaines.forEach(ch => {
+      needChaines.forEach((ch) => {
         if (!matchObj[ch.fieldId]) {
           matchObj[ch.fieldId] = [];
         }
         matchObj[ch.fieldId].push(`${ch.sourceId}`);
       });
 
-      const matchKeys = fields.map(f => `${f.id}`);;
+      const matchKeys = fields.map((f) => `${f.id}`);
 
-      needChaines.forEach(ch => {
+      needChaines.forEach((ch) => {
         let currentMatch = 0;
 
-        matchKeys.forEach(key => {
+        matchKeys.forEach((key) => {
           if (matchObj[key] && matchObj[key].includes(`${ch.sourceId}`)) {
             ++currentMatch;
           }
-        })
+        });
 
         if (currentMatch === matchKeys.length) {
-          searchIds.add(`${ch.sourceId}`);
+          if (specialIds && specialIds.length > 0) {
+            if (specialIds.includes(ch.sourceId)) {
+              searchIds.add(`${ch.sourceId}`);
+            }
+          } else {
+            searchIds.add(`${ch.sourceId}`);
+          }
         }
       });
     }

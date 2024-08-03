@@ -81,7 +81,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
                       )
                     ));
 
-        this.allClients = clientsRes;
+        this.allClients = clientsRes.list;
 
         this.availableSpecialists = this.specialists.map(u => ({ name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), id: +u.id }));
 

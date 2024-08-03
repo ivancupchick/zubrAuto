@@ -87,7 +87,7 @@ import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.comp
 import { UserService } from 'src/app/services/user/user.service';
 import { CarService } from 'src/app/services/car/car.service';
 import { ClientChangeLogsComponent } from './pages/change-log/componets/client-change-logs/client-change-logs.component';
-
+import { ClientService } from 'src/app/services/client/client.service';
 
 
 const routes: Routes = [{
@@ -238,6 +238,7 @@ const routes: Routes = [{
     RequestService,
     UserService,
     CarService, // createClient from global toolbar ?
+    ClientService
   ]
 })
 export class ZASettingsModule { }

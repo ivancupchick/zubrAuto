@@ -20,7 +20,7 @@ class RoleService implements ICrudService<ServerRole.CreateRequest, ServerRole.U
       accesses: fieldAccesses.filter(fa => fa.sourceId === role.id && fa.sourceName === `${Models.Table.Roles}`)
     }))
 
-    return result;
+    return result as any; // TODO
   }
 
   async get(id: number) {

@@ -20,7 +20,7 @@ import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-dir
     TooltipModule,
     ContextMenuModule,
     SpinnerComponent
-  ]
+  ],
 })
 export class PageagleGridComponent<GridItemType extends { id: number }> implements OnInit {
   @Input() gridConfig!: GridConfigItem<GridItemType>[];

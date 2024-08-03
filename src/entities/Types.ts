@@ -6,7 +6,7 @@ export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
 
 export type ICrudService<TUpdate, TCreate, TResponse, TIdResponse> = {
   get: (id: number) => Promise<TResponse>;
-  getAll: () => Promise<TResponse[]>;
+  getAll: () => Promise<BaseList<TResponse>>;
   create: (data: TCreate) => Promise<TIdResponse>;
   update: (id: number, data: TUpdate) => Promise<TIdResponse>;
   delete: (id: number) => Promise<TIdResponse>;

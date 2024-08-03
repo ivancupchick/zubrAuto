@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ServerClient } from 'src/app/entities/client';
-import { Constants, StringHash } from 'src/app/entities/constants';
+import { BaseList, Constants, StringHash } from 'src/app/entities/constants';
 import { FieldDomains } from 'src/app/entities/field';
 import { environment } from 'src/environments/environment';
 import { FieldService } from '../field/field.service';
@@ -13,21 +13,14 @@ const API = 'clients';
 
 @Injectable()
 export class ClientService {
-
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
-  getClients(): Observable<ServerClient.Response[]> {
-    return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}`);
+
+  getClients(): Observable<BaseList<ServerClient.Response>> {
+    return this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`);
   }
 
-  getClientsByQuery(query: StringHash): Observable<ServerClient.Response[]> {
-    const queries = Object.keys(query).filter(key => !!query[key]).map(key => `${key}=${query[key]}`).join('&');
-
-    return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}?${queries}`)
-  }
-
-  // Геттер для клиентов
-  get clients$(): Observable<ServerClient.Response[]> {
-    return this.getClients();
+  getClientsByQuery(query: StringHash<string | number>): Observable<BaseList<ServerClient.Response>> {
+    return this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`, query)
   }
 
   createClient(value: ServerClient.CreateRequest): Observable<boolean> {

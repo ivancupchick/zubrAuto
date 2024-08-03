@@ -87,7 +87,7 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
       phoneCallsRepository.getAll(),
     ]);
 
-    return this.getEntities(requests);
+    return this.getEntities(requests) as any; // TODO
   }
 
   async getEntities(entities: Models.PhoneCall[]) {

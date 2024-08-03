@@ -1,3 +1,10 @@
 :host {
   display: block;
+  position: relative;
+}
+
+p-tabview ::ng-deep {
+  .p-tabview-panels {
+    padding: 0;
+  }
 }

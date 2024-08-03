@@ -135,7 +135,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
         this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: u.id }));
 
-        const carIds = clientsRes.reduce<number[]>((prev, client) => {
+        const carIds = clientsRes.list.reduce<number[]>((prev, client) => {
           const clietnCarIds = client.carIds.split(',').map(id => +id);
           return [...prev, ...clietnCarIds];
         }, []).filter(id => id && !Number.isNaN(id));
@@ -482,7 +482,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   getClients() {
     return this.clientService.getClients().pipe(
         tap((res => {
-          this.rawClients = [...res];
+          this.rawClients = [...res.list];
           this.sortClients();
         }))
       );

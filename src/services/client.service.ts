@@ -5,13 +5,16 @@ import { Models } from "../entities/Models";
 import { ICrudService } from "../entities/Types";
 import { StringHash } from "../models/hashes";
 import clientRepository from "../repositories/base/client.repository";
+import fieldRepository from "../repositories/base/field.repository";
 import { getFieldsWithValues } from "../utils/field.utils";
-import carStatisticService from "./car-statistic.service";
 import fieldChainService from "./field-chain.service";
 import fieldService from "./field.service";
 
 class ClientService implements ICrudService<ServerClient.CreateRequest, ServerClient.UpdateRequest, ServerClient.Response, ServerClient.IdResponse> {
-  async getAll() {
+  async getAll(): Promise<{
+    list: ServerClient.Response[];
+    total: number;
+  }> {
     const [
       clients,
       relatedFields
@@ -20,7 +23,12 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       fieldService.getFieldsByDomain(FieldDomains.Client)
     ]);
 
-    return this.getClients(clients , relatedFields);
+    let list = await this.getClients(clients , relatedFields);
+
+    return {
+      list: list,
+      total: clients.length
+    };
   }
 
   async getClients(clients: Models.Client[], clientsFields: ServerField.Response[]) {
@@ -42,9 +50,13 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     const {
       page,
       size,
+      sortOrder,
+      sortField,
     } = query;
     delete query['page'];
     delete query['size'];
+    delete query['sortOrder'];
+    delete query['sortField'];
 
     const searchClientsIds = await fieldChainService.getEntityIdsByQuery(
       Models.Table.Clients,
@@ -53,6 +65,22 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     );
 
     let clientsIds = [...searchClientsIds];
+
+    if (sortField && sortOrder) {
+      const sortFieldConfig = await fieldRepository.findOne({
+        name: [sortField]
+      });
+
+      if (sortFieldConfig && searchClientsIds.length) {
+        const sortChaines = await fieldChainService.find({
+          fieldId: [`${sortFieldConfig.id}`],
+          sourceId: searchClientsIds,
+          sourceName: [Models.Table.Clients],
+        }, sortOrder);
+
+        clientsIds = sortChaines.map(ch => `${ch.sourceId}`);
+      }
+    }
 
     if (page && size) {
       const start = (+page - 1) * +size;
@@ -70,7 +98,16 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       fieldService.getFieldsByDomain(FieldDomains.Client),
     ]);
 
-    return this.getClients(clients, clientsFields);
+    let list = await this.getClients(clients, clientsFields);;
+
+    // if (sortOrder === 'DESC') {
+    //   list = list.reverse();
+    // }
+
+    return {
+      list: list,
+      total: searchClientsIds.length
+    };
   }
 
   async create(clientData: ServerClient.CreateRequest) {

@@ -10,7 +10,7 @@ import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 
 const API = 'change-log';
 
-type Filters = {
+type ChangeLogFilters = {
   [key: string]: number | string;
 };
 
@@ -24,8 +24,8 @@ export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> imp
   private changeLogs = new BehaviorSubject<BaseList<ChangeLogItem>>({ list: [], total: 0 });
   public list$ = this.changeLogs.asObservable();
 
-  private payload: Filters = {
-    page: 10,
+  private payload: ChangeLogFilters = {
+    page: 1,
     size: 10
   };
 
@@ -71,7 +71,7 @@ export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> imp
     this.fetchData();
   }
 
-  public onFilter(filters: Filters) {
+  public onFilter(filters: ChangeLogFilters) {
     const payload = {
       size: this.payload.size,
       page: 1,

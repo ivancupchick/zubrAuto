@@ -60,7 +60,7 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
       callRequestsRepository.getAll(),
     ]);
 
-    return this.getCallRequests(requests);
+    return this.getCallRequests(requests) as any; // TODO
   }
 
   async getCallRequests(requests: Models.CallRequest[]) {

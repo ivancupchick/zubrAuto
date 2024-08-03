@@ -133,6 +133,11 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
     return (rows as T[])[0];
   }
 
+  public async queryRequest(query: string) {
+    const dbResult = await this.query<RowDataPacket[]>(query);
+    return this.getAllRows(dbResult);
+  }
+
   // pg
   // async getAll(): Promise<T[]> {
   //   const query = getGetAllQuery(this.tableName);
