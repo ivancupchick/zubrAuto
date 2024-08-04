@@ -13,7 +13,7 @@ import * as moment from 'moment';
 import { DateUtils } from 'src/app/entities/utils';
 import { ServerRole } from 'src/app/entities/role';
 import { settingsClientsStrings } from '../../../settings-clients/settings-clients.strings';
-import { StringHash } from 'src/app/entities/constants';
+import { DBModels, StringHash } from 'src/app/entities/constants';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { CreateClientComponent } from '../../../modals/create-client/create-client.component';
@@ -21,6 +21,7 @@ import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { ClientNextActionDataService } from './client-next-action-data.service';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ClientChangeLogsComponent } from '../../../pages/change-log/componets/client-change-logs/client-change-logs.component';
 
 export enum TabIndex {
   MyClients = 0,
@@ -50,6 +51,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   someClientsTotal: number = 0;
   someFutureClientsTotal: number = 0;
 
+  allUsers: ServerUser.Response[] = [];
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string; id: number }[] = [];
 
@@ -198,6 +200,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         ] = [first.total, second.total, thirt.total, fourth.total, fifth.total];
 
         this.fieldConfigs = clientFieldsRes;
+        this.allUsers = usersFieldsRes;
         this.specialists = usersFieldsRes.filter(
           (u) =>
             u.customRoleName === ServerRole.Custom.carSales ||
@@ -337,9 +340,30 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       buttonClass: 'success',
       handler: (item: ServerClient.Response) => this.updateSpecificField(item, FieldNames.Client.dealStatus)
     },
+    {
+      title: 'Показать все изменения по клиенту',
+      icon: 'pencil',
+      buttonClass: 'secondary',
+      disabled: (client) => false,
+      handler: (client) => this.showClientUpdates(client)
+    }
     ];
 
     return configs.filter(config => !config.available || config.available());
+  }
+
+  showClientUpdates(client: ServerClient.Response){
+    const ref = this.dialogService.open(ClientChangeLogsComponent, {
+      data: {
+        clientId: client.id,
+        fieldConfigs: this.fieldConfigs,
+        allUsers: this.allUsers,
+        sourceName: DBModels.Table.Clients,
+      },
+      header: 'Изменения клиента',
+      width: '90%'
+    });
+    // this.subscribeOnCloseModalRef(ref);
   }
 
   updateSpecificField(client: ServerClient.Response, fieldName: string): void {

@@ -90,6 +90,8 @@ import { ClientChangeLogsComponent } from './pages/change-log/componets/client-c
 import { ClientService } from 'src/app/services/client/client.service';
 
 
+// TODO sidebar; separate dashboard [calls + call-requests], [clients];
+
 const routes: Routes = [{
   path: '',
   component: ZASettingsComponent,

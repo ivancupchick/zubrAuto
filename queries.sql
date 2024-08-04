@@ -130,6 +130,7 @@ CREATE TABLE `phoneCalls` (
   `status` varchar(255),
   `isFinished` boolean DEFAULT 0,
   `recordUrl` varchar(255),
+  `isUsed` boolean DEFAULT 0,
 );
 
 CREATE TABLE `callRequests` (

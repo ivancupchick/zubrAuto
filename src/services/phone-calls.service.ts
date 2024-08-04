@@ -40,6 +40,7 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
         status: null,
         isFinished: false,
         recordUrl: null,
+        isUsed: 0,
       }
 
       return await phoneCallsRepository.create(phoneCall);

@@ -17,6 +17,6 @@ router.route('/')
 router.route('/:id')
     .get(authMiddleware, phoneCallController.getOne)
     // .delete(authMiddleware, phoneCallController.deleteOne)
-    // .put(authMiddleware, phoneCallController.update);
+    .put(authMiddleware, phoneCallController.update);
 
 export default router;

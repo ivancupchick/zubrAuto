@@ -16,7 +16,7 @@ import { ClientService } from 'src/app/services/client/client.service';
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { FieldService } from 'src/app/services/field/field.service';
-import { BDModels, StringHash } from 'src/app/entities/constants';
+import { DBModels, StringHash } from 'src/app/entities/constants';
 
 @Component({
   selector: 'za-change-log',
@@ -38,11 +38,11 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   protected form!: UntypedFormGroup;
 
   domains = [
-    {name: 'Машины', value:  BDModels.Table.Cars},
-    {name: 'Клиент', value: BDModels.Table.Clients},
-    {name: 'Пользователь', value: BDModels.Table.Users},
-    {name: 'Заявки', value: BDModels.Table.CallRequests},
-    {name: 'Звонки', value: BDModels.Table.PhoneCalls},
+    {name: 'Машины', value:  DBModels.Table.Cars},
+    {name: 'Клиент', value: DBModels.Table.Clients},
+    {name: 'Пользователь', value: DBModels.Table.Users},
+    {name: 'Заявки', value: DBModels.Table.CallRequests},
+    {name: 'Звонки', value: DBModels.Table.PhoneCalls},
   ];
 
   // allCars: ServerCar.Response[] = [];
@@ -245,13 +245,13 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   showItemUpdates(changeLogItem: ChangeLogItem){
     let modalHeader;
     switch (changeLogItem.sourceName) {
-      case BDModels.Table.Cars:
+      case DBModels.Table.Cars:
         modalHeader = 'машинам';
         break
-      case BDModels.Table.Users:
+      case DBModels.Table.Users:
         modalHeader = 'пользователям';
         break
-      case BDModels.Table.Clients:
+      case DBModels.Table.Clients:
         modalHeader = 'клиентам';
         break
       default:
@@ -277,10 +277,10 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       disabled: (client) => false,
       updater: (instance, item) => {
         const categoryByTableName: StringHash = {
-          [BDModels.Table.Clients]: 'клиенту',
-          [BDModels.Table.Users]: 'пользователю',
-          [BDModels.Table.Cars]: 'машине',
-          [BDModels.Table.CallRequests]: 'заявке',
+          [DBModels.Table.Clients]: 'клиенту',
+          [DBModels.Table.Users]: 'пользователю',
+          [DBModels.Table.Cars]: 'машине',
+          [DBModels.Table.CallRequests]: 'заявке',
         }
 
         const entity = categoryByTableName[item.sourceName];

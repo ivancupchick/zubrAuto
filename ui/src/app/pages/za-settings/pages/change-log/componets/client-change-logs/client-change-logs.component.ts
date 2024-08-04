@@ -11,7 +11,7 @@ import { FieldNames } from 'src/app/entities/FieldNames';
 import { settingsClientsStrings } from 'src/app/pages/za-settings/settings-clients/settings-clients.strings';
 import { ServerClient } from 'src/app/entities/client';
 import { FieldType, FieldsUtils, ServerField } from 'src/app/entities/field';
-import { BDModels, StringHash } from 'src/app/entities/constants';
+import { DBModels, StringHash } from 'src/app/entities/constants';
 import { ServerUser } from 'src/app/entities/user';
 import { DateUtils } from 'src/app/entities/utils';
 import { settingsCarsStrings } from 'src/app/pages/za-settings/settings-cars/settings-cars.strings';
@@ -31,11 +31,11 @@ import { settingsCarsStrings } from 'src/app/pages/za-settings/settings-cars/set
 })
 export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   loading = false;
-  @Input() private itemId: number;
-  @Input() private sourceName: BDModels.Table;
-  @Input() private allUsers: ServerUser.Response[] = [];
+  @Input() itemId: number;
+  @Input() sourceName: DBModels.Table;
+  @Input() allUsers: ServerUser.Response[] = [];
 
-  @Input() private fieldConfigVariants:{
+  @Input() fieldConfigVariants:{
     [key: string]: {
       variants: string,
       type: FieldType
@@ -88,10 +88,10 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const rowsByEntity: StringHash<StringHash> = {
-      [BDModels.Table.Clients]: FieldNames.Client,
-      [BDModels.Table.Users]: FieldNames.User,
-      [BDModels.Table.Cars]: FieldNames.Car,
-      [BDModels.Table.CallRequests]: {},
+      [DBModels.Table.Clients]: FieldNames.Client,
+      [DBModels.Table.Users]: FieldNames.User,
+      [DBModels.Table.Cars]: FieldNames.Car,
+      [DBModels.Table.CallRequests]: {},
     }
 
     this.rows = Object.values(rowsByEntity[this.sourceName]).map(name => ({

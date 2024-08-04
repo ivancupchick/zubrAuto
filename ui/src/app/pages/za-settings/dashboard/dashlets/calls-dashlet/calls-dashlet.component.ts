@@ -104,16 +104,12 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
       .pipe(map(result => {
         const allRequests = result.list.sort((a, b) => (a.createdDate > b.createdDate) ? -1 : (a.createdDate < b.createdDate) ? 1 : 0);
 
-        this.allPhoneCalls = allRequests.filter(call => isPhoneCallUsed(this.allClients, call));
-        this.myPhoneCalls = allRequests.filter(call => `+${call.innerNumber}` === FieldsUtils.getFieldStringValue(this.currentUser.fields, FieldNames.User.number) && !isPhoneCallUsed(this.allClients, call));
-        this.usedPhoneCalls = allRequests.filter(call => isPhoneCallUsed(this.allClients, call));
+        this.allPhoneCalls = [...allRequests];
+        this.myPhoneCalls = allRequests.filter(call => `+${call.innerNumber}` === FieldsUtils.getFieldStringValue(this.currentUser.fields, FieldNames.User.number) && !call.isUsed);
+        this.usedPhoneCalls = allRequests.filter(call => call.isUsed);
 
         if (!this.sessionService.isAdminOrHigher) {
-          this.usedPhoneCalls = allRequests.filter(call => `+${call.innerNumber}` === FieldsUtils.getFieldStringValue(this.currentUser.fields, FieldNames.User.number) && isPhoneCallUsed(this.allClients, call));
-        }
-
-        if (this.sessionService.isAdminOrHigher) {
-          this.allPhoneCalls = [...allRequests];
+          this.usedPhoneCalls = allRequests.filter(call => `+${call.innerNumber}` === FieldsUtils.getFieldStringValue(this.currentUser.fields, FieldNames.User.number) && call.isUsed);
         }
 
         return this.allPhoneCalls;
@@ -226,35 +222,42 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
       title: 'Создать клиента',
       icon: 'user',
       buttonClass: 'secondary',
-      disabled: () => false,
-      handler: (c) => this.openNewClientWindow(c)
+      disabled: (c) => !c || isPhoneCallUsed(this.allClients, c), // TODO why need !c
+      handler: (c) => this.openNewClientWindow(c),
     },
-    // {
-    //   title: 'Заявка использована',
-    //   icon: 'user',
-    //   buttonClass: 'secondary',
-    //   disabled: (c) => !c || !!isPhoneCallUsed(this.allClients, c),
-    //   handler: (c) => this.requestIsUsed(c)
-    // },
+    {
+      title: 'Редактировать клиента',
+      icon: 'user',
+      buttonClass: 'secondary', // TODO why need !call
+      disabled: (call) => !call || !(this.allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === `+${call.clientNumber}`) && `+${call.innerNumber}` === FieldsUtils.getFieldStringValue(this.currentUser.fields, FieldNames.User.number)),
+      handler: (c) => this.updateClient(c),
+    },
+    {
+      title: 'Звонок использован',
+      icon: 'user',
+      buttonClass: 'secondary',
+      disabled: (c) => !c || !!c.isUsed, // TODO why need !c
+      handler: (c) => this.callIsUsed(c)
+    },
     ];
 
     return configs.filter(config => !config.available || config.available());
   }
 
-  // requestIsUsed(call: ServerPhoneCall.Response) {
-  //   const res = confirm('Вы уверены что хотите пометить заявку как использованную?');
+  callIsUsed(call: ServerPhoneCall.Response) {
+    const res = confirm('Вы уверены что хотите пометить звонок как использованный?');
 
-  //   if (res) {
-  //     this.requestService.put<ServerPhoneCall.Response[]>(`${environment.serverUrl}/${'phone-call'}/${call.id}`, {
-  //       isUsed: 1
-  //     }).pipe(
-  //       finalize(() => this.loading = false)
-  //     ).subscribe(() => {
-  //       this.loading = true;
-  //       this.getData().subscribe();
-  //     });
-  //   }
-  // }
+    if (res) {
+      this.requestService.put<ServerPhoneCall.Response[]>(`${environment.serverUrl}/${'phone-call'}/${call.id}`, { // replace to api service adapter
+        isUsed: 1
+      }).pipe(
+        finalize(() => this.loading = false)
+      ).subscribe(() => {
+        this.loading = true;
+        this.getData().subscribe();
+      });
+    }
+  }
 
   openNewClientWindow(call: ServerPhoneCall.Response) {
     const ref = this.dialogService.open(CreateClientComponent, {
@@ -279,6 +282,20 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
           )
           .subscribe();
       }
+    });
+  }
+
+  updateClient(call: ServerPhoneCall.Response) {
+    const client = this.allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === `+${call.clientNumber}`)!;
+
+    const ref = this.dialogService.open(CreateClientComponent, {
+      data: {
+        client,
+        fieldConfigs: this.clientsFieldConfigs,
+        specialists: this.specialists,
+      },
+      header: 'Редактировать клиента',
+      width: '70%'
     });
   }
 

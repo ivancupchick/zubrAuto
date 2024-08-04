@@ -144,8 +144,6 @@ class FieldChainService {
 
         const queryRequest = `SELECT * FROM \`${Models.Table.FieldChains}\` WHERE (sourceName IN ('${Models.Table.Clients}') AND fieldId IN (${id.id}) AND value ${query[operatorName]} '${query[fn]}');`;
 
-        console.log(queryRequest);
-
         return fieldChainRepository.queryRequest(queryRequest);
       })
     ) : [];

@@ -13,7 +13,7 @@ import { finalize, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { Observable, Subject, of, zip } from 'rxjs';
-import { StringHash } from 'src/app/entities/constants';
+import { DBModels, StringHash } from 'src/app/entities/constants';
 import { DateUtils } from 'src/app/entities/utils';
 import { UserService } from 'src/app/services/user/user.service';
 import { ServerUser } from 'src/app/entities/user';
@@ -268,7 +268,8 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       data: {
         clientId: client.id,
         fieldConfigs: this.fieldConfigs,
-        allUsers: this.allUsers
+        allUsers: this.allUsers,
+        sourceName: DBModels.Table.Clients,
       },
       header: 'Изменения клиента',
       width: '90%'

@@ -137,6 +137,7 @@ export namespace Models {
     status: string;
     isFinished: boolean;
     recordUrl: string;
+    isUsed: number;
   }
 
   export interface CallRequest {
