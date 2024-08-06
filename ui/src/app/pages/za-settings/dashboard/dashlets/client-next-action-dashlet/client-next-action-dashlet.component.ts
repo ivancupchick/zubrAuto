@@ -110,6 +110,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getAdditionalData();
+    this.getTotals();
 
     this.form = this.fb.group({
       specialist: '',
@@ -120,7 +121,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       takeUntil(this.destoyed),
     ).subscribe((cars) => {
       this.allCars = cars;
-      this.setGridSettings();
+      this.setGridSettings();  // TODO replace upper
     })
   }
 
@@ -137,6 +138,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     const query = this.getQuery(this.activeIndex);
 
     this.clientNextActionDataService.onFilter(skipEmptyFilters(query));
+    this.getTotals();
   }
 
   getQuery(index: TabIndex): StringHash {
@@ -159,10 +161,8 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     return query;
   }
 
-  getAdditionalData(): void { // TODO separate these requests
+  getTotals(): void {
     zip(
-      this.clientService.getClientFields(),
-      this.userService.getUsers(true),
       this.clientService.getClientsByQuery({
         page: 0,
         size: 0,
@@ -190,7 +190,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       }),
     ).pipe(
       takeUntil(this.destoyed),
-      tap(([clientFieldsRes, usersFieldsRes, first, second, thirt, fourth, fifth]) => {
+      tap(([first, second, thirt, fourth, fifth]) => {
         [
           this.myClientsTotal,
           this.myFutureClientsTotal,
@@ -198,7 +198,17 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
           this.someClientsTotal,
           this.someFutureClientsTotal
         ] = [first.total, second.total, thirt.total, fourth.total, fifth.total];
+      })
+    ).subscribe();
+  }
 
+  getAdditionalData(): void { // TODO separate these requests
+    zip(
+      this.clientService.getClientFields(),
+      this.userService.getUsers(true),
+    ).pipe(
+      takeUntil(this.destoyed),
+      tap(([clientFieldsRes, usersFieldsRes]) => {
         this.fieldConfigs = clientFieldsRes;
         this.allUsers = usersFieldsRes;
         this.specialists = usersFieldsRes.filter(

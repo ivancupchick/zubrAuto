@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject, finalize, map, mergeMap, switchMap, take, takeUntil, zip } from 'rxjs';
+import { Observable, Subject, finalize, map, mergeMap, switchMap, take, takeUntil, tap, zip } from 'rxjs';
 import { ServerCallRequest } from 'src/app/entities/call-request';
 import { RequestService } from 'src/app/services/request/request.service';
 import { SessionService } from 'src/app/services/session/session.service';
@@ -15,6 +15,15 @@ import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CreateClientComponent } from '../../../modals/create-client/create-client.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { CallRequestsDataService } from './call-requests-data.service';
+import { BaseList, StringHash } from 'src/app/entities/constants';
+import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+
+export enum TabIndex {
+  MyCallRequests = 0,
+  AllCallRequests = 1,
+  UsedCallRequests = 2,
+}
 
 @Component({
   selector: 'za-call-requests-dashlet',
@@ -23,19 +32,22 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
   providers: [
     UserService,
     ClientService,
-    DialogService
+    DialogService,
+    CallRequestsDataService,
   ]
 })
 export class CallRequestsDashletComponent implements OnInit, OnDestroy {
-  loading = true;
+  first = 0;
+  sortField = 'id';
+  activeIndex: TabIndex = 0;
 
   gridConfig!: GridConfigItem<ServerCallRequest.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerCallRequest.Response>[] = [];
   getColorConfig: ((item: ServerCallRequest.Response) => string) | undefined;
 
-  myCallRequests: ServerCallRequest.Response[] = [];
-  allCallRequests: ServerCallRequest.Response[] = [];
-  usedCallRequests: ServerCallRequest.Response[] = [];
+  myCallRequestsTotal: number = 0;
+  allCallRequestsTotal: number = 0;
+  usedCallRequestsTotal: number = 0;
 
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string, id: number }[] = [];
@@ -46,28 +58,70 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   clientsFieldConfigs: ServerField.Response[] = []; // !TODO replace away
   isCarSales = this.sessionService.isCarSales;
 
-  constructor(private sessionService: SessionService, private requestService: RequestService, private userService: UserService, private clientService: ClientService,
+  queriesByTabIndex: {
+    [key in TabIndex]: StringHash
+  } = {
+    [TabIndex.MyCallRequests]: {
+      ['userId']: `${this.sessionService.userId}`,
+      ['isUsed']: '0',
+    },
+    [TabIndex.AllCallRequests]: {
+    },
+    [TabIndex.UsedCallRequests]: {
+      ['isUsed']: '1',
+      ...(!this.sessionService.isAdminOrHigher ? {
+        ['userId']: `${this.sessionService.userId}`,
+      } : {})
+    },
+  }
+
+  constructor(
+    private sessionService: SessionService,
+    private requestService: RequestService,
+    private userService: UserService,
+    private clientService: ClientService,
     private dialogService: DialogService,
+    public callRequestsDataService: CallRequestsDataService,
     ) { }
 
   ngOnInit(): void {
-    this.getData().subscribe(() => {
-      this.loading = false;
+    this.getAdditinalData().subscribe(() => {
+      console.log(1);
+      this.getTotals().subscribe();
       this.setGridSettings();
+    });
+
+    this.callRequestsDataService.clients$.pipe(
+      takeUntil(this.destoyed),
+    ).subscribe((clientsRes) => {
+      this.allClients = clientsRes.list;
+      // this.setGridSettings();
     });
   }
 
   refresh() {
-    this.loading = true;
-    this.getCallRequests().pipe(
-      finalize(() => this.loading = false)
-    ).subscribe();
+    const query = this.getQuery(this.activeIndex);
+
+    this.callRequestsDataService.onFilter(query);
+    this.getTotals().subscribe();
   }
 
-  getData(): Observable<ServerCallRequest.Response[]> {
-    return zip(this.clientService.getClients(), this.clientService.getClientFields(), this.userService.getUsers(true)).pipe(
+  getQuery(index: TabIndex): StringHash {
+    const query: StringHash = {
+      [`sortField`]: 'id',
+      [`sortOrder`]: SortDirection.Desc,
+      ...this.queriesByTabIndex[index],
+    };
+
+    // filters
+
+    return query;
+  }
+
+  getAdditinalData(): Observable<unknown> {
+    return zip(this.clientService.getClientFields(), this.userService.getUsers(true)).pipe(
       takeUntil(this.destoyed),
-      switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {
+      tap(([clientFieldsRes, usersFieldsRes]) => {
         this.clientsFieldConfigs = clientFieldsRes;
 
         this.specialists = usersFieldsRes
@@ -81,30 +135,39 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
                       )
                     ));
 
-        this.allClients = clientsRes.list;
-
         this.availableSpecialists = this.specialists.map(u => ({ name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), id: +u.id }));
-
-        return this.getCallRequests();
       })
     );
   }
 
-  getCallRequests(): Observable<ServerCallRequest.Response[]> {
-    return this.requestService.get<ServerCallRequest.Response[]>(`${environment.serverUrl}/${'call-requests'}`)
-      .pipe(map(result => {
-        const allRequests = result.sort((a, b) => (a.createdDate > b.createdDate) ? -1 : (a.createdDate < b.createdDate) ? 1 : 0)
-
-        this.allCallRequests = allRequests.filter(call => !(+call.isUsed));
-        this.myCallRequests = allRequests.filter(call => `${call.userId}` === `${this.sessionService.userId}` && !(+call.isUsed));
-        this.usedCallRequests = allRequests.filter(call => (+call.isUsed));
-
-        if (!this.sessionService.isAdminOrHigher) {
-          this.usedCallRequests = allRequests.filter(call => `${call.userId}` === `${this.sessionService.userId}` && (+call.isUsed));
-        }
-
-        return this.allCallRequests;
-      }))
+  getTotals() {
+    return zip(
+      this.requestService.get<BaseList<ServerCallRequest.Response>>(`${environment.serverUrl}/${'call-requests'}`, {
+        page: 0,
+        size: 0,
+        ...this.getQuery(TabIndex.MyCallRequests)
+      }),
+      this.requestService.get<BaseList<ServerCallRequest.Response>>(`${environment.serverUrl}/${'call-requests'}`, {
+        page: 0,
+        size: 0,
+        ...this.getQuery(TabIndex.AllCallRequests)
+      }),
+      this.requestService.get<BaseList<ServerCallRequest.Response>>(`${environment.serverUrl}/${'call-requests'}`, {
+        page: 0,
+        size: 0,
+        ...this.getQuery(TabIndex.UsedCallRequests)
+      }),
+    ).pipe(
+      takeUntil(this.destoyed),
+      tap(([first, second, thirt]) => {
+        console.log([first, second, thirt]);
+        [
+          this.myCallRequestsTotal,
+          this.allCallRequestsTotal,
+          this.usedCallRequestsTotal,
+        ] = [first.total, second.total, thirt.total];
+      })
+    );
   }
 
   setGridSettings() {
@@ -246,10 +309,9 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       this.requestService.put<ServerCallRequest.Response[]>(`${environment.serverUrl}/${'call-requests'}/${call.id}`, {
         isUsed: 1
       }).pipe(
-        finalize(() => this.loading = false)
+        takeUntil(this.destoyed)
       ).subscribe(() => {
-        this.loading = true;
-        this.getData().subscribe();
+        this.refresh();
       });
     }
   }
@@ -271,7 +333,6 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
 
     ref.onClose.pipe(takeUntil(this.destoyed)).subscribe((res) => {
       if (res) {
-        this.loading = true;
         this.requestService
           .put<ServerCallRequest.Response[]>(
             `${environment.serverUrl}/${'call-requests'}/${call.id}`,
@@ -280,12 +341,11 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
             }
           )
           .pipe(
-            mergeMap(() => {
-              return this.getCallRequests();
-            }),
-            finalize(() => this.loading = false)
+            takeUntil(this.destoyed)
           )
-          .subscribe();
+          .subscribe(() => {
+            this.refresh();
+          });
       }
     });
   }

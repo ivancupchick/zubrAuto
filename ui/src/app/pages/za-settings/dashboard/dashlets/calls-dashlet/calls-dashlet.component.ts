@@ -89,8 +89,8 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
       takeUntil(this.destoyed),
     ).subscribe((clientsRes) => {
       this.allClients = clientsRes.list;
-      this.setGridSettings();
-    })
+      this.setGridSettings(); // TODO replace upper
+    });
   }
 
   refresh() {
@@ -101,11 +101,11 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
     const query = this.getQuery(this.activeIndex);
 
     this.callsDataService.onFilter(query);
+    this.getTotals().subscribe();
   }
 
   getQuery(index: TabIndex): StringHash {
     if (!this.queriesByTabIndex) {
-      console.log(index, {});
       return {};
     }
 
@@ -118,7 +118,6 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
     // filters
 
-    console.log(index, query);
     return query;
   }
 

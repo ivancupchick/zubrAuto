@@ -72,6 +72,7 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
     const {
       page,
       size,
+      sortOrder,
     } = query;
     delete query['page'];
     delete query['size'];
@@ -80,6 +81,8 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
       callRequestsRepository,
       query
     );
+
+    console.log(searchCallRequestsIds);
 
     let callRequestsIds = [...searchCallRequestsIds];
 
@@ -93,7 +96,16 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
       id: callRequestsIds
     }) : [];
 
-    return this.getCallRequests(requests);
+    let list = await this.getCallRequests(requests);
+
+    if (sortOrder === 'DESC') {
+      list = list.reverse();
+    }
+
+    return {
+      list: list,
+      total: searchCallRequestsIds.length
+    };
   }
 
   async create(callRequestData: ServerCallRequest.CreateRequest) {

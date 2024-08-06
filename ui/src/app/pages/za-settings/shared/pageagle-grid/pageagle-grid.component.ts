@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { GridActionConfigItem, GridConfigItem, gridItemHeight } from '../grid/grid';
 import { LazyLoadEvent, MenuItem, SortEvent } from 'primeng/api';
 import { PageagleGridService } from './pageagle-grid.service';
@@ -21,6 +21,7 @@ import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-dir
     ContextMenuModule,
     SpinnerComponent
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PageagleGridComponent<GridItemType extends { id: number }> implements OnInit {
   @Input() gridConfig!: GridConfigItem<GridItemType>[];

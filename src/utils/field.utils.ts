@@ -5,7 +5,6 @@ import { StringHash } from "../models/hashes";
 export const getFieldChainsValue = (query: StringHash, fields: Models.Field[]): string[] => {
   fields.forEach(f => {
     if (f.type === FieldType.Dropdown || f.type === FieldType.Multiselect) {
-      console.log(query);
       const needVariants = query[f.name].split(',');
       query[f.name] = needVariants.map(v => {
         if (f.variants) {

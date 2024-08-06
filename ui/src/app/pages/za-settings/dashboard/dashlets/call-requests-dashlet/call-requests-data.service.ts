@@ -1,31 +1,31 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
+import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import { BehaviorSubject, finalize, mergeMap, of, Subject, takeUntil, zip } from 'rxjs';
-import { ServerClient } from 'src/app/entities/client';
+import { ServerCallRequest } from 'src/app/entities/call-request';
 import { BaseList, StringHash } from 'src/app/entities/constants';
-import { ServerPhoneCall, Webhook } from 'src/app/entities/phone-calls';
+import { ServerClient } from 'src/app/entities/client';
 import { ClientService } from 'src/app/services/client/client.service';
 import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
-import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
 
-type CallDashletFilters = {
+type CallRequestsFilters = {
   [key: string]: number | string;
 };
 
 @Injectable()
-export class CallsDashletDataService extends PageagleGridService<ServerPhoneCall.Response> implements OnDestroy {
+export class CallRequestsDataService extends PageagleGridService<ServerCallRequest.Response> implements OnDestroy {
   private loading = new BehaviorSubject<boolean>(false);
   public loading$ = this.loading.asObservable();
 
-  private calls = new BehaviorSubject<BaseList<ServerPhoneCall.Response>>({ list: [], total: 0 });
+  private calls = new BehaviorSubject<BaseList<ServerCallRequest.Response>>({ list: [], total: 0 });
   public list$ = this.calls.asObservable();
 
   private clientsSubject = new BehaviorSubject<BaseList<ServerClient.Response>>({ list: [], total: 0 });
   public clients$ = this.clientsSubject.asObservable();
 
-  private payload: CallDashletFilters = {
+  private payload: CallRequestsFilters = {
     page: 1,
     size: 10,
   };
@@ -37,15 +37,12 @@ export class CallsDashletDataService extends PageagleGridService<ServerPhoneCall
   private requestService = inject(RequestService);
 
   public fetchData() {
-    if (!this.ready) {
-      return;
-    }
     this.loading.next(true);
 
-    this.requestService.get<BaseList<ServerPhoneCall.Response>>(`${environment.serverUrl}/${'phone-call'}`, this.payload) //
+    this.requestService.get<BaseList<ServerCallRequest.Response>>(`${environment.serverUrl}/${'call-requests'}`, this.payload) //
       .pipe(
         mergeMap((callsRes) => {
-          const numbers = callsRes.list.map(call => `+${call.clientNumber}`);
+          const numbers = callsRes.list.map(callRequest => callRequest.clientNumber);
 
           const query: StringHash<string[]> = { [FieldNames.Client.number]: numbers };
 
@@ -82,7 +79,7 @@ export class CallsDashletDataService extends PageagleGridService<ServerPhoneCall
     this.fetchData();
   }
 
-  public onFilter(callDashletFilters: CallDashletFilters) {
+  public onFilter(callDashletFilters: CallRequestsFilters) {
     const payload = {
       size: this.payload.size,
       page: 1,

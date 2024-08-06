@@ -100,13 +100,10 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
     const {
       page,
       size,
+      sortOrder,
     } = query;
     delete query['page'];
     delete query['size'];
-
-    const sortOrder = 'DESC';
-    query['sortOrder'] = 'DESC';
-    query['sortField'] = 'id';
 
     const searchEntitiesIds = await getEntityIdsByNaturalQuery(
       phoneCallsRepository,
