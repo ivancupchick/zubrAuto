@@ -1,13 +1,13 @@
-<p-panel *ngIf="allPhoneCalls.length" header="Звонки">
+<p-panel *ngIf="allPhoneTotal" header="Звонки">
   <ng-template pTemplate="icons">
     <p-button size="small" (onClick)="refresh()" class="mr-2">
-      <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+      <i class="pi pi-refresh" [ngClass]="{'pi-spin': callsDataService.loading$ | async}"></i>
     </p-button>
   </ng-template>
 
-  <p-tabView>
-    <p-tabPanel header="Мои ({{myPhoneCalls.length}})">
-      <div class="h-8rem">
+  <p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="refresh()">
+    <p-tabPanel header="Мои ({{ myPhoneTotal }})">
+      <!-- <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
           [fixedHeight]="140"
@@ -17,10 +17,10 @@
           [getColorConfig]="getColorConfig"
           [gridData]="myPhoneCalls"
         ></za-grid>
-      </div>
+      </div> -->
     </p-tabPanel>
-    <p-tabPanel *ngIf="!isCarSales" header="Все ({{allPhoneCalls.length}})">
-      <div class="h-8rem">
+    <p-tabPanel *ngIf="!isCarSales" header="Все ({{ allPhoneTotal }})">
+      <!-- <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
           [fixedHeight]="140"
@@ -30,10 +30,10 @@
           [getColorConfig]="getColorConfig"
           [gridData]="allPhoneCalls"
         ></za-grid>
-      </div>
+      </div> -->
     </p-tabPanel>
-    <p-tabPanel header="Использованные ({{usedPhoneCalls.length}})">
-      <div class="h-8rem">
+    <p-tabPanel header="Использованные ({{ usedPhoneTotal }})">
+      <!-- <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
           [fixedHeight]="140"
@@ -43,9 +43,27 @@
           [getColorConfig]="getColorConfig"
           [gridData]="usedPhoneCalls"
         ></za-grid>
-      </div>
+      </div> -->
     </p-tabPanel>
   </p-tabView>
+
+  <div class="grid-wrapper h-12rem">
+    <za-pageagle-grid
+      *ngIf="(callsDataService.list$ | async)?.list?.length else empty"
+      [gridConfig]="gridConfig"
+      [actions]="gridActionsConfig"
+      [getColorConfig]="getColorConfig"
+      [dataService]="callsDataService"
+      [sortField]="sortField"
+      [first]="first"
+    ></za-pageagle-grid>
+
+    <ng-template #empty>
+      <div class="w-full h-full flex justify-content-center align-items-center surface-300">
+        <span>Нет записей</span>
+      </div>
+    </ng-template>
+  </div>
 </p-panel>
 
-<za-spinner *ngIf="loading"></za-spinner>
+<!-- <za-spinner *ngIf="callsDataService.loading$ | async"></za-spinner> -->

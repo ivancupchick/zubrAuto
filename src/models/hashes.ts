@@ -1,5 +1,5 @@
-export interface StringHash {
-  [key: string]: string;
+export interface StringHash<T = string> {
+  [key: string]: T;
 }
 
 export interface NumberHash {

@@ -299,8 +299,8 @@ export class CreateClientComponent implements OnInit {
         ? this.clientService.updateClient(client, (this.client as ServerClient.Response).id)
         : this.clientService.getClientsByNumber({ [FieldNames.Client.number]: FieldsUtils.getFieldStringValue(client.fields, FieldNames.Client.number) }).pipe(
           mergeMap((res) => {
-            if (res && res.length) {
-              res.forEach((existClient, index) => {
+            if (res && res.list.length) {
+              res.list.forEach((existClient, index) => {
                 this.dialogService.open(ClientPreviewComponent, {
                   data: {
                     client: existClient,

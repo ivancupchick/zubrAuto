@@ -76,8 +76,8 @@ export class ClientService {
     return this.fieldService.getFieldsByDomain(FieldDomains.Client);
   }
 
-  getClientsByNumber(payloud: StringHash): Observable<ServerClient.Response[]> {
-    return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}`, payloud)
+  getClientsByNumber(payloud: StringHash<string | string[]>): Observable<BaseList<ServerClient.Response>> {
+    return this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`, payloud)
       .pipe(map(result => {
         return result;
       }))

@@ -6,7 +6,7 @@ import { SSHConnection } from '../../mysql-connect';
 import { OkPacket, ResultSetHeader, RowDataPacket } from 'mysql2';
 
 export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
-  constructor(protected tableName: string) {}
+  constructor(public readonly tableName: string) {}
 
   protected async query<TRes extends (RowDataPacket[] | RowDataPacket[][] | OkPacket | OkPacket[] | ResultSetHeader)>(query: string): Promise<TRes> {
     // const start = new Date().getTime();

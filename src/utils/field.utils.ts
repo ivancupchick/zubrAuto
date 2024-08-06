@@ -4,7 +4,8 @@ import { StringHash } from "../models/hashes";
 
 export const getFieldChainsValue = (query: StringHash, fields: Models.Field[]): string[] => {
   fields.forEach(f => {
-    if (f.type === FieldType.Dropdown || FieldType.Multiselect) {
+    if (f.type === FieldType.Dropdown || f.type === FieldType.Multiselect) {
+      console.log(query);
       const needVariants = query[f.name].split(',');
       query[f.name] = needVariants.map(v => {
         if (f.variants) {
@@ -18,7 +19,7 @@ export const getFieldChainsValue = (query: StringHash, fields: Models.Field[]): 
     }
   });
 
-  const queryValues = fields.map(f => f.name).map(k => query[k].split(','));
+  const queryValues = fields.map(f => f.name).map(k => Array.isArray(query[k]) ? query[k] as unknown as string[] : query[k].split(','));
   const rValues: string[] = [];
   queryValues.forEach(queryValue => {
     queryValue.forEach(vv => rValues.push(vv));

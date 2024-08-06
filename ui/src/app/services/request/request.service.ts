@@ -10,7 +10,7 @@ export class RequestService {
 
   constructor(private httpClient: HttpClient) {}
 
-  get<T>(url: string, params: StringHash<string | number> = {}, isCachableRequest: boolean = false) {
+  get<T>(url: string, params: StringHash<string | number | string[]> = {}, isCachableRequest: boolean = false) {
     return this.baseRequest(
       this.httpClient.get<T>(url, { params }),
       url,
