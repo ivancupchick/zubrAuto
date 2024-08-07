@@ -6,7 +6,7 @@ import { StringHash } from "../models/hashes";
 import { Webhook } from "../models/webhook";
 import phoneCallsRepository from "../repositories/base/phone-calls.repository";
 import { getEntityIdsByNaturalQuery } from "../utils/enitities-functions";
-
+import { JSONparse } from '../utils/json.util';
 
 class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest, ServerPhoneCall.UpdateRequest, ServerPhoneCall.Response, ServerPhoneCall.IdResponse>
  {
@@ -53,7 +53,7 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
       });
 
       if (phoneCall) {
-        const oldNotifications: Webhook.Notification[] = JSON.parse(phoneCall.originalNotifications)
+        const oldNotifications: Webhook.Notification[] = JSONparse<Webhook.Notification[]>(phoneCall.originalNotifications) || [];
         phoneCall.originalNotifications = JSON.stringify([...oldNotifications, webhook]);
 
         return await phoneCallsRepository.updateById(phoneCall.id, phoneCall);
@@ -67,7 +67,7 @@ class PhoneCallService // implements ICrudService<ServerPhoneCall.CreateRequest,
       });
 
       if (phoneCall) {
-        const oldNotifications: Webhook.Notification[] = JSON.parse(phoneCall.originalNotifications)
+        const oldNotifications: Webhook.Notification[] = JSONparse<Webhook.Notification[]>(phoneCall.originalNotifications) || [];
         phoneCall.originalNotifications = JSON.stringify([...oldNotifications, webhook]);
 
         phoneCall.status = webhook.crmCallFinishedStatus;

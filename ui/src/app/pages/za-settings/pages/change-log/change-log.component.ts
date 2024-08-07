@@ -9,7 +9,7 @@ import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
-import { DateUtils } from 'src/app/entities/utils';
+import { DateUtils } from 'src/app/shared/utils/date.util';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ClientChangeLogsComponent } from './componets/client-change-logs/client-change-logs.component';
 import { ClientService } from 'src/app/services/client/client.service';
@@ -44,6 +44,8 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
     {name: 'Заявки', value: DBModels.Table.CallRequests},
     {name: 'Звонки', value: DBModels.Table.PhoneCalls},
   ];
+
+  sold = false;
 
   // allCars: ServerCar.Response[] = [];
 
@@ -115,6 +117,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       this.form = this.fb.group({
         sourceName: [''],
         userId: [''],
+        date: [''],
       })
     });
 
@@ -301,7 +304,18 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       this.form.markAllAsTouched();
       return;
     }
-    this.changeLogDataService.onFilter(skipEmptyFilters(this.form.value));
+
+    let payload = skipEmptyFilters({...this.form.value });
+
+    if (this.sold) {
+      payload = { ...payload, ['activities']: `%${FieldNames.Client.dealStatus}-2%`, ['filter-operator-activities']: 'LIKE' }
+    }
+
+    if (payload.date) {
+      payload = { ...payload, date: +payload.date, ['filter-operator-date']: '>' }
+    }
+
+    this.changeLogDataService.onFilter(payload);
     this.first = 0;
   }
 

@@ -19,7 +19,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       users,
       relatedFields
     ] = await Promise.all([
-      userRepository.find({ deleted: ['0']}),
+      userRepository.getAll(),
       fieldService.getFieldsByDomain(FieldDomains.User)
     ]);
 

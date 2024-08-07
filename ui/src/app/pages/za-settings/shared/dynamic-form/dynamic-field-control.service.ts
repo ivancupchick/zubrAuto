@@ -37,7 +37,7 @@ export class DynamicFieldControlService {
   }
 
   getDynamicFieldsFromDBFields(dbFields: UIRealField[]) {
-    const requiredFields: string[] = [FieldNames.Client.name,FieldNames.Client.number, FieldNames.Client.dealStatus, FieldNames.Client.source];
+    const requiredFields: string[] = [FieldNames.Client.name,FieldNames.Client.number, FieldNames.Client.dealStatus, FieldNames.Client.source, FieldNames.Client.SpecialistId];
 
     const fields: DynamicFieldBase<string>[] = dbFields
       .filter(dbField => !FlagField.Is(dbField, FlagField.Flags.Virtual))

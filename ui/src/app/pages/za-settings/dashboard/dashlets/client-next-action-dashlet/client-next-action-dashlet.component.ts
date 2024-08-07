@@ -10,7 +10,7 @@ import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
 import { FieldNames } from '../../../../../../../../src/entities/FieldNames';
 import * as moment from 'moment';
-import { DateUtils } from 'src/app/entities/utils';
+import { DateUtils } from 'src/app/shared/utils/date.util';
 import { ServerRole } from 'src/app/entities/role';
 import { settingsClientsStrings } from '../../../settings-clients/settings-clients.strings';
 import { DBModels, StringHash } from 'src/app/entities/constants';
@@ -365,7 +365,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   showClientUpdates(client: ServerClient.Response){
     const ref = this.dialogService.open(ClientChangeLogsComponent, {
       data: {
-        clientId: client.id,
+        itemId: client.id,
         fieldConfigs: this.fieldConfigs,
         allUsers: this.allUsers,
         sourceName: DBModels.Table.Clients,

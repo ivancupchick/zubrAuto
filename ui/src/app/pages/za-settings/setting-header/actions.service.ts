@@ -106,7 +106,7 @@ export class ActionsService {
       label: 'Логи',
       icon: 'pi pi-fw pi-users',
       routerLink: 'change-log',
-      visible: () => this.sessionService.isAdminOrHigher,
+      visible: () => this.sessionService.isAdminOrHigher || this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
     }
   }
 

@@ -10,7 +10,7 @@ import { FieldsUtils, FieldType, ServerField, UIRealField } from 'src/app/entiti
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerRole } from 'src/app/entities/role';
 import { ServerUser } from 'src/app/entities/user';
-import { DateUtils } from 'src/app/entities/utils';
+import { DateUtils } from 'src/app/shared/utils/date.util';
 import { CarService } from 'src/app/services/car/car.service';
 import { ClientService } from 'src/app/services/client/client.service';
 import { SessionService } from 'src/app/services/session/session.service';

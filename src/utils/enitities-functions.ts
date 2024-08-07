@@ -82,5 +82,19 @@ export async function getEntityIdsByNaturalQuery<T extends { id: number }>(repos
     });
   }
 
+  if (!entitiesByQuery.length) {
+    if (ids.size > 0) {
+      specialIds.forEach(id => {
+        if (ids.has(`${id}`)) {
+          searchIds.add(`${id}`);
+        }
+      });
+    } else {
+      specialIds.forEach(id => {
+        searchIds.add(`${id}`);
+      });
+    }
+  }
+
   return [...searchIds];
 }

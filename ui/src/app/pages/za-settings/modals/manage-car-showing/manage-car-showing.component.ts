@@ -5,7 +5,7 @@ import { CarStatistic, ServerCar, UICarShowingStatistic } from 'src/app/entities
 import { StringHash } from 'src/app/entities/constants';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
-import { DateUtils } from 'src/app/entities/utils';
+import { DateUtils } from 'src/app/shared/utils/date.util';
 import { CarService } from 'src/app/services/car/car.service';
 import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid';
 import { CreateCarShowingComponent } from '../create-car-showing/create-car-showing.component';

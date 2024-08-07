@@ -14,7 +14,7 @@ import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { Observable, Subject, of, zip } from 'rxjs';
 import { DBModels, StringHash } from 'src/app/entities/constants';
-import { DateUtils } from 'src/app/entities/utils';
+import { DateUtils } from 'src/app/shared/utils/date.util';
 import { UserService } from 'src/app/services/user/user.service';
 import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';
@@ -266,7 +266,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   showClientUpdates(client: ServerClient.Response){
     const ref = this.dialogService.open(ClientChangeLogsComponent, {
       data: {
-        clientId: client.id,
+        itemId: client.id,
         fieldConfigs: this.fieldConfigs,
         allUsers: this.allUsers,
         sourceName: DBModels.Table.Clients,

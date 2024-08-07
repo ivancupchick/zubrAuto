@@ -14,7 +14,7 @@ import { ClientService } from 'src/app/services/client/client.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { ServerRole } from 'src/app/entities/role';
 import { FieldNames } from 'src/app/entities/FieldNames';
-import { DateUtils } from 'src/app/entities/utils';
+import { DateUtils } from 'src/app/shared/utils/date.util';
 import { CreateClientComponent } from '../../../modals/create-client/create-client.component';
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { CallsDashletDataService } from './calls-dashlet-data.service';

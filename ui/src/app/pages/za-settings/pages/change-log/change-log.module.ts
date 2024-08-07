@@ -10,6 +10,8 @@ import { ChangeLogDataService } from './services/change-log-data.service';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { CheckboxModule } from 'primeng/checkbox';
 
 const routes: Routes = [
   {
@@ -32,6 +34,8 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     DropdownModule,
+    CalendarModule,
+    CheckboxModule,
   ],
   providers: [
     RequestService,

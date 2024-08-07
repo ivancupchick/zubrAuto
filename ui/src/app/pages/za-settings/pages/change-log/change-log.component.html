@@ -15,7 +15,9 @@
           class="ng-dirty"
           [showClear]="true"
         />
+
         <p-dropdown
+          class="ml-2"
           [options]="users"
           formControlName="userId"
           [filter]="true"
@@ -24,11 +26,31 @@
           optionValue="id"
           [showClear]="true"
           placeholder="Выберите пользователя"/>
+
+        <p-calendar
+          class="ml-2"
+          appendTo="body"
+          [formControlName]="'date'"
+          [showTime]="false"
+          [firstDayOfWeek]="1"
+          placeholder="Дата от"
+        ></p-calendar>
+
+        <ng-container *ngIf="form.get('sourceName')?.value === 'clients'">
+          <label class="mx-2" for="sold">Показать проданные</label>
+          <p-checkbox
+            id="sold"
+            [(ngModel)]="sold"
+            [ngModelOptions]="{standalone: true}"
+            [binary]="true"
+            inputId="binary" />
+        </ng-container>
       </div>
     </form>
   </div>
 
-  <div class="flex flex-row justify-content-end align-items-center row-gap-1 col-12">
+  <div class="flex flex-row justify-content-between align-items-center row-gap-1 col-12">
+    <span>Кол-во: {{ (changeLogDataService.list$ | async)?.total || 0 }}</span>
     <p-button label="Filter" (onClick)="onFilter()"/>
   </div>
 </div>

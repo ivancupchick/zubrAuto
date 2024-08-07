@@ -8,7 +8,7 @@ import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid'
 import { UserService } from 'src/app/services/user/user.service';
 import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';
-import { DateUtils } from 'src/app/entities/utils';
+import { DateUtils } from 'src/app/shared/utils/date.util';
 import { ClientService } from 'src/app/services/client/client.service';
 import { ServerClient } from 'src/app/entities/client';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';

@@ -103,7 +103,7 @@ export class CreateClientComponent implements OnInit {
 
   ngOnInit(): void {
     this.fieldConfigs = this.config.data.fieldConfigs;
-    this.specialists = this.config.data.specialists;
+    this.specialists = this.config.data.specialists.filter((s: any) => +s.deleted === 0);
 
     this.isJustCall = new UntypedFormControl(false);
 
@@ -146,7 +146,7 @@ export class CreateClientComponent implements OnInit {
         this.dfcs.getDynamicFieldFromOptions({
           id: specialistIdField?.id || -1,
           value: this.client?.fields.find(f => f.name === FieldNames.Client.SpecialistId)?.value || 'None',
-          key: FieldNames.Car.contactCenterSpecialistId,
+          key: FieldNames.Client.SpecialistId,
           label: 'Специалист',
           order: 1,
           controlType: FieldType.Dropdown,
@@ -241,7 +241,7 @@ export class CreateClientComponent implements OnInit {
       const carIds = this.selectedCars.map(sc => sc.id).join(',');
       const client: ServerClient.CreateRequest = {
         carIds,
-        fields: fields.filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
+        fields: fields.filter(fc => fc.name === FieldNames.Client.SpecialistId || !this.excludeFields.includes(fc.name as FieldNames.Client))
       }
 
       if (!this.client) {

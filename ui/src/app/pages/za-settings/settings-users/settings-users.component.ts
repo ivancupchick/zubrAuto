@@ -143,6 +143,7 @@ export class SettingsUsersComponent implements OnInit {
     return this.userService.getUsers().pipe(
       finalize(() => this.loading = false),
       tap((result) => {
+        result = result.filter(u => +u.deleted === 0);
         const contactCenterRole = this.roles.find(cr => cr.systemName === ServerRole.Custom.contactCenter)!;
 
         this.rawUsers = this.sessionService.isContactCenterChief

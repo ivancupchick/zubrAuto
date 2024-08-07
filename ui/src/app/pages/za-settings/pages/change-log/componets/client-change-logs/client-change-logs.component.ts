@@ -13,7 +13,7 @@ import { ServerClient } from 'src/app/entities/client';
 import { FieldType, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { DBModels, StringHash } from 'src/app/entities/constants';
 import { ServerUser } from 'src/app/entities/user';
-import { DateUtils } from 'src/app/entities/utils';
+import { DateUtils } from 'src/app/shared/utils/date.util';
 import { settingsCarsStrings } from 'src/app/pages/za-settings/settings-cars/settings-cars.strings';
 
 @Component({
