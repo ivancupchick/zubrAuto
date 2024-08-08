@@ -267,7 +267,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       .subscribe(([carFieldConfigs, carOwnerFieldConfigs, users]) => {
         this.carFieldConfigs = carFieldConfigs;
         this.carOwnerFieldConfigs = carOwnerFieldConfigs;
-        this.contactCenterUsers = users
+        this.contactCenterUsers = users.list
           .filter(u => u.customRoleName === ServerRole.Custom.contactCenter
                     || u.customRoleName === ServerRole.Custom.contactCenterChief
                     || (
@@ -275,7 +275,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
                         u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
                       )
                     ));
-        this.carShootingUsers = users
+        this.carShootingUsers = users.list
           .filter(u => u.customRoleName === ServerRole.Custom.carShooting
                     || u.customRoleName === ServerRole.Custom.carShootingChief
                     || (

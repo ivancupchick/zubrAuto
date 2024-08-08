@@ -124,7 +124,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       tap(([clientFieldsRes, usersFieldsRes]) => {
         this.clientsFieldConfigs = clientFieldsRes;
 
-        this.specialists = usersFieldsRes
+        this.specialists = usersFieldsRes.list
           .filter(u => u.customRoleName === ServerRole.Custom.carSales
                     || u.customRoleName === ServerRole.Custom.carSalesChief
                     || u.customRoleName === ServerRole.Custom.customerService

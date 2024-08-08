@@ -66,7 +66,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
 
       const userIdValue = carChaines.find(ch => ch.fieldId === contactCenterSpecialistIdField.id);
       const userId: number = userIdValue && userIdValue.value ? +userIdValue.value : -1;
-      const user = allUsers.find(dbUser => dbUser.id === userId);
+      const user = allUsers.list.find(dbUser => dbUser.id === userId);
 
       if (carForm) {
         carChaines.find(ch => {

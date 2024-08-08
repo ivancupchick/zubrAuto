@@ -103,7 +103,7 @@ export class CreateClientComponent implements OnInit {
 
   ngOnInit(): void {
     this.fieldConfigs = this.config.data.fieldConfigs;
-    this.specialists = this.config.data.specialists.filter((s: any) => +s.deleted === 0);
+    this.specialists = this.config.data.specialists;
 
     this.isJustCall = new UntypedFormControl(false);
 

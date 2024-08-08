@@ -6,23 +6,16 @@ import { ServerUser } from '../entities/User';
 import { ApiError } from '../exceptions/api.error';
 import userRepository from '../repositories/base/user.repository';
 import fieldService from './field.service';
-import { FieldDomains } from '../entities/Field';
+import { FieldDomains, ServerField } from '../entities/Field';
 import { getFieldsWithValues } from '../utils/field.utils';
 import fieldChainService from './field-chain.service';
 import { ICrudService } from '../entities/Types';
 import roleRepository from '../repositories/base/role.repository';
-import { ServerRole } from '../entities/Role';
+import { StringHash } from '../models/hashes';
+import fieldRepository from '../repositories/base/field.repository';
 
 class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.UpdateRequest, ServerUser.Response, ServerUser.IdResponse> {
-  async getAll() {
-    const [
-      users,
-      relatedFields
-    ] = await Promise.all([
-      userRepository.getAll(),
-      fieldService.getFieldsByDomain(FieldDomains.User)
-    ]);
-
+  async getUsers(users: Models.User[], usersFields: ServerField.Response[]) {
     const chaines = await fieldChainService.find({
       sourceName: [`${Models.Table.Users}`],
       sourceId: users.map(c => `${c.id}`),
@@ -39,10 +32,91 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
       roleLevel: user.roleLevel,
       deleted: user.deleted,
       customRoleName: customRoles.find(cr => (cr.id + 1000) === user.roleLevel)?.systemName || '',
-      fields: getFieldsWithValues(relatedFields, chaines, user.id)
+      fields: getFieldsWithValues(usersFields, chaines, user.id)
     }))
 
-    return result as any; //TODO
+    return result;
+  }
+
+  async getAll() {
+    const [
+      users,
+      relatedFields
+    ] = await Promise.all([
+      userRepository.getAll(),
+      fieldService.getFieldsByDomain(FieldDomains.User)
+    ]);
+
+    let list = await this.getUsers(users, relatedFields);
+
+    return {
+      list: list,
+      total: users.length
+    };
+  }
+
+  async getUsersByQuery(query: StringHash) {
+    const {
+      page,
+      size,
+      sortOrder,
+      sortField,
+    } = query;
+    delete query['page'];
+    delete query['size'];
+    delete query['sortOrder'];
+    delete query['sortField'];
+
+    const searchUsersIds = await fieldChainService.getEntityIdsByQuery(
+      Models.Table.Users,
+      FieldDomains.User,
+      query
+    );
+
+    let usersIds = [...searchUsersIds];
+
+    if (sortField && sortOrder) {
+      const sortFieldConfig = await fieldRepository.findOne({
+        name: [sortField]
+      });
+
+      if (sortFieldConfig && searchUsersIds.length) {
+        const sortChaines = await fieldChainService.find({
+          fieldId: [`${sortFieldConfig.id}`],
+          sourceId: searchUsersIds,
+          sourceName: [Models.Table.Users],
+        }, sortOrder);
+
+        usersIds = sortChaines.map(ch => `${ch.sourceId}`);
+      }
+    }
+
+    if (page && size) {
+      const start = (+page - 1) * +size;
+
+      usersIds = usersIds.slice(start, start + +size);
+    }
+
+    const users = usersIds.length > 0 ? await userRepository.find({
+      id: usersIds
+    }) : [];
+
+    const [
+      usersFields,
+    ] = await Promise.all([
+      fieldService.getFieldsByDomain(FieldDomains.Client),
+    ]);
+
+    let list = await this.getUsers(users, usersFields);;
+
+    // if (sortOrder === 'DESC') {
+    //   list = list.reverse();
+    // }
+
+    return {
+      list: list,
+      total: searchUsersIds.length
+    };
   }
 
   async create(userData: ServerUser.CreateRequest) {

@@ -11,7 +11,7 @@ import { CreateUserComponent } from '../modals/create-user/create-user.component
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid';
 import { settingsUsersStrings } from './settings-users.strings';
 import { FieldNames } from '../../../../../../src/entities/FieldNames';
-import { finalize, tap } from 'rxjs/operators';
+import { finalize, map, tap } from 'rxjs/operators';
 import { SessionService } from 'src/app/services/session/session.service';
 
 @Component({
@@ -142,6 +142,7 @@ export class SettingsUsersComponent implements OnInit {
     this.loading = true;
     return this.userService.getUsers().pipe(
       finalize(() => this.loading = false),
+      map(result => result.list),
       tap((result) => {
         result = result.filter(u => +u.deleted === 0);
         const contactCenterRole = this.roles.find(cr => cr.systemName === ServerRole.Custom.contactCenter)!;

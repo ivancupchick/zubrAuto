@@ -12,6 +12,7 @@ export enum ActivityType {
 
   CreateUser = 'CreateUser',
   UpdateUser = 'UpdateUser',
+  DeleteUser = 'DeleteUser',
 
   CreatePhoneCall = 'CreatePhoneCall',
   UpdatePhoneCall = 'UpdatePhoneCall',

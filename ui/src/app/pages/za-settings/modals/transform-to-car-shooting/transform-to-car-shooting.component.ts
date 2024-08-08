@@ -56,7 +56,7 @@ export class TransformToCarShooting implements OnInit {
       .subscribe(users => {
         this.carShootingUsers = [
           { value: 'Никто', key: 'None' },
-          ...users
+          ...users.list
             .filter(u => u.customRoleName === ServerRole.Custom.carShooting
                       || u.customRoleName === ServerRole.Custom.carShootingChief
                       || (this.sessionService.isRealAdminOrHigher && (u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin)) )

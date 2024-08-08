@@ -18,8 +18,8 @@ router.route(`/${ Constants.API.CRUD }/`)
       userController.create
     );
 
-router.route(`/${ Constants.API.CRUD }/:userId`)
-    .get(userController.get)
+router.route(`/${ Constants.API.CRUD }/:id`)
+    .get(userController.getOne)
     .delete(userController.delete)
     .put(userController.update);
 

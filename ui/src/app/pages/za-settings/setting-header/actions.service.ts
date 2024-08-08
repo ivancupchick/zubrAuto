@@ -228,7 +228,7 @@ export class ActionsService {
             const ref = this.dialogService.open(CreateClientComponent, {
               data: {
                 fieldConfigs: fieldConfigs,
-                specialists: specialists.filter(
+                specialists: specialists.list.filter(
                   (u) =>
                     u.customRoleName === ServerRole.Custom.carSales ||
                     u.customRoleName === ServerRole.Custom.carSalesChief ||

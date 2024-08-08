@@ -139,13 +139,13 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
     return zip(
       // this.getClients(),
       this.fieldService.getFields(),
-      this.userService.getUsers(true)
+      this.userService.getAllUsers(true)
     ).pipe(
       takeUntil(this.destoyed),
       map(([fieldConfigs, usersFieldsRes]) => {
         this.fieldConfigs = fieldConfigs;
-        this.allUsers = usersFieldsRes;
-        this.specialists = usersFieldsRes
+        this.allUsers = usersFieldsRes.list;
+        this.specialists = usersFieldsRes.list.filter((s: any) => +s.deleted === 0)
           .filter(u => u.customRoleName === ServerRole.Custom.carSales
                     || u.customRoleName === ServerRole.Custom.carSalesChief
                     || u.customRoleName === ServerRole.Custom.customerService

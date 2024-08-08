@@ -66,7 +66,7 @@ carsControlscarsControls: any;
       .subscribe(users => {
         this.contactCenterUsers = [
           { value: 'Никто', key: 'None' },
-          ...users
+          ...users.list
             .filter(u => u.customRoleName === ServerRole.Custom.contactCenter
                       || u.customRoleName === ServerRole.Custom.contactCenterChief
                       || (this.sessionService.isRealAdminOrHigher && (u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin)) )

@@ -124,7 +124,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
   getAdditionalData(): Observable<unknown> {
     return zip(
       this.clientService.getClientFields(),
-      this.userService.getUsers(true),
+      this.userService.getAllUsers(true),
       this.userService.getUser(this.sessionService.userId),
     ).pipe(
       takeUntil(this.destoyed),
@@ -133,8 +133,8 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
         this.currentUser = currentUser;
 
-        this.allUsers = usersFieldsRes; // TODO optimize
-        this.specialists = usersFieldsRes
+        this.allUsers = usersFieldsRes.list; // TODO optimize
+        this.specialists = usersFieldsRes.list.filter((s: any) => +s.deleted === 0)
           .filter(u => u.customRoleName === ServerRole.Custom.carSales
                     || u.customRoleName === ServerRole.Custom.carSalesChief
                     || u.customRoleName === ServerRole.Custom.customerService

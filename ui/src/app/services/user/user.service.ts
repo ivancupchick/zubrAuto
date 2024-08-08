@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Constants } from 'src/app/entities/constants';
+import { BaseList, Constants } from 'src/app/entities/constants';
 import { FieldDomains } from 'src/app/entities/field';
 import { ServerUser } from 'src/app/entities/user';
 import { environment } from 'src/environments/environment';
@@ -14,8 +14,12 @@ export class UserService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
-  getUsers(isCachableRequest = false): Observable<ServerUser.Response[]> {
-    return this.requestService.get<ServerUser.Response[]>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, {}, isCachableRequest);
+  getUsers(isCachableRequest = false): Observable<BaseList<ServerUser.Response>> {
+    return this.requestService.get<BaseList<ServerUser.Response>>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, { deleted: 0 }, isCachableRequest);
+  }
+
+  getAllUsers(isCachableRequest = false): Observable<BaseList<ServerUser.Response>> {
+    return this.requestService.get<BaseList<ServerUser.Response>>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, {}, isCachableRequest);
   }
 
   createUser(value: ServerUser.CreateRequest): Observable<boolean> {

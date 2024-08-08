@@ -205,13 +205,13 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   getAdditionalData(): void { // TODO separate these requests
     zip(
       this.clientService.getClientFields(),
-      this.userService.getUsers(true),
+      this.userService.getAllUsers(true),
     ).pipe(
       takeUntil(this.destoyed),
-      tap(([clientFieldsRes, usersFieldsRes]) => {
+      tap(([clientFieldsRes, allUsersFieldsRes]) => {
         this.fieldConfigs = clientFieldsRes;
-        this.allUsers = usersFieldsRes;
-        this.specialists = usersFieldsRes.filter(
+        this.allUsers = allUsersFieldsRes.list;
+        this.specialists = allUsersFieldsRes.list.filter((s: any) => +s.deleted === 0).filter(
           (u) =>
             u.customRoleName === ServerRole.Custom.carSales ||
             u.customRoleName === ServerRole.Custom.carSalesChief ||

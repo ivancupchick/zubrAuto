@@ -6,88 +6,50 @@ import userService from '../services/user.service';
 import { ControllerActivity } from '../decorators/activity.decorator';
 import { ActivityType } from '../enums/activity-type.enum';
 import { Models } from '../entities/Models';
+import { BaseCrudController } from './base.conroller';
+import { StringHash } from '../models/hashes';
 
-class UserController {
-  async getAll(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+class UserController extends BaseCrudController<ServerUser.Response> {
+  protected getAllEntities(req: Request, res: Response, next: NextFunction) {
+    const query: StringHash = req.query as StringHash;
+    const queryKeys = Object.keys(query);
 
-      const users = await userService.getAll();
-
-      return res.json(users);
-    } catch (e) {
-      next(e);
-    }
+    return queryKeys.length > 0
+      ? userService.getUsersByQuery(query)
+      : userService.getAll();
   }
 
-  async get(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+  protected getEntity(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+    const entity = userService.get(+req.params.id);
 
-      const id = +req.params.userId;
-      const user = await userService.get(id);
-
-      return res.json(user);
-    } catch (e) {
-      next(e);
-    }
+    return entity;
   }
 
   @ControllerActivity({ type: ActivityType.CreateUser, sourceName: Models.Table.Users })
-  async create(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+  protected createEntity(req: Request<any, any, ServerUser.CreateRequest>, res: Response, next: NextFunction) {
+    const entity = userService.create(req.body);
 
-      const newUser: ServerUser.CreateRequest = req.body;
-      const user = await userService.create(newUser);
-
-      return res.json(user);
-    } catch (e) {
-      next(e);
-    }
+    return entity;
   }
 
   @ControllerActivity({ type: ActivityType.UpdateUser, sourceName: Models.Table.Users })
-  async update(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+  async updateEntity(req: Request<any, any, ServerUser.UpdateRequest>, res: Response, next: NextFunction) {
+    const entity = await userService.update(+req.params.id, req.body);
 
-      const id = +req.params.userId;
-      const updatedUser: ServerUser.CreateRequest = req.body;
-      const user = await userService.update(id, updatedUser);
-
-      return res.json(user);
-    } catch (e) {
-      next(e);
-    }
+    return entity;
   }
 
-  async delete(req: Request, res: Response, next: NextFunction) {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return next(ApiError.BadRequest('Ошибка при валидации', errors.array()))
-      }
+  @ControllerActivity({ type: ActivityType.DeleteUser, sourceName: Models.Table.Users })
+  protected deleteEntity(req: Request, res: Response, next: NextFunction) {
+    const id = +req.params.id;
+    const entity = userService.delete(id);
 
-      const id = +req.params.userId;
-      const user = await userService.delete(id);
+    return entity;
+  }
 
-      return res.json(user);
-    } catch (e) {
-      next(e);
-    }
+  protected deleteEntities(req: Request, res: Response, next: NextFunction) {
+    next(ApiError.BadRequest('Запрещенный метод'));
+    return null; // TODO
   }
 }
 
