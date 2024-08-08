@@ -300,7 +300,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
       return '';
     }
 
-    const userId = FieldsUtils.getFieldNumberValue(client, FieldNames.Client.SpecialistId);
+    const userId = FieldsUtils.getFieldNumberValue(client, FieldNames.Client.specialistId);
     const specialist: ServerUser.Response = this.specialists.find(user => user.id === userId)!;
 
     if (userId && specialist) {

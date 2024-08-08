@@ -83,8 +83,8 @@ export class CreateClientComponent implements OnInit {
   excludeFields: FieldNames.Client[] = [
     FieldNames.Client.date,
     'carIds' as FieldNames.Client,
-    FieldNames.Client.SpecialistId,
-    FieldNames.Client.Description,
+    FieldNames.Client.specialistId,
+    FieldNames.Client.description,
   ];
 
   constructor(
@@ -123,10 +123,10 @@ export class CreateClientComponent implements OnInit {
           ? this.client.fields.find(f => f.id === fc.id)?.value || ''
           : this.predefinedFields[fc.name as FieldNames.Client] || '';
 
-        if (fc.name === FieldNames.Client.dateNextAction) {
+        if ([FieldNames.Client.dateNextAction, FieldNames.Client.saleDate].includes(fc.name as FieldNames.Client)) {
           fc.type = FieldType.Date;
 
-          if (fieldValue && Number.isNaN(+fieldValue)) {
+          if (fieldValue && Number.isNaN(+fieldValue)) { // TODO fix  Number.isNaN
             fieldValue = `${+moment(fieldValue)}`;
           }
         }
@@ -141,12 +141,12 @@ export class CreateClientComponent implements OnInit {
         .map(fc => this.updateFieldConfig(fc));
 
     if (this.sessionService.isAdminOrHigher || this.sessionService.isCarSalesChief || this.sessionService.isCustomerServiceChief) {
-      const specialistIdField = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.SpecialistId);
+      const specialistIdField = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.specialistId);
       formFields.push(
         this.dfcs.getDynamicFieldFromOptions({
           id: specialistIdField?.id || -1,
-          value: this.client?.fields.find(f => f.name === FieldNames.Client.SpecialistId)?.value || 'None',
-          key: FieldNames.Client.SpecialistId,
+          value: this.client?.fields.find(f => f.name === FieldNames.Client.specialistId)?.value || 'None',
+          key: FieldNames.Client.specialistId,
           label: 'Специалист',
           order: 1,
           controlType: FieldType.Dropdown,
@@ -175,7 +175,7 @@ export class CreateClientComponent implements OnInit {
       if (this.client) {
         let carIds: (number | string)[] = [];
 
-        this.description = FieldsUtils.getFieldStringValue(this.client.fields, FieldNames.Client.Description);
+        this.description = FieldsUtils.getFieldStringValue(this.client.fields, FieldNames.Client.description);
 
         try {
           carIds = this.client.carIds
@@ -241,7 +241,7 @@ export class CreateClientComponent implements OnInit {
       const carIds = this.selectedCars.map(sc => sc.id).join(',');
       const client: ServerClient.CreateRequest = {
         carIds,
-        fields: fields.filter(fc => fc.name === FieldNames.Client.SpecialistId || !this.excludeFields.includes(fc.name as FieldNames.Client))
+        fields: fields.filter(fc => fc.name === FieldNames.Client.specialistId || !this.excludeFields.includes(fc.name as FieldNames.Client))
       }
 
       if (!this.client) {
@@ -257,7 +257,7 @@ export class CreateClientComponent implements OnInit {
         }
       }
 
-      const descriptionField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.Description);
+      const descriptionField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.description);
       if (descriptionField) {
         client.fields.push({
           id: descriptionField.id,
@@ -272,7 +272,7 @@ export class CreateClientComponent implements OnInit {
       if (!this.client && !(
         this.sessionService.isAdminOrHigher || this.sessionService.isCarSalesChief || this.sessionService.isCustomerServiceChief
       )) {
-        const specialistIdField = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.SpecialistId);
+        const specialistIdField = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.specialistId);
         if (specialistIdField) {
           client.fields.push({
             id: specialistIdField.id,

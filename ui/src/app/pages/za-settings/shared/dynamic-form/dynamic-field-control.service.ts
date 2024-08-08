@@ -37,7 +37,7 @@ export class DynamicFieldControlService {
   }
 
   getDynamicFieldsFromDBFields(dbFields: UIRealField[]) {
-    const requiredFields: string[] = [FieldNames.Client.name,FieldNames.Client.number, FieldNames.Client.dealStatus, FieldNames.Client.source, FieldNames.Client.SpecialistId];
+    const requiredFields: string[] = [FieldNames.Client.name,FieldNames.Client.number, FieldNames.Client.dealStatus, FieldNames.Client.source, FieldNames.Client.specialistId];
 
     const fields: DynamicFieldBase<string>[] = dbFields
       .filter(dbField => !FlagField.Is(dbField, FlagField.Flags.Virtual))
@@ -52,7 +52,10 @@ export class DynamicFieldControlService {
           order: 1,
           controlType: dbField.type,
           type: '',
-          variants: dbField.variants
+          variants: dbField.variants,
+          readonlyFunction: dbField.name === FieldNames.Client.saleDate
+            ? (formGroup) => formGroup.get(FieldNames.Client.dealStatus)?.value !== 'deal-status-2' // TODO think about get deal-status-2 by FieldNames.DealStatus.Sold
+            : undefined,
         });
       });
 

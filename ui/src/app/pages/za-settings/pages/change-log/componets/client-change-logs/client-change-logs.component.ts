@@ -209,7 +209,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
       return FieldsUtils.getDropdownValue(fields, fieldName)
     }
 
-    if (['date', FieldNames.Client.dateNextAction].includes(fieldName) || field?.type === FieldType.Date) {
+    if (['date', FieldNames.Client.dateNextAction, FieldNames.Client.saleDate].includes(fieldName) || field?.type === FieldType.Date) {
       return DateUtils.getFormatedDateTime(+field.value);
     }
 

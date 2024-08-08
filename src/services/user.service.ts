@@ -13,9 +13,14 @@ import { ICrudService } from '../entities/Types';
 import roleRepository from '../repositories/base/role.repository';
 import { StringHash } from '../models/hashes';
 import fieldRepository from '../repositories/base/field.repository';
+import { getEntityIdsByNaturalQuery } from '../utils/enitities-functions';
 
 class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.UpdateRequest, ServerUser.Response, ServerUser.IdResponse> {
   async getUsers(users: Models.User[], usersFields: ServerField.Response[]) {
+    if (users.length === 0) {
+      return [];
+    }
+
     const chaines = await fieldChainService.find({
       sourceName: [`${Models.Table.Users}`],
       sourceId: users.map(c => `${c.id}`),
@@ -67,15 +72,55 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
     delete query['sortOrder'];
     delete query['sortField'];
 
-    const searchUsersIds = await fieldChainService.getEntityIdsByQuery(
+    const naturalFields = [
+      'email',
+      'password',
+      'isActivated',
+      'activationLink',
+      'roleLevel',
+      'deleted',
+    ];
+
+    let naturalQuery = {};
+
+    for (const key in query) {
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
+        if (naturalFields.includes(key)) {
+          naturalQuery[key] = query[key];
+          delete query[key];
+        }
+      }
+    }
+
+    if (sortField && sortOrder && naturalFields.includes(sortField)) {
+      naturalQuery = {
+        ...naturalQuery,
+        sortField,
+        sortOrder
+      }
+    }
+
+    const searchUsersIds = Object.values(naturalQuery).length ? await fieldChainService.getEntityIdsByQuery(
       Models.Table.Users,
       FieldDomains.User,
       query
-    );
+    ) : [];
+
+    const naturalSearchUsersIds = Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)) ? await getEntityIdsByNaturalQuery(
+      userRepository,
+      naturalQuery
+    ) : [];
 
     let usersIds = [...searchUsersIds];
 
-    if (sortField && sortOrder) {
+    if (searchUsersIds.length && naturalSearchUsersIds.length) {
+      usersIds = searchUsersIds.filter(id => naturalSearchUsersIds.includes(id));
+    }
+    if (!searchUsersIds.length && naturalSearchUsersIds.length) {
+      usersIds = [...naturalSearchUsersIds];
+    }
+
+    if (sortField && sortOrder && !naturalFields.includes(sortField)) {
       const sortFieldConfig = await fieldRepository.findOne({
         name: [sortField]
       });
@@ -104,7 +149,7 @@ class UserService implements ICrudService<ServerUser.CreateRequest, ServerUser.U
     const [
       usersFields,
     ] = await Promise.all([
-      fieldService.getFieldsByDomain(FieldDomains.Client),
+      fieldService.getFieldsByDomain(FieldDomains.User),
     ]);
 
     let list = await this.getUsers(users, usersFields);;

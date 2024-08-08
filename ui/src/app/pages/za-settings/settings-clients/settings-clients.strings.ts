@@ -19,4 +19,5 @@ export const settingsClientsStrings: StringHash = {
   'date-next-action': 'Дата следующего действия',
   'client-status': 'Статус клиента',
   "specialist-id": 'Специалист',
+  "sale-date": 'Дата продажи',
 }

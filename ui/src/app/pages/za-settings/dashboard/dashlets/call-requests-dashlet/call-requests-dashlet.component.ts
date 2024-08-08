@@ -86,7 +86,6 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getAdditinalData().subscribe(() => {
-      console.log(1);
       this.getTotals().subscribe();
       this.setGridSettings();
     });
@@ -160,7 +159,6 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     ).pipe(
       takeUntil(this.destoyed),
       tap(([first, second, thirt]) => {
-        console.log([first, second, thirt]);
         [
           this.myCallRequestsTotal,
           this.allCallRequestsTotal,
@@ -270,7 +268,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       return '';
     }
 
-    const userId = FieldsUtils.getFieldNumberValue(client, FieldNames.Client.SpecialistId);
+    const userId = FieldsUtils.getFieldNumberValue(client, FieldNames.Client.specialistId);
     const specialist: ServerUser.Response = this.specialists.find(user => user.id === userId)!;
 
     if (userId && specialist) {

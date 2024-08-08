@@ -72,12 +72,12 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
 
   queriesByTabIndex = {
     [TabIndex.MyClients]: {
-      [FieldNames.Client.SpecialistId]:  `${this.sessionService.userId}`,
+      [FieldNames.Client.specialistId]:  `${this.sessionService.userId}`,
       [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '<',
     },
     [TabIndex.MyFutureClients]: {
-      [FieldNames.Client.SpecialistId]: `${this.sessionService.userId}`,
+      [FieldNames.Client.specialistId]: `${this.sessionService.userId}`,
       [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '>',
       [`sortField`]: FieldNames.Client.dateNextAction,
@@ -126,7 +126,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   }
 
   getTooltipConfig: ((item: ServerClient.Response) => string) = (car) => {
-    return FieldsUtils.getFieldStringValue(car, FieldNames.Client.Description)
+    return FieldsUtils.getFieldStringValue(car, FieldNames.Client.description)
   };
 
   onFilter() {
@@ -150,7 +150,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     const { specialist, number } = this.form?.value || {};
     if ([TabIndex.SomeClients, TabIndex.SomeFutureClients].includes(index)) {
       if (specialist) {
-        query[FieldNames.Client.SpecialistId] = specialist;
+        query[FieldNames.Client.specialistId] = specialist;
       }
       if (number) {
         query[FieldNames.Client.number] = `%${number}%`;
@@ -254,7 +254,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         title: 'ID',
         name: 'id',
         getValue: (item: ServerClient.Response) => {
-          const userId = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.SpecialistId);
+          const userId = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.specialistId);
           const specialist: ServerUser.Response = this.specialists.find(user => user.id === userId)!;
 
           if (userId && specialist) {

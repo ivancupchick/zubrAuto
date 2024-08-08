@@ -17,5 +17,5 @@ export function getClientSource(client: ServerClient.Response): FieldNames.Clien
 }
 
 export function getClientSpecialist(client: ServerClient.Response): number {
-  return FieldsUtils.getFieldNumberValue(client, FieldNames.Client.SpecialistId);
+  return FieldsUtils.getFieldNumberValue(client, FieldNames.Client.specialistId);
 }

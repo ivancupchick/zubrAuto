@@ -82,8 +82,6 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
       query
     );
 
-    console.log(searchCallRequestsIds);
-
     let callRequestsIds = [...searchCallRequestsIds];
 
     if (page && size) {

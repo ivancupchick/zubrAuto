@@ -70,7 +70,7 @@ export class DynamicFormComponent implements OnInit {
           return {
             id: field.id,
             name: field.key,
-            value: +this.formGroup.controls[field.key].value
+            value: this.formGroup.controls[field.key].value === null ? '' : +this.formGroup.controls[field.key].value
           }
         }
 
@@ -89,7 +89,7 @@ export class DynamicFormComponent implements OnInit {
           return {
             id: field.id,
             name: field.key,
-            value: +this.formGroup.controls[field.key].value
+            value:  this.formGroup.controls[field.key].value === null ? '' : +this.formGroup.controls[field.key].value
           }
         }
 

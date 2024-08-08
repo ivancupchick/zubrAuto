@@ -79,7 +79,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   isCarSalesChiefOrAdmin = this.sessionService.isCarSalesChief || this.sessionService.isAdminOrHigher;
 
   getTooltipConfig: ((item: ServerClient.Response) => string) = (car) => {
-    return FieldsUtils.getFieldStringValue(car, FieldNames.Client.Description)
+    return FieldsUtils.getFieldStringValue(car, FieldNames.Client.description)
   };
 
   constructor(
@@ -187,7 +187,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         title: this.strings.id,
         name: 'id',
         getValue: (item) => {
-          const userId = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.SpecialistId);
+          const userId = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.specialistId);
           const specialist: ServerUser.Response = this.specialists.find(user => user.id === userId)!;
 
           if (userId && specialist) {
@@ -347,7 +347,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   updateSpecificField(client: ServerClient.Response, fieldName: string): void {
     const includeFields = fieldName === FieldNames.Client.nextAction
       ? [FieldNames.Client.nextAction, FieldNames.Client.dateNextAction]
-      : [fieldName]
+      : [fieldName, FieldNames.Client.saleDate]
 
     const specificFieldConfigs = this.fieldConfigs.filter(item => includeFields.includes(item.name));
 
@@ -388,7 +388,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   sortClients() {
     this.sortedClients = this.rawClients.filter(c => {
       if (this.sessionService.isCarSales) {
-        const specialistId = FieldsUtils.getFieldNumberValue(c, FieldNames.Client.SpecialistId);
+        const specialistId = FieldsUtils.getFieldNumberValue(c, FieldNames.Client.specialistId);
         return this.sessionService.userId === specialistId;
       }
 

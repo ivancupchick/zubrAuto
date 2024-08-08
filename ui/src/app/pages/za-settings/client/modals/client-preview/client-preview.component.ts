@@ -30,14 +30,13 @@ export class ClientPreviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.users);
     const clientObj: StringHash = {};
     clientObj.id = `${this.client.id}`;
 
     this.client.fields.forEach(field => {
       let value = FieldsUtils.getFieldValue([field], field.name);
 
-      if (field.type === FieldType.Date || field.name === FieldNames.Client.date || field.name === FieldNames.Client.dateNextAction) {
+      if (field.type === FieldType.Date || [FieldNames.Client.date, FieldNames.Client.dateNextAction, FieldNames.Client.saleDate].includes(field.name as FieldNames.Client)) {
         value = moment(+FieldsUtils.getFieldValue([field], field.name)).format('DD.MM.yyyy');
       }
 
@@ -45,7 +44,7 @@ export class ClientPreviewComponent implements OnInit {
         value = FieldsUtils.getDropdownValue([field], field.name);
       }
 
-      if (field.name === FieldNames.Client.SpecialistId) {
+      if (field.name === FieldNames.Client.specialistId) {
         const user = this.users.find(u => +u.id === +value)!;
         value = `${FieldsUtils.getFieldStringValue(user, FieldNames.User.name)}`;
       }
