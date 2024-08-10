@@ -72,6 +72,8 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   dateFrom: Date | null = null;
   dateTo: Date | null = null;
 
+  fieldNames = FieldNames;
+
   phoneNumber = '';
 
   destoyed = new Subject<void>();
@@ -259,6 +261,12 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         name: FieldNames.Client.dateNextAction,
         sortable: () => true,
         getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.dateNextAction)),
+      },
+      {
+        title: this.strings[FieldNames.Client.saleDate],
+        name: FieldNames.Client.saleDate,
+        sortable: () => true,
+        getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.saleDate)),
       },
     ];
   }

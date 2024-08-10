@@ -55,6 +55,9 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string; id: number }[] = [];
 
+  availableClientStatuses: { label: FieldNames.ClientStatus, value: FieldNames.ClientStatus }[] = [];
+  selectedClientStatus: FieldNames.ClientStatus[] = [];
+
   allCars: ServerCar.Response[] = [];
 
   destoyed = new Subject();
@@ -89,10 +92,12 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     },
     [TabIndex.SomeClients]: {
       [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [FieldNames.Client.clientStatus]: '',
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '<',
     },
     [TabIndex.SomeFutureClients]: {
       [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [FieldNames.Client.clientStatus]: '',
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '>',
       [`sortField`]: FieldNames.Client.dateNextAction,
       [`sortOrder`]: SortDirection.Desc,
@@ -109,12 +114,14 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.availableClientStatuses = Object.values(FieldNames.ClientStatus).map(s => ({ label: s, value: s }));
     this.getAdditionalData();
     this.getTotals();
 
     this.form = this.fb.group({
       specialist: '',
       number: '',
+      clientStatus: '',
     });
 
     this.clientNextActionDataService.clientCars$.pipe(
@@ -147,7 +154,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       ...this.queriesByTabIndex[index],
     };
 
-    const { specialist, number } = this.form?.value || {};
+    const { specialist, number, clientStatus } = this.form?.value || {};
     if ([TabIndex.SomeClients, TabIndex.SomeFutureClients].includes(index)) {
       if (specialist) {
         query[FieldNames.Client.specialistId] = specialist;
@@ -156,8 +163,10 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         query[FieldNames.Client.number] = `%${number}%`;
         query['filter-operator-' + FieldNames.Client.number] = 'LIKE';
       }
+      if (clientStatus)  {
+        query[FieldNames.Client.clientStatus] = clientStatus;
+      }
     }
-
     return query;
   }
 

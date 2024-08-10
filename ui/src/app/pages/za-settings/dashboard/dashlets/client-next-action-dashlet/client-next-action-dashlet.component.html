@@ -14,6 +14,19 @@
         [maxSelectedLabels]="1"
       ></p-multiSelect>
 
+      <p-multiSelect
+        appendTo="body"
+        *ngIf="availableClientStatuses.length > 0"
+        [options]="availableClientStatuses"
+        [(ngModel)]="selectedClientStatus"
+        formControlName="clientStatus"
+        placeholder="Статус клиента"
+        optionLabel="label"
+        optionValue="value"
+        selectedItemsLabel="{0} статусов клиента выбрано"
+        [maxSelectedLabels]="1"
+      ></p-multiSelect>
+
       <input pInputText class="ml-2" type="text" formControlName="number" pInputText placeholder="Телефон"/>
 
       <button  pButton size="small" class="mx-2">
