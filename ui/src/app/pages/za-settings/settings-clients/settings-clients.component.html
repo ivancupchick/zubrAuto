@@ -51,14 +51,63 @@
     [maxSelectedLabels]="1"
   ></p-multiSelect>
   <div class="date-wrapper">
-    <p-calendar appendTo="body" placeholder="Дата создания от" [showButtonBar]="true" (onClose)="sortClients()" [(ngModel)]="dateFrom" [showTime]="false" hourFormat="24" [firstDayOfWeek]="1"></p-calendar>
+    <p-calendar
+      appendTo="body"
+      placeholder="Дата создания от"
+      [showButtonBar]="true"
+      (onClose)="sortClients()"
+      [(ngModel)]="dateFrom"
+      [showTime]="false"
+      hourFormat="24"
+      [firstDayOfWeek]="1">
+    </p-calendar>
   </div>
   <div class="date-wrapper">
-    <p-calendar appendTo="body" [showButtonBar]="true"  placeholder="до" (onClose)="sortClients()" [(ngModel)]="dateTo" [showTime]="false" hourFormat="24" [firstDayOfWeek]="1"></p-calendar>
+    <p-calendar
+      appendTo="body"
+      [showButtonBar]="true"
+      placeholder="до"
+      (onClose)="sortClients()"
+      [(ngModel)]="dateTo"
+      [showTime]="false"
+      hourFormat="24"
+      [firstDayOfWeek]="1">
+    </p-calendar>
   </div>
 
-  <input type="text" (change)="sortClients()" [(ngModel)]="phoneNumber" pInputText placeholder="Телефон"/>
+  <input
+    type="text"
+    (change)="sortClients()"
+    [(ngModel)]="phoneNumber"
+    pInputText
+    placeholder="Телефон"/>
 
+  <ng-container *ngIf="selectedStatus.includes($any(fieldNames.DealStatus.Sold))">
+    <div class="date-wrapper">
+      <p-calendar
+        appendTo="body"
+        placeholder="Дата продажи от"
+        [showButtonBar]="true"
+        (onClose)="sortClients()"
+        [(ngModel)]="saleDateFrom"
+        [showTime]="false"
+        hourFormat="24"
+        [firstDayOfWeek]="1">
+      </p-calendar>
+    </div>
+    <div class="date-wrapper">
+      <p-calendar
+        appendTo="body"
+        [showButtonBar]="true"
+        placeholder="до"
+        (onClose)="sortClients()"
+        [(ngModel)]="saleDateTo"
+        [showTime]="false"
+        hourFormat="24"
+        [firstDayOfWeek]="1">
+      </p-calendar>
+    </div>
+  </ng-container>
 </div>
 
 <p-toolbar>

@@ -55,10 +55,14 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string; id: number }[] = [];
 
+  availableClientStatuses: { label: FieldNames.ClientStatus, value: FieldNames.ClientStatus }[] = Object.values(FieldNames.ClientStatus).map(s => ({ label: s, value: s }));;
+
   allCars: ServerCar.Response[] = [];
 
   destoyed = new Subject();
   loading$ = this.clientNextActionDataService.loading$;
+
+  loaded = false;
 
   fieldConfigs: ServerField.Response[] = []; // !TODO replace away
   isCarSales = this.sessionService.isCarSales;
@@ -115,6 +119,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       specialist: '',
       number: '',
+      clientStatus: '',
     });
 
     this.clientNextActionDataService.clientCars$.pipe(
@@ -147,17 +152,20 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       ...this.queriesByTabIndex[index],
     };
 
-    const { specialist, number } = this.form?.value || {};
+    const { specialist, number, clientStatus } = this.form?.value || {};
     if ([TabIndex.SomeClients, TabIndex.SomeFutureClients].includes(index)) {
       if (specialist) {
         query[FieldNames.Client.specialistId] = specialist;
       }
-      if (number) {
-        query[FieldNames.Client.number] = `%${number}%`;
-        query['filter-operator-' + FieldNames.Client.number] = 'LIKE';
-      }
     }
 
+    if (number) {
+      query[FieldNames.Client.number] = `%${number}%`;
+      query['filter-operator-' + FieldNames.Client.number] = 'LIKE';
+    }
+    if (clientStatus)  {
+      query[FieldNames.Client.clientStatus] = clientStatus;
+    }
     return query;
   }
 
@@ -198,6 +206,10 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
           this.someClientsTotal,
           this.someFutureClientsTotal
         ] = [first.total, second.total, thirt.total, fourth.total, fifth.total];
+
+        if (this.allClientsTotal) {
+          this.loaded = true;
+        }
       })
     ).subscribe();
   }
@@ -242,6 +254,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         case FieldNames.ClientStatus.Thinking: return '#EFD334'
         case FieldNames.ClientStatus.InProgress: return '#99FF99'
         case FieldNames.ClientStatus.HavingInteresting: return '#7FC7FF'
+        case FieldNames.ClientStatus.DealExecution: return '#dc91ff'
 
         default: return '';
       }

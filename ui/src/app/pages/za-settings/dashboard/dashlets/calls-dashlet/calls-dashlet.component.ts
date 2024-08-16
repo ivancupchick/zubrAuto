@@ -324,7 +324,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
       title: 'Редактировать клиента',
       icon: 'user',
       buttonClass: 'secondary', // TODO why need !call
-      disabled: (call) => !call || !(this.allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === `+${call.clientNumber}`) && `+${call.innerNumber}` === FieldsUtils.getFieldStringValue(this.currentUser.fields, FieldNames.User.number)),
+      disabled: (call) => !call || !(this.allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === `+${call.clientNumber}`)), // TODO optimised by isPh
       handler: (c) => this.updateClient(c),
     },
     {

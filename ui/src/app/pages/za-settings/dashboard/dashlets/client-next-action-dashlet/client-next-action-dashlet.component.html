@@ -1,9 +1,22 @@
-<p-panel *ngIf="allClientsTotal" header="Следующие действия по моим клиентам">
+<p-panel *ngIf="loaded" header="Следующие действия по моим клиентам">
   <ng-template pTemplate="icons">
     <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2">
       <p-multiSelect
         appendTo="body"
+        *ngIf="availableClientStatuses.length > 0"
+        [options]="availableClientStatuses"
+        formControlName="clientStatus"
+        placeholder="Статус клиента"
+        optionLabel="label"
+        optionValue="value"
+        selectedItemsLabel="{0} статусов клиента выбрано"
+        [maxSelectedLabels]="3"
+      ></p-multiSelect>
+
+      <p-multiSelect
+        appendTo="body"
         size="small"
+        class="ml-2"
         *ngIf="availableSpecialists.length > 0 && activeIndex === 3 || activeIndex === 4"
         [options]="availableSpecialists"
         formControlName="specialist"

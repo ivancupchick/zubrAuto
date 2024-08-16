@@ -19,6 +19,8 @@ import { CallRequestsDataService } from './call-requests-data.service';
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
 
+const isClientCreated = (allClients: ServerClient.Response[], item: ServerCallRequest.Response) => !!allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === item.clientNumber);
+
 export enum TabIndex {
   MyCallRequests = 0,
   AllCallRequests = 1,
@@ -285,8 +287,15 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       title: 'Создать клиента',
       icon: 'user',
       buttonClass: 'secondary',
-      disabled: () => false,
+      disabled: (c) => !c || isClientCreated(this.allClients, c),
       handler: (c) => this.openNewClientWindow(c)
+    },
+    {
+      title: 'Редактировать клиента',
+      icon: 'user',
+      buttonClass: 'secondary', // TODO why need !call
+      disabled: (c) => !c || !isClientCreated(this.allClients, c),
+      handler: (c) => this.updateClient(c),
     },
     {
       title: 'Заявка использована',
@@ -345,6 +354,20 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
             this.refresh();
           });
       }
+    });
+  }
+
+  updateClient(item: ServerCallRequest.Response) {
+    const client = this.allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === item.clientNumber)!;
+
+    const ref = this.dialogService.open(CreateClientComponent, {
+      data: {
+        client,
+        fieldConfigs: this.clientsFieldConfigs,
+        specialists: this.specialists,
+      },
+      header: 'Редактировать клиента',
+      width: '70%'
     });
   }
 

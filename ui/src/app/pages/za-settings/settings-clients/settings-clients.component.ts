@@ -72,6 +72,11 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   dateFrom: Date | null = null;
   dateTo: Date | null = null;
 
+  saleDateFrom: Date | null = null;
+  saleDateTo: Date | null = null;
+
+  fieldNames = FieldNames;
+
   phoneNumber = '';
 
   destoyed = new Subject<void>();
@@ -260,6 +265,12 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         sortable: () => true,
         getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.dateNextAction)),
       },
+      {
+        title: this.strings[FieldNames.Client.saleDate],
+        name: FieldNames.Client.saleDate,
+        sortable: () => true,
+        getValue: (item) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.saleDate)),
+      },
     ];
   }
 
@@ -415,6 +426,22 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       }
 
       if (this.dateFrom && createDate < +this.dateFrom) {
+        return false;
+      }
+
+      return true;
+    }).filter(c => {
+      const saleDate = FieldsUtils.getFieldNumberValue(c, FieldNames.Client.saleDate);
+      if (!saleDate) {
+        return true;
+      }
+
+      const dateTo = +(this.saleDateTo || 0) + 86390000; // 86400000 === day in ms
+      if (this.saleDateTo && saleDate > +dateTo) {
+        return false;
+      }
+
+      if (this.saleDateFrom && saleDate < +this.saleDateFrom) {
         return false;
       }
 

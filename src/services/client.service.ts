@@ -88,9 +88,11 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
       clientsIds = clientsIds.slice(start, start + +size);
     }
 
-    const clients = clientsIds.length > 0 ? await clientRepository.find({
+    const clientsResults = clientsIds.length > 0 ? await clientRepository.find({
       id: clientsIds
     }) : [];
+
+    const clients = clientsIds.map(id => clientsResults.find(cr => +cr.id === +id));
 
     const [
       clientsFields,
@@ -99,10 +101,6 @@ class ClientService implements ICrudService<ServerClient.CreateRequest, ServerCl
     ]);
 
     let list = await this.getClients(clients, clientsFields);;
-
-    // if (sortOrder === 'DESC') {
-    //   list = list.reverse();
-    // }
 
     return {
       list: list,

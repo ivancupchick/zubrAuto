@@ -83,6 +83,7 @@ export namespace FieldNames {
     InProgress = 'Идёт оформление',
     Thinking = 'Думает',
     HavingInteresting = 'Есть интерес',
+    DealExecution = 'Заключение сделки',
   }
 
   export enum ClientSource {
