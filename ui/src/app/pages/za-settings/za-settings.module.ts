@@ -88,6 +88,7 @@ import { UserService } from 'src/app/services/user/user.service';
 import { CarService } from 'src/app/services/car/car.service';
 import { ClientChangeLogsComponent } from './pages/change-log/componets/client-change-logs/client-change-logs.component';
 import { ClientService } from 'src/app/services/client/client.service';
+import { PageagleGridComponent } from "./shared/pageagle-grid/pageagle-grid.component";
 
 
 // TODO sidebar; separate dashboard [calls + call-requests], [clients];
@@ -219,7 +220,8 @@ const routes: Routes = [{
     GridComponent,
     CreateClientComponent,
     ClientChangeLogsComponent,
-  ],
+    PageagleGridComponent
+],
   providers: [
     AuthService,
     AuthGuard,

@@ -19,6 +19,9 @@ import { UserService } from 'src/app/services/user/user.service';
 import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';
 import { ClientChangeLogsComponent } from '../pages/change-log/componets/client-change-logs/client-change-logs.component';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { SettingsClientsService } from './services/setting-clients-data.service';
+import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 
 
 const availableStatuses = [
@@ -40,18 +43,21 @@ const availableStatuses = [
   ]
 })
 export class SettingsClientsComponent implements OnInit, OnDestroy {
+  first: number = 0;
+  loading = false;
+
   sortedClients: ServerClient.Response[] = [];
   rawClients: ServerClient.Response[] = [];
 
-  loading = false;
   allUsers: ServerUser.Response[] = [];
   allCars: ServerCar.Response[] = [];
+
+  fieldConfigs: ServerField.Response[] = [];
 
   gridConfig!: GridConfigItem<ServerClient.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
   getColorConfig: ((item: ServerClient.Response) => string) | undefined;
 
-  fieldConfigs: ServerField.Response[] = [];
 
   readonly strings = settingsClientsStrings;
 
@@ -80,16 +86,20 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
 
   isCarSalesChiefOrAdmin = this.sessionService.isCarSalesChief || this.sessionService.isAdminOrHigher;
 
+  protected form!: UntypedFormGroup;
+
   getTooltipConfig: ((item: ServerClient.Response) => string) = (car) => {
     return FieldsUtils.getFieldStringValue(car, FieldNames.Client.description)
   };
 
   constructor(
+    public settingsClientsService: SettingsClientsService,
     private clientService: ClientService,
     private dialogService: DialogService,
     private sessionService: SessionService,
     private carService: CarService,
-    private userService: UserService
+    private userService: UserService,
+    private fb: UntypedFormBuilder,
   ) {}
 
   ngOnInit(): void {
@@ -102,6 +112,16 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       this.allCars = cars;
       this.sortClients();
       this.setGridSettings();
+
+      this.form = this.fb.group({
+        dealStatus: [''],
+        clientStatus: [''],
+        source: [''],
+        specialist: [''],
+        dateFrom: [''],
+        dateTo: [''],
+        phoneNumber: '',
+      })
     });
 
     this.availableStatuses = availableStatuses.map(s => ({ label: s, value: s }));
@@ -119,39 +139,42 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   }
 
   getData(): Observable<ServerCar.Response[]> {
-    return zip(this.getClients(), this.clientService.getClientFields(), this.userService.getAllUsers(true)).pipe(
-      takeUntil(this.destoyed),
-      switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {
-        this.fieldConfigs = clientFieldsRes;
-        this.allUsers = usersFieldsRes.list;
-        this.specialists = usersFieldsRes.list.filter((s: any) => +s.deleted === 0)
-          .filter(u => u.customRoleName === ServerRole.Custom.carSales
-                    || u.customRoleName === ServerRole.Custom.carSalesChief
-                    || u.customRoleName === ServerRole.Custom.customerService
-                    || u.customRoleName === ServerRole.Custom.customerServiceChief
-                    || (
-                      (
-                        u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
-                      )
-                    ));
+    return zip(
+              this.getClients(), 
+              this.clientService.getClientFields(), 
+              this.userService.getAllUsers(true),
+            ).pipe(
+                takeUntil(this.destoyed),
+                switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {
+                  this.fieldConfigs = clientFieldsRes;
+                  this.allUsers = usersFieldsRes.list;
+                  this.specialists = usersFieldsRes.list.filter((s: any) => +s.deleted === 0)
+                    .filter(u => u.customRoleName === ServerRole.Custom.carSales
+                              || u.customRoleName === ServerRole.Custom.carSalesChief
+                              || u.customRoleName === ServerRole.Custom.customerService
+                              || u.customRoleName === ServerRole.Custom.customerServiceChief
+                              || (
+                                (
+                                  u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
+                                )
+                              ));
 
-        this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: u.id }));
+                  this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: u.id }));
 
-        const carIds = clientsRes.list.reduce<number[]>((prev, client) => {
-          const clietnCarIds = client.carIds.split(',').map(id => +id);
-          return [...prev, ...clietnCarIds];
-        }, []).filter(id => id && !Number.isNaN(id));
+                  const carIds = clientsRes.list.reduce<number[]>((prev, client) => {
+                    const clietnCarIds = client.carIds.split(',').map(id => +id);
+                    return [...prev, ...clietnCarIds];
+                  }, []).filter(id => id && !Number.isNaN(id));
 
-        if (carIds.length === 0) {
-          return of([]);
-        };
+                  if (carIds.length === 0) {
+                    return of([]);
+                  };
 
-        const query: StringHash = { id: [...(new Set(carIds))].join(',') };
+                  const query: StringHash = { id: [...(new Set(carIds))].join(',') };
 
-
-        return this.carService.getCarsByQuery(query);
-      })
-    );
+                  return this.carService.getCarsByQuery(query);
+                })
+              );
   }
 
   setGridSettings() {
@@ -508,6 +531,22 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  onFilter() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    let payload = skipEmptyFilters({...this.form.value });
+
+    if (payload.date) {
+      payload = { ...payload, date: +payload.date, ['filter-operator-date']: '>' }
+    }
+
+    this.settingsClientsService.onFilter(payload);
+    this.first = 0;
   }
 
   ngOnDestroy(): void {

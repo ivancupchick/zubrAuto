@@ -1,88 +1,6 @@
-<div class="card flex md:flex-row md:justify-content-start md:align-items-center row-gap-1 mb-2">
-  <p-multiSelect
-    appendTo="body"
-    *ngIf="availableStatuses.length > 0"
-    [options]="availableStatuses"
-    [(ngModel)]="selectedStatus"
-    placeholder="Статус сделки"
-    optionLabel="label"
-    optionValue="value"
-    (onPanelHide)="sortClients()"
-    selectedItemsLabel="{0} статусов выбрано"
-    [maxSelectedLabels]="1"
-  ></p-multiSelect>
+<!-- <div class="card flex md:flex-row md:justify-content-start md:align-items-center row-gap-1 mb-2">
 
-  <p-multiSelect
-    appendTo="body"
-    *ngIf="availableClientStatuses.length > 0"
-    [options]="availableClientStatuses"
-    [(ngModel)]="selectedClientStatus"
-    placeholder="Статус клиента"
-    optionLabel="label"
-    optionValue="value"
-    (onPanelHide)="sortClients()"
-    selectedItemsLabel="{0} статусов клиента выбрано"
-    [maxSelectedLabels]="1"
-  ></p-multiSelect>
-
-  <p-multiSelect
-    appendTo="body"
-    *ngIf="availableClientSources.length > 0"
-    [options]="availableClientSources"
-    [(ngModel)]="selectedClientSource"
-    placeholder="Источник"
-    optionLabel="label"
-    optionValue="value"
-    (onPanelHide)="sortClients()"
-    selectedItemsLabel="{0} источников выбрано"
-    [maxSelectedLabels]="1"
-  ></p-multiSelect>
-
-  <p-multiSelect
-    appendTo="body"
-    *ngIf="availableSpecialists.length > 0"
-    [options]="availableSpecialists"
-    [(ngModel)]="selectedSpecialist"
-    placeholder="Специалист"
-    optionLabel="label"
-    optionValue="value"
-    (onPanelHide)="sortClients()"
-    selectedItemsLabel="{0} спициалистов выбрано"
-    [maxSelectedLabels]="1"
-  ></p-multiSelect>
-  <div class="date-wrapper">
-    <p-calendar 
-      appendTo="body" 
-      placeholder="Дата создания от" 
-      [showButtonBar]="true" 
-      (onClose)="sortClients()" 
-      [(ngModel)]="dateFrom" 
-      [showTime]="false" 
-      hourFormat="24" 
-      [firstDayOfWeek]="1">
-    </p-calendar>
-  </div>
-  <div class="date-wrapper">
-    <p-calendar 
-      appendTo="body" 
-      [showButtonBar]="true" 
-      placeholder="до" 
-      (onClose)="sortClients()" 
-      [(ngModel)]="dateTo" 
-      [showTime]="false" 
-      hourFormat="24" 
-      [firstDayOfWeek]="1">
-    </p-calendar>
-  </div>
-
-  <input 
-    type="text" 
-    (change)="sortClients()" 
-    [(ngModel)]="phoneNumber" 
-    pInputText 
-    placeholder="Телефон"/>
-
-    <!-- <div class="date-wrapper" *ngIf="selectedStatus.length == 1 && selectedStatus[0] == fieldNames.DealStatus.Sold">
+    <div class="date-wrapper" *ngIf="selectedStatus.length == 1 && selectedStatus[0] == fieldNames.DealStatus.Sold">
       <p-calendar 
         appendTo="body" 
         placeholder="Дата продажи от" 
@@ -105,13 +23,140 @@
         hourFormat="24" 
         [firstDayOfWeek]="1">
       </p-calendar>
-    </div> -->
+    </div>
+</div> -->
+
+<div class="card">
+  <div class="card-body">
+    <div>jkdfnbjkdfbn</div>
+    <form
+      (ngSubmit)="sortClients()"
+      *ngIf="form"
+      [formGroup]="form">
+
+      <div class="flex flex-row justify-content-start align-items-center row-gap-1 col-12">
+        <p-multiSelect
+          formControlName="dealStatus"
+          appendTo="body"
+          *ngIf="availableStatuses.length > 0"
+          [options]="availableStatuses"
+          [(ngModel)]="selectedStatus"
+          placeholder="Статус сделки"
+          optionLabel="label"
+          optionValue="value"
+          (onPanelHide)="sortClients()"
+          selectedItemsLabel="{0} статусов выбрано"
+          [maxSelectedLabels]="1"
+        ></p-multiSelect>
+
+        <p-multiSelect
+          formControlName="clientStatus"
+          appendTo="body"
+          *ngIf="availableClientStatuses.length > 0"
+          [options]="availableClientStatuses"
+          [(ngModel)]="selectedClientStatus"
+          placeholder="Статус клиента"
+          optionLabel="label"
+          optionValue="value"
+          (onPanelHide)="sortClients()"
+          selectedItemsLabel="{0} статусов клиента выбрано"
+          [maxSelectedLabels]="1"
+        ></p-multiSelect>
+
+        <p-multiSelect
+          formControlName="source"
+          appendTo="body"
+          *ngIf="availableClientSources.length > 0"
+          [options]="availableClientSources"
+          [(ngModel)]="selectedClientSource"
+          placeholder="Источник"
+          optionLabel="label"
+          optionValue="value"
+          (onPanelHide)="sortClients()"
+          selectedItemsLabel="{0} источников выбрано"
+          [maxSelectedLabels]="1"
+        ></p-multiSelect>
+
+        <p-multiSelect
+          formControlName="specialist"
+          appendTo="body"
+          *ngIf="availableSpecialists.length > 0"
+          [options]="availableSpecialists"
+          [(ngModel)]="selectedSpecialist"
+          placeholder="Специалист"
+          optionLabel="label"
+          optionValue="value"
+          (onPanelHide)="sortClients()"
+          selectedItemsLabel="{0} спициалистов выбрано"
+          [maxSelectedLabels]="1"
+        ></p-multiSelect>
+        <div class="date-wrapper">
+          <p-calendar
+            formControlName="dateFrom"
+            appendTo="body" 
+            placeholder="Дата создания от" 
+            [showButtonBar]="true" 
+            (onClose)="sortClients()" 
+            [(ngModel)]="dateFrom" 
+            [showTime]="false" 
+            hourFormat="24" 
+            [firstDayOfWeek]="1">
+          </p-calendar>
+        </div>
+        <div class="date-wrapper">
+          <p-calendar
+            formControlName="dateTo"
+            appendTo="body" 
+            [showButtonBar]="true" 
+            placeholder="до" 
+            (onClose)="sortClients()" 
+            [(ngModel)]="dateTo" 
+            [showTime]="false" 
+            hourFormat="24" 
+            [firstDayOfWeek]="1">
+          </p-calendar>
+        </div>
+
+        <input
+          formControlName="phoneNumber" 
+          type="text" 
+          (change)="sortClients()" 
+          [(ngModel)]="phoneNumber" 
+          pInputText 
+          placeholder="Телефон"/>
+      </div>
+    </form>
+  </div>
+
+  <div class="flex flex-row justify-content-between align-items-center row-gap-1 col-12">
+    <p-toolbar>
+      <div class="p-toolbar-group-left">
+        <span>
+          Кол-во: {{ sortedClients.length }}
+        </span>
+        <button
+          pButton
+          type="button"
+          [disabled]="fieldConfigs.length === 0"
+          label="Добавить клиента"
+          icon="pi pi-plus"
+          (click)="openNewClientWindow()"
+        ></button>
+      </div>
+    
+      <div class="p-toolbar-group-right">
+        <p-button size="small" (onClick)="refresh()" class="mr-2">
+          <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+        </p-button>
+      </div>
+    </p-toolbar>
+  </div>
 </div>
 
-<p-toolbar>
+<!-- <p-toolbar>
   <div class="p-toolbar-group-left">
     <span>
-      Кол-во: {{ sortedClients.length }}
+      Кол-во: {{ list.length }}
     </span>
     <button
       pButton
@@ -128,16 +173,16 @@
       <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
     </p-button>
   </div>
-</p-toolbar>
+</p-toolbar> -->
 <div class="grid-wrapper">
-  <za-grid
+  <za-pageagle-grid
     [gridConfig]="gridConfig"
-    [getTooltipConfig]="getTooltipConfig"
     [actions]="gridActionsConfig"
     [getColorConfig]="getColorConfig"
-    [doubleClickFuction]="updateClient"
-    [gridData]="sortedClients"
-  ></za-grid>
+    [dataService]="settingsClientsService"
+    [sortField]="'date'"
+    [first] = "first"
+  ></za-pageagle-grid>
 </div>
 
 <za-spinner *ngIf="loading"></za-spinner>
