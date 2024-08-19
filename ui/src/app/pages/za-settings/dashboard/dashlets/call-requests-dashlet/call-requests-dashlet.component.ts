@@ -18,6 +18,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CallRequestsDataService } from './call-requests-data.service';
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 
 const isClientCreated = (allClients: ServerClient.Response[], item: ServerCallRequest.Response) => !!allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === item.clientNumber);
 
@@ -77,6 +78,8 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     },
   }
 
+  form: UntypedFormGroup | null = null;
+  
   constructor(
     private sessionService: SessionService,
     private requestService: RequestService,
@@ -84,9 +87,13 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     private clientService: ClientService,
     private dialogService: DialogService,
     public callRequestsDataService: CallRequestsDataService,
+    private fb: UntypedFormBuilder,
     ) { }
 
   ngOnInit(): void {
+    this.form = this.fb.group({
+      specialist: '',
+    });
     this.getAdditinalData().subscribe(() => {
       this.getTotals().subscribe();
       this.setGridSettings();
@@ -113,8 +120,12 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       [`sortOrder`]: SortDirection.Desc,
       ...this.queriesByTabIndex[index],
     };
-
     // filters
+    const { specialist } = this.form?.value;
+
+    if (specialist != '') {
+      query['userId'] = `${specialist}`
+    }
 
     return query;
   }

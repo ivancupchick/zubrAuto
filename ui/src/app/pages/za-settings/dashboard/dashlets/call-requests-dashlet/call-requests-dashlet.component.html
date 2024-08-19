@@ -1,8 +1,22 @@
 <p-panel *ngIf="allCallRequestsTotal || usedCallRequestsTotal" header="Заявки">
   <ng-template pTemplate="icons">
-    <p-button size="small" (onClick)="refresh()" class="mr-2">
-      <i class="pi pi-refresh" [ngClass]="{'pi-spin': callRequestsDataService.loading$ | async}"></i>
-    </p-button>
+    <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2">
+      <p-multiSelect
+        appendTo="body"
+        size="small"
+        [options]="availableSpecialists"
+        formControlName="specialist"
+        placeholder="Специалист"
+        optionLabel="name"
+        optionValue="id"
+        selectedItemsLabel="{0} спициалистов выбрано"
+        [maxSelectedLabels]="1"
+      ></p-multiSelect>
+
+      <button  pButton size="small" class="mx-2">
+        <i class="pi pi-refresh ms-2" [ngClass]="{'pi-spin': form.disabled}"></i>
+      </button>
+    </form>
   </ng-template>
 
   <p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="refresh()">
