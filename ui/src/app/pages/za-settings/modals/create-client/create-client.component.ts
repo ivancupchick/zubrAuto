@@ -68,8 +68,6 @@ export class CreateClientComponent implements OnInit {
   private selectedRealCars: ServerCar.Response[] = [];
   // private allCars: ServerCar.Response[] = [];
 
-  @ViewChild(DynamicFormComponent) clientForm!: DynamicFormComponent;
-
   formValid = false;
 
   isJustCall!: UntypedFormControl;
@@ -109,10 +107,10 @@ export class CreateClientComponent implements OnInit {
 
     this.isJustCall.valueChanges.subscribe((res: boolean) => {
       if (res) {
-        this.clientForm.formGroup.disable();
+        this.dynamicForm.formGroup.disable();
         this.formValid = true;
       } else {
-        this.clientForm.formGroup.enable();
+        this.dynamicForm.formGroup.enable();
       }
     });
 
@@ -337,6 +335,14 @@ export class CreateClientComponent implements OnInit {
 
   setValidForm(value: boolean) {
     this.formValid = value;
+  }
+
+  setDirtyFormFields(value: boolean) {
+    if (value) {
+      Object.keys(this.dynamicForm.formGroup.controls).forEach(key => {
+        this.dynamicForm.formGroup.get(key)!.markAsDirty();
+      });
+    }
   }
 
   updateFieldConfig(field: DynamicFieldBase<string>) {

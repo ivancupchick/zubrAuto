@@ -33,6 +33,7 @@ export class DynamicFormComponent implements OnInit {
   @Input() fields: DynamicFieldBase<string>[] = [];
 
   @Output() changed = new EventEmitter<boolean>();
+  @Output() initialized = new EventEmitter<boolean>();
 
   FieldType = FieldType;
 
@@ -59,7 +60,11 @@ export class DynamicFormComponent implements OnInit {
     this.formGroup.valueChanges.subscribe(data => {
       this.valid = this.formGroup.valid;
       this.changed.emit(this.valid);
-    })
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.initialized.emit(true);
   }
 
   getValue(): RealField.Request[] {
