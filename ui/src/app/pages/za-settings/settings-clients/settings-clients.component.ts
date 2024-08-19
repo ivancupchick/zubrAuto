@@ -64,8 +64,8 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   availableClientSources: { label: FieldNames.ClientSource, value: FieldNames.ClientSource }[] = [];
   selectedClientSource: FieldNames.ClientSource[] = [];
 
-  availableSpecialists: { label: string, value: number }[] = [];
-  selectedSpecialist: number[] = [];
+  availableSpecialists: { label: string, value: string }[] = [];
+  selectedSpecialist: string[] = [];
 
   specialists: ServerUser.Response[] = [];
 
@@ -133,8 +133,8 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
                       )
                     ));
 
-        this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: u.id }));
-
+        this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: `${u.id}` }));
+        this.availableSpecialists.unshift({label: 'Никто', value: 'None' });
         const carIds = clientsRes.list.reduce<number[]>((prev, client) => {
           const clietnCarIds = client.carIds.split(',').map(id => +id);
           return [...prev, ...clietnCarIds];
@@ -395,8 +395,13 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
       return true;
     }).filter(c =>
       FieldsUtils.getFieldStringValue(c, FieldNames.Client.number).toLowerCase().includes(this.phoneNumber.toLowerCase()) || this.phoneNumber === ''
-    ).filter(c =>
-      this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0
+    ).filter(c => {
+      if (this.selectedSpecialist.includes('None')) {
+        return ['NaN', '', 'None', 'null', null as any, ...this.selectedSpecialist].includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0;
+      } else {
+        return this.selectedSpecialist.includes(getClientSpecialist(c)) || this.selectedSpecialist.length === 0;
+      }
+    }
     ).filter(c =>
       this.selectedStatus.includes(getDealStatus(c)) || this.selectedStatus.length === 0
     ).filter(c =>

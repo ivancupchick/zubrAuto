@@ -16,6 +16,6 @@ export function getClientSource(client: ServerClient.Response): FieldNames.Clien
   return FieldsUtils.getDropdownValue(client, FieldNames.Client.source) as FieldNames.ClientSource;
 }
 
-export function getClientSpecialist(client: ServerClient.Response): number {
-  return FieldsUtils.getFieldNumberValue(client, FieldNames.Client.specialistId);
+export function getClientSpecialist(client: ServerClient.Response): string {
+  return FieldsUtils.getFieldStringValue(client, FieldNames.Client.specialistId);
 }
