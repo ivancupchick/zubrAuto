@@ -3,7 +3,7 @@ import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ClientService } from 'src/app/services/client/client.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid';
-import { ServerClient, getClientSpecialist, getClientStatus, getDealStatus } from 'src/app/entities/client';
+import { ServerClient, getClientStatus } from 'src/app/entities/client';
 import { ServerUser } from 'src/app/entities/user';
 import { Subject, takeUntil, tap, zip } from 'rxjs';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
