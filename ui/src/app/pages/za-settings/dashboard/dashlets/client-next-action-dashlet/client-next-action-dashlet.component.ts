@@ -23,6 +23,7 @@ import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { ClientChangeLogsComponent } from '../../../pages/change-log/componets/client-change-logs/client-change-logs.component';
 
+
 export enum TabIndex {
   MyClients = 0,
   MyFutureClients = 1,
