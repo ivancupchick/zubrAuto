@@ -133,8 +133,11 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
                       )
                     ));
 
-        this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: `${u.id}` }));
-        this.availableSpecialists.unshift({label: 'Никто', value: 'None' });
+        this.availableSpecialists = [
+          {label: 'Никто', value: 'None' },
+          ...this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: `${u.id}` }))
+        ];
+
         const carIds = clientsRes.list.reduce<number[]>((prev, client) => {
           const clietnCarIds = client.carIds.split(',').map(id => +id);
           return [...prev, ...clietnCarIds];
