@@ -19,6 +19,8 @@ import { CallRequestsDataService } from './call-requests-data.service';
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { callRequestFiltersInialState } from './call-requests-dashlet';
+
 
 const isClientCreated = (allClients: ServerClient.Response[], item: ServerCallRequest.Response) => !!allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === item.clientNumber);
 
@@ -43,6 +45,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   first = 0;
   sortField = 'id';
   activeIndex: TabIndex = 0;
+  loaded: boolean = false;
 
   gridConfig!: GridConfigItem<ServerCallRequest.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerCallRequest.Response>[] = [];
@@ -91,9 +94,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     ) { }
 
   ngOnInit(): void {
-    this.form = this.fb.group({
-      specialist: '',
-    });
+    this.form = this.fb.group(callRequestFiltersInialState);
     this.getAdditinalData().subscribe(() => {
       this.getTotals().subscribe();
       this.setGridSettings();
@@ -111,7 +112,9 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     const query = this.getQuery(this.activeIndex);
 
     this.callRequestsDataService.onFilter(query);
-    this.getTotals().subscribe();
+    this.getTotals().pipe(
+      takeUntil(this.destoyed),
+    ).subscribe();
   }
 
   getQuery(index: TabIndex): StringHash {
@@ -121,12 +124,17 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       ...this.queriesByTabIndex[index],
     };
     // filters
-    const { specialist } = this.form?.value;
+    const { specialist, number } = this.form?.value;
 
     if (specialist != '') {
       query['userId'] = `${specialist}`
     }
 
+    // Не работает, но и ошибки не выбивает.
+    if (number != '') {
+      query['innerNumber'] = `%${number}%`;
+      query['filter-operator-innerNumber'] = 'LIKE';
+    }
     return query;
   }
 
@@ -150,6 +158,11 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
         this.availableSpecialists = this.specialists.map(u => ({ name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), id: +u.id }));
       })
     );
+  }
+
+  clearFilters(){
+    this.form?.reset(callRequestFiltersInialState);
+    this.refresh();
   }
 
   getTotals() {
@@ -177,6 +190,10 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
           this.allCallRequestsTotal,
           this.usedCallRequestsTotal,
         ] = [first.total, second.total, thirt.total];
+
+        if (this.allCallRequestsTotal || this.usedCallRequestsTotal) {
+          this.loaded = true;
+        }
       })
     );
   }
