@@ -19,6 +19,8 @@ import { CreateClientComponent } from '../../../modals/create-client/create-clie
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { CallsDashletDataService } from './calls-dashlet-data.service';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { callsFiltersInialState } from './calls-dashlet';
 
 const isPhoneCallUsed = (allClients: ServerClient.Response[], call: ServerPhoneCall.Response) => !!allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === `+${call.clientNumber}`);
 
@@ -43,6 +45,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
   first = 0;
   sortField = 'id';
   activeIndex: TabIndex = 0;
+  loaded: boolean = false;
 
   gridConfig!: GridConfigItem<ServerPhoneCall.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerPhoneCall.Response>[] = [];
@@ -63,6 +66,8 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
   clientsFieldConfigs: ServerField.Response[] = []; // !TODO replace away
   isCarSales = this.sessionService.isCarSales;
 
+  form: UntypedFormGroup | null = null;
+
   queriesByTabIndex: {
     [key in TabIndex]: StringHash
   } | null = null;
@@ -74,9 +79,11 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
     private clientService: ClientService,
     private dialogService: DialogService,
     public callsDataService: CallsDashletDataService,
+    private fb: UntypedFormBuilder,
     ) { }
 
   ngOnInit(): void {
+    this.form = this.fb.group(callsFiltersInialState);
     this.getAdditionalData()
       .pipe(takeUntil(this.destoyed))
       .subscribe(() => {
@@ -118,7 +125,19 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
     // filters
 
+    const { specialist, number } = this.form?.value;
+
+    // Я походу не понял, какие запросы с какими парамсами сопоставлять
+    if (specialist != '') {
+      query['innerNumber'] = `${specialist}`
+    }
+
     return query;
+  }
+
+  clearFilters(){
+    this.form?.reset(callsFiltersInialState);
+    this.refresh();
   }
 
   getAdditionalData(): Observable<unknown> {
@@ -146,6 +165,9 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
                     ));
 
         this.availableSpecialists = this.specialists.map(u => ({ name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), id: +u.id }));
+
+        // Я просто тестил и с запросом где id будет 0 сервер выдаст все записи. 
+        //this.availableSpecialists.unshift({name: 'Сбросить фильтр', id: 0});
 
         this.queriesByTabIndex = {
           [TabIndex.MyPhoneCalls]: {
@@ -190,6 +212,10 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
           this.allPhoneTotal,
           this.usedPhoneTotal,
         ] = [first.total, second.total, thirt.total];
+
+        if (this.allPhoneTotal || this.usedPhoneTotal) {
+          this.loaded = true;
+        }
       })
     );
   }

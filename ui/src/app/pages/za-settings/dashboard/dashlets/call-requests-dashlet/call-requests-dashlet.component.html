@@ -1,7 +1,7 @@
-<p-panel *ngIf="allCallRequestsTotal || usedCallRequestsTotal" header="Заявки">
+<p-panel *ngIf="loaded" header="Заявки">
   <ng-template pTemplate="icons">
     <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2">
-      <p-multiSelect
+      <p-dropdown 
         appendTo="body"
         size="small"
         [options]="availableSpecialists"
@@ -9,13 +9,20 @@
         placeholder="Специалист"
         optionLabel="name"
         optionValue="id"
-        selectedItemsLabel="{0} спициалистов выбрано"
-        [maxSelectedLabels]="1"
-      ></p-multiSelect>
+      ></p-dropdown >
 
-      <button  pButton size="small" class="mx-2">
-        <i class="pi pi-refresh ms-2" [ngClass]="{'pi-spin': form.disabled}"></i>
-      </button>
+      <input pInputText class="ml-2" type="text" formControlName="number" pInputText placeholder="Телефон"/>
+
+      <p-button size="small" (onClick)="refresh()" class="mr-2 mx-2">
+        <span>Фильтр </span>
+        <i class="pi pi-refresh" [ngClass]="{'pi-spin': callRequestsDataService.loading$ | async}"></i>
+      </p-button>
+
+      <p-button size="small" (onClick)="clearFilters()" class="mr-2 mx-2">
+        <span>Очистить </span>
+        <i class="pi pi-refresh" [ngClass]="{'pi-spin': form.disabled}"></i>
+      </p-button>
+
     </form>
   </ng-template>
 
