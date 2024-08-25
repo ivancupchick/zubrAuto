@@ -1,0 +1,36 @@
+<div class="card">
+  <div class="card-body">
+  </div>
+
+  <p-toolbar>
+    <div class="p-toolbar-group-left">
+      <span>Кол-во: {{ (clientBaseService.list$ | async)?.total || 0 }}</span>
+      <!-- <button
+        pButton
+        type="button"
+        label="Добавить клиента"
+        icon="pi pi-plus"
+        (click)="openNewClientWindow()"
+      ></button> -->
+    </div>
+  
+    <div class="p-toolbar-group-right">
+      <p-button size="small" (onClick)="update()" class="mr-2">
+        <i class="pi pi-refresh"></i>
+      </p-button>
+    </div>
+  </p-toolbar>
+</div>
+
+<div class="grid-wrapper">
+  <za-pageagle-grid
+    [gridConfig]="gridConfig"
+    [actions]="gridActionsConfig"
+    [getColorConfig]="getColorConfig"
+    [dataService]="clientBaseService"
+    [sortField]="'date'"
+    [first] = "first"
+  ></za-pageagle-grid>
+</div>
+
+<za-spinner *ngIf="loading"></za-spinner>
