@@ -2,6 +2,7 @@
   <ng-template pTemplate="icons">
     <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2">
       <p-dropdown 
+        class="mx-2"
         appendTo="body"
         size="small"
         [options]="availableSpecialists"
@@ -10,8 +11,43 @@
         optionLabel="name"
         optionValue="id"
       ></p-dropdown >
+      
+      <!-- 
+      хотел через выпадающий список вывести возможные сайты, чтобы просто кликать
+      <p-dropdown 
+        appendTo="body"
+        size="small"
+        [options]="sourceList"
+        formControlName="source"
+        placeholder="Сайт"
+        optionLabel="name"
+        optionValue="id"
+      ></p-dropdown > -->
+
+      <input pInputText class="ml-2" type="text" formControlName="source" pInputText placeholder="Сайт"/>
 
       <input pInputText class="ml-2" type="text" formControlName="number" pInputText placeholder="Телефон"/>
+
+      <p-calendar
+        class="mx-2"
+        appendTo="body"
+        placeholder="Дата создания от"
+        formControlName="dateFrom"
+        [showTime]="false"
+        hourFormat="24"
+        [firstDayOfWeek]="1">
+      </p-calendar>
+
+      <p-calendar
+        class="mx-2"
+        appendTo="body"
+        [showButtonBar]="true"
+        placeholder="до"
+        formControlName="dateTo"
+        [showTime]="false"
+        hourFormat="24"
+        [firstDayOfWeek]="1">
+      </p-calendar>
 
       <p-button size="small" (onClick)="refresh()" class="mr-2 mx-2">
         <span>Фильтр </span>
