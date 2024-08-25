@@ -57,6 +57,8 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
 
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string, id: number }[] = [];
+  // Возможно ли сделать список доступных сайтов? Типо сделать мапу из значений таблицы.
+  sourceList: { name: string, id: number }[] = [];
   allClients: ServerClient.Response[] = [];
 
   destoyed = new Subject();
@@ -124,16 +126,18 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       ...this.queriesByTabIndex[index],
     };
     // filters
-    const { specialist, number } = this.form?.value;
+    const { specialist, number, source, dateFrom, dateTo } = this.form?.value;
 
     if (specialist != '') {
       query['userId'] = `${specialist}`
     }
-
-    // Не работает, но и ошибки не выбивает.
     if (number != '') {
-      query['innerNumber'] = `%${number}%`;
-      query['filter-operator-innerNumber'] = 'LIKE';
+      query['clientNumber'] = `%${number}%`;
+      query['filter-operator-clientNumber'] = 'LIKE';
+    }
+    if (source != '') {
+      query['source'] = `%${source}%`;
+      query['filter-operator-source'] = 'LIKE';
     }
     return query;
   }

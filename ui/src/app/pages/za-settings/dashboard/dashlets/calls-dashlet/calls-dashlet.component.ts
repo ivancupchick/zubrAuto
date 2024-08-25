@@ -58,7 +58,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
   specialists: ServerUser.Response[] = [];
   allUsers: ServerUser.Response[] = [];
   currentUser!: ServerUser.Response;
-  availableSpecialists: { name: string, id: number }[] = [];
+  availableSpecialists: { name: string, innerNumber: number }[] = [];
   allClients: ServerClient.Response[] = [];
 
   destoyed = new Subject();
@@ -84,6 +84,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.form = this.fb.group(callsFiltersInialState);
+    
     this.getAdditionalData()
       .pipe(takeUntil(this.destoyed))
       .subscribe(() => {
@@ -125,11 +126,14 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
     // filters
 
-    const { specialist, number } = this.form?.value;
+    const { innerNumber, number } = this.form?.value;
 
-    // Я походу не понял, какие запросы с какими парамсами сопоставлять
-    if (specialist != '') {
-      query['innerNumber'] = `${specialist}`
+    if (innerNumber != '') {
+      query['innerNumber'] = `${innerNumber}`
+    }
+    if (number != '') {
+      query['clientNumber'] = `%${number.replaceAll('+','')}%`;
+      query['filter-operator-clientNumber'] = 'LIKE';
     }
 
     return query;
@@ -163,11 +167,10 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
                         u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
                       )
                     ));
-
-        this.availableSpecialists = this.specialists.map(u => ({ name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), id: +u.id }));
-
-        // Я просто тестил и с запросом где id будет 0 сервер выдаст все записи. 
-        //this.availableSpecialists.unshift({name: 'Сбросить фильтр', id: 0});
+        
+        this.availableSpecialists = this.specialists.map((u) => {
+          return { name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), innerNumber: +u.fields[2].value }
+        });
 
         this.queriesByTabIndex = {
           [TabIndex.MyPhoneCalls]: {

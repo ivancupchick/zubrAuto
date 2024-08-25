@@ -15,6 +15,7 @@ import { CallsDashletComponent } from './dashlets/calls-dashlet/calls-dashlet.co
 import { PageagleGridComponent } from '../shared/pageagle-grid/pageagle-grid.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
 
 
 @NgModule({
@@ -37,7 +38,8 @@ import { DropdownModule } from 'primeng/dropdown';
     ReactiveFormsModule,
     PageagleGridComponent,
     InputTextModule,
-    DropdownModule
+    DropdownModule,
+    CalendarModule,
   ],
   exports: [
     DashboardComponent
