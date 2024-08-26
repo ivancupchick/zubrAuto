@@ -123,6 +123,16 @@ class FieldChainService {
 
     let fieldNames = Object.keys(query);
 
+    if (fieldNames.length === 0 && ids.size === 0) {
+      const needChaines = await fieldChainRepository.find({
+        sourceName: [sourceName],
+      });
+
+      const allIds = needChaines.map(ch => `${ch.sourceId}`);
+
+      return [...(new Set<string>(allIds))];
+    }
+
     const specialFieldNameOperators = fieldNames.filter((fn) =>
       fn.includes("filter-operator")
     ); // TODO select startof 'filter-operator-';
