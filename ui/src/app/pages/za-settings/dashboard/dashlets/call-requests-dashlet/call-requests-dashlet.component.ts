@@ -145,8 +145,8 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       query[`filter-operator-createdDate`] = '<';
     }
     if (dateTo && dateFrom) {
-      query[FieldNames.Client.dateNextAction] = `${Date.parse(dateFrom)}-${Date.parse(dateTo)}`;
-      query[`filter-operator-${FieldNames.Client.dateNextAction}`] = 'range';
+      query['createdDate'] = `${+dateFrom}-${+dateTo}`;
+      query[`filter-operator-createdDate`] = 'range';
     }
 
     return query;

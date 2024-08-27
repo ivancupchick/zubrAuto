@@ -1,8 +1,8 @@
 <p-panel *ngIf="loaded" header="Заявки">
-  <ng-template pTemplate="icons" class="w-full">
-    <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2 w-full">
-      <div class="grid">
-        <div class="col-8">
+  <ng-template pTemplate="icons">
+    <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2 w-full ml-3">
+      <div class="grid flex-nowrap">
+        <div class="col-auto overflow-x-auto nowrap thin-scrollbar">
           <p-dropdown 
           class="m-2"
           appendTo="body"
@@ -40,7 +40,7 @@
         </p-calendar>
         </div>
         
-        <div class="col-4">
+        <div class="col-fixed">
           <p-button size="small" (onClick)="refresh()" class="m-2">
             <span>Фильтр </span>
             <i class="pi pi-refresh" [ngClass]="{'pi-spin': callRequestsDataService.loading$ | async}"></i>
