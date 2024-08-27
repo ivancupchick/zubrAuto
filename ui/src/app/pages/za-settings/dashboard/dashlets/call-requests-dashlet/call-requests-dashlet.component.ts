@@ -20,6 +20,7 @@ import { BaseList, StringHash } from 'src/app/entities/constants';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { callRequestFiltersInialState } from './call-requests-dashlet';
+import * as moment from 'moment';
 
 
 const isClientCreated = (allClients: ServerClient.Response[], item: ServerCallRequest.Response) => !!allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === item.clientNumber);
@@ -57,8 +58,6 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
 
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string, id: number }[] = [];
-  // Возможно ли сделать список доступных сайтов? Типо сделать мапу из значений таблицы.
-  sourceList: { name: string, id: number }[] = [];
   allClients: ServerClient.Response[] = [];
 
   destoyed = new Subject();
@@ -102,9 +101,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       this.setGridSettings();
     });
 
-    this.callRequestsDataService.clients$.pipe(
-      takeUntil(this.destoyed),
-    ).subscribe((clientsRes) => {
+    this.callRequestsDataService.clients$.subscribe((clientsRes) => {
       this.allClients = clientsRes.list;
       // this.setGridSettings();
     });
@@ -128,17 +125,30 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     // filters
     const { specialist, number, source, dateFrom, dateTo } = this.form?.value;
 
-    if (specialist != '') {
+    if (specialist) {
       query['userId'] = `${specialist}`
     }
-    if (number != '') {
+    if (number) {
       query['clientNumber'] = `%${number}%`;
       query['filter-operator-clientNumber'] = 'LIKE';
     }
-    if (source != '') {
+    if (source) {
       query['source'] = `%${source}%`;
       query['filter-operator-source'] = 'LIKE';
     }
+    if (dateFrom && !dateTo) {
+      query['createdDate'] = `${+dateFrom}`;
+      query[`filter-operator-createdDate`] = '>';
+    }
+    if (dateTo && !dateFrom) {
+      query['createdDate'] = `${+dateTo}`;
+      query[`filter-operator-createdDate`] = '<';
+    }
+    if (dateTo && dateFrom) {
+      query[FieldNames.Client.dateNextAction] = `${Date.parse(dateFrom)}-${Date.parse(dateTo)}`;
+      query[`filter-operator-${FieldNames.Client.dateNextAction}`] = 'range';
+    }
+
     return query;
   }
 
