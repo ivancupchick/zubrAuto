@@ -8,7 +8,7 @@ import { ClientService } from 'src/app/services/client/client.service';
 import { getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/client';
 import { CommonModule } from '@angular/common';
 import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid';
-import { ClientBaseService } from './services/client-base-service';
+import { ClientBaseService } from './services/client-base-data.service';
 import { settingsClientsStrings } from './clients-base.strings';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -63,7 +63,6 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
   };
 
   getClients() {
-    // у старого сервиса берутся клиенты и пропихиваются в новый сервис. Не одобряю)
     return this.clientService.getClients().pipe(
         takeUntil(this.destoyed),
         finalize(()=> {
