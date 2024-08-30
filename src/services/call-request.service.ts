@@ -6,6 +6,7 @@ import { StringHash } from "../models/hashes";
 import { SitesCallRequest } from "../models/sites-call-request";
 import callRequestsRepository from "../repositories/base/call-requests.repository";
 import fieldChainRepository from "../repositories/base/field-chain.repository";
+import userRepository from "../repositories/base/user.repository";
 import { getEntityIdsByNaturalQuery } from "../utils/enitities-functions";
 import { convertClientNumber } from "../utils/number.utils";
 
@@ -24,7 +25,11 @@ class CallRequestService implements ICrudService<ServerCallRequest.CreateRequest
       }, ['all']);
     }
 
-    const userIds = users.map(ef => +ef.sourceId);
+    let userIds = users.map(ef => +ef.sourceId);
+
+    const existUsers = await userRepository.find({ id: userIds.map(id => `${id}`), deleted: ['0'] });
+
+    userIds = existUsers.map(u => +u.id);
 
     const allRequests = await callRequestsRepository.find({
       userId: userIds.map(id => `${id}`)

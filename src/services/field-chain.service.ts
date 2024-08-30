@@ -138,11 +138,18 @@ class FieldChainService {
       : [];
 
     const specialFieldChaines = specialFieldIds.length ? await Promise.all(
-      specialFieldNames.map((fn) => {
-        const id = specialFieldIds.find(fc => fc.name === fn);
-        const operatorName = specialFieldNameOperators.find(fc => fc.includes(fn));
+      specialFieldNames.map((fieldName) => {
+        const id = specialFieldIds.find(fc => fc.name === fieldName);
+        const operatorName = specialFieldNameOperators.find(fc => fc.includes(fieldName));
 
-        const queryRequest = `SELECT * FROM \`${Models.Table.FieldChains}\` WHERE (sourceName IN ('${Models.Table.Clients}') AND fieldId IN (${id.id}) AND value ${query[operatorName]} '${query[fn]}');`;
+        let fieldNameQuery = `value ${query[operatorName]} '${query[fieldName]}'`;
+
+        if (operatorName === 'range') {
+          const values: [string, string] = query[fieldName].split('-') as [string, string]; // TODO controller validation
+          fieldNameQuery = `value > '${values[0]}' AND value < '${values[1]}'`
+        }
+
+        const queryRequest = `SELECT * FROM \`${Models.Table.FieldChains}\` WHERE (sourceName IN ('${Models.Table.Clients}') AND fieldId IN (${id.id}) AND ${fieldNameQuery});`;
 
         return fieldChainRepository.queryRequest(queryRequest);
       })

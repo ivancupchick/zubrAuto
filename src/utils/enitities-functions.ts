@@ -41,6 +41,11 @@ export async function getEntityIdsByNaturalQuery<T extends { id: number }>(repos
         specialColumnNames.map((cn, chIndex) => {
           const operatorName = specialColumnNameOperators[chIndex];
 
+          if (operatorName === 'range') {
+            const values: [string, string] = query[cn].split('-') as [string, string]; // TODO controller validation
+            return `(${cn} > '${values[0]}' AND ${cn} < '${values[1]}')`
+          }
+
           return `(${cn} ${query[operatorName]} '${query[cn]}')`
         }).join(' AND ')
       }) ORDER BY ${sortField} ${sortOrder};`)
