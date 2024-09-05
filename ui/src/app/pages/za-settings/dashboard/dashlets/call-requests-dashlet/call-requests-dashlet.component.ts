@@ -101,7 +101,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       this.setGridSettings();
     });
 
-    this.callRequestsDataService.clients$.subscribe((clientsRes) => {
+    this.callRequestsDataService.clients$.pipe(takeUntil(this.destoyed)).subscribe((clientsRes) => {
       this.allClients = clientsRes.list;
       // this.setGridSettings();
     });
@@ -111,9 +111,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
     const query = this.getQuery(this.activeIndex);
 
     this.callRequestsDataService.onFilter(query);
-    this.getTotals().pipe(
-      takeUntil(this.destoyed),
-    ).subscribe();
+    this.getTotals().subscribe();
   }
 
   getQuery(index: TabIndex): StringHash {
@@ -426,5 +424,6 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destoyed.next(null);
+    this.destoyed.complete();
   }
 }
