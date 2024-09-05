@@ -9,13 +9,22 @@ import { getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/c
 import { CommonModule } from '@angular/common';
 import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid';
 import { ClientBaseService } from './services/client-base-data.service';
-import { settingsClientsStrings } from './clients-base.strings';
-import { FieldsUtils } from 'src/app/entities/field';
+import { ClientBaseFilterFormsInitialState, settingsClientsStrings } from './clients-base.strings';
+import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerUser } from 'src/app/entities/user';
 import { DateUtils } from 'src/app/shared/utils/date.util';
 import { ServerCar } from 'src/app/entities/car';
-import { DialogService } from 'primeng/dynamicdialog';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { UserService } from 'src/app/services/user/user.service';
+import { ServerRole } from 'src/app/entities/role';
+import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
+import { CreateClientComponent } from '../../modals/create-client/create-client.component';
+import { FieldService } from 'src/app/services/field/field.service';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 @Component({
   selector: 'za-clients-base',
@@ -28,53 +37,119 @@ import { DialogService } from 'primeng/dynamicdialog';
     PageagleGridComponent,
     ToolbarModule,
     ButtonModule,
-    CommonModule
+    CommonModule,
+    DropdownModule,
+    FormsModule,
+    ReactiveFormsModule,
+    CalendarModule,
+    MultiSelectModule
   ]
 })
 export class ClientsBaseComponent implements OnInit, OnDestroy {
   first: number = 0;
-  loading = false;
+  loading$ = this.clientBaseService.loading$;
+  list$ = this.clientBaseService.list$;
   destoyed = new Subject();
   readonly strings = settingsClientsStrings;
 
+  form!: UntypedFormGroup;
+
   rawClients: ServerClient.Response[] = [];
   specialists: ServerUser.Response[] = [];
-  allCars: ServerCar.Response[] = [];
+  allCars: ServerCar.Response[] = []; // в коде пока не учавствует, не понимаю как они вообще учавствуют в отображении клиентов
+  fieldConfigs: ServerField.Response[] = [];
 
   gridConfig!: GridConfigItem<ServerClient.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
   getColorConfig: ((item: ServerClient.Response) => string) | undefined;
+
+  dealStatuses: {name: string, value: string}[] = Object.values(FieldNames.DealStatus).map(s => ({ name: s, value: s }));
+  clientStatuses: {name: string, value: string}[] = Object.values(FieldNames.ClientStatus).map(s => ({ name: s, value: s }));
+  sourceList: {name: string, value: string}[] = Object.values(FieldNames.ClientSource).map(s => ({ name: s, value: s }));
+  specialistList: {name: string, value: string}[] = [];
   
 
   constructor(
-    private clientService: ClientService,
     public clientBaseService: ClientBaseService,
-    
+    public fb: UntypedFormBuilder,
+    private userService: UserService,
+    private dialogService: DialogService,
+    private fieldService: FieldService,
   ) {}
 
   ngOnInit(): void {
-    this.update();
+    this.getSpecialistList();
+    this.getFieldsConfigs();
+    this.form = this.fb.group(ClientBaseFilterFormsInitialState);
+    this.form.get('dealStatus')?.setValue([FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit])
+    this.setGridSettings();
+  }
+
+  getSpecialistList(){
+    return this.userService.getAllUsers(true).pipe(takeUntil(this.destoyed)).subscribe(res => {
+      this.specialists = res.list.filter((s: any) => +s.deleted === 0)
+          .filter(u => u.customRoleName === ServerRole.Custom.carSales
+                    || u.customRoleName === ServerRole.Custom.carSalesChief
+                    || u.customRoleName === ServerRole.Custom.customerService
+                    || u.customRoleName === ServerRole.Custom.customerServiceChief
+                    || (
+                      (
+                        u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
+                      )
+                    ));
+
+        this.specialistList = [
+          { name: 'Никто', value: 'None' },
+          ...this.specialists.map(u => ({ name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: `${u.id}` }))
+        ];
+    });
+  };
+
+  getFieldsConfigs(){
+    return this.fieldService.getFieldsByDomain(FieldDomains.Client).subscribe(res => this.fieldConfigs = res);
+  }
+
+  filter() {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    let filters = skipEmptyFilters({...this.form.value });
+
+    if (filters.date) {
+      filters = { ...filters, date: +filters.date, ['filter-operator-date']: '>' }
+    }
+    this.clientBaseService.updatePage(filters);
+    this.first = 0;
+  };
+
+  clearFilters() {
+    this.form.reset(ClientBaseFilterFormsInitialState);
     this.clientBaseService.fetchData();
   }
 
-  update() {
-    this.loading = true;
-    this.getClients();
-  };
+  openNewClientWindow() {
+    const ref = this.dialogService.open(CreateClientComponent, {
+      data: {
+        fieldConfigs: this.fieldConfigs,
+        specialists: this.specialists // Всех выводить или мб аваибл специалистов только?
+      },
+      header: 'Новый клиент',
+      width: '70%',
+    });
 
-  getClients() {
-    return this.clientService.getClients().pipe(
-        takeUntil(this.destoyed),
-        finalize(()=> {
-          this.loading = false;
-        })
-      ).subscribe(res => {
-        this.setGridSettings();
-        this.clientBaseService.clientBaseItems.next(res);
-      })
+    this.subscribeOnCloseModalRef(ref);
+  };
+  
+  subscribeOnCloseModalRef(ref: DynamicDialogRef) {
+    ref.onClose.pipe(takeUntil(this.destoyed)).subscribe(res => {
+      if (res) {
+        this.clientBaseService.fetchData();
+        }
+    });
   }
 
-  setGridSettings() {
+  setGridSettings(): void {
     this.gridConfig = this.getGridConfig();
     this.gridActionsConfig = this.getGridActionsConfig();
     this.getGridColorConfig();
@@ -242,8 +317,6 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
       return '';
     }
   }
-  
-
 
   ngOnDestroy(): void {
     this.destoyed.next(null);
