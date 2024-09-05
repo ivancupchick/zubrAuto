@@ -26,7 +26,7 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
   fieldConfigs: ServerField.Response[] = [];
   specialists: ServerUser.Response[] = [];
 
-  private loading = new BehaviorSubject<boolean>(false);
+  private loading = new BehaviorSubject<boolean>(true);
   public loading$ = this.loading.asObservable();
 
   public clientBaseItems = new BehaviorSubject<BaseList<ServerClient.Response>>({ list: [], total: 0 });
@@ -49,7 +49,6 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
 
   public fetchData() {
     this.loading.next(true);
-
     this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`, this.payload)
       .pipe(
         takeUntil(this.destroy$),
@@ -57,34 +56,12 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
       )
       .subscribe((res) => {
         this.clientBaseItems.next(res);
-
       });
   }
 
-  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: SortDirection; }): void {
-    [
-      this.payload.size,
-      this.payload.page
-    ] = [
-      payload.size,
-      payload.page
-    ];
+  public updatePage(filters: ClientBaseFilters): void {
 
-    if (payload.sortField && payload.sortOrder) {
-      [
-        this.payload.sortField,
-        this.payload.sortOrder
-      ] = [
-        payload.sortField,
-        payload.sortOrder
-      ];
-    }
-
-    this.fetchData();
-  }
-
-  public onFilter(filters: ClientBaseFilters) {
-    const payload = {
+    const payload: any = {
       size: this.payload.size,
       page: 1,
       ...skipEmptyFilters(filters)
@@ -105,74 +82,6 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
     this.fetchData();
   }
 
-  // public fetchChangeLogsById(payload: { size: number; page: number; sourceId: number, sourceName: string }): Observable<BaseList<ServerClient.Response>> {
-  //   return this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`, {...payload })
-  // }
-
-  // getData(): Observable<ServerCar.Response[]> {
-  //   return zip(this.getClients(), this.clientService.getClientFields(), this.userService.getAllUsers(true)).pipe(
-  //     takeUntil(this.destoyed),
-  //     switchMap(([clientsRes, clientFieldsRes, usersFieldsRes]) => {
-  //       this.fieldConfigs = clientFieldsRes;
-  //       this.allUsers = usersFieldsRes.list;
-  //       this.specialists = usersFieldsRes.list.filter((s: any) => +s.deleted === 0)
-  //         .filter(u => u.customRoleName === ServerRole.Custom.carSales
-  //                   || u.customRoleName === ServerRole.Custom.carSalesChief
-  //                   || u.customRoleName === ServerRole.Custom.customerService
-  //                   || u.customRoleName === ServerRole.Custom.customerServiceChief
-  //                   || (
-  //                     (
-  //                       u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
-  //                     )
-  //                   ));
-
-  //       this.availableSpecialists = [
-  //         {label: 'Никто', value: 'None' },
-  //         ...this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: `${u.id}` }))
-  //       ];
-
-  //       const carIds = clientsRes.list.reduce<number[]>((prev, client) => {
-  //         const clietnCarIds = client.carIds.split(',').map(id => +id);
-  //         return [...prev, ...clietnCarIds];
-  //       }, []).filter(id => id && !Number.isNaN(id));
-
-  //       if (carIds.length === 0) {
-  //         return of([]);
-  //       };
-
-  //       const query: StringHash = { id: [...(new Set(carIds))].join(',') };
-
-
-  //       return this.carService.getCarsByQuery(query);
-  //     })
-  //   );
-  // }
-
-  updateClient = (client: ServerClient.Response) => {
-    const ref = this.dialogService.open(CreateClientComponent, {
-      data: {
-        client,
-        fieldConfigs: this.fieldConfigs,
-        specialists: this.specialists,
-      },
-      header: 'Редактировать клиента',
-      width: '70%'
-    });
-
-    // this.subscribeOnCloseModalRef(ref);
-  }
-
-  // subscribeOnCloseModalRef(ref: DynamicDialogRef) {
-  //   ref.onClose.pipe(takeUntil(this.destroy$)).subscribe(res => {
-  //     if (res) {
-  //       this.getData().pipe(takeUntil(this.destroy$)).subscribe(cars => {
-  //         this.allCars = cars;
-  //         this.loading = false;
-  //         this.setGridSettings();
-  //       });
-  //     }
-  //   });
-  // }
   
   ngOnDestroy(): void {
     this.destroy$.next(null);
