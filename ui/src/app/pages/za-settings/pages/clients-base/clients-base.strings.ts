@@ -21,3 +21,13 @@ export const settingsClientsStrings: StringHash = {
   "specialist-id": 'Специалист',
   "sale-date": 'Дата продажи',
 }
+
+export const ClientBaseFilterFormsInitialState = {
+  dealStatus: [''],
+  clientStatus: [''],
+  source: [''],
+  specialist: [''],
+  dateFrom: [''],
+  dateTo: [''],
+  phone: [''],
+}
