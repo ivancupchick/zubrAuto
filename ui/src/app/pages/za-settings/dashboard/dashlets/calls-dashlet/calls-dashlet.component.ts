@@ -58,7 +58,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
   specialists: ServerUser.Response[] = [];
   allUsers: ServerUser.Response[] = [];
   currentUser!: ServerUser.Response;
-  availableSpecialists: { name: string, innerNumber: number }[] = [];
+  availableSpecialists: { name: string, number: number }[] = [];
   allClients: ServerClient.Response[] = [];
 
   destoyed = new Subject();
@@ -126,12 +126,12 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
     // filters
 
-    const { innerNumber, number } = this.form?.value;
+    const { specialistNumber, number } = this.form?.value;
 
-    if (innerNumber != '') {
-      query['innerNumber'] = `${innerNumber}`
+    if (specialistNumber) {
+      query['innerNumber'] = `${specialistNumber}`
     }
-    if (number != '') {
+    if (number) {
       query['clientNumber'] = `%${number.replaceAll('+','')}%`;
       query['filter-operator-clientNumber'] = 'LIKE';
     }
@@ -169,7 +169,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
                     ));
         
         this.availableSpecialists = this.specialists.map((u) => {
-          return { name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), innerNumber: +u.fields[2].value }
+          return { name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), number: +u.fields[2].value }
         });
 
         this.queriesByTabIndex = {

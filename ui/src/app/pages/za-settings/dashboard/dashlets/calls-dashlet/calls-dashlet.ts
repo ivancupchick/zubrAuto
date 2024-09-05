@@ -1,4 +1,4 @@
 export const callsFiltersInialState = {
-  innerNumber: '',
+  specialistNumber: '',
   number: '',
 }
