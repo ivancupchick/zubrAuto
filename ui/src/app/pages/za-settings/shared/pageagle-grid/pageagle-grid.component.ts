@@ -35,6 +35,7 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   @Input() dataService!: PageagleGridService<GridItemType>;
   @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
   @Input() first!: number;
+  @Input() initialPageFilters!: string[];
 
   // @Input() set gridData(value: GridItemType[]) {
   //   if (Array.isArray(value)) {
@@ -123,7 +124,12 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
     const sortOrder: SortDirection | undefined = event.sortOrder && SortEventDirection[event.sortOrder] || undefined;
     const sortField = event.sortField || undefined;
 
-    this.dataService.updatePage({ size: event.rows!, page: (event.first! + event.rows!) / event.rows!, sortField, sortOrder });
+    this.dataService.updatePage({ 
+      size: event.rows!, 
+      page: (event.first! + event.rows!) / event.rows!, 
+      sortField, sortOrder,
+      'deal-status': this.initialPageFilters, 
+    });
       // .pipe(
       //   finalize(() => this.loading = false)
       // ).subscribe(data => {

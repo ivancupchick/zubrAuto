@@ -3,7 +3,7 @@ import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.comp
 import { PageagleGridComponent } from '../../shared/pageagle-grid/pageagle-grid.component';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
-import { finalize, Subject, takeUntil, tap } from 'rxjs';
+import { mergeMap, of, Subject, Subscription, takeUntil } from 'rxjs';
 import { ClientService } from 'src/app/services/client/client.service';
 import { getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/client';
 import { CommonModule } from '@angular/common';
@@ -25,6 +25,9 @@ import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { CreateClientComponent } from '../../modals/create-client/create-client.component';
 import { FieldService } from 'src/app/services/field/field.service';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SessionService } from 'src/app/services/session/session.service';
+import { ClientChangeLogsComponent } from '../change-log/componets/client-change-logs/client-change-logs.component';
+import { DBModels } from 'src/app/entities/constants';
 
 @Component({
   selector: 'za-clients-base',
@@ -47,6 +50,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 })
 export class ClientsBaseComponent implements OnInit, OnDestroy {
   first: number = 0;
+  initialPageFilters = [FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit];
   loading$ = this.clientBaseService.loading$;
   list$ = this.clientBaseService.list$;
   destoyed = new Subject();
@@ -56,7 +60,8 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
 
   rawClients: ServerClient.Response[] = [];
   specialists: ServerUser.Response[] = [];
-  allCars: ServerCar.Response[] = []; // в коде пока не учавствует, не понимаю как они вообще учавствуют в отображении клиентов
+  allUsers: ServerUser.Response[] = [];
+  allCars: ServerCar.Response[] = [];
   fieldConfigs: ServerField.Response[] = [];
 
   gridConfig!: GridConfigItem<ServerClient.Response>[];
@@ -75,6 +80,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     private userService: UserService,
     private dialogService: DialogService,
     private fieldService: FieldService,
+    private sessionService: SessionService
   ) {}
 
   ngOnInit(): void {
@@ -85,8 +91,10 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     this.setGridSettings();
   }
 
-  getSpecialistList(){
+  getSpecialistList(): Subscription {
+
     return this.userService.getAllUsers(true).pipe(takeUntil(this.destoyed)).subscribe(res => {
+      this.allUsers = res.list
       this.specialists = res.list.filter((s: any) => +s.deleted === 0)
           .filter(u => u.customRoleName === ServerRole.Custom.carSales
                     || u.customRoleName === ServerRole.Custom.carSalesChief
@@ -105,16 +113,16 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     });
   };
 
-  getFieldsConfigs(){
-    return this.fieldService.getFieldsByDomain(FieldDomains.Client).subscribe(res => this.fieldConfigs = res);
+  getFieldsConfigs(): Subscription {
+    return this.fieldService.getFieldsByDomain(FieldDomains.Client).pipe(takeUntil(this.destoyed)).subscribe(res => this.fieldConfigs = res);
   }
 
-  filter(){
+  filter(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
-    let filters = skipEmptyFilters({...this.form.value });
+    let filters = skipEmptyFilters({...structuredClone(this.form.value) });
 
     if (filters.specialist){
       const { specialist, ...rest } = filters;
@@ -147,7 +155,10 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
           'filter-operator-createdDate': 'range', 
           ...rest }
       } else [
-        filters = { 'createdDate': Date.parse(date[0]), ...rest }
+        filters = { 
+          'createdDate': Date.parse(date[0]),
+          'filter-operator-createdDate': '>', 
+          ...rest }
       ]
     }
 
@@ -155,17 +166,17 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     this.first = 0;
   };
 
-  clearFilters() {
+  clearFilters(): void {
     this.form.reset(ClientBaseFilterFormsInitialState);
     const filters = skipEmptyFilters({...this.form.value });
     this.clientBaseService.updatePage(filters);
   }
 
-  openNewClientWindow() {
+  openNewClientWindow(): void {
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
         fieldConfigs: this.fieldConfigs,
-        specialists: this.specialists // Всех выводить или мб аваибл специалистов только?
+        specialists: this.specialists
       },
       header: 'Новый клиент',
       width: '70%',
@@ -282,19 +293,19 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: () => false,
-      handler: (client) => {console.log('this.updateClient(client)');}
+      handler: (client) => this.updateClient(client),
     },
     {
       title: 'Следующее действие',
       icon: 'question-circle',
       buttonClass: 'success',
-      handler: (client) => {console.log('this.updateSpecificField(client, FieldNames.Client.nextAction)');}
+      handler: (client) => this.updateSpecificField(client, FieldNames.Client.nextAction)
     },
     {
       title: 'Изменить статус сделки',
       icon: 'check-circle',
       buttonClass: 'success',
-      handler: (client) => {console.log("this.updateSpecificField(client, FieldNames.Client.dealStatus");}
+      handler: (client) => this.updateSpecificField(client, FieldNames.Client.dealStatus)
     },
     // {
     //   title: 'Показы',
@@ -306,16 +317,16 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
       title: 'Удалить',
       icon: 'times',
       buttonClass: 'danger',
-      handler: (client) => {console.log('this.deleteClient(client)')},
-      disabled: () => true,
-      available: () => true,
+      handler: (client) => this.deleteClient(client),
+      disabled: () => !this.sessionService.isAdminOrHigher,
+      available: () => this.sessionService.isAdminOrHigher,
     },
     {
       title: 'Показать все изменения по клиенту',
       icon: 'pencil',
       buttonClass: 'secondary',
       disabled: (client) => false,
-      handler: (client) => {console.log('this.showClientUpdates(client)');}
+      handler: (client) => this.showClientUpdates(client)
     }
     // {
     //   title: 'Завершить сделку',
@@ -328,7 +339,63 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     return configs.filter(config => !config.available || config.available());
   }
 
-  getGridColorConfig(){
+  updateClient(client: ServerClient.Response): void {
+    const ref = this.dialogService.open(CreateClientComponent, {
+      data: {
+        client,
+        fieldConfigs: this.fieldConfigs,
+        specialists: this.specialists,
+      },
+      header: 'Редактировать клиента',
+      width: '70%'
+    });
+
+    this.subscribeOnCloseModalRef(ref);
+  };
+
+  updateSpecificField(client: ServerClient.Response, fieldName: string): void {
+    const includeFields = fieldName === FieldNames.Client.nextAction
+      ? [FieldNames.Client.nextAction, FieldNames.Client.dateNextAction]
+      : [fieldName, FieldNames.Client.saleDate]
+
+    const specificFieldConfigs = this.fieldConfigs.filter(item => includeFields.includes(item.name));
+
+    const ref = this.dialogService.open(CreateClientComponent, {
+      data: {
+        client,
+        fieldConfigs: specificFieldConfigs,
+        hasSelectionOfCars: false,
+        specialists: this.specialists,
+      },
+      header: 'Редактировать следующее действие',
+      width: '70%'
+    });
+
+    this.subscribeOnCloseModalRef(ref);
+  };
+
+  deleteClient(client: ServerClient.Response): void {
+    this.clientBaseService.deleteClient(client.id)
+      .pipe(
+        mergeMap(res => res && this.clientBaseService.fetchData() || of(null))
+      ).subscribe();
+  };
+  
+  showClientUpdates(client: ServerClient.Response): void {
+    const ref = this.dialogService.open(ClientChangeLogsComponent, {
+      data: {
+        itemId: client.id,
+        fieldConfigs: this.fieldConfigs,
+        allUsers: this.allUsers,
+        sourceName: DBModels.Table.Clients,
+      },
+      header: 'Изменения клиента',
+      width: '90%'
+    });
+    // this.subscribeOnCloseModalRef(ref);
+  }
+
+  getGridColorConfig(): void {
     this.getColorConfig = (client) => {
       const status = getDealStatus(client);
 
