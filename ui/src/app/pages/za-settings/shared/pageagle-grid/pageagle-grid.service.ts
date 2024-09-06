@@ -10,5 +10,5 @@ export abstract class PageagleGridService<ResponseItemType> {
   public abstract list$: Observable<BaseList<ResponseItemType>>;
   public abstract loading$: Observable<boolean>;
   public abstract fetchData(): void;
-  public abstract updatePage(payload: { size: number, page: number, sortField?: string, sortOrder?: SortDirection }): void;
+  public abstract updatePage(payload: { size: number, page: number, sortField?: string, sortOrder?: SortDirection, 'deal-status': string[] }): void;
 }

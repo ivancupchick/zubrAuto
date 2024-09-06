@@ -1,28 +1,23 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
-import { BehaviorSubject, Observable, Subject, finalize, takeUntil } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, finalize, map, takeUntil } from 'rxjs';
 import { BaseList } from 'src/app/entities/constants';
 import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { ServerClient } from 'src/app/entities/client';
-import { ServerField } from 'src/app/entities/field';
-import { ServerUser } from 'src/app/entities/user';
 import { FieldNames } from 'src/app/entities/FieldNames';
 
 const API = 'clients';
 
 type ClientBaseFilters = {
-  [key: string]: number | string;
+  [key: string]: number | string | string[];
 };
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientBaseService extends PageagleGridService<ServerClient.Response> implements OnDestroy {
-
-  fieldConfigs: ServerField.Response[] = [];
-  specialists: ServerUser.Response[] = [];
 
   private loading = new BehaviorSubject<boolean>(true);
   public loading$ = this.loading.asObservable();
@@ -41,7 +36,7 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
     private requestService: RequestService,  
   ) { super() }
 
-  public fetchData() {
+  public fetchData(): void {
     this.loading.next(true);
     this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`, this.payload)
       .pipe(
@@ -57,7 +52,6 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
     const payload: any = {
       size: this.payload.size,
       page: 1,
-      'deal-status': [FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit], // подгрузка фильтров по умолчанию
       ...skipEmptyFilters(filters),
     };
 
@@ -74,7 +68,20 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
     this.payload = payload;
 
     this.fetchData();
-  }
+  };
+
+  deleteClient(id: number): Observable<boolean> {
+    this.loading.next(true);
+    return this.requestService.delete<any>(`${environment.serverUrl}/${API}/${id}`)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.loading.next(false)),
+        map(result => {
+        console.log(result);
+
+        return true;
+      }))
+  };
 
   
   ngOnDestroy(): void {
