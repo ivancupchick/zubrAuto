@@ -4,13 +4,11 @@ import { BehaviorSubject, Observable, Subject, finalize, takeUntil } from 'rxjs'
 import { BaseList } from 'src/app/entities/constants';
 import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { ServerClient } from 'src/app/entities/client';
 import { ServerField } from 'src/app/entities/field';
-import { CreateClientComponent } from '../../../modals/create-client/create-client.component';
 import { ServerUser } from 'src/app/entities/user';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 const API = 'clients';
 
@@ -40,12 +38,8 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
   private destroy$ = new Subject();
 
   constructor(
-    private requestService: RequestService,
-    private dialogService: DialogService,
-  
-  ) {
-    super()
-  }
+    private requestService: RequestService,  
+  ) { super() }
 
   public fetchData() {
     this.loading.next(true);
@@ -60,11 +54,11 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
   }
 
   public updatePage(filters: ClientBaseFilters): void {
-
     const payload: any = {
       size: this.payload.size,
       page: 1,
-      ...skipEmptyFilters(filters)
+      'deal-status': [FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit], // подгрузка фильтров по умолчанию
+      ...skipEmptyFilters(filters),
     };
 
     if (this.payload.sortField && this.payload.sortOrder) {
@@ -76,7 +70,7 @@ export class ClientBaseService extends PageagleGridService<ServerClient.Response
         this.payload.sortOrder
       ];
     }
-
+    
     this.payload = payload;
 
     this.fetchData();

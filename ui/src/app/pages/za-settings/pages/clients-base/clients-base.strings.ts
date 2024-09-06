@@ -23,11 +23,10 @@ export const settingsClientsStrings: StringHash = {
 }
 
 export const ClientBaseFilterFormsInitialState = {
-  dealStatus: [''],
-  clientStatus: [''],
-  source: [''],
-  specialist: [''],
-  dateFrom: [''],
-  dateTo: [''],
-  phone: [''],
+  dealStatus: '',
+  clientStatus: '',
+  source: '',
+  specialist: '',
+  date: '',
+  number: '',
 }
