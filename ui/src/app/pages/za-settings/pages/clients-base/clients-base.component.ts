@@ -81,7 +81,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     this.getSpecialistList();
     this.getFieldsConfigs();
     this.form = this.fb.group(ClientBaseFilterFormsInitialState);
-    this.form.get('dealStatus')?.setValue([FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit])
+    this.form.get('dealStatus')?.setValue([FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit]);
     this.setGridSettings();
   }
 
@@ -109,23 +109,56 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     return this.fieldService.getFieldsByDomain(FieldDomains.Client).subscribe(res => this.fieldConfigs = res);
   }
 
-  filter() {
+  filter(){
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     let filters = skipEmptyFilters({...this.form.value });
 
-    if (filters.date) {
-      filters = { ...filters, date: +filters.date, ['filter-operator-date']: '>' }
+    if (filters.specialist){
+      const { specialist, ...rest } = filters;
+      filters = { 'specialist-id': specialist, ...rest }
     }
+    
+    if (filters.clientStatus){
+      const { clientStatus, ...rest } = filters;
+      filters = { 'client-status': clientStatus, ...rest }
+    }
+
+    if (filters.dealStatus){
+      const { dealStatus, ...rest } = filters;
+      filters = { 'deal-status': dealStatus, ...rest }
+    }
+    if (filters.number){
+      const { number, ...rest } = filters;
+      filters = { 
+        number: `%${number.replaceAll('+','')}%`,
+        'filter-operator-number': 'LIKE',
+        ...rest
+      }
+    }
+
+    if (filters.date){
+      const { date, ...rest } = filters;
+      if (date[0] !== date[1]) {
+        filters = { 
+          'createdDate': `${Date.parse(date[0])}-${Date.parse(date[1])}`,
+          'filter-operator-createdDate': 'range', 
+          ...rest }
+      } else [
+        filters = { 'createdDate': Date.parse(date[0]), ...rest }
+      ]
+    }
+
     this.clientBaseService.updatePage(filters);
     this.first = 0;
   };
 
   clearFilters() {
     this.form.reset(ClientBaseFilterFormsInitialState);
-    this.clientBaseService.fetchData();
+    const filters = skipEmptyFilters({...this.form.value });
+    this.clientBaseService.updatePage(filters);
   }
 
   openNewClientWindow() {

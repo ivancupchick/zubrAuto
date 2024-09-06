@@ -2,10 +2,9 @@
   <div class="card-body">
     <form
       *ngIf="form"
-      [formGroup]="form">
-
+      [formGroup]="form"
+      (ngSubmit)="filter()">
       <div class="flex flex-row justify-content-start align-items-center row-gap-1 col-12">
-        
         <p-multiSelect
           class="ml-2"
           [options]="dealStatuses"
@@ -16,7 +15,8 @@
           optionValue="value"
           [maxSelectedLabels]="2"
           selectedItemsLabel="{0} статусов выбрано"
-          placeholder="Статус сделки"/>
+          placeholder="Статус сделки"
+          (onChange)="filter()"/>
 
         <p-dropdown
           class="ml-2"
@@ -26,25 +26,20 @@
           filterBy="name"
           optionLabel="name"
           optionValue="value"
-          placeholder="Статус клиента"/>
+          placeholder="Статус клиента"
+          [showClear]="true"
+          (onChange)="filter()"/>
 
         <p-calendar
           class="ml-2"
           appendTo="body"
-          formControlName="dateFrom"
+          formControlName="date"
+          selectionMode="range"
           [showTime]="false"
           [firstDayOfWeek]="1"
-          placeholder="Дата от"
-        ></p-calendar>  
-
-        <p-calendar
-          class="ml-2"
-          appendTo="body"
-          formControlName="dateTo"
-          [showTime]="false"
-          [firstDayOfWeek]="1"
-          placeholder="До"
-        ></p-calendar>
+          placeholder="Даты"
+          [showClear]="true"
+          (onClose)="filter()"></p-calendar>
         
         <p-dropdown
           class="ml-2"
@@ -54,44 +49,53 @@
           filterBy="name"
           optionLabel="name"
           optionValue="value"
-          placeholder="Источник"/>
+          placeholder="Источник"
+          [showClear]="true"
+          (onChange)="filter()"/>
 
-          <p-dropdown
-            class="ml-2"
-            [options]="specialistList"
-            formControlName="specialist"
-            [filter]="true"
-            filterBy="name"
-            optionLabel="name"
-            optionValue="value"
-            placeholder="Специалист"/>
-          
-          <input pInputText class="ml-2 p-inputtext" type="text" formControlName="phone" pInputText placeholder="Телефон"/>
-
+        <p-dropdown
+          class="ml-2"
+          [options]="specialistList"
+          formControlName="specialist"
+          [filter]="true"
+          filterBy="name"
+          optionLabel="name"
+          optionValue="value"
+          placeholder="Специалист"
+          [showClear]="true"
+          (onChange)="filter()"/>
+        
+        <input 
+          pInputText 
+          class="ml-2 p-inputtext" 
+          type="text" 
+          formControlName="number" 
+          pInputText 
+          placeholder="Телефон"/>
       </div>
+    
+      <p-toolbar>
+        <div class="p-toolbar-group-left">
+          <span>Кол-во: {{ (clientBaseService.list$ | async)?.total || 0 }}</span>
+          <button
+            pButton
+            type="button"
+            label="Добавить клиента"
+            icon="pi pi-plus"
+            (click)="openNewClientWindow()"
+          ></button>
+        </div>
+      
+        <div class="p-toolbar-group-right">
+          <p-button size="small" label="Filter" type="submit" (onClick)="filter()" class="mr-2">
+            <i class="pi pi-refresh"></i>
+          </p-button>
+          <p-button size="small" type="button" label="Clear" (onClick)="clearFilters()" class="mr-2">
+          </p-button>
+        </div>
+      </p-toolbar>
     </form>
   </div>
-
-  <p-toolbar>
-    <div class="p-toolbar-group-left">
-      <span>Кол-во: {{ (clientBaseService.list$ | async)?.total || 0 }}</span>
-      <button
-        pButton
-        type="button"
-        label="Добавить клиента"
-        icon="pi pi-plus"
-        (click)="openNewClientWindow()"
-      ></button>
-    </div>
-  
-    <div class="p-toolbar-group-right">
-      <p-button size="small" label="Filter" (onClick)="filter()" class="mr-2">
-        <i class="pi pi-refresh"></i>
-      </p-button>
-      <p-button size="small" label="Clear" (onClick)="clearFilters()" class="mr-2">
-      </p-button>
-    </div>
-  </p-toolbar>
 </div>
 
 <div class="grid-wrapper">
