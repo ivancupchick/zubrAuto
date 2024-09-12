@@ -20,7 +20,7 @@ router.route(`/${ Constants.API.CRUD }/`)
 
 router.route(`/${ Constants.API.CRUD }/:id`)
     .get(userController.getOne)
-    .delete(userController.delete)
+    .delete(userController.deleteOne)
     .put(userController.update);
 
 // router.route('/getUsersByDomain/:domain')
