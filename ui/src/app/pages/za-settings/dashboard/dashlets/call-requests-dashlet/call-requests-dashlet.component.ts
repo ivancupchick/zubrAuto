@@ -424,6 +424,5 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destoyed.next(null);
-    this.destoyed.complete();
   }
 }
