@@ -5,10 +5,9 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { mergeMap, of, Subject, Subscription, takeUntil } from 'rxjs';
 import { ClientService } from 'src/app/services/client/client.service';
-import { getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/client';
 import { CommonModule } from '@angular/common';
 import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid';
-import { ClientBaseService } from './services/client-base-data.service';
+import { ClientBaseDataService } from './services/client-base-data.service';
 import { ClientBaseFilterFormsInitialState, settingsClientsStrings } from './clients-base.strings';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
@@ -28,13 +27,14 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { SessionService } from 'src/app/services/session/session.service';
 import { ClientChangeLogsComponent } from '../change-log/componets/client-change-logs/client-change-logs.component';
 import { DBModels } from 'src/app/entities/constants';
+import { getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/client';
 
 @Component({
   selector: 'za-clients-base',
   templateUrl: './clients-base.component.html',
   standalone: true,
   styleUrls: ['./clients-base.component.scss'],
-  providers: [ClientBaseService, ClientService, DialogService],
+  providers: [ClientBaseDataService, ClientService, DialogService],
   imports: [
     SpinnerComponent, 
     PageagleGridComponent,
@@ -49,33 +49,29 @@ import { DBModels } from 'src/app/entities/constants';
   ]
 })
 export class ClientsBaseComponent implements OnInit, OnDestroy {
-  first: number = 0;
-  initialPageFilters = [FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit];
-  loading$ = this.clientBaseService.loading$;
-  list$ = this.clientBaseService.list$;
-  destoyed = new Subject();
   readonly strings = settingsClientsStrings;
 
-  form!: UntypedFormGroup;
-
-  rawClients: ServerClient.Response[] = [];
-  specialists: ServerUser.Response[] = [];
-  allUsers: ServerUser.Response[] = [];
-  allCars: ServerCar.Response[] = [];
-  fieldConfigs: ServerField.Response[] = [];
-
-  gridConfig!: GridConfigItem<ServerClient.Response>[];
-  gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
-  getColorConfig: ((item: ServerClient.Response) => string) | undefined;
-
+  first: number = 0;
   dealStatuses: {name: string, value: string}[] = Object.values(FieldNames.DealStatus).map(s => ({ name: s, value: s }));
   clientStatuses: {name: string, value: string}[] = Object.values(FieldNames.ClientStatus).map(s => ({ name: s, value: s }));
   sourceList: {name: string, value: string}[] = Object.values(FieldNames.ClientSource).map(s => ({ name: s, value: s }));
   specialistList: {name: string, value: string}[] = [];
-  
+  initialDealStatuses = [FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit];
+  specialists: ServerUser.Response[] = [];
+  allUsers: ServerUser.Response[] = [];
+  allCars: ServerCar.Response[] = [];
+  fieldConfigs: ServerField.Response[] = [];
+  form!: UntypedFormGroup;
+  gridConfig!: GridConfigItem<ServerClient.Response>[];
+  gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
+  getColorConfig: ((item: ServerClient.Response) => string) | undefined;
 
+  loading$ = this.clientBaseDataService.loading$;
+  list$ = this.clientBaseDataService.list$;
+  destoyed = new Subject();
+  
   constructor(
-    public clientBaseService: ClientBaseService,
+    public clientBaseDataService: ClientBaseDataService,
     public fb: UntypedFormBuilder,
     private userService: UserService,
     private dialogService: DialogService,
@@ -85,6 +81,11 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.getSpecialistList();
+    this.clientBaseDataService.clientCars$.pipe(
+      takeUntil(this.destoyed),
+    ).subscribe((cars) => {
+      this.allCars = cars;
+    })
     this.getFieldsConfigs();
     this.form = this.fb.group(ClientBaseFilterFormsInitialState);
     this.form.get('dealStatus')?.setValue([FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit]);
@@ -92,7 +93,6 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
   }
 
   getSpecialistList(): Subscription {
-
     return this.userService.getAllUsers(true).pipe(takeUntil(this.destoyed)).subscribe(res => {
       this.allUsers = res.list
       this.specialists = res.list.filter((s: any) => +s.deleted === 0)
@@ -149,27 +149,28 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
 
     if (filters.date){
       const { date, ...rest } = filters;
-      if (date[0] !== date[1]) {
+      if (date[1] !== null) {
         filters = { 
-          'createdDate': `${Date.parse(date[0])}-${Date.parse(date[1])}`,
+          'createdDate': `${Date.parse(String(date[0]).replace('00:00:00', '00:00:01'))}-${Date.parse(String(date[1]).replace('00:00:00', '23:59:59'))}`,
           'filter-operator-createdDate': 'range', 
           ...rest }
-      } else [
+      } else {
         filters = { 
-          'createdDate': Date.parse(date[0]),
+          'createdDate': Date.parse(String(date[0]).replace('00:00:00','00:00:01')),
           'filter-operator-createdDate': '>', 
           ...rest }
-      ]
+      }
     }
 
-    this.clientBaseService.updatePage(filters);
+    this.clientBaseDataService.updatePage(filters);
     this.first = 0;
   };
 
   clearFilters(): void {
     this.form.reset(ClientBaseFilterFormsInitialState);
     const filters = skipEmptyFilters({...this.form.value });
-    this.clientBaseService.updatePage(filters);
+    this.first = 0;
+    this.clientBaseDataService.updatePage(filters);
   }
 
   openNewClientWindow(): void {
@@ -188,7 +189,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
     ref.onClose.pipe(takeUntil(this.destoyed)).subscribe(res => {
       if (res) {
-        this.clientBaseService.fetchData();
+        this.filter();
         }
     });
   }
@@ -375,9 +376,9 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
   };
 
   deleteClient(client: ServerClient.Response): void {
-    this.clientBaseService.deleteClient(client.id)
+    this.clientBaseDataService.deleteClient(client.id)
       .pipe(
-        mergeMap(res => res && this.clientBaseService.fetchData() || of(null))
+        mergeMap(res => res && this.clientBaseDataService.fetchData() || of(null))
       ).subscribe();
   };
   
@@ -420,6 +421,5 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destoyed.next(null);
-    this.destoyed.complete();
   }
 }

@@ -106,12 +106,8 @@ const routes: Routes = [{
       path: 'fields',
       canActivate: [AuthGuard],
       component: SettingsFieldsComponent
-    }, {
+    },{
       path: 'clients',
-      canActivate: [AuthGuard],
-      component: SettingsClientsComponent
-    }, {
-      path: 'clients2',
       canActivate: [AuthGuard],
       component: ClientsBaseComponent
     },{
