@@ -9,24 +9,21 @@
           class="ml-2"
           [options]="dealStatuses"
           formControlName="dealStatus"
-          [filter]="true"
-          filterBy="name"
           optionLabel="name"
           optionValue="value"
           [maxSelectedLabels]="2"
           selectedItemsLabel="{0} статусов выбрано"
           placeholder="Статус сделки"/>
 
-        <p-dropdown
+        <p-multiSelect
           class="ml-2"
           [options]="clientStatuses"
           formControlName="clientStatus"
-          [filter]="true"
-          filterBy="name"
           optionLabel="name"
           optionValue="value"
-          placeholder="Статус клиента"
-          [showClear]="true"/>
+          [maxSelectedLabels]="2"
+          selectedItemsLabel="{0} статусов выбрано"
+          placeholder="Статус клиента"/>
 
         <p-calendar
           class="ml-2"
@@ -71,7 +68,7 @@
     
       <p-toolbar>
         <div class="p-toolbar-group-left">
-          <span>Кол-во: {{ (clientBaseService.list$ | async)?.total || 0 }}</span>
+          <span>Кол-во: {{ (clientBaseDataService.list$ | async)?.total || 0 }}</span>
           <button
             pButton
             type="button"
@@ -82,10 +79,10 @@
         </div>
       
         <div class="p-toolbar-group-right">
-          <p-button size="small" label="Filter" type="submit" (onClick)="filter()" class="mr-2">
+          <p-button size="small" label="Получить" type="submit" (onClick)="filter()" class="mr-2">
             <i class="pi pi-refresh"></i>
           </p-button>
-          <p-button size="small" type="button" label="Clear" (onClick)="clearFilters()" class="mr-2">
+          <p-button size="small" type="button" label="Очистить" (onClick)="clearFilters()" class="mr-2">
           </p-button>
         </div>
       </p-toolbar>
@@ -98,10 +95,10 @@
     [gridConfig]="gridConfig"
     [actions]="gridActionsConfig"
     [getColorConfig]="getColorConfig"
-    [dataService]="clientBaseService"
+    [dataService]="clientBaseDataService"
     [sortField]="'date'"
     [first] = "first"
-    [initialPageFilters] = "initialPageFilters"
+    [initialDealStatuses] = "initialDealStatuses"
   ></za-pageagle-grid>
 </div>
 
