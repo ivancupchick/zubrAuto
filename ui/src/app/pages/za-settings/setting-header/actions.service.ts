@@ -31,11 +31,9 @@ export class ActionsService {
       this.getCarSettingsPageRoutingAction(),
       this.getFieldPageRoutingAction(),
       this.getClientSettingsPageRoutingAction(),
-      this.getClientSettingsPageRoutingAction2(),
       this.getUserSettingsPageRoutingAction(),
       this.getRoleSettingsPageRoutingAction(),
       this.getChangeLogSettingsPageRoutingAction(),
-      // this.getClientSettingsPageRoutingAction2(),
       ...this.getContactServiceActions(),
       ...this.getCarShootingActions(),
       ...this.getCustomerServiceActions(),
@@ -75,15 +73,6 @@ export class ActionsService {
     }
   }
 
-  getClientSettingsPageRoutingAction() {
-    return {
-      label: 'База клиентов',
-      icon: 'pi pi-fw pi-users',
-      routerLink: 'clients',
-      visible: () => this.sessionService.isAdminOrHigher,
-    }
-  }
-
   getUserSettingsPageRoutingAction() {
     return {
       label: 'Пользователи',
@@ -111,11 +100,11 @@ export class ActionsService {
     }
   }
 
-  getClientSettingsPageRoutingAction2() {
+  getClientSettingsPageRoutingAction() {
     return {
-      label: 'База клиентов2',
+      label: 'База клиентов',
       icon: 'pi pi-fw pi-users',
-      routerLink: 'clients2',
+      routerLink: 'clients',
       visible: () => this.sessionService.isAdminOrHigher,
     }
   }
