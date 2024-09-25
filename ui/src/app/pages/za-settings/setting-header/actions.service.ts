@@ -29,6 +29,7 @@ export class ActionsService {
     return [
       this.getHomePageRoutingAction(),
       this.getCarSettingsPageRoutingAction(),
+      this.getCarSettingsPageRoutingAction2(),
       this.getFieldPageRoutingAction(),
       this.getClientSettingsPageRoutingAction(),
       this.getUserSettingsPageRoutingAction(),
@@ -59,6 +60,16 @@ export class ActionsService {
       label: 'База машин',
       icon: 'pi pi-fw pi-th-large',
       routerLink: 'cars',
+      queryParams: { type: QueryCarTypes.byAdmin },
+      visible: () => this.sessionService.isAdminOrHigher,
+    }
+  }
+
+  getCarSettingsPageRoutingAction2(): ActionsItem {
+    return {
+      label: 'База машин2',
+      icon: 'pi pi-fw pi-th-large',
+      routerLink: 'cars2',
       queryParams: { type: QueryCarTypes.byAdmin },
       visible: () => this.sessionService.isAdminOrHigher,
     }

@@ -124,12 +124,21 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
     const sortOrder: SortDirection | undefined = event.sortOrder && SortEventDirection[event.sortOrder] || undefined;
     const sortField = event.sortField || undefined;
 
-    this.dataService.updatePage({ 
+    this.initialDealStatuses
+      ? this.dataService.updatePage({ 
       size: event.rows!, 
       page: (event.first! + event.rows!) / event.rows!, 
-      sortField, sortOrder,
+      sortField, 
+      sortOrder,
       'deal-status': this.initialDealStatuses, 
-    });
+    })
+      : this.dataService.updatePage({ 
+        size: event.rows!, 
+        page: (event.first! + event.rows!) / event.rows!, 
+        sortField, 
+        sortOrder, 
+      })
+    
       // .pipe(
       //   finalize(() => this.loading = false)
       // ).subscribe(data => {
