@@ -6,7 +6,7 @@ import { ServerFile, CarStatistic, RealCarForm, ServerCar, UICarStatistic } from
 import { concatMap, map, mergeMap } from 'rxjs/operators';
 import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
 import { RequestService } from '../request/request.service';
-import { Constants, StringHash } from 'src/app/entities/constants';
+import { BaseList, Constants, StringHash } from 'src/app/entities/constants';
 import { FieldNames } from 'src/app/entities/FieldNames';
 
 const API = Constants.API.CARS;
@@ -22,14 +22,14 @@ export class CarService {
 
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
-  getCars(): Observable<ServerCar.Response[]> {
-    return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }`)
+  getCars(): Observable<BaseList<ServerCar.Response>> {
+    return this.requestService.get<BaseList<ServerCar.Response>>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }`)
   }
 
-  getCarsByQuery(query: StringHash): Observable<ServerCar.Response[]> {
+  getCarsByQuery(query: StringHash): Observable<BaseList<ServerCar.Response>> {
     const queries = Object.keys(query).filter(key => !!query[key]).map(key => `${key}=${query[key]}`).join('&');
 
-    return this.requestService.get<ServerCar.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }?${queries}`)
+    return this.requestService.get<BaseList<ServerCar.Response>>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }?${queries}`)
   }
 
   createCar(value: ServerCar.CreateRequest): Observable<ServerCar.IdResponse> {

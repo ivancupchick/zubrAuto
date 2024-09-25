@@ -8,6 +8,7 @@ import carFormRepository from "../repositories/base/car-form.repository";
 import carOwnerRepository from "../repositories/base/car-owner.repository";
 import carRepository from "../repositories/base/car.repository";
 import fieldRepository from "../repositories/base/field.repository";
+import { getEntityIdsByNaturalQuery } from "../utils/enitities-functions";
 import { FieldsUtils, getFieldsWithValues } from "../utils/field.utils";
 import carInfoGetterService from "./car-info-getter.service";
 import fieldChainService from "./field-chain.service";
@@ -146,34 +147,112 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       fieldService.getFieldsByDomain(FieldDomains.CarOwner),
     ]);
 
-    return this.getCars(cars, carFields, carOwners, carOwnerFields);
+    let list = await this.getCars(cars, carFields, carOwners, carOwnerFields);
+
+    return {
+      list: list,
+      total: list.length
+    };
   }
 
   async getCarsByQuery(query: StringHash) {
     const {
       page,
       size,
+      sortOrder,
+      sortField,
     } = query;
     delete query['page'];
     delete query['size'];
+    delete query['sortOrder'];
+    delete query['sortField'];
 
-    const searchCarIds = await fieldChainService.getEntityIdsByQuery(
+    const naturalFields = [
+      'createdDate',
+      'ownerId',
+    ];
+
+    let naturalQuery = {};
+
+    for (const key in query) {
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
+        if (naturalFields.includes(key)) {
+          naturalQuery[key] = query[key];
+          delete query[key];
+        }
+      }
+    }
+
+    const ownerFields = Object.values(FieldNames.CarOwner) as string[];
+
+    let ownerQuery = {};
+
+    for (const key in query) {
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
+        if (ownerFields.includes(key)) {
+          ownerQuery[key] = query[key];
+          delete query[key];
+        }
+      }
+    }
+
+    let searchCarIds = Object.values(query).length ?  await fieldChainService.getEntityIdsByQuery(
       Models.Table.Cars,
       FieldDomains.Car,
       query
-    );
+    ) : [];
 
-    let carIds = [...searchCarIds];
+    const ownerSearchCarIds = Object.values(ownerQuery).length ?  await fieldChainService.getEntityIdsByQuery(
+      Models.Table.CarOwners,
+      FieldDomains.CarOwner,
+      ownerQuery
+    ) : [];
+
+    if (Object.values(ownerQuery)) {
+      searchCarIds = searchCarIds.filter(id => ownerSearchCarIds.includes(id));
+    }
+
+    const naturalsearchCarIds = Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)) ? await getEntityIdsByNaturalQuery(
+      carRepository,
+      naturalQuery
+    ) : [];
+
+    let carsIds = [...searchCarIds];
+
+    if (searchCarIds.length && naturalsearchCarIds.length) {
+      carsIds = searchCarIds.filter(id => naturalsearchCarIds.includes(id));
+    }
+    if (!searchCarIds.length && naturalsearchCarIds.length) {
+      carsIds = [...naturalsearchCarIds];
+    }
+
+    if (sortField && sortOrder && !naturalFields.includes(sortField)) {
+      const sortFieldConfig = await fieldRepository.findOne({
+        name: [sortField]
+      });
+
+      if (sortFieldConfig && searchCarIds.length) {
+        const sortChaines = await fieldChainService.find({
+          fieldId: [`${sortFieldConfig.id}`],
+          sourceId: searchCarIds,
+          sourceName: [Models.Table.Users],
+        }, sortOrder);
+
+        carsIds = sortChaines.map(ch => `${ch.sourceId}`);
+      }
+    }
 
     if (page && size) {
       const start = (+page - 1) * +size;
 
-      carIds = carIds.slice(start, start + +size);
+      carsIds = carsIds.slice(start, start + +size);
     }
 
-    const cars = carIds.length > 0 ? await carRepository.find({
-      id: carIds
+    const clientsResults = carsIds.length > 0 ? await carRepository.find({
+      id: carsIds
     }) : [];
+
+    const cars = carsIds.map(id => clientsResults.find(cr => +cr.id === +id));
 
     const [
       carFields,
@@ -187,7 +266,12 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       fieldService.getFieldsByDomain(FieldDomains.CarOwner),
     ]);
 
-    return this.getCars(cars, carFields, carOwners, carOwnerFields);
+    let list = await this.getCars(cars, carFields, carOwners, carOwnerFields);
+
+    return {
+      list: list,
+      total: searchCarIds.length
+    };
   }
 
   private async getCarAndOwnerCarFields(carData: RealField.With.Request): Promise<[RealField.Request[], RealField.Request[]]> {

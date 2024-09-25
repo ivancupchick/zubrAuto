@@ -164,7 +164,7 @@ export class CreateClientComponent implements OnInit {
     query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
 
     const obs = this.client && this.client.carIds && this.client.carIds.split(',').length
-      ? this.carService.getCarsByQuery(Object.assign(query, { id: this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a)}))
+      ? this.carService.getCarsByQuery(Object.assign(query, { id: this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a)})).pipe(map(res => res.list))
       : of([])
 
     obs.pipe(

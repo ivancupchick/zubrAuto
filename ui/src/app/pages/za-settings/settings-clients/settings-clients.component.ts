@@ -9,7 +9,7 @@ import { settingsClientsStrings } from './settings-clients.strings';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
 import { CreateClientComponent } from '../modals/create-client/create-client.component';
 import { SessionService } from 'src/app/services/session/session.service';
-import { finalize, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { finalize, map, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { Observable, Subject, of, zip } from 'rxjs';
@@ -155,7 +155,7 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
         const query: StringHash = { id: [...(new Set(carIds))].join(',') };
 
 
-        return this.carService.getCarsByQuery(query);
+        return this.carService.getCarsByQuery(query).pipe(map(res => res.list));
       })
     );
   }

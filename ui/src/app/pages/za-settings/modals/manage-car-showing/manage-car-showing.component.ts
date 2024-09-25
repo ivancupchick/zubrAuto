@@ -55,7 +55,7 @@ export class ManageCarShowingComponent implements OnInit {
     this.carService.getCarsByQuery(query).pipe(
       finalize(() => this.loading = false),
       map(cars => {
-        const clientCars = cars.filter(car => this.carIds.includes(car.id));
+        const clientCars = cars.list.filter(car => this.carIds.includes(car.id));
         this.cars = clientCars;
         return null;
       }),

@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy, inject } from '@angular/core';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import { ClientService } from 'src/app/services/client/client.service';
-import { BehaviorSubject, Subject, finalize, mergeMap, of, takeUntil, zip } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, finalize, mergeMap, of, takeUntil, zip } from 'rxjs';
 import { ServerClient } from 'src/app/entities/client';
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
@@ -56,9 +56,11 @@ export class ClientNextActionDataService extends PageagleGridService<ServerClien
         takeUntil(this.destroy$),
         finalize(() => this.loading.next(false))
       )
-      .subscribe(([clientsRes, carsRes]) => {
-        this.clientCarsSubject.next(carsRes)
-        this.clients.next(clientsRes);
+      .subscribe(([clientsRes, carsRes])  => {
+        if (!Array.isArray(carsRes)) { // TODO fix
+          this.clientCarsSubject.next(carsRes.list)
+          this.clients.next(clientsRes);
+        }
       });
   }
 

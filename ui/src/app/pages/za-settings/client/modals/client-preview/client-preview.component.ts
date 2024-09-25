@@ -3,7 +3,7 @@ import { FieldNames } from 'src/app/entities/FieldNames';
 import { ServerClient } from 'src/app/entities/client';
 import { StringHash } from 'src/app/entities/constants';
 import { CarService } from 'src/app/services/car/car.service';
-import { of } from 'rxjs';
+import { map, of } from 'rxjs';
 import { FieldType, FieldsUtils } from 'src/app/entities/field';
 import { settingsClientsStrings } from '../../../settings-clients/settings-clients.strings';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
@@ -54,7 +54,7 @@ export class ClientPreviewComponent implements OnInit {
 
     const query: StringHash = {};
     const obs = this.client && this.client.carIds && this.client.carIds.split(',').length
-      ? this.carService.getCarsByQuery(Object.assign(query, { id: this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a)}))
+      ? this.carService.getCarsByQuery(Object.assign(query, { id: this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a)})).pipe(map(res => res.list))
       : of([])
 
     obs.subscribe(cars => {

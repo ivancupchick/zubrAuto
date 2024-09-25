@@ -522,7 +522,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       takeUntil(this.destroyed),
       tap(res2 => {
         console.log(res2);
-        this.rawCars = this.carsToSelect.length > 0 ? [...this.carsToSelect, ...res2] : [...res2];
+        this.rawCars = this.carsToSelect.length > 0 ? [...this.carsToSelect, ...res2.list] : [...res2.list];
         this.selectedCars = this.carsToSelect.length > 0 ? [...this.carsToSelect] : [];
         this.generateFilters();
         this.sortCars();
