@@ -212,18 +212,18 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
       searchCarIds = searchCarIds.filter(id => ownerSearchCarIds.includes(id));
     }
 
-    const naturalsearchCarIds = Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)) ? await getEntityIdsByNaturalQuery(
+    const naturalSearchCarIds = Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)) ? await getEntityIdsByNaturalQuery(
       carRepository,
       naturalQuery
     ) : [];
 
     let carsIds = [...searchCarIds];
 
-    if (searchCarIds.length && naturalsearchCarIds.length) {
-      carsIds = searchCarIds.filter(id => naturalsearchCarIds.includes(id));
+    if (searchCarIds.length && naturalSearchCarIds.length) {
+      carsIds = searchCarIds.filter(id => naturalSearchCarIds.includes(id));
     }
-    if (!searchCarIds.length && naturalsearchCarIds.length) {
-      carsIds = [...naturalsearchCarIds];
+    if (!searchCarIds.length && naturalSearchCarIds.length) {
+      carsIds = [...naturalSearchCarIds];
     }
 
     if (sortField && sortOrder && !naturalFields.includes(sortField)) {
@@ -270,7 +270,7 @@ class CarService implements ICrudService<ServerCar.UpdateRequest, ServerCar.Crea
 
     return {
       list: list,
-      total: searchCarIds.length
+      total: searchCarIds.length || naturalSearchCarIds.length
     };
   }
 
