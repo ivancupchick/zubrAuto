@@ -19,6 +19,8 @@ import { CreateClientComponent } from '../../../modals/create-client/create-clie
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { CallsDashletDataService } from './calls-dashlet-data.service';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import { callsFiltersInialState } from './calls-dashlet';
 
 const isPhoneCallUsed = (allClients: ServerClient.Response[], call: ServerPhoneCall.Response) => !!allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === `+${call.clientNumber}`);
 
@@ -43,6 +45,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
   first = 0;
   sortField = 'id';
   activeIndex: TabIndex = 0;
+  loaded: boolean = false;
 
   gridConfig!: GridConfigItem<ServerPhoneCall.Response>[];
   gridActionsConfig: GridActionConfigItem<ServerPhoneCall.Response>[] = [];
@@ -55,13 +58,15 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
   specialists: ServerUser.Response[] = [];
   allUsers: ServerUser.Response[] = [];
   currentUser!: ServerUser.Response;
-  availableSpecialists: { name: string, id: number }[] = [];
+  availableSpecialists: { name: string, number: number }[] = [];
   allClients: ServerClient.Response[] = [];
 
   destoyed = new Subject();
 
   clientsFieldConfigs: ServerField.Response[] = []; // !TODO replace away
   isCarSales = this.sessionService.isCarSales;
+
+  form: UntypedFormGroup | null = null;
 
   queriesByTabIndex: {
     [key in TabIndex]: StringHash
@@ -74,9 +79,12 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
     private clientService: ClientService,
     private dialogService: DialogService,
     public callsDataService: CallsDashletDataService,
+    private fb: UntypedFormBuilder,
     ) { }
 
   ngOnInit(): void {
+    this.form = this.fb.group(callsFiltersInialState);
+    
     this.getAdditionalData()
       .pipe(takeUntil(this.destoyed))
       .subscribe(() => {
@@ -118,7 +126,22 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
     // filters
 
+    const { specialistNumber, number } = this.form?.value;
+
+    if (specialistNumber) {
+      query['innerNumber'] = `${specialistNumber}`
+    }
+    if (number) {
+      query['clientNumber'] = `%${number.replaceAll('+','')}%`;
+      query['filter-operator-clientNumber'] = 'LIKE';
+    }
+
     return query;
+  }
+
+  clearFilters(){
+    this.form?.reset(callsFiltersInialState);
+    this.refresh();
   }
 
   getAdditionalData(): Observable<unknown> {
@@ -144,8 +167,10 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
                         u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
                       )
                     ));
-
-        this.availableSpecialists = this.specialists.map(u => ({ name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), id: +u.id }));
+        
+        this.availableSpecialists = this.specialists.map((u) => {
+          return { name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), number: +u.fields[2].value }
+        });
 
         this.queriesByTabIndex = {
           [TabIndex.MyPhoneCalls]: {
@@ -190,6 +215,10 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
           this.allPhoneTotal,
           this.usedPhoneTotal,
         ] = [first.total, second.total, thirt.total];
+
+        if (this.allPhoneTotal || this.usedPhoneTotal) {
+          this.loaded = true;
+        }
       })
     );
   }
