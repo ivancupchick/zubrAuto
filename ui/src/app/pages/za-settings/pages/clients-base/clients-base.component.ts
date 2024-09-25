@@ -379,7 +379,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     this.clientBaseDataService.deleteClient(client.id)
       .pipe(
         mergeMap(res => res && this.clientBaseDataService.fetchData() || of(null))
-      ).subscribe();
+      )
   };
 
   showClientUpdates(client: ServerClient.Response): void {
