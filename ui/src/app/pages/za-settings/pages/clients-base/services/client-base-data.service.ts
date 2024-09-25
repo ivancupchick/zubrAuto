@@ -64,7 +64,7 @@ export class ClientBaseDataService extends PageagleGridService<ServerClient.Resp
       .subscribe(([clientRes, carsRes]) => {
         this.clientBaseItems.next(clientRes);
         console.log(carsRes);
-        this.clientCarsSubject.next(carsRes)
+        this.clientCarsSubject.next(carsRes as ServerCar.Response[])
         
       });
   }
