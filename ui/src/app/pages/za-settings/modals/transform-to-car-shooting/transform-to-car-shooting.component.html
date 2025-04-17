@@ -2,11 +2,17 @@
   <div class="content">
     <div class="date-wrapper">
       <h5>Выберите дату</h5>
-      <p-calendar appendTo="body" [(ngModel)]="shootingDate" [showTime]="true" hourFormat="24" [firstDayOfWeek]="1"></p-calendar>
+      <p-calendar
+        appendTo="body"
+        [(ngModel)]="shootingDate"
+        [showTime]="true"
+        hourFormat="24"
+        [firstDayOfWeek]="1"
+      ></p-calendar>
     </div>
     <div class="comment-wrapper">
       <h5>Комментарий</h5>
-      <input type="text" pInputText [(ngModel)]="comment">
+      <input type="text" pInputText [(ngModel)]="comment" />
     </div>
     <!-- <div class="employ-wrapper">
       <h5>Сотрудник</h5>
@@ -16,8 +22,23 @@
 </div>
 
 <div class="footer">
-  <button pButton icon="pi pi-save" [disabled]="formNotValid" type="button" [label]="'Готово'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button>
-  <button pButton icon="pi pi-times" type="button" label="Отмена" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
+  <button
+    pButton
+    icon="pi pi-save"
+    [disabled]="formNotValid"
+    type="button"
+    [label]="'Готово'"
+    (click)="create()"
+    class="p-mr-2 p-mb-2 p-button-success"
+  ></button>
+  <button
+    pButton
+    icon="pi pi-times"
+    type="button"
+    label="Отмена"
+    class="p-mb-2 p-button-danger"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <za-spinner *ngIf="loading"></za-spinner>

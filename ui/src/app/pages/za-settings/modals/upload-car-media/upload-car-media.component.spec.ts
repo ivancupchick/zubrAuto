@@ -8,9 +8,8 @@ describe('UploadCarMediaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ UploadCarMediaComponent ]
-    })
-    .compileComponents();
+      declarations: [UploadCarMediaComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

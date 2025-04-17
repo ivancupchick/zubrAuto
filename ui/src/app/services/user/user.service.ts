@@ -11,52 +11,88 @@ import { RequestService } from '../request/request.service';
 
 @Injectable()
 export class UserService {
+  constructor(
+    private requestService: RequestService,
+    private fieldService: FieldService,
+  ) {}
 
-  constructor(private requestService: RequestService, private fieldService: FieldService) { }
-
-  getUsers(isCachableRequest = false): Observable<BaseList<ServerUser.Response>> {
-    return this.requestService.get<BaseList<ServerUser.Response>>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, { deleted: 0 }, isCachableRequest);
+  getUsers(
+    isCachableRequest = false,
+  ): Observable<BaseList<ServerUser.Response>> {
+    return this.requestService.get<BaseList<ServerUser.Response>>(
+      `${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`,
+      { deleted: false },
+      isCachableRequest,
+    );
   }
 
-  getAllUsers(isCachableRequest = false): Observable<BaseList<ServerUser.Response>> {
-    return this.requestService.get<BaseList<ServerUser.Response>>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, {}, isCachableRequest);
+  getAllUsers(
+    isCachableRequest = false,
+  ): Observable<BaseList<ServerUser.Response>> {
+    return this.requestService.get<BaseList<ServerUser.Response>>(
+      `${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`,
+      {},
+      isCachableRequest,
+    );
   }
 
   createUser(value: ServerUser.CreateRequest): Observable<boolean> {
-    return this.requestService.post<never>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, value)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .post<never>(
+        `${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`,
+        value,
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   getUser(id: number): Observable<ServerUser.Response> {
-    return this.requestService.get<ServerUser.Response>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .get<ServerUser.Response>(
+        `${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`,
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return result;
-      }))
+          return result;
+        }),
+      );
   }
 
   updateUser(value: ServerUser.UpdateRequest, id: number): Observable<boolean> {
     delete (value as any).id;
-    return this.requestService.put<any>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`, value)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .put<any>(
+        `${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`,
+        value,
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   deleteUser(id: number): Observable<boolean> {
-    return this.requestService.delete<any>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .delete<any>(
+        `${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}/${id}`,
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   getUserFields() {

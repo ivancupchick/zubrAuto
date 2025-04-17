@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { WorkBook, WorkSheet, read, utils } from 'xlsx';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class XlsxService {
   onFileChange(event: any, callback: (list: any) => void) {
-    const target: DataTransfer = (event.target) as DataTransfer;
+    const target: DataTransfer = event.target as DataTransfer;
     if (target.files.length !== 1) {
       throw new Error('Cannot use multiple files');
     }

@@ -11,11 +11,22 @@
   </div>
 </p-toolbar>
 <p></p>
-<za-grid [gridConfig]="gridConfig" [gridData]="carStatistics" [actions]="gridActionsConfig"></za-grid>
+<za-grid
+  [gridConfig]="gridConfig"
+  [gridData]="carStatistics"
+  [actions]="gridActionsConfig"
+></za-grid>
 
 <div class="footer">
   <!-- <button pButton icon="pi pi-save" [disabled]="formNotValid" type="button" [label]="'Готово'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button> -->
-  <button pButton icon="pi pi-times" type="button" label="Закрыть" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
+  <button
+    pButton
+    icon="pi pi-times"
+    type="button"
+    label="Закрыть"
+    class="p-mb-2 p-button-danger"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <za-spinner *ngIf="loading"></za-spinner>

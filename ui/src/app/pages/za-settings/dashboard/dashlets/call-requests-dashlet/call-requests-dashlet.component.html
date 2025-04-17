@@ -1,51 +1,78 @@
 <p-panel *ngIf="loaded" header="Заявки">
   <ng-template pTemplate="icons">
-    <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2 w-full ml-3">
+    <form
+      *ngIf="form"
+      #ngForm="ngForm"
+      (ngSubmit)="refresh()"
+      [formGroup]="form"
+      class="gap-2 w-full ml-3"
+    >
       <div class="grid flex-nowrap">
         <div class="col-auto overflow-x-auto nowrap thin-scrollbar">
-          <p-dropdown 
-          class="m-2"
-          appendTo="body"
-          size="small"
-          [options]="availableSpecialists"
-          formControlName="specialist"
-          placeholder="Специалист"
-          optionLabel="name"
-          optionValue="id"
-        ></p-dropdown >
-        
-        <input pInputText class="m-2 " type="text" formControlName="source" pInputText placeholder="Сайт"/>
-  
-        <input pInputText class="m-2 " type="text" formControlName="number" pInputText placeholder="Телефон"/>
-  
-        <p-calendar
-          class="m-2 "
-          appendTo="body"
-          placeholder="Дата создания от"
-          formControlName="dateFrom"
-          [showTime]="false"
-          hourFormat="24"
-          [firstDayOfWeek]="1">
-        </p-calendar>
-  
-        <p-calendar
-          class="m-2 "
-          appendTo="body"
-          [showButtonBar]="true"
-          placeholder="до"
-          formControlName="dateTo"
-          [showTime]="false"
-          hourFormat="24"
-          [firstDayOfWeek]="1">
-        </p-calendar>
+          <p-dropdown
+            class="m-2"
+            appendTo="body"
+            size="small"
+            [options]="availableSpecialists"
+            formControlName="specialist"
+            placeholder="Специалист"
+            optionLabel="name"
+            optionValue="id"
+          ></p-dropdown>
+
+          <input
+            pInputText
+            class="m-2"
+            type="text"
+            formControlName="source"
+            pInputText
+            placeholder="Сайт"
+          />
+
+          <input
+            pInputText
+            class="m-2"
+            type="text"
+            formControlName="number"
+            pInputText
+            placeholder="Телефон"
+          />
+
+          <p-calendar
+            class="m-2"
+            appendTo="body"
+            placeholder="Дата создания от"
+            formControlName="dateFrom"
+            [showTime]="false"
+            hourFormat="24"
+            [firstDayOfWeek]="1"
+          >
+          </p-calendar>
+
+          <p-calendar
+            class="m-2"
+            appendTo="body"
+            [showButtonBar]="true"
+            placeholder="до"
+            formControlName="dateTo"
+            [showTime]="false"
+            hourFormat="24"
+            [firstDayOfWeek]="1"
+          >
+          </p-calendar>
         </div>
-        
+
         <div class="col-fixed">
           <p-button size="small" (onClick)="refresh()" class="m-2">
             <span>Фильтр </span>
-            <i class="pi pi-refresh" [ngClass]="{'pi-spin': callRequestsDataService.loading$ | async}"></i>
+            <i
+              class="pi pi-refresh"
+              [ngClass]="{
+                'pi-spin': callRequestsDataService.loading$ | async,
+              }"
+            ></i>
           </p-button>
-    
+
           <p-button size="small" (onClick)="clearFilters()" class="m-2">
             <span>Очистить </span>
           </p-button>
@@ -55,7 +82,7 @@
   </ng-template>
 
   <p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="refresh()">
-    <p-tabPanel header="Мои ({{myCallRequestsTotal}})">
+    <p-tabPanel header="Мои ({{ myCallRequestsTotal }})">
       <!-- <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
@@ -68,7 +95,7 @@
         ></za-grid>
       </div> -->
     </p-tabPanel>
-    <p-tabPanel *ngIf="!isCarSales" header="Все ({{allCallRequestsTotal}})">
+    <p-tabPanel *ngIf="!isCarSales" header="Все ({{ allCallRequestsTotal }})">
       <!-- <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
@@ -81,7 +108,7 @@
         ></za-grid>
       </div> -->
     </p-tabPanel>
-    <p-tabPanel header="Использованные ({{usedCallRequestsTotal}})">
+    <p-tabPanel header="Использованные ({{ usedCallRequestsTotal }})">
       <!-- <div class="h-8rem">
         <za-grid
           *ngIf="gridConfig"
@@ -98,7 +125,7 @@
 
   <div class="grid-wrapper h-12rem">
     <za-pageagle-grid
-      *ngIf="(callRequestsDataService.list$ | async)?.list?.length else empty"
+      *ngIf="(callRequestsDataService.list$ | async)?.list?.length; else empty"
       [gridConfig]="gridConfig"
       [actions]="gridActionsConfig"
       [getColorConfig]="getColorConfig"
@@ -108,7 +135,9 @@
     ></za-pageagle-grid>
 
     <ng-template #empty>
-      <div class="w-full h-full flex justify-content-center align-items-center surface-300">
+      <div
+        class="w-full h-full flex justify-content-center align-items-center surface-300"
+      >
         <span>Нет записей</span>
       </div>
     </ng-template>

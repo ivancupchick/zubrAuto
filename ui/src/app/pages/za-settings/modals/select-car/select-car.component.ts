@@ -14,7 +14,7 @@ export interface CarChip {
 @Component({
   selector: 'za-select-car',
   templateUrl: './select-car.component.html',
-  styleUrls: ['./select-car.component.scss']
+  styleUrls: ['./select-car.component.scss'],
 })
 export class SelectCarComponent implements OnInit {
   QueryCarTypes = QueryCarTypes;
@@ -30,7 +30,7 @@ export class SelectCarComponent implements OnInit {
 
   constructor(
     private ref: DynamicDialogRef,
-    private config: DynamicDialogConfig
+    private config: DynamicDialogConfig,
   ) {}
 
   ngOnInit(): void {
@@ -41,14 +41,17 @@ export class SelectCarComponent implements OnInit {
   }
 
   save() {
-    const result: (CarChip | null)[] = this.selectedCars.map(car => {
+    const result: (CarChip | null)[] = this.selectedCars.map((car) => {
       return {
         id: car.id,
         markModel: this.getCarName(car),
-      }
-    })
+      };
+    });
 
-    this.ref.close({ chips: result.filter(r => !!r), realCars: this.selectedCars });
+    this.ref.close({
+      chips: result.filter((r) => !!r),
+      realCars: this.selectedCars,
+    });
   }
 
   cancel() {

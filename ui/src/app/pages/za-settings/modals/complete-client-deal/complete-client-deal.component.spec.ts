@@ -8,9 +8,8 @@ describe('CompleteClientDealComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CompleteClientDealComponent ]
-    })
-    .compileComponents();
+      declarations: [CompleteClientDealComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

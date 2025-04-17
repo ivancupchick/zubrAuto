@@ -1,18 +1,35 @@
-<p-contextMenu #cm appendTo="body" [model]="contextActions" (onShow)="onShow($event)"></p-contextMenu>
+<p-contextMenu
+  #cm
+  appendTo="body"
+  [model]="contextActions"
+  (onShow)="onShow($event)"
+></p-contextMenu>
 
-<ng-container *ngIf="{ loading: (dataService.loading$ | async)!, data: (dataService.list$ | async)! } as uiData">
+<ng-container
+  *ngIf="{
+    loading: (dataService.loading$ | async)!,
+    data: (dataService.list$ | async)!,
+  } as uiData"
+>
   <p-table
-    [lazy]="true" (onLazyLoad)="updatePage($event)"
-    [sortField]="sortField" [sortOrder]="-1"
-    [(contextMenuSelection)]="contextSelectedItem" [contextMenu]="cm"
+    [lazy]="true"
+    (onLazyLoad)="updatePage($event)"
+    [sortField]="sortField"
+    [sortOrder]="-1"
+    [(contextMenuSelection)]="contextSelectedItem"
+    [contextMenu]="cm"
     styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
     [value]="uiData.data.list"
     [selectionMode]="selectionMode || 'single'"
     [metaKeySelection]="true"
-    [(selection)]="selectedKeys" (selectionChange)="onSelect($event)"
+    [(selection)]="selectedKeys"
+    (selectionChange)="onSelect($event)"
     dataKey="id"
     responsiveLayout="scroll"
-    [paginator]="true" [rows]="size" [totalRecords]="uiData.data.total" [loading]="uiData.loading"
+    [paginator]="true"
+    [rows]="size"
+    [totalRecords]="uiData.data.total"
+    [loading]="uiData.loading"
     [first]="first"
   >
     <ng-template pTemplate="header">
@@ -21,7 +38,10 @@
           <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
         </th>
         <ng-container *ngFor="let config of gridConfig">
-          <th *ngIf="config.sortable && config.sortable()" [pSortableColumn]="config.name">
+          <th
+            *ngIf="config.sortable && config.sortable()"
+            [pSortableColumn]="config.name"
+          >
             {{ config.title }} <p-sortIcon [field]="config.name"></p-sortIcon>
           </th>
           <th *ngIf="!config.sortable || !config.sortable()">
@@ -35,11 +55,22 @@
     <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
       <tr
         (dblclick)="rowDoubleClick(gridItem)"
-        [ngStyle]="{height: gridItemHeight + 'px'}"
-        [pSelectableRow]="gridItem" [pSelectableRowIndex]="rowIndex"
-        [pTooltip]="getTooltipConfig && getTooltipConfig(gridItem) || ''" tooltipPosition="top" [tooltipDisabled]="!getTooltipConfig" appendTo="body" [showDelay]="1000"
-        [ngStyle]="{backgroundColor: getColorConfig && getColorConfig(gridItem) ? getColorConfig(gridItem) : ''}"
-        [pContextMenuRow]="gridItem" [pSelectableRow]="gridItem"
+        [ngStyle]="{ height: gridItemHeight + 'px' }"
+        [pSelectableRow]="gridItem"
+        [pSelectableRowIndex]="rowIndex"
+        [pTooltip]="(getTooltipConfig && getTooltipConfig(gridItem)) || ''"
+        tooltipPosition="top"
+        [tooltipDisabled]="!getTooltipConfig"
+        appendTo="body"
+        [showDelay]="1000"
+        [ngStyle]="{
+          backgroundColor:
+            getColorConfig && getColorConfig(gridItem)
+              ? getColorConfig(gridItem)
+              : '',
+        }"
+        [pContextMenuRow]="gridItem"
+        [pSelectableRow]="gridItem"
       >
         <td *ngIf="checkboxMode">
           <!-- <p-tableCheckbox [value]="gridItem"></p-tableCheckbox> -->

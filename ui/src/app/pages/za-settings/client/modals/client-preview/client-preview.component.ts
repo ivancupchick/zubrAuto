@@ -13,13 +13,12 @@ import { ServerUser } from 'src/app/entities/user';
 @Component({
   selector: 'za-client-preview',
   templateUrl: './client-preview.component.html',
-  styleUrls: ['./client-preview.component.scss']
+  styleUrls: ['./client-preview.component.scss'],
 })
 export class ClientPreviewComponent implements OnInit {
   @Input() client!: ServerClient.Response;
   @Input() users!: ServerUser.Response[];
   clientJSON: string = '';
-
 
   constructor(
     private carService: CarService,
@@ -33,11 +32,20 @@ export class ClientPreviewComponent implements OnInit {
     const clientObj: StringHash = {};
     clientObj.id = `${this.client.id}`;
 
-    this.client.fields.forEach(field => {
+    this.client.fields.forEach((field) => {
       let value = FieldsUtils.getFieldValue([field], field.name);
 
-      if (field.type === FieldType.Date || [FieldNames.Client.date, FieldNames.Client.dateNextAction, FieldNames.Client.saleDate].includes(field.name as FieldNames.Client)) {
-        value = moment(+FieldsUtils.getFieldValue([field], field.name)).format('DD.MM.yyyy');
+      if (
+        field.type === FieldType.Date ||
+        [
+          FieldNames.Client.date,
+          FieldNames.Client.dateNextAction,
+          FieldNames.Client.saleDate,
+        ].includes(field.name as FieldNames.Client)
+      ) {
+        value = moment(+FieldsUtils.getFieldValue([field], field.name)).format(
+          'DD.MM.yyyy',
+        );
       }
 
       if (field.type === FieldType.Dropdown) {
@@ -45,7 +53,7 @@ export class ClientPreviewComponent implements OnInit {
       }
 
       if (field.name === FieldNames.Client.specialistId) {
-        const user = this.users.find(u => +u.id === +value)!;
+        const user = this.users.find((u) => +u.id === +value)!;
         value = `${FieldsUtils.getFieldStringValue(user, FieldNames.User.name)}`;
       }
 
@@ -53,18 +61,29 @@ export class ClientPreviewComponent implements OnInit {
     });
 
     const query: StringHash = {};
-    const obs = this.client && this.client.carIds && this.client.carIds.split(',').length
-      ? this.carService.getCarsByQuery(Object.assign(query, { id: this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a)})).pipe(map(res => res.list))
-      : of([])
+    const obs =
+      this.client && this.client.carIds && this.client.carIds.split(',').length
+        ? this.carService
+            .getCarsByQuery(
+              Object.assign(query, {
+                id: this.client.carIds
+                  .split(',')
+                  .map((a) => (!Number.isNaN(+a) ? +a : a)),
+              }),
+            )
+            .pipe(map((res) => res.list))
+        : of([]);
 
-    obs.subscribe(cars => {
+    obs.subscribe((cars) => {
       if (cars.length) {
-        clientObj.cars = cars.map(c => {
-          return `
+        clientObj.cars = cars
+          .map((c) => {
+            return `
           ${c.id}
-          ${FieldsUtils.getFieldValue(c,FieldNames.Car.mark)}
-          ${FieldsUtils.getFieldValue(c,FieldNames.Car.model)}`;
-        }).join(', ');
+          ${FieldsUtils.getFieldValue(c, FieldNames.Car.mark)}
+          ${FieldsUtils.getFieldValue(c, FieldNames.Car.model)}`;
+          })
+          .join(', ');
       }
     });
 

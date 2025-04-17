@@ -1,5 +1,5 @@
-import { UntypedFormGroup, ValidatorFn } from "@angular/forms";
-import { FieldType, UIVariant } from "src/app/entities/field";
+import { UntypedFormGroup, ValidatorFn } from '@angular/forms';
+import { FieldType, UIVariant } from 'src/app/entities/field';
 
 export interface DynamicFieldOptions<T> {
   id: number;
@@ -14,12 +14,12 @@ export interface DynamicFieldOptions<T> {
   controlType?: FieldType;
   type?: string;
   mask?: string;
-  variants?: {key: string, value: string}[];
+  variants?: { key: string; value: string }[];
 }
 
 export class DynamicFieldBase<T> {
   id: number;
-  value: T|undefined;
+  value: T | undefined;
   key: string;
   label: string;
   required: boolean;

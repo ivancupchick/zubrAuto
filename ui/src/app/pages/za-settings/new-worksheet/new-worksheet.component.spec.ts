@@ -8,9 +8,8 @@ describe('NewWorksheetComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ NewWorksheetComponent ]
-    })
-    .compileComponents();
+      declarations: [NewWorksheetComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

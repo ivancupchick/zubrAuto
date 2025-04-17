@@ -1,5 +1,17 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { GridActionConfigItem, GridConfigItem, gridItemHeight } from '../grid/grid';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
+import {
+  GridActionConfigItem,
+  GridConfigItem,
+  gridItemHeight,
+} from '../grid/grid';
 import { LazyLoadEvent, MenuItem, SortEvent } from 'primeng/api';
 import { PageagleGridService } from './pageagle-grid.service';
 import { TableModule } from 'primeng/table';
@@ -7,7 +19,10 @@ import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
-import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-direction.enum';
+import {
+  ZASortDirection,
+  SortEventDirection,
+} from 'src/app/shared/enums/sort-direction.enum';
 
 @Component({
   selector: 'za-pageagle-grid',
@@ -19,11 +34,13 @@ import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-dir
     TableModule,
     TooltipModule,
     ContextMenuModule,
-    SpinnerComponent
+    SpinnerComponent,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageagleGridComponent<GridItemType extends { id: number }> implements OnInit {
+export class PageagleGridComponent<GridItemType extends { id: number }>
+  implements OnInit
+{
   @Input() gridConfig!: GridConfigItem<GridItemType>[];
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
@@ -34,20 +51,13 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
   @Input() dataService!: PageagleGridService<GridItemType>;
   @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
-  @Input() first!: number;
-  @Input() initialDealStatuses!: string[];
-
-  // @Input() set gridData(value: GridItemType[]) {
-  //   if (Array.isArray(value)) {
-  //     this._gridData = value;
-  //   } else {
-  //     this._gridData = [];
-  //   }
-  // }
-
-  // get gridData(): GridItemType[] {
-  //   return this._gridData;
-  // }
+  @Input() set first(v: number) {
+    this._first = v;
+  }
+  _first!: number;
+  get first() {
+    return this._first;
+  }
 
   gridItemHeight = gridItemHeight;
   size = 10;
@@ -57,18 +67,19 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   contextSelectedItem!: GridItemType;
   contextActions: MenuItem[] = [];
   selectedKeys!: GridItemType[];
-  // private _gridData: GridItemType[] = [];
 
   constructor(private elem: ElementRef<HTMLElement>) {}
   ngOnInit(): void {
     this.selectedKeys = [...this.selected];
     this.updateActions();
 
-    this.size = Math.floor(this.elem.nativeElement.offsetHeight / gridItemHeight);
+    this.size = Math.floor(
+      this.elem.nativeElement.offsetHeight / gridItemHeight,
+    );
   }
 
   rowDoubleClick(item: GridItemType) {
-    this.doubleClickFuction && this.doubleClickFuction(item)
+    this.doubleClickFuction && this.doubleClickFuction(item);
   }
 
   onSelect(c: any) {
@@ -76,25 +87,22 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
       return;
     }
 
-    let selected = this.selectionMode === 'multiple'
-      ? this.selectedKeys || []
-      : [this.selectedKeys as any].filter(r => !!r)
+    let selected =
+      this.selectionMode === 'multiple'
+        ? this.selectedKeys || []
+        : [this.selectedKeys as any].filter((r) => !!r);
 
     this.onSelectEntity.emit(selected);
   }
 
   customSort(event: SortEvent) {
     const fieldName = event.field;
-    const gridConfig = this.gridConfig.find(gd => gd.name === fieldName);
+    const gridConfig = this.gridConfig.find((gd) => gd.name === fieldName);
 
     if (!event.order || !fieldName || !gridConfig || !event.data) {
-      console.error('sorting not working on this field')
+      console.error('sorting not working on this field');
       return;
     }
-
-    // this.gridData = [...this.gridData.sort(
-    //   getGridFieldsCompare(gridConfig, event)
-    // )];
   }
 
   onShow(e: any) {
@@ -103,7 +111,9 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
 
   updateActions() {
     this.contextActions = this.actions.map((action) => {
-      const updatedAction = action.updater ? action.updater(action, this.contextSelectedItem) : action;
+      const updatedAction = action.updater
+        ? action.updater(action, this.contextSelectedItem)
+        : action;
 
       return {
         label: updatedAction.title,
@@ -111,30 +121,22 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
         command: (e: { originalEvent: PointerEvent; item: MenuItem }) =>
           updatedAction.handler(this.contextSelectedItem),
         disabled:
-          !!updatedAction.disabled && updatedAction.disabled(this.contextSelectedItem),
+          !!updatedAction.disabled &&
+          updatedAction.disabled(this.contextSelectedItem),
       };
     });
   }
 
-  // fetchData(event: LazyLoadEvent) {
-
-  // }
-
   updatePage(event: LazyLoadEvent) {
-    const sortOrder: SortDirection | undefined = event.sortOrder && SortEventDirection[event.sortOrder] || undefined;
+    const sortOrder: ZASortDirection | undefined =
+      (event.sortOrder && SortEventDirection[event.sortOrder]) || undefined;
     const sortField = event.sortField || undefined;
 
-    this.dataService.updatePage({ 
-      size: event.rows!, 
-      page: (event.first! + event.rows!) / event.rows!, 
-      sortField, sortOrder,
-      'deal-status': this.initialDealStatuses, 
+    this.dataService.updatePage({
+      size: event.rows!,
+      page: (event.first! + event.rows!) / event.rows!,
+      sortField,
+      sortOrder,
     });
-      // .pipe(
-      //   finalize(() => this.loading = false)
-      // ).subscribe(data => {
-      //   this.gridData = data.list;
-      //   this.totalRecords = data.total;
-      // });
   }
 }

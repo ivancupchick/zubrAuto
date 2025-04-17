@@ -1,3 +1,3 @@
-import { ServerCallRequest as callRequest } from '../../../../src/entities/CallRequest';
+import { ServerCallRequest as callRequest } from '../../../../src/temp/entities/CallRequest';
 
 export import ServerCallRequest = callRequest;

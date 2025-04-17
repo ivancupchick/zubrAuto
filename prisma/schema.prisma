@@ -1,0 +1,187 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model activities {
+  id         Int    @id @default(autoincrement())
+  userId     Int
+  sourceId   Int
+  sourceName String @db.VarChar(255)
+  date       BigInt
+  activities String @db.LongText
+  type       String @db.VarChar(255)
+  users      users  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "activities_ibfk_1")
+
+  @@index([userId], map: "userId")
+}
+
+model callRequests {
+  id                   Int     @id @default(autoincrement())
+  originalNotification String  @db.Text
+  innerNumber          String? @db.VarChar(15)
+  clientNumber         String  @db.VarChar(15)
+  createdDate          BigInt
+  userId               Int?
+  comment              String? @db.VarChar(255)
+  source               String? @db.VarChar(255)
+  isUsed               Boolean @default(false)
+
+  @@index([innerNumber, clientNumber], map: "callRequests_FIND_INDEX")
+}
+
+model carForms {
+  id      Int    @id @default(autoincrement())
+  content String @db.LongText
+  carId   Int
+}
+
+model carOwners {
+  id     Int     @id @default(autoincrement())
+  number String? @db.VarChar(255)
+  cars   cars[]
+}
+
+model carStatistic {
+  id      Int     @id @default(autoincrement())
+  content String? @db.VarChar(255)
+  carId   Int
+  type    Int
+  date    BigInt
+  cars    cars    @relation(fields: [carId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "carStatistic_ibfk_1")
+
+  @@index([carId], map: "fk_carId")
+}
+
+model cars {
+  id           Int            @id @default(autoincrement())
+  createdDate  String         @db.VarChar(255)
+  ownerId      Int
+  carStatistic carStatistic[]
+  carOwners    carOwners      @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "cars_ibfk_1")
+
+  @@index([ownerId], map: "fk_ownerId")
+}
+
+model clients {
+  id     Int    @id @default(autoincrement())
+  carIds String @db.VarChar(255)
+}
+
+model fieldAccesses {
+  id         Int    @id @default(autoincrement())
+  fieldId    Int
+  sourceId   Int
+  sourceName String @db.VarChar(255)
+  access     Int
+  fields     fields @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fieldAccesses_ibfk_1")
+
+  @@index([fieldId], map: "fk_fieldId")
+}
+
+model fieldIds {
+  id         Int     @id @default(autoincrement())
+  sourceId   Int
+  fieldId    Int
+  value      String? @db.VarChar(255)
+  sourceName String? @db.VarChar(255)
+  fields     fields  @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fieldIds_ibfk_1")
+
+  @@index([sourceName, sourceId, fieldId], map: "fieldIds_FIND_INDEX")
+  @@index([sourceName, fieldId, value], map: "fieldIds_FIND_INDEX_BY_VALUE")
+  @@index([fieldId], map: "fk_fieldId")
+}
+
+model fields {
+  id                Int                 @id @default(autoincrement())
+  flags             Int
+  type              Int
+  domain            Int
+  variants          String              @db.VarChar(255)
+  showUserLevel     Int
+  name              String?             @db.VarChar(255)
+  fieldAccesses     fieldAccesses[]
+  fieldIds          fieldIds[]
+  longtextFieldsIds longtextFieldsIds[]
+}
+
+model files {
+  id           Int        @id @default(autoincrement())
+  url          String     @db.VarChar(255)
+  type         Int
+  parent       Int?
+  name         String?    @db.VarChar(255)
+  fileMetadata String?    @db.VarChar(255)
+  filesIds     filesIds[]
+}
+
+model filesIds {
+  id         Int     @id @default(autoincrement())
+  sourceId   Int
+  fileId     Int
+  sourceName String? @db.VarChar(255)
+  files      files   @relation(fields: [fileId], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "filesIds_ibfk_1")
+
+  @@index([fileId], map: "fk_fileId")
+}
+
+model forms {
+  id    Int @id @default(autoincrement())
+  flags Int
+}
+
+model longtextFieldsIds {
+  id         Int     @id @default(autoincrement())
+  sourceId   Int
+  fieldId    Int
+  value      String? @db.Text
+  sourceName String? @db.VarChar(255)
+  fields     fields  @relation(fields: [fieldId], references: [id], onUpdate: Restrict, map: "longtextFieldsIds_ibfk_1")
+
+  @@index([fieldId], map: "fk_longtextFieldsId")
+  @@index([sourceName, sourceId, fieldId], map: "longtextFieldsIds_FIND_INDEX")
+}
+
+model phoneCalls {
+  id                    Int      @id @default(autoincrement())
+  originalNotifications String   @db.Text
+  innerNumber           String   @db.VarChar(15)
+  clientNumber          String   @db.VarChar(15)
+  createdDate           BigInt
+  userId                Int?
+  originalDate          String   @db.VarChar(255)
+  uuid                  String   @db.VarChar(255)
+  type                  String   @db.VarChar(255)
+  status                String?  @db.VarChar(255)
+  isFinished            Boolean? @default(false)
+  recordUrl             String?  @db.VarChar(255)
+  isUsed                Boolean  @default(false)
+
+  @@index([innerNumber, clientNumber], map: "phoneCalls_FIND_INDEX")
+}
+
+model roles {
+  id         Int    @id @default(autoincrement())
+  systemName String @db.VarChar(255)
+}
+
+model userTokens {
+  id           Int    @id @default(autoincrement())
+  userId       Int
+  refreshToken String @db.VarChar(255)
+}
+
+model users {
+  id             Int          @id @default(autoincrement())
+  email          String       @db.VarChar(255)
+  password       String       @db.VarChar(255)
+  isActivated    Boolean?     @default(false)
+  activationLink String?      @db.VarChar(255)
+  roleLevel      Int
+  deleted        Boolean      @default(false)
+  activities     activities[]
+}

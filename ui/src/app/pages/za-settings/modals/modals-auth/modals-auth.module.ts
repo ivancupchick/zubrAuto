@@ -6,22 +6,9 @@ import { DynamicFormModule } from '../../shared/dynamic-form/dynamic-form.module
 import { ButtonModule } from 'primeng/button';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 
-
-
 @NgModule({
-  imports: [
-    CommonModule,
-    DynamicFormModule,
-    SpinnerComponent,
-    ButtonModule
-  ],
-  declarations: [
-    LoginComponent,
-    SignUpComponent
-  ],
-  exports: [
-    LoginComponent,
-    SignUpComponent
-  ]
+  imports: [CommonModule, DynamicFormModule, SpinnerComponent, ButtonModule],
+  declarations: [LoginComponent, SignUpComponent],
+  exports: [LoginComponent, SignUpComponent],
 })
-export class ModalsAuthModule { }
+export class ModalsAuthModule {}

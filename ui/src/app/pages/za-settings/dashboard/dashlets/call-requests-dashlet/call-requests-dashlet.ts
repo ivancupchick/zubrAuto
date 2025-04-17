@@ -4,4 +4,4 @@ export const callRequestFiltersInialState = {
   number: '',
   dateFrom: '',
   dateTo: '',
-}
+};

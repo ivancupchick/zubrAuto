@@ -10,64 +10,96 @@ import { Constants } from 'src/app/entities/constants';
 // TODO! create base db service
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FieldService {
   private allFields: ServerField.Response[] = [];
 
-  constructor(private requestService: RequestService) { }
+  constructor(private requestService: RequestService) {}
 
   getFields(): Observable<ServerField.Response[]> {
     return this.allFields.length > 0
       ? of(this.allFields)
-      : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`, {}, true)
-        .pipe(
-          tap(result => {
-            this.allFields = result;
-          })
-        )
+      : this.requestService
+          .get<
+            ServerField.Response[]
+          >(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`, {}, true)
+          .pipe(
+            tap((result) => {
+              this.allFields = result;
+            }),
+          );
   }
 
   createField(value: ServerField.CreateRequest): Observable<boolean> {
-    return this.requestService.post(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`, value)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .post(
+        `${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}`,
+        value,
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   getField(id: number): Observable<ServerField.Response> {
-    return this.requestService.get<ServerField.Response>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .get<ServerField.Response>(
+        `${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`,
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return result;
-      }))
+          return result;
+        }),
+      );
   }
 
-  updateField(value: ServerField.CreateRequest, id: number): Observable<boolean> {
+  updateField(
+    value: ServerField.CreateRequest,
+    id: number,
+  ): Observable<boolean> {
     delete (value as any).id;
-    return this.requestService.put(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`, value)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .put(
+        `${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`,
+        value,
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   deleteField(id: number): Observable<boolean> {
-    return this.requestService.delete(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .delete(
+        `${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.CRUD}/${id}`,
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   getFieldsByDomain(domain: FieldDomains): Observable<ServerField.Response[]> {
     return this.allFields.length > 0
-      ? of(this.allFields.filter(f => `${f.domain}` === `${domain}`))
-      : this.requestService.get<ServerField.Response[]>(`${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.GET_FIELDS_BY_DOMAIN}/${domain}`, {}, true);
+      ? of(this.allFields.filter((f) => `${f.domain}` === `${domain}`))
+      : this.requestService.get<ServerField.Response[]>(
+          `${environment.serverUrl}/${Constants.API.FIELDS}/${Constants.API.GET_FIELDS_BY_DOMAIN}/${domain}`,
+          {},
+          true,
+        );
   }
 }

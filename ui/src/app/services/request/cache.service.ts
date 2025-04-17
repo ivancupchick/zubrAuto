@@ -26,7 +26,7 @@ const serviceUrl = 'url';
 export class CacheService {
   private cache = new Map<string, CacheItem[]>();
 
-  constructor() { }
+  constructor() {}
 
   get(
     url: string,
@@ -34,7 +34,14 @@ export class CacheService {
     body: any,
   ): ZAResponose | Subject<ZAResponose> | null {
     if (this.cache.has(serviceUrl)) {
-      const request = this.cache.get(serviceUrl)!.find((item) => item.url === url && type === item.type && JSON.stringify(body) === JSON.stringify(item.body));
+      const request = this.cache
+        .get(serviceUrl)!
+        .find(
+          (item) =>
+            item.url === url &&
+            type === item.type &&
+            JSON.stringify(body) === JSON.stringify(item.body),
+        );
       if (request) {
         // if (!environment.production) {
         //   if (request.response instanceof Subject) {
@@ -50,9 +57,21 @@ export class CacheService {
     return null;
   }
 
-  put(url: string, type: RequestType, body: any, response: ZAResponose | Subject<ZAResponose>): void {
-    let requests = this.cache.has(serviceUrl) ? this.cache.get(serviceUrl)! : [];
-    requests = requests.filter((item) => item.url !== url || type !== item.type || JSON.stringify(body) !== JSON.stringify(item.body));
+  put(
+    url: string,
+    type: RequestType,
+    body: any,
+    response: ZAResponose | Subject<ZAResponose>,
+  ): void {
+    let requests = this.cache.has(serviceUrl)
+      ? this.cache.get(serviceUrl)!
+      : [];
+    requests = requests.filter(
+      (item) =>
+        item.url !== url ||
+        type !== item.type ||
+        JSON.stringify(body) !== JSON.stringify(item.body),
+    );
     requests.push({ url, type, body, response });
 
     // if (!environment.production) {
@@ -71,7 +90,5 @@ export class CacheService {
 }
 
 export const cacheService = Injector.create({
-  providers: [
-    { provide: CacheService },
-  ],
+  providers: [{ provide: CacheService }],
 }).get(CacheService);

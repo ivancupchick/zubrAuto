@@ -2,40 +2,39 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 
-import {MenubarModule} from 'primeng/menubar';
-import {TableModule} from 'primeng/table';
-import {CardModule} from 'primeng/card';
-import {ToolbarModule} from 'primeng/toolbar';
-import {ButtonModule} from 'primeng/button';
-import {DialogModule} from 'primeng/dialog';
-import {DynamicDialogModule} from 'primeng/dynamicdialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputTextareaModule} from 'primeng/inputtextarea';
-import {MessagesModule} from 'primeng/messages';
-import {MessageModule} from 'primeng/message';
-import {ToastModule} from 'primeng/toast';
-import {AvatarModule} from 'primeng/avatar';
-import {AvatarGroupModule} from 'primeng/avatargroup';
-import {ChipModule} from 'primeng/chip';
-import {ChipsModule} from 'primeng/chips';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {TabViewModule} from 'primeng/tabview';
-import {CheckboxModule} from 'primeng/checkbox';
-import {CalendarModule} from 'primeng/calendar';
-import {AccordionModule} from 'primeng/accordion';
-import {CarouselModule} from 'primeng/carousel';
-import {ImageModule} from 'primeng/image';
-import {FileUploadModule} from 'primeng/fileupload';
-import {ChartModule} from 'primeng/chart';
-import {TimelineModule} from 'primeng/timeline';
-import {SliderModule} from 'primeng/slider';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {OverlayPanelModule} from 'primeng/overlaypanel';
-import {ContextMenuModule} from 'primeng/contextmenu';
-import {EditorModule} from 'primeng/editor';
-import {TooltipModule} from 'primeng/tooltip';
-
+import { MenubarModule } from 'primeng/menubar';
+import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
+import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { MessagesModule } from 'primeng/messages';
+import { MessageModule } from 'primeng/message';
+import { ToastModule } from 'primeng/toast';
+import { AvatarModule } from 'primeng/avatar';
+import { AvatarGroupModule } from 'primeng/avatargroup';
+import { ChipModule } from 'primeng/chip';
+import { ChipsModule } from 'primeng/chips';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { TabViewModule } from 'primeng/tabview';
+import { CheckboxModule } from 'primeng/checkbox';
+import { CalendarModule } from 'primeng/calendar';
+import { AccordionModule } from 'primeng/accordion';
+import { CarouselModule } from 'primeng/carousel';
+import { ImageModule } from 'primeng/image';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ChartModule } from 'primeng/chart';
+import { TimelineModule } from 'primeng/timeline';
+import { SliderModule } from 'primeng/slider';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { ContextMenuModule } from 'primeng/contextmenu';
+import { EditorModule } from 'primeng/editor';
+import { TooltipModule } from 'primeng/tooltip';
 
 import { ZASettingsComponent } from '../za-settings/za-settings.component';
 import { SettingsFieldsComponent } from './settings-fields/settings-fields.component';
@@ -89,57 +88,76 @@ import { CarService } from 'src/app/services/car/car.service';
 import { ClientChangeLogsComponent } from './pages/change-log/componets/client-change-logs/client-change-logs.component';
 import { ClientService } from 'src/app/services/client/client.service';
 import { ClientsBaseComponent } from './pages/clients-base/clients-base.component';
-
+import { CarsBaseComponent } from './pages/cars-base/cars-base.component';
 
 // TODO sidebar; separate dashboard [calls + call-requests], [clients];
 
-const routes: Routes = [{
-  path: '',
-  component: ZASettingsComponent,
-  resolve: {
-    user: SettingsResolver
-  },
-  children: [{
-      path: '',
-      component: SettingsHomeComponent
-    },{
-      path: 'fields',
-      canActivate: [AuthGuard],
-      component: SettingsFieldsComponent
-    },{
-      path: 'clients',
-      canActivate: [AuthGuard],
-      component: ClientsBaseComponent
-    },{
-      path: 'cars',
-      canActivate: [AuthGuard],
-      component: SettingsCarsComponent
-    }, {
-      path: 'users',
-      canActivate: [AuthGuard],
-      component: SettingsUsersComponent
-    }, {
-      path: 'roles',
-      canActivate: [AuthGuard],
-      component: SettingsRolesComponent
-    }, {
-      path: 'new-worksheet',
-      canActivate: [AuthGuard],
-      component: NewWorksheetComponent
-    }, {
-      path: 'new-questionnaire',
-      canActivate: [AuthGuard],
-      component: NewQuestionnaireComponent
-    }, {
-      path: 'change-log',
-      loadChildren: () => import('./pages/change-log/change-log.module').then(m => m.ChangeLogModule)
+const routes: Routes = [
+  {
+    path: '',
+    component: ZASettingsComponent,
+    resolve: {
+      user: SettingsResolver,
     },
-    // {
-    //   path: 'clients2',
-    //   loadChildren: () => import('./pages/change-log/change-log.module').then(m => m.ChangeLogModule)
-    // }
-  ]
-}]
+    children: [
+      {
+        path: '',
+        component: SettingsHomeComponent,
+      },
+      {
+        path: 'fields',
+        canActivate: [AuthGuard],
+        component: SettingsFieldsComponent,
+      },
+      {
+        path: 'clients',
+        canActivate: [AuthGuard],
+        component: ClientsBaseComponent,
+      },
+      {
+        path: 'cars',
+        canActivate: [AuthGuard],
+        component: SettingsCarsComponent,
+      },
+      {
+        path: 'cars2',
+        canActivate: [AuthGuard],
+        component: CarsBaseComponent,
+      },
+      {
+        path: 'users',
+        canActivate: [AuthGuard],
+        component: SettingsUsersComponent,
+      },
+      {
+        path: 'roles',
+        canActivate: [AuthGuard],
+        component: SettingsRolesComponent,
+      },
+      {
+        path: 'new-worksheet',
+        canActivate: [AuthGuard],
+        component: NewWorksheetComponent,
+      },
+      {
+        path: 'new-questionnaire',
+        canActivate: [AuthGuard],
+        component: NewQuestionnaireComponent,
+      },
+      {
+        path: 'change-log',
+        loadChildren: () =>
+          import('./pages/change-log/change-log.module').then(
+            (m) => m.ChangeLogModule,
+          ),
+      },
+      // {
+      //   path: 'clients2',
+      //   loadChildren: () => import('./pages/change-log/change-log.module').then(m => m.ChangeLogModule)
+      // }
+    ],
+  },
+];
 
 @NgModule({
   declarations: [
@@ -236,12 +254,12 @@ const routes: Routes = [{
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
-      multi: true
+      multi: true,
     },
     RequestService,
     UserService,
     CarService, // createClient from global toolbar ?
-    ClientService
-  ]
+    ClientService,
+  ],
 })
-export class ZASettingsModule { }
+export class ZASettingsModule {}

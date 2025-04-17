@@ -1,26 +1,32 @@
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, HostBinding, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  HostBinding,
+  Input,
+  OnInit,
+  ViewEncapsulation,
+} from '@angular/core';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 export const fadeInFadeOut = trigger('fadeInFadeOut', [
   transition(':enter', [
-    style({opacity: 0}),
-    animate(150, style({opacity: 1}))
+    style({ opacity: 0 }),
+    animate(150, style({ opacity: 1 })),
   ]),
   transition(':leave', [
-    style({opacity: 1}),
-    animate(100, style({opacity: 0}))
-  ])
+    style({ opacity: 1 }),
+    animate(100, style({ opacity: 0 })),
+  ]),
 ]);
 
 @Component({
   selector: 'za-spinner',
   templateUrl: './spinner.component.html',
   styleUrls: ['./spinner.component.scss'],
-  animations: [ fadeInFadeOut ],
+  animations: [fadeInFadeOut],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  imports: [ProgressSpinnerModule]
+  imports: [ProgressSpinnerModule],
 })
 export class SpinnerComponent implements OnInit {
   @Input() zIndex: number = 99999;

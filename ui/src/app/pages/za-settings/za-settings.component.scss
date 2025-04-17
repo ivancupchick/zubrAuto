@@ -14,7 +14,9 @@
   p-card {
     // flex: 1 1 auto;
     // height: calc(100% - var(--header-margin) - var(--header-margin) - var(--header-margin) - var(--header-margin) - var(--header-height) - var(--header-height));
-    height: calc(100% - var(--header-margin) - var(--header-margin) - var(--header-height));
+    height: calc(
+      100% - var(--header-margin) - var(--header-margin) - var(--header-height)
+    );
     padding: var(--header-margin);
     ::ng-deep > div {
       height: 100%;
@@ -29,7 +31,6 @@
       }
     }
   }
-
 
   za-setting-footer {
     margin: var(--header-margin);

@@ -18,9 +18,9 @@ export const settingsClientsStrings: StringHash = {
   'next-action': 'Следующее действие',
   'date-next-action': 'Дата следующего действия',
   'client-status': 'Статус клиента',
-  "specialist-id": 'Специалист',
-  "sale-date": 'Дата продажи',
-}
+  'specialist-id': 'Специалист',
+  'sale-date': 'Дата продажи',
+};
 
 export const ClientBaseFilterFormsInitialState = {
   dealStatus: '',
@@ -29,4 +29,4 @@ export const ClientBaseFilterFormsInitialState = {
   specialist: '',
   date: '',
   number: '',
-}
+};

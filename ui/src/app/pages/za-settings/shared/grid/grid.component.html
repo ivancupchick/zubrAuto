@@ -1,16 +1,25 @@
-<p-contextMenu #cm appendTo="body" [model]="contextActions" (onShow)="onShow($event)"></p-contextMenu>
+<p-contextMenu
+  #cm
+  appendTo="body"
+  [model]="contextActions"
+  (onShow)="onShow($event)"
+></p-contextMenu>
 
 <p-table
   *ngIf="scrollHeight"
-  [scrollHeight]="scrollHeight + 'px'" [virtualScroll]="virtualScroll" [virtualScrollItemSize]="24"
-  [(contextMenuSelection)]="contextSelectedItem" [contextMenu]="cm"
+  [scrollHeight]="scrollHeight + 'px'"
+  [virtualScroll]="virtualScroll"
+  [virtualScrollItemSize]="24"
+  [(contextMenuSelection)]="contextSelectedItem"
+  [contextMenu]="cm"
   styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
   [value]="gridData"
   (sortFunction)="customSort($event)"
   [customSort]="true"
   [selectionMode]="selectionMode || 'single'"
   [metaKeySelection]="true"
-  [(selection)]="selectedKeys" (selectionChange)="onSelect($event)"
+  [(selection)]="selectedKeys"
+  (selectionChange)="onSelect($event)"
   dataKey="id"
   responsiveLayout="scroll"
 >
@@ -20,7 +29,10 @@
         <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
       </th>
       <ng-container *ngFor="let config of gridConfig">
-        <th *ngIf="config.sortable && config.sortable()" [pSortableColumn]="config.name">
+        <th
+          *ngIf="config.sortable && config.sortable()"
+          [pSortableColumn]="config.name"
+        >
           {{ config.title }} <p-sortIcon [field]="config.name"></p-sortIcon>
         </th>
         <th *ngIf="!config.sortable || !config.sortable()">
@@ -34,11 +46,22 @@
   <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
     <tr
       (dblclick)="rowDoubleClick(gridItem)"
-      style="height:24px"
-      [pSelectableRow]="gridItem" [pSelectableRowIndex]="rowIndex"
-      [pTooltip]="getTooltipConfig && getTooltipConfig(gridItem) || ''" tooltipPosition="top" [tooltipDisabled]="!getTooltipConfig" appendTo="body" [showDelay]="1000"
-      [ngStyle]="{backgroundColor: getColorConfig && getColorConfig(gridItem) ? getColorConfig(gridItem) : ''}"
-      [pContextMenuRow]="gridItem" [pSelectableRow]="gridItem"
+      style="height: 24px"
+      [pSelectableRow]="gridItem"
+      [pSelectableRowIndex]="rowIndex"
+      [pTooltip]="(getTooltipConfig && getTooltipConfig(gridItem)) || ''"
+      tooltipPosition="top"
+      [tooltipDisabled]="!getTooltipConfig"
+      appendTo="body"
+      [showDelay]="1000"
+      [ngStyle]="{
+        backgroundColor:
+          getColorConfig && getColorConfig(gridItem)
+            ? getColorConfig(gridItem)
+            : '',
+      }"
+      [pContextMenuRow]="gridItem"
+      [pSelectableRow]="gridItem"
     >
       <td *ngIf="checkboxMode">
         <!-- <p-tableCheckbox [value]="gridItem"></p-tableCheckbox> -->

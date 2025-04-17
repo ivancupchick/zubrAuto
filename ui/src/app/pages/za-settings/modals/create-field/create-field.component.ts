@@ -26,7 +26,7 @@ export class CreateFieldComponent implements OnInit {
     private fieldService: FieldService,
 
     private ref: DynamicDialogRef,
-    private config: DynamicDialogConfig
+    private config: DynamicDialogConfig,
   ) {}
 
   ngOnInit(): void {
@@ -41,17 +41,17 @@ export class CreateFieldComponent implements OnInit {
 
     const methodObs = this.isEdit
       ? this.fieldService.updateField(this.fieldForm.getValue(), this.id)
-      : this.fieldService.createField(this.fieldForm.getValue())
+      : this.fieldService.createField(this.fieldForm.getValue());
 
-    methodObs.pipe(
-      finalize(() => this.loading = false)
-    ).subscribe(result => {
-      if (result) {
-        this.ref.close(true);
-      } else {
-        alert(this.isEdit ? 'Поле не обновлено' :'Поле не создано');
-      }
-    })
+    methodObs
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe((result) => {
+        if (result) {
+          this.ref.close(true);
+        } else {
+          alert(this.isEdit ? 'Поле не обновлено' : 'Поле не создано');
+        }
+      });
   }
 
   cancel() {

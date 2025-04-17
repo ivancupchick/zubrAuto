@@ -21,9 +21,7 @@ import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
   selector: 'za-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   styleUrls: ['./dynamic-form.component.scss'],
-  providers: [
-    DynamicFieldControlService
-  ]
+  providers: [DynamicFieldControlService],
 })
 export class DynamicFormComponent implements OnInit {
   formGroup!: UntypedFormGroup;
@@ -39,7 +37,7 @@ export class DynamicFormComponent implements OnInit {
 
   private valid = false;
 
-  constructor(private dfcs: DynamicFieldControlService) { }
+  constructor(private dfcs: DynamicFieldControlService) {}
 
   ngOnInit(): void {
     this.formGroup = this.dfcs.toFormGroup(this.fields);
@@ -57,7 +55,7 @@ export class DynamicFormComponent implements OnInit {
 
     this.changed.emit(this.formGroup.valid);
 
-    this.formGroup.valueChanges.subscribe(data => {
+    this.formGroup.valueChanges.subscribe((data) => {
       this.valid = this.formGroup.valid;
       this.changed.emit(this.valid);
     });
@@ -75,34 +73,39 @@ export class DynamicFormComponent implements OnInit {
           return {
             id: field.id,
             name: field.key,
-            value: this.formGroup.controls[field.key].value === null ? '' : +this.formGroup.controls[field.key].value
-          }
+            value:
+              this.formGroup.controls[field.key].value === null
+                ? ''
+                : +this.formGroup.controls[field.key].value,
+          };
         }
 
         return {
           id: field.id,
           name: field.key,
-          value: this.formGroup.controls[field.key].value
+          value: this.formGroup.controls[field.key].value,
         };
       });
   }
 
   getAllValue(): RealField.Request[] {
-    return this.fields
-      .map((field) => {
-        if (field.controlType === FieldType.Date) {
-          return {
-            id: field.id,
-            name: field.key,
-            value:  this.formGroup.controls[field.key].value === null ? '' : +this.formGroup.controls[field.key].value
-          }
-        }
-
+    return this.fields.map((field) => {
+      if (field.controlType === FieldType.Date) {
         return {
           id: field.id,
           name: field.key,
-          value: this.formGroup.controls[field.key].value
+          value:
+            this.formGroup.controls[field.key].value === null
+              ? ''
+              : +this.formGroup.controls[field.key].value,
         };
-      });
+      }
+
+      return {
+        id: field.id,
+        name: field.key,
+        value: this.formGroup.controls[field.key].value,
+      };
+    });
   }
 }

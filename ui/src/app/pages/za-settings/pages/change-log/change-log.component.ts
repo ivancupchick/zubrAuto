@@ -13,7 +13,11 @@ import { DateUtils } from 'src/app/shared/utils/date.util';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ClientChangeLogsComponent } from './componets/client-change-logs/client-change-logs.component';
 import { ClientService } from 'src/app/services/client/client.service';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { FieldService } from 'src/app/services/field/field.service';
 import { DBModels, StringHash } from 'src/app/entities/constants';
@@ -22,10 +26,7 @@ import { DBModels, StringHash } from 'src/app/entities/constants';
   selector: 'za-change-log',
   templateUrl: './change-log.component.html',
   styleUrls: ['./change-log.component.scss'],
-  providers: [
-    DialogService,
-    ClientService
-  ]
+  providers: [DialogService, ClientService],
 })
 export class ChangeLogComponent implements OnInit, OnDestroy {
   first: number = 0;
@@ -38,11 +39,11 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   protected form!: UntypedFormGroup;
 
   domains = [
-    {name: 'Машины', value:  DBModels.Table.Cars},
-    {name: 'Клиент', value: DBModels.Table.Clients},
-    {name: 'Пользователь', value: DBModels.Table.Users},
-    {name: 'Заявки', value: DBModels.Table.CallRequests},
-    {name: 'Звонки', value: DBModels.Table.PhoneCalls},
+    { name: 'Машины', value: DBModels.Table.Cars },
+    { name: 'Клиент', value: DBModels.Table.Clients },
+    { name: 'Пользователь', value: DBModels.Table.Users },
+    { name: 'Заявки', value: DBModels.Table.CallRequests },
+    { name: 'Звонки', value: DBModels.Table.PhoneCalls },
   ];
 
   sold = false;
@@ -75,8 +76,6 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
 
   // phoneNumber = '';
 
-
-
   destoyed = new Subject<void>();
 
   // isCarSalesChiefOrAdmin = this.sessionService.isCarSalesChief || this.sessionService.isAdminOrHigher;
@@ -97,29 +96,31 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   ) {}
 
   users: {
-    name: string,
-    id:number
+    name: string;
+    id: number;
   }[] = [];
 
   ngOnInit(): void {
     this.loading = true;
 
-    this.getData().pipe(
-      takeUntil(this.destoyed),
-      finalize(() => this.loading = false)
-    ).subscribe(() => {
-      this.setGridSettings();
-      this.users = this.allUsers.map((user) => ({
-        name: FieldsUtils.getFieldValue(user, FieldNames.User.name),
-        id: user.id,
-      }))
+    this.getData()
+      .pipe(
+        takeUntil(this.destoyed),
+        finalize(() => (this.loading = false)),
+      )
+      .subscribe(() => {
+        this.setGridSettings();
+        this.users = this.allUsers.map((user) => ({
+          name: FieldsUtils.getFieldValue(user, FieldNames.User.name),
+          id: user.id,
+        }));
 
-      this.form = this.fb.group({
-        sourceName: [''],
-        userId: [''],
-        date: [''],
-      })
-    });
+        this.form = this.fb.group({
+          sourceName: [''],
+          userId: [''],
+          date: [''],
+        });
+      });
 
     // this.availableStatuses = availableStatuses.map(s => ({ label: s, value: s }));
     // this.availableClientStatuses = Object.values(FieldNames.ClientStatus).map(s => ({ label: s, value: s }));
@@ -139,28 +140,28 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
     return zip(
       // this.getClients(),
       this.fieldService.getFields(),
-      this.userService.getAllUsers(true)
+      this.userService.getAllUsers(true),
     ).pipe(
       takeUntil(this.destoyed),
       map(([fieldConfigs, usersFieldsRes]) => {
         this.fieldConfigs = fieldConfigs;
         this.allUsers = usersFieldsRes.list;
-        this.specialists = usersFieldsRes.list.filter((s: any) => +s.deleted === 0)
-          .filter(u => u.customRoleName === ServerRole.Custom.carSales
-                    || u.customRoleName === ServerRole.Custom.carSalesChief
-                    || u.customRoleName === ServerRole.Custom.customerService
-                    || u.customRoleName === ServerRole.Custom.customerServiceChief
-                    || (
-                      (
-                        u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
-                      )
-                    ));
+        this.specialists = usersFieldsRes.list
+          .filter((s: any) => +s.deleted === 0)
+          .filter(
+            (u) =>
+              u.customRoleName === ServerRole.Custom.carSales ||
+              u.customRoleName === ServerRole.Custom.carSalesChief ||
+              u.customRoleName === ServerRole.Custom.customerService ||
+              u.customRoleName === ServerRole.Custom.customerServiceChief ||
+              u.roleLevel === ServerRole.System.Admin ||
+              u.roleLevel === ServerRole.System.SuperAdmin,
+          );
 
         // this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: u.id }));
 
-
         return null;
-      })
+      }),
     );
   }
 
@@ -170,25 +171,21 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
     this.getGridColorConfig();
   }
 
-  getGridColorConfig(){
+  getGridColorConfig() {
     // this.getColorConfig = (client) => {
     //   const status = getDealStatus(client);
-
     //   switch (status) {
     //     case FieldNames.DealStatus.Deny: return '#ff00002b'
     //     // case FieldNames.DealStatus.InProgress: return '#fff'
     //     case FieldNames.DealStatus.OnDeposit: return '#07ff003d'
     //     case FieldNames.DealStatus.Sold: return '#005dff3d'
     //   }
-
     //   const clientStatus = getClientStatus(client);
-
     //   switch (clientStatus) {
     //     case FieldNames.ClientStatus.Thinking: return '#EFD334'
     //     case FieldNames.ClientStatus.InProgress: return '#99FF99'
     //     case FieldNames.ClientStatus.HavingInteresting: return '#7FC7FF'
     //   }
-
     //   return '';
     // }
   }
@@ -206,21 +203,23 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
 
           //   return `${item.id} ${(specialistName || '').split(' ').map(word => word[0]).join('')}`;
           // } else {
-            return item.id
+          return item.id;
           // }
         },
       },
       {
         title: 'Дата',
         name: 'date',
-        getValue: (item) => DateUtils.getFormatedDate(item.date),
-        sortable: () => true
+        getValue: (item) => DateUtils.getFormatedDate(+item.date.toString()),
+        sortable: () => true,
       },
       {
         title: 'Пользователь',
         name: 'userId',
         getValue: (item) => {
-          const specialist: ServerUser.Response = this.allUsers.find(user => user.id === item.userId)!;
+          const specialist: ServerUser.Response = this.allUsers.find(
+            (user) => user.id === item.userId,
+          )!;
 
           if (item.userId && specialist) {
             return FieldsUtils.getFieldValue(specialist, FieldNames.User.name);
@@ -245,18 +244,18 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
     ];
   }
 
-  showItemUpdates(changeLogItem: ChangeLogItem){
+  showItemUpdates(changeLogItem: ChangeLogItem) {
     let modalHeader;
     switch (changeLogItem.sourceName) {
       case DBModels.Table.Cars:
         modalHeader = 'машинам';
-        break
+        break;
       case DBModels.Table.Users:
         modalHeader = 'пользователям';
-        break
+        break;
       case DBModels.Table.Clients:
         modalHeader = 'клиентам';
-        break
+        break;
       default:
         modalHeader = 'категории';
     }
@@ -265,38 +264,40 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
         itemId: changeLogItem.sourceId,
         fieldConfigs: this.fieldConfigs,
         allUsers: this.allUsers,
-        sourceName:  changeLogItem.sourceName,
+        sourceName: changeLogItem.sourceName,
       },
       header: `Изменения по ${modalHeader}`,
-      width: '90%'
+      width: '90%',
     });
     // this.subscribeOnCloseModalRef(ref);
   }
   getGridActionsConfig(): GridActionConfigItem<ChangeLogItem>[] {
-    const configs: GridActionConfigItem<ChangeLogItem>[] = [{
-      title: 'Показать все изменения',
-      icon: 'pencil',
-      buttonClass: 'secondary',
-      disabled: (client) => false,
-      updater: (instance, item) => {
-        const categoryByTableName: StringHash = {
-          [DBModels.Table.Clients]: 'клиенту',
-          [DBModels.Table.Users]: 'пользователю',
-          [DBModels.Table.Cars]: 'машине',
-          [DBModels.Table.CallRequests]: 'заявке',
-        }
+    const configs: GridActionConfigItem<ChangeLogItem>[] = [
+      {
+        title: 'Показать все изменения',
+        icon: 'pencil',
+        buttonClass: 'secondary',
+        disabled: (client) => false,
+        updater: (instance, item) => {
+          const categoryByTableName: StringHash = {
+            [DBModels.Table.Clients]: 'клиенту',
+            [DBModels.Table.Users]: 'пользователю',
+            [DBModels.Table.Cars]: 'машине',
+            [DBModels.Table.CallRequests]: 'заявке',
+          };
 
-        const entity = categoryByTableName[item.sourceName];
-        if (entity) {
-          instance.title = `Посмотеть все изменения по ${entity} c id = ${item.sourceId}`
-        }
+          const entity = categoryByTableName[item?.sourceName];
+          if (entity) {
+            instance.title = `Посмотеть все изменения по ${entity} c id = ${item.sourceId}`;
+          }
 
-        return instance;
+          return instance;
+        },
+        handler: (itemById) => this.showItemUpdates(itemById),
       },
-      handler: (itemById) => this.showItemUpdates(itemById),
-    }];
+    ];
 
-    return configs.filter(config => !config.available || config.available());
+    return configs.filter((config) => !config.available || config.available());
   }
 
   onFilter() {
@@ -305,14 +306,22 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let payload = skipEmptyFilters({...this.form.value });
+    let payload = skipEmptyFilters({ ...this.form.value });
 
     if (this.sold) {
-      payload = { ...payload, ['activities']: `%${FieldNames.Client.dealStatus}-2%`, ['filter-operator-activities']: 'LIKE' }
+      payload = {
+        ...payload,
+        ['activities']: `%${FieldNames.Client.dealStatus}-2%`,
+        ['filter-operator-activities']: 'LIKE',
+      };
     }
 
     if (payload.date) {
-      payload = { ...payload, date: +payload.date, ['filter-operator-date']: '>' }
+      payload = {
+        ...payload,
+        date: +payload.date,
+        ['filter-operator-date']: '>',
+      };
     }
 
     this.changeLogDataService.onFilter(payload);

@@ -1,6 +1,10 @@
-import { RealField, ServerField, FieldDomains as domain, FieldType as type } from '../../../../src/entities/Field'
+import { RealField, ServerField } from '../../../../src/temp/entities/Field';
+import {
+  FieldDomains as domain,
+  FieldType as type,
+} from '../../../../src/core/fields/fields';
 import { FieldAccess } from './fieldAccess';
-import { FlagField as flagField } from '../../../../src/utils/flag.utils'
+import { FlagField as flagField } from '../../../../src/core/utils/flag.utils';
 
 export interface UIVariant {
   key: string;
@@ -17,10 +21,11 @@ export import RealField = RealField;
 export import ServerField = ServerField;
 export import FlagField = flagField;
 
-type IAnyField = Pick<RealField.Response, 'name' | 'value' | 'variants'> & Partial<Pick<RealField.Response, 'type'>>
-type INotDropdownField = Pick<RealField.Response, 'name' | 'value'>
+type IAnyField = Pick<RealField.Response, 'name' | 'value' | 'variants'> &
+  Partial<Pick<RealField.Response, 'type'>>;
+type INotDropdownField = Pick<RealField.Response, 'name' | 'value'>;
 
-export class UIRealField  {
+export class UIRealField {
   public id: number;
   public flags: number;
   public type: FieldType;
@@ -36,15 +41,17 @@ export class UIRealField  {
     this.type = options.type;
     this.name = options.name;
     this.domain = options.domain;
-    this.variants = !options.variants ? [] : options.variants.split(',').map((v, i) => ({
-      key: `${options.name}-${i}`,
-      value: v
-    }));
+    this.variants = !options.variants
+      ? []
+      : options.variants.split(',').map((v, i) => ({
+          key: `${options.name}-${i}`,
+          value: v,
+        }));
     this.showUserLevel = options.showUserLevel;
     this.value = value;
 
     if (options.type === FieldType.Dropdown) {
-      if (!this.variants.map(v => v.key).includes(value)) {
+      if (!this.variants.map((v) => v.key).includes(value)) {
         this.value = '';
       }
     }
@@ -52,44 +59,69 @@ export class UIRealField  {
 }
 
 export class FieldsUtils {
-  static getDropdownValue(entityOrFieldsArray: { fields: IAnyField[] } | IAnyField[], fieldName: string) {
+  static getDropdownValue(
+    entityOrFieldsArray: { fields: IAnyField[] } | IAnyField[],
+    fieldName: string,
+  ) {
     const field = this.getField(entityOrFieldsArray, fieldName);
 
     return !field
       ? ''
-      : field.variants.split(',').find((variant, index) => `${fieldName}-${index}` === field.value) || ''
+      : field.variants
+          .split(',')
+          .find((variant, index) => `${fieldName}-${index}` === field.value) ||
+          '';
   }
 
-  static setDropdownValue(field: ServerField.Response, fieldValue: string): RealField.Response {
+  static setDropdownValue(
+    field: ServerField.Response,
+    fieldValue: string,
+  ): RealField.Response {
     const newField: RealField.Response = {
       ...field,
-      value: field.variants.split(',').map((variant, index) => ({ key: `${field.name}-${index}`, value: variant })).find((variantEntity) => variantEntity.value === fieldValue)?.key || ''
+      value:
+        field.variants
+          .split(',')
+          .map((variant, index) => ({
+            key: `${field.name}-${index}`,
+            value: variant,
+          }))
+          .find((variantEntity) => variantEntity.value === fieldValue)?.key ||
+        '',
     };
 
     return newField;
   }
 
-  static setFieldValue(field: ServerField.Response, fieldValue: string): RealField.Response {
+  static setFieldValue(
+    field: ServerField.Response,
+    fieldValue: string,
+  ): RealField.Response {
     const newField: RealField.Response = {
       ...field,
-      value: fieldValue
+      value: fieldValue,
     };
 
     return newField;
   }
 
-  static getFields<T extends INotDropdownField>(entityOrFieldsArray: { fields: T[] } | T[]): T[] {
+  static getFields<T extends INotDropdownField>(
+    entityOrFieldsArray: { fields: T[] } | T[],
+  ): T[] {
     return Array.isArray(entityOrFieldsArray)
       ? entityOrFieldsArray
       : entityOrFieldsArray.fields;
   }
 
-  static getField<T extends INotDropdownField>(entityOrFieldsArray: { fields: T[] } | T[], name: string): T | null {
+  static getField<T extends INotDropdownField>(
+    entityOrFieldsArray: { fields: T[] } | T[],
+    name: string,
+  ): T | null {
     if (!name || !entityOrFieldsArray) {
       return null;
     }
 
-    const fields = this.getFields(entityOrFieldsArray)
+    const fields = this.getFields(entityOrFieldsArray);
 
     if (!fields || fields.length === 0) {
       return null;
@@ -98,30 +130,43 @@ export class FieldsUtils {
     return fields.find((field) => field.name === name) || null;
   }
 
-  static getFieldValue(entityOrFieldsArray: { fields: IAnyField[] } | IAnyField[], name: string): string {
+  static getFieldValue(
+    entityOrFieldsArray: { fields: IAnyField[] } | IAnyField[],
+    name: string,
+  ): string {
     const field = this.getField(entityOrFieldsArray, name);
     if (field == null) {
       return '';
     }
 
-    if (['engine', 'transmission'].includes(field.name)) { // TODO why it is here?
+    if (['engine', 'transmission'].includes(field.name)) {
+      // TODO why it is here?
       return field.variants.split(',')[+field.value.split('-')[1]];
     }
 
     return field.value || '';
   }
 
-  static getFieldBooleanValue(entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[], name: string): boolean {
+  static getFieldBooleanValue(
+    entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[],
+    name: string,
+  ): boolean {
     const field = this.getField(entityOrFieldsArray, name);
-    return (!!field && !!+field.value);
+    return !!field && !!+field.value;
   }
 
-  static getFieldNumberValue(entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[], name: string): number {
+  static getFieldNumberValue(
+    entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[],
+    name: string,
+  ): number {
     const field = this.getField(entityOrFieldsArray, name);
     return field && field.value ? +field.value : 0;
   }
 
-  static getFieldStringValue(entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[], name: string): string {
+  static getFieldStringValue(
+    entityOrFieldsArray: { fields: INotDropdownField[] } | INotDropdownField[],
+    name: string,
+  ): string {
     const field = this.getField(entityOrFieldsArray, name);
     return field && field.value != null ? field.value + '' : '';
   }
@@ -153,19 +198,17 @@ export class FieldsUtils {
 
 export function getDomainName(domain: FieldDomains): string {
   switch (domain) {
-    case FieldDomains.Role: return 'Роль';
-    default: return 'None';
+    case FieldDomains.Role:
+      return 'Роль';
+    default:
+      return 'None';
   }
 }
 
-
 export function getAccessName(access: number): string {
-  const result = (FieldAccess.writable(access)
-    ? 'Может изменять'
-    : ' ') +
-    (FieldAccess.isNoAccess(access)
-    ? 'Не видит'
-    : ' ');
+  const result =
+    (FieldAccess.writable(access) ? 'Может изменять' : ' ') +
+    (FieldAccess.isNoAccess(access) ? 'Не видит' : ' ');
 
   return access === 0 ? 'Не может изменять но видит' : result.trim();
 }

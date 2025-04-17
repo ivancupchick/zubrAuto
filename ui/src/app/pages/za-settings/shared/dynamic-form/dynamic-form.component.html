@@ -2,10 +2,16 @@
   <div *ngFor="let field of fields" class="p-field col-4">
     <ng-container [ngSwitch]="field.controlType">
       <ng-container *ngSwitchCase="FieldType.Date">
-        <za-date-form-fields [field]="field" [form]="formGroup"></za-date-form-fields>
+        <za-date-form-fields
+          [field]="field"
+          [form]="formGroup"
+        ></za-date-form-fields>
       </ng-container>
       <ng-container *ngSwitchDefault>
-        <za-primitive-form-field [field]="field" [form]="formGroup"></za-primitive-form-field>
+        <za-primitive-form-field
+          [field]="field"
+          [form]="formGroup"
+        ></za-primitive-form-field>
       </ng-container>
     </ng-container>
   </div>

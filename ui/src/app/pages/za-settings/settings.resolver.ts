@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import {
-  Router, Resolve,
+  Router,
+  Resolve,
   RouterStateSnapshot,
-  ActivatedRouteSnapshot
+  ActivatedRouteSnapshot,
 } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -13,9 +14,12 @@ import { SessionService } from 'src/app/services/session/session.service';
 export class SettingsResolver implements Resolve<ServerAuth.IPayload | null> {
   constructor(private sessionService: SessionService) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ServerAuth.IPayload | null> {
+  resolve(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot,
+  ): Observable<ServerAuth.IPayload | null> {
     return this.sessionService.checkAuth().pipe(
-      map(res => {
+      map((res) => {
         if (!!res.user) {
           return res.user;
         }
@@ -25,8 +29,7 @@ export class SettingsResolver implements Resolve<ServerAuth.IPayload | null> {
         // TODO: Add notification of server errors
 
         return of(null);
-      })
+      }),
     );
-
   }
 }

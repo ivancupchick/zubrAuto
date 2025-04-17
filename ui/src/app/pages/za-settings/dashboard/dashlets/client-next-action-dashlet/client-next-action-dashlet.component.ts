@@ -2,13 +2,15 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ClientService } from 'src/app/services/client/client.service';
 import { UserService } from 'src/app/services/user/user.service';
-import { GridActionConfigItem, GridConfigItem } from '../../../shared/grid/grid';
+import {
+  GridActionConfigItem,
+  GridConfigItem,
+} from '../../../shared/grid/grid';
 import { ServerClient, getClientStatus } from 'src/app/entities/client';
 import { ServerUser } from 'src/app/entities/user';
 import { Subject, takeUntil, tap, zip } from 'rxjs';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
-import { FieldNames } from '../../../../../../../../src/entities/FieldNames';
 import * as moment from 'moment';
 import { DateUtils } from 'src/app/shared/utils/date.util';
 import { ServerRole } from 'src/app/entities/role';
@@ -20,9 +22,9 @@ import { CreateClientComponent } from '../../../modals/create-client/create-clie
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { ClientNextActionDataService } from './client-next-action-data.service';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { ClientChangeLogsComponent } from '../../../pages/change-log/componets/client-change-logs/client-change-logs.component';
-
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 export enum TabIndex {
   MyClients = 0,
@@ -36,7 +38,13 @@ export enum TabIndex {
   selector: 'za-client-next-action-dashlet',
   templateUrl: './client-next-action-dashlet.component.html',
   styleUrls: ['./client-next-action-dashlet.component.scss'],
-  providers: [UserService, ClientService, DialogService, CarService, ClientNextActionDataService],
+  providers: [
+    UserService,
+    ClientService,
+    DialogService,
+    CarService,
+    ClientNextActionDataService,
+  ],
 })
 export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   first: number = 0;
@@ -56,7 +64,13 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   specialists: ServerUser.Response[] = [];
   availableSpecialists: { name: string; id: number }[] = [];
 
-  availableClientStatuses: { label: FieldNames.ClientStatus, value: FieldNames.ClientStatus }[] = Object.values(FieldNames.ClientStatus).map(s => ({ label: s, value: s }));;
+  availableClientStatuses: {
+    label: FieldNames.ClientStatus;
+    value: FieldNames.ClientStatus;
+  }[] = Object.values(FieldNames.ClientStatus).map((s) => ({
+    label: s,
+    value: s,
+  }));
 
   allCars: ServerCar.Response[] = [];
 
@@ -77,32 +91,36 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
 
   queriesByTabIndex = {
     [TabIndex.MyClients]: {
-      [FieldNames.Client.specialistId]:  `${this.sessionService.userId}`,
-      [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [FieldNames.Client.specialistId]: `${this.sessionService.userId}`,
+      [FieldNames.Client.dateNextAction]:
+        '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '<',
     },
     [TabIndex.MyFutureClients]: {
       [FieldNames.Client.specialistId]: `${this.sessionService.userId}`,
-      [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [FieldNames.Client.dateNextAction]:
+        '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '>',
       [`sortField`]: FieldNames.Client.dateNextAction,
-      [`sortOrder`]: SortDirection.Desc,
+      [`sortOrder`]: ZASortDirection.Desc,
     },
     [TabIndex.AllClients]: {
       [`sortField`]: FieldNames.Client.dateNextAction,
-      [`sortOrder`]: SortDirection.Desc, // ?
+      [`sortOrder`]: ZASortDirection.Desc, // ?
     },
     [TabIndex.SomeClients]: {
-      [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [FieldNames.Client.dateNextAction]:
+        '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '<',
     },
     [TabIndex.SomeFutureClients]: {
-      [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
+      [FieldNames.Client.dateNextAction]:
+        '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '>',
       [`sortField`]: FieldNames.Client.dateNextAction,
-      [`sortOrder`]: SortDirection.Desc,
+      [`sortOrder`]: ZASortDirection.Desc,
     },
-  }
+  };
 
   constructor(
     private sessionService: SessionService,
@@ -110,7 +128,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     private clientService: ClientService,
     private dialogService: DialogService,
     private fb: UntypedFormBuilder,
-    public clientNextActionDataService: ClientNextActionDataService
+    public clientNextActionDataService: ClientNextActionDataService,
   ) {}
 
   ngOnInit(): void {
@@ -123,16 +141,16 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       clientStatus: '',
     });
 
-    this.clientNextActionDataService.clientCars$.pipe(
-      takeUntil(this.destoyed),
-    ).subscribe((cars) => {
-      this.allCars = cars;
-      this.setGridSettings();  // TODO replace upper
-    })
+    this.clientNextActionDataService.clientCars$
+      .pipe(takeUntil(this.destoyed))
+      .subscribe((cars) => {
+        this.allCars = cars;
+        this.setGridSettings(); // TODO replace upper
+      });
   }
 
-  getTooltipConfig: ((item: ServerClient.Response) => string) = (car) => {
-    return FieldsUtils.getFieldStringValue(car, FieldNames.Client.description)
+  getTooltipConfig: (item: ServerClient.Response) => string = (car) => {
+    return FieldsUtils.getFieldStringValue(car, FieldNames.Client.description);
   };
 
   onFilter() {
@@ -149,7 +167,9 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
 
   getQuery(index: TabIndex): StringHash {
     const query: StringHash = {
-      [FieldNames.Client.dealStatus]: [FieldNames.DealStatus.InProgress].join(','),
+      [FieldNames.Client.dealStatus]: [FieldNames.DealStatus.InProgress].join(
+        ',',
+      ),
       ...this.queriesByTabIndex[index],
     };
 
@@ -164,7 +184,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       query[FieldNames.Client.number] = `%${number}%`;
       query['filter-operator-' + FieldNames.Client.number] = 'LIKE';
     }
-    if (clientStatus)  {
+    if (clientStatus) {
       query[FieldNames.Client.clientStatus] = clientStatus;
     }
     return query;
@@ -175,70 +195,83 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       this.clientService.getClientsByQuery({
         page: 0,
         size: 0,
-        ...this.getQuery(TabIndex.MyClients)
+        ...this.getQuery(TabIndex.MyClients),
       }),
       this.clientService.getClientsByQuery({
         page: 0,
         size: 0,
-        ...this.getQuery(TabIndex.MyFutureClients)
+        ...this.getQuery(TabIndex.MyFutureClients),
       }),
       this.clientService.getClientsByQuery({
         page: 0,
         size: 0,
-        ...this.getQuery(TabIndex.AllClients)
+        ...this.getQuery(TabIndex.AllClients),
       }),
       this.clientService.getClientsByQuery({
         page: 0,
         size: 0,
-        ...this.getQuery(TabIndex.SomeClients)
+        ...this.getQuery(TabIndex.SomeClients),
       }),
       this.clientService.getClientsByQuery({
         page: 0,
         size: 0,
-        ...this.getQuery(TabIndex.SomeFutureClients)
+        ...this.getQuery(TabIndex.SomeFutureClients),
       }),
-    ).pipe(
-      takeUntil(this.destoyed),
-      tap(([first, second, thirt, fourth, fifth]) => {
-        [
-          this.myClientsTotal,
-          this.myFutureClientsTotal,
-          this.allClientsTotal,
-          this.someClientsTotal,
-          this.someFutureClientsTotal
-        ] = [first.total, second.total, thirt.total, fourth.total, fifth.total];
+    )
+      .pipe(
+        takeUntil(this.destoyed),
+        tap(([first, second, thirt, fourth, fifth]) => {
+          [
+            this.myClientsTotal,
+            this.myFutureClientsTotal,
+            this.allClientsTotal,
+            this.someClientsTotal,
+            this.someFutureClientsTotal,
+          ] = [
+            first.total,
+            second.total,
+            thirt.total,
+            fourth.total,
+            fifth.total,
+          ];
 
-        if (this.allClientsTotal) {
-          this.loaded = true;
-        }
-      })
-    ).subscribe();
+          if (this.allClientsTotal) {
+            this.loaded = true;
+          }
+        }),
+      )
+      .subscribe();
   }
 
-  getAdditionalData(): void { // TODO separate these requests
+  getAdditionalData(): void {
+    // TODO separate these requests
     zip(
       this.clientService.getClientFields(),
       this.userService.getAllUsers(true),
-    ).pipe(
-      takeUntil(this.destoyed),
-      tap(([clientFieldsRes, allUsersFieldsRes]) => {
-        this.fieldConfigs = clientFieldsRes;
-        this.allUsers = allUsersFieldsRes.list;
-        this.specialists = allUsersFieldsRes.list.filter((s: any) => +s.deleted === 0).filter(
-          (u) =>
-            u.customRoleName === ServerRole.Custom.carSales ||
-            u.customRoleName === ServerRole.Custom.carSalesChief ||
-            u.customRoleName === ServerRole.Custom.customerService ||
-            u.customRoleName === ServerRole.Custom.customerServiceChief ||
-            u.roleLevel === ServerRole.System.Admin ||
-            u.roleLevel === ServerRole.System.SuperAdmin
-        );
-        this.availableSpecialists = this.specialists.map((u) => ({
-          name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name),
-          id: +u.id,
-        }));
-      })
-    ).subscribe();
+    )
+      .pipe(
+        takeUntil(this.destoyed),
+        tap(([clientFieldsRes, allUsersFieldsRes]) => {
+          this.fieldConfigs = clientFieldsRes;
+          this.allUsers = allUsersFieldsRes.list;
+          this.specialists = allUsersFieldsRes.list
+            .filter((s: any) => +s.deleted === 0)
+            .filter(
+              (u) =>
+                u.customRoleName === ServerRole.Custom.carSales ||
+                u.customRoleName === ServerRole.Custom.carSalesChief ||
+                u.customRoleName === ServerRole.Custom.customerService ||
+                u.customRoleName === ServerRole.Custom.customerServiceChief ||
+                u.roleLevel === ServerRole.System.Admin ||
+                u.roleLevel === ServerRole.System.SuperAdmin,
+            );
+          this.availableSpecialists = this.specialists.map((u) => ({
+            name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name),
+            id: +u.id,
+          }));
+        }),
+      )
+      .subscribe();
   }
 
   setGridSettings() {
@@ -247,19 +280,24 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
     this.gridConfig = this.getGridConfig();
   }
 
-  setGridColorConfig(){
+  setGridColorConfig() {
     this.getColorConfig = (client) => {
       const status = getClientStatus(client);
 
       switch (status) {
-        case FieldNames.ClientStatus.Thinking: return '#EFD334'
-        case FieldNames.ClientStatus.InProgress: return '#99FF99'
-        case FieldNames.ClientStatus.HavingInteresting: return '#7FC7FF'
-        case FieldNames.ClientStatus.DealExecution: return '#dc91ff'
+        case FieldNames.ClientStatus.Thinking:
+          return '#EFD334';
+        case FieldNames.ClientStatus.InProgress:
+          return '#99FF99';
+        case FieldNames.ClientStatus.HavingInteresting:
+          return '#7FC7FF';
+        case FieldNames.ClientStatus.DealExecution:
+          return '#dc91ff';
 
-        default: return '';
+        default:
+          return '';
       }
-    }
+    };
   }
 
   getGridConfig(): GridConfigItem<ServerClient.Response>[] {
@@ -268,115 +306,151 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         title: 'ID',
         name: 'id',
         getValue: (item: ServerClient.Response) => {
-          const userId = FieldsUtils.getFieldNumberValue(item, FieldNames.Client.specialistId);
-          const specialist: ServerUser.Response = this.specialists.find(user => user.id === userId)!;
+          const userId = FieldsUtils.getFieldNumberValue(
+            item,
+            FieldNames.Client.specialistId,
+          );
+          const specialist: ServerUser.Response = this.specialists.find(
+            (user) => user.id === userId,
+          )!;
 
           if (userId && specialist) {
-            const specialistName = FieldsUtils.getFieldValue(specialist, FieldNames.User.name);
+            const specialistName = FieldsUtils.getFieldValue(
+              specialist,
+              FieldNames.User.name,
+            );
 
-            return `${item.id} ${(specialistName || '').split(' ').map(word => word[0]).join('')}`;
+            return `${item.id} ${(specialistName || '')
+              .split(' ')
+              .map((word) => word[0])
+              .join('')}`;
           } else {
-            return item.id
+            return item.id;
           }
         },
       },
       {
         title: this.strings[FieldNames.Client.date],
         name: FieldNames.Client.date,
-        getValue: (item: ServerClient.Response) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date)),
-        sortable: () => true
+        getValue: (item: ServerClient.Response) =>
+          DateUtils.getFormatedDate(
+            FieldsUtils.getFieldNumberValue(item, FieldNames.Client.date),
+          ),
+        sortable: () => true,
       },
       {
         title: this.strings[FieldNames.Client.source],
         name: FieldNames.Client.source,
         sortable: () => true,
-        getValue: (item: ServerClient.Response) => FieldsUtils.getDropdownValue(item, FieldNames.Client.source),
+        getValue: (item: ServerClient.Response) =>
+          FieldsUtils.getDropdownValue(item, FieldNames.Client.source),
       },
       {
         title: this.strings[FieldNames.Client.name],
         name: FieldNames.Client.name,
-        getValue: (item: ServerClient.Response) => FieldsUtils.getFieldValue(item, FieldNames.Client.name),
+        getValue: (item: ServerClient.Response) =>
+          FieldsUtils.getFieldValue(item, FieldNames.Client.name),
       },
       {
         title: this.strings[FieldNames.Client.number],
         name: FieldNames.Client.number,
-        getValue: (item: ServerClient.Response) => FieldsUtils.getFieldValue(item, FieldNames.Client.number),
+        getValue: (item: ServerClient.Response) =>
+          FieldsUtils.getFieldValue(item, FieldNames.Client.number),
       },
       {
         title: this.strings.carIds,
         name: 'carIds',
         getValue: (item: ServerClient.Response) => {
-          const needCars = this.allCars.filter(c => item.carIds.split(',').map(id => +id).includes(+c.id));
+          const needCars = this.allCars.filter((c) =>
+            item.carIds
+              .split(',')
+              .map((id) => +id)
+              .includes(+c.id),
+          );
 
-          const nonCars: string[] = item.carIds.split(',').filter(a => Number.isNaN(+a));
+          const nonCars: string[] = item.carIds
+            .split(',')
+            .filter((a) => Number.isNaN(+a));
 
           return [
-            ...needCars.map(c => {
+            ...needCars.map((c) => {
               return `
-              ${FieldsUtils.getFieldValue(c,FieldNames.Car.mark)}
-              ${FieldsUtils.getFieldValue(c,FieldNames.Car.model)}`;
+              ${FieldsUtils.getFieldValue(c, FieldNames.Car.mark)}
+              ${FieldsUtils.getFieldValue(c, FieldNames.Car.model)}`;
             }),
-            ...nonCars
-          ].join(', ')
+            ...nonCars,
+          ].join(', ');
         },
       },
       {
         title: this.strings[FieldNames.Client.dealStatus],
         name: FieldNames.Client.dealStatus,
-        getValue: (item: ServerClient.Response) => FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
+        getValue: (item: ServerClient.Response) =>
+          FieldsUtils.getDropdownValue(item, FieldNames.Client.dealStatus),
       },
       {
         title: this.strings[FieldNames.Client.clientStatus],
         name: FieldNames.Client.clientStatus,
-        getValue: (item: ServerClient.Response) => FieldsUtils.getDropdownValue(item, FieldNames.Client.clientStatus),
+        getValue: (item: ServerClient.Response) =>
+          FieldsUtils.getDropdownValue(item, FieldNames.Client.clientStatus),
       },
       {
         title: this.strings[FieldNames.Client.nextAction],
         name: FieldNames.Client.nextAction,
-        getValue: (item: ServerClient.Response) => FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
+        getValue: (item: ServerClient.Response) =>
+          FieldsUtils.getFieldValue(item, FieldNames.Client.nextAction),
       },
       {
         title: this.strings[FieldNames.Client.dateNextAction],
         name: FieldNames.Client.dateNextAction,
         sortable: () => true,
-        getValue: (item: ServerClient.Response) => DateUtils.getFormatedDate(FieldsUtils.getFieldNumberValue(item, FieldNames.Client.dateNextAction)),
+        getValue: (item: ServerClient.Response) =>
+          DateUtils.getFormatedDate(
+            FieldsUtils.getFieldNumberValue(
+              item,
+              FieldNames.Client.dateNextAction,
+            ),
+          ),
       },
     ];
   }
 
   getGridActionsConfig(): GridActionConfigItem<ServerClient.Response>[] {
-    const configs: GridActionConfigItem<ServerClient.Response>[] = [{
-      title: 'Редактировать',
-      icon: 'pencil',
-      buttonClass: 'secondary',
-      disabled: () => false,
-      handler: (item: ServerClient.Response) => this.updateClient(item)
-    },
-    {
-      title: 'Следующее действие',
-      icon: 'question-circle',
-      buttonClass: 'success',
-      handler: (item: ServerClient.Response) => this.updateSpecificField(item, FieldNames.Client.nextAction)
-    },
-    {
-      title: 'Изменить статус сделки',
-      icon: 'check-circle',
-      buttonClass: 'success',
-      handler: (item: ServerClient.Response) => this.updateSpecificField(item, FieldNames.Client.dealStatus)
-    },
-    {
-      title: 'Показать все изменения по клиенту',
-      icon: 'pencil',
-      buttonClass: 'secondary',
-      disabled: (client) => false,
-      handler: (client) => this.showClientUpdates(client)
-    }
+    const configs: GridActionConfigItem<ServerClient.Response>[] = [
+      {
+        title: 'Редактировать',
+        icon: 'pencil',
+        buttonClass: 'secondary',
+        disabled: () => false,
+        handler: (item: ServerClient.Response) => this.updateClient(item),
+      },
+      {
+        title: 'Следующее действие',
+        icon: 'question-circle',
+        buttonClass: 'success',
+        handler: (item: ServerClient.Response) =>
+          this.updateSpecificField(item, FieldNames.Client.nextAction),
+      },
+      {
+        title: 'Изменить статус сделки',
+        icon: 'check-circle',
+        buttonClass: 'success',
+        handler: (item: ServerClient.Response) =>
+          this.updateSpecificField(item, FieldNames.Client.dealStatus),
+      },
+      {
+        title: 'Показать все изменения по клиенту',
+        icon: 'pencil',
+        buttonClass: 'secondary',
+        disabled: (client) => false,
+        handler: (client) => this.showClientUpdates(client),
+      },
     ];
 
-    return configs.filter(config => !config.available || config.available());
+    return configs.filter((config) => !config.available || config.available());
   }
 
-  showClientUpdates(client: ServerClient.Response){
+  showClientUpdates(client: ServerClient.Response) {
     const ref = this.dialogService.open(ClientChangeLogsComponent, {
       data: {
         itemId: client.id,
@@ -385,17 +459,20 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         sourceName: DBModels.Table.Clients,
       },
       header: 'Изменения клиента',
-      width: '90%'
+      width: '90%',
     });
     // this.subscribeOnCloseModalRef(ref);
   }
 
   updateSpecificField(client: ServerClient.Response, fieldName: string): void {
-    const includeFields = fieldName === FieldNames.Client.nextAction
-      ? [FieldNames.Client.nextAction, FieldNames.Client.dateNextAction]
-      : [fieldName]
+    const includeFields =
+      fieldName === FieldNames.Client.nextAction
+        ? [FieldNames.Client.nextAction, FieldNames.Client.dateNextAction]
+        : [fieldName];
 
-    const specificFieldConfigs = this.fieldConfigs.filter(item => includeFields.includes(item.name));
+    const specificFieldConfigs = this.fieldConfigs.filter((item) =>
+      includeFields.includes(item.name),
+    );
 
     const ref = this.dialogService.open(CreateClientComponent, {
       data: {
@@ -405,7 +482,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         specialists: this.specialists,
       },
       header: 'Редактировать следующее действие',
-      width: '70%'
+      width: '70%',
     });
 
     this.subscribeOnCloseModalRef(ref);
@@ -419,12 +496,11 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
         specialists: this.specialists,
       },
       header: 'Редактировать клиента',
-      width: '70%'
+      width: '70%',
     });
 
     this.subscribeOnCloseModalRef(ref);
-  }
-
+  };
 
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
     ref.onClose.pipe(takeUntil(this.destoyed)).subscribe((res) => {

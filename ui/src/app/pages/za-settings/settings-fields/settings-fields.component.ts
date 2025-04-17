@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FieldDomains, FieldType, RealField, ServerField } from 'src/app/entities/field';
+import {
+  FieldDomains,
+  FieldType,
+  RealField,
+  ServerField,
+} from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
-import {DialogService} from 'primeng/dynamicdialog';
+import { DialogService } from 'primeng/dynamicdialog';
 import { CreateFieldComponent } from '../modals/create-field/create-field.component';
 import { finalize, mergeMap, tap } from 'rxjs/operators';
 import { settingsClientsStrings } from '../settings-clients/settings-clients.strings';
@@ -21,9 +26,7 @@ export interface GridField {
   selector: 'za-settings-fields',
   templateUrl: './settings-fields.component.html',
   styleUrls: ['./settings-fields.component.scss'],
-  providers: [
-    DialogService
-  ]
+  providers: [DialogService],
 })
 export class SettingsFieldsComponent implements OnInit {
   loading = false;
@@ -32,80 +35,90 @@ export class SettingsFieldsComponent implements OnInit {
   sortedFields: GridField[] = [];
   rawFields: ServerField.Response[] = [];
   domains = [
-    {name: 'Машины', code: FieldDomains.Car},
-    {name: 'Владелец машины', code: FieldDomains.CarOwner},
-    {name: 'Клиент', code: FieldDomains.Client},
-    {name: 'Пользователь', code: FieldDomains.User},
+    { name: 'Машины', code: FieldDomains.Car },
+    { name: 'Владелец машины', code: FieldDomains.CarOwner },
+    { name: 'Клиент', code: FieldDomains.Client },
+    { name: 'Пользователь', code: FieldDomains.User },
   ];
 
-  constructor(private fieldService: FieldService, private dialogService: DialogService) { }
+  constructor(
+    private fieldService: FieldService,
+    private dialogService: DialogService,
+  ) {}
 
   ngOnInit(): void {
     this.loading = true;
-    this.getFields().pipe(
-      finalize(() => this.loading = false),
-    ).subscribe(() => {
-      this.sortFields();
-    });
+    this.getFields()
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(() => {
+        this.sortFields();
+      });
   }
 
   getFields(): Observable<ServerField.Response[]> {
     return this.fieldService.getFields().pipe(
       tap((res) => {
         this.rawFields = [...res];
-      })
+      }),
     );
   }
 
   openNewField() {
-    const ref = this.dialogService.open(CreateFieldComponent, {
-      data: {
-        domain: this.selectedDomain
-      },
-      header: 'Создание филда',
-      width: '70%'
-    }).onClose.subscribe((res: boolean) => {
-      if (res) {
-        this.loading = true;
-        this.getFields().pipe(
-          finalize(() => this.loading = false),
-        ).subscribe();
-      }
-    });
+    const ref = this.dialogService
+      .open(CreateFieldComponent, {
+        data: {
+          domain: this.selectedDomain,
+        },
+        header: 'Создание филда',
+        width: '70%',
+      })
+      .onClose.subscribe((res: boolean) => {
+        if (res) {
+          this.loading = true;
+          this.getFields()
+            .pipe(finalize(() => (this.loading = false)))
+            .subscribe();
+        }
+      });
   }
 
   deleteField(field: RealField.Response) {
     this.loading = true;
-    this.fieldService.deleteField(field.id).pipe(
-      finalize(() => this.loading = false),
-      mergeMap(res => res && this.getFields() || of(res))
-    ).subscribe(res => {
-      if (res) {
-        alert('Удаление прошло успешно');
-      } else {
-        alert('Удаления не произошло');
-      }
-    });
+    this.fieldService
+      .deleteField(field.id)
+      .pipe(
+        finalize(() => (this.loading = false)),
+        mergeMap((res) => (res && this.getFields()) || of(res)),
+      )
+      .subscribe((res) => {
+        if (res) {
+          alert('Удаление прошло успешно');
+        } else {
+          alert('Удаления не произошло');
+        }
+      });
   }
 
   updateField(field: GridField) {
-    const ref = this.dialogService.open(CreateFieldComponent, {
-      data: {
-        domain: this.selectedDomain,
-        isEdit: true,
-        id: +field.id,
-        field: this.rawFields.find(rf => `${rf.id}` === `${field.id}`)
-      },
-      header: 'Редактирование филда',
-      width: '70%'
-    }).onClose.subscribe((res: boolean) => {
-      if (res) {
-        this.loading = true;
-        this.getFields().pipe(
-          finalize(() => this.loading = false),
-        ).subscribe();
-      }
-    });;
+    const ref = this.dialogService
+      .open(CreateFieldComponent, {
+        data: {
+          domain: this.selectedDomain,
+          isEdit: true,
+          id: +field.id,
+          field: this.rawFields.find((rf) => `${rf.id}` === `${field.id}`),
+        },
+        header: 'Редактирование филда',
+        width: '70%',
+      })
+      .onClose.subscribe((res: boolean) => {
+        if (res) {
+          this.loading = true;
+          this.getFields()
+            .pipe(finalize(() => (this.loading = false)))
+            .subscribe();
+        }
+      });
   }
 
   onChangeDomain(v: any) {
@@ -113,10 +126,14 @@ export class SettingsFieldsComponent implements OnInit {
   }
 
   private sortFields() {
-    this.sortedFields = this.rawFields.filter(f => f.domain === this.selectedDomain).map(this.getGridFields);
+    this.sortedFields = this.rawFields
+      .filter((f) => f.domain === this.selectedDomain)
+      .map(this.getGridFields);
   }
 
-  getGridFields: ((field: ServerField.Response) => GridField) = (field: ServerField.Response) => {
+  getGridFields: (field: ServerField.Response) => GridField = (
+    field: ServerField.Response,
+  ) => {
     let title = field.name;
 
     switch (this.selectedDomain) {
@@ -150,19 +167,19 @@ export class SettingsFieldsComponent implements OnInit {
 
     switch (field.type) {
       case FieldType.Text:
-        type = 'Textbox'
+        type = 'Textbox';
         break;
       case FieldType.Boolean:
-        type = 'Boolean'
+        type = 'Boolean';
         break;
       case FieldType.Multiselect:
-        type = 'Multiselect'
+        type = 'Multiselect';
         break;
       case FieldType.Radio:
-        type = 'Radio Button'
+        type = 'Radio Button';
         break;
       case FieldType.Dropdown:
-        type = 'Dropdown'
+        type = 'Dropdown';
         break;
     }
 
@@ -170,7 +187,7 @@ export class SettingsFieldsComponent implements OnInit {
       name: field.name,
       type,
       id: String(field.id),
-      title
+      title,
     };
-  }
+  };
 }
