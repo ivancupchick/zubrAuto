@@ -82,7 +82,7 @@ export class FieldFormComponent implements OnInit {
       this.roles = roles;
 
       if (this.field) {
-        this.originalAccesses = this.field.accesses.map(access => ({
+        this.originalAccesses = this.field.accesses.map((access: { domain: any; sourceId: any; access: number; }) => ({
           domainName: getDomainName(access.domain),
           sourceName: this.getRoleName(roles.find(role => role.id === access.sourceId)?.systemName || ''),
           accessName: getAccessName(access.access),

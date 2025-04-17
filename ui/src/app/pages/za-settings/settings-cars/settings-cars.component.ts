@@ -55,6 +55,35 @@ type UIFilter = {
   }
 )
 
+type TextUIFilter = UIFilter & {
+  type: FieldType.Text;
+  value: string;
+  defaultValue: string;
+}
+
+type DropdownUIFilter = UIFilter & {
+  type: FieldType.Dropdown;
+  value: string;
+  defaultValue: string;
+  variants: { label: string | 'Все', value: string | 'Все' }[]
+}
+
+type NumberUIFilter = UIFilter & {
+  type: FieldType.Number;
+    values: [number, number],
+    defaultValues: [number, number];
+    max: number;
+    min: number;
+    step: number;
+}
+
+type MultiselectUIFilter = UIFilter & {
+  type: FieldType.Multiselect;
+  value: string[];
+  defaultValue: string[];
+  variants: { label: string, value: string }[]
+}
+
 function calculateBargain(price: number) {
   let bargain = 0;
 
@@ -1593,7 +1622,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     } ];
   }
 
-  changeFilter(filterConfig: UIFilter, e: { originalEvent: PointerEvent | Event, value: string }) {
+  changeFilter(filterConfig: TextUIFilter, e: { originalEvent: PointerEvent | Event, value: string }) {
     const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
 
     if (filterConfig.type === this.FieldTypes.Number) {
@@ -1616,7 +1645,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.sortCars();
   }
 
-  changeMultiselectFilter(filterConfig: UIFilter, e: { originalEvent: PointerEvent | Event, value: string[], itemValue: string }) {
+  changeMultiselectFilter(filterConfig: MultiselectUIFilter, e: { originalEvent: PointerEvent | Event, value: string[], itemValue: string }) {
     const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
 
     if (filterConfig.type === this.FieldTypes.Number) {
@@ -1639,7 +1668,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.sortCars();
   }
 
-  changeNumberRangeFilter(filterConfig: UIFilter, e: { values: [number, number] }) {
+  changeNumberRangeFilter(filterConfig: NumberUIFilter, e: { values: [number, number] }) {
     const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
 
     if (filterConfig.type !== this.FieldTypes.Number) {

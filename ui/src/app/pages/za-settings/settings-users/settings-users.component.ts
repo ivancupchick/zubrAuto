@@ -10,9 +10,9 @@ import { UserService } from 'src/app/services/user/user.service';
 import { CreateUserComponent } from '../modals/create-user/create-user.component';
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid';
 import { settingsUsersStrings } from './settings-users.strings';
-import { FieldNames } from '../../../../../../src/entities/FieldNames';
 import { finalize, map, tap } from 'rxjs/operators';
 import { SessionService } from 'src/app/services/session/session.service';
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 @Component({
   selector: 'za-settings-users',
@@ -144,11 +144,11 @@ export class SettingsUsersComponent implements OnInit {
       finalize(() => this.loading = false),
       map(result => result.list),
       tap((result) => {
-        result = result.filter(u => +u.deleted === 0);
+        result = result.filter((u: { deleted: string | number; }) => +u.deleted === 0);
         const contactCenterRole = this.roles.find(cr => cr.systemName === ServerRole.Custom.contactCenter)!;
 
         this.rawUsers = this.sessionService.isContactCenterChief
-          ? result.filter(user => user.roleLevel === contactCenterRole.id + 1000)
+          ? result.filter((user: { roleLevel: any; }) => user.roleLevel === contactCenterRole.id + 1000)
           : result;
         this.sortUsers();
       })

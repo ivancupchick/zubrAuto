@@ -104,7 +104,7 @@ export class CreateCarComponent implements OnInit {
       .filter(fc => !this.carOwnerExcludeFields.includes(fc.name as FieldNames.CarOwner))
       .map(fc => {
         const fieldValue = !!this.car
-          ? this.car.fields.find(f => f.id === fc.id)?.value || ''
+          ? this.car.fields.find((f: { id: any; }) => f.id === fc.id)?.value || ''
           : '';
 
         const newField = new UIRealField(
@@ -120,7 +120,7 @@ export class CreateCarComponent implements OnInit {
       .filter(fc => !this.carExcludeFields.includes(fc.name as FieldNames.Car))
       .map(fc => {
         const fieldValue = !!this.car
-          ? this.car.fields.find(f => f.id === fc.id)?.value || ''
+          ? this.car.fields.find((f: { id: any; }) => f.id === fc.id)?.value || ''
           : '';
 
         const newField = new UIRealField(
@@ -148,7 +148,7 @@ export class CreateCarComponent implements OnInit {
       carFormFields.push(
         this.dfcs.getDynamicFieldFromOptions({
           id: contactCenterField?.id || -1,
-          value: this.car?.fields.find(f => f.name === FieldNames.Car.contactCenterSpecialistId)?.value || 'None',
+          value: this.car?.fields.find((f: { name: any; }) => f.name === FieldNames.Car.contactCenterSpecialistId)?.value || 'None',
           key: FieldNames.Car.contactCenterSpecialistId,
           label: settingsCarsStrings.contactCenterSpecialistId,
           order: 1,

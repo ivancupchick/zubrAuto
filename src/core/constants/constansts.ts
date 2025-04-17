@@ -1,0 +1,27 @@
+export namespace Constants {
+  export enum API {
+    CARS = 'cars',
+    USERS = 'users',
+    CRUD = 'crud',
+    DELETE_CARS = 'deleteCars',
+    GET_BY_OPTIONS = 'getByOptions',
+    STATISTIC = 'statistic',
+    CLIENTS = 'clients',
+    FIELDS = 'fields',
+    ROLES = 'roles',
+    GET_FIELDS_BY_DOMAIN = 'getFieldsByDomain',
+    CREATE_CARS_BY_LINK = 'createCarsByLink',
+    CREATE_CARS_BY_MANAGER = 'createCarsByManager',
+    IMAGES = 'images',
+    IMAGE360 = 'image360',
+    STATE_IMAGES = 'stateImages',
+    ADD_CALL = 'addCall',
+    ADD_CUSTOMER_CALL = 'addCustomerCall',
+    ADD_CUSTOMER_DISCOUNT = 'addCustomerDiscount',
+    CAR_SHOWING = 'carShowing',
+    COMPLETE_DEAL = 'completeDeal',
+    WEB_HOOK = 'web-hook',
+    CALL_REQUEST = 'call-request',
+    CALL_REQUESTS = 'call-requests',
+  };
+}

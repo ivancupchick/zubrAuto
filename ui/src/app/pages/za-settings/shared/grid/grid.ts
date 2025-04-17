@@ -33,7 +33,7 @@ export function getGridFieldsCompare<GridItemType extends { id: number }>(gridCo
     let value2 = gridConfig.isDate && v2
       ? +moment(v2, 'DD.MM.YYYY HH:mm').toDate()
       : v2;
-    let result = null;
+    let result = 1;
 
     if (value1 == null && value2 != null)
         result = -1;

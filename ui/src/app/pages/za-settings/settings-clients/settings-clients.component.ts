@@ -13,7 +13,7 @@ import { finalize, map, mergeMap, switchMap, takeUntil, tap } from 'rxjs/operato
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { Observable, Subject, of, zip } from 'rxjs';
-import { DBModels, StringHash } from 'src/app/entities/constants';
+import { BaseList, DBModels, StringHash } from 'src/app/entities/constants';
 import { DateUtils } from 'src/app/shared/utils/date.util';
 import { UserService } from 'src/app/services/user/user.service';
 import { ServerUser } from 'src/app/entities/user';
@@ -515,13 +515,13 @@ export class SettingsClientsComponent implements OnInit, OnDestroy {
   //   this.subscribeOnCloseModalRef(ref);
   // }
 
-  getClients() {
+  getClients(): Observable<BaseList<ServerClient.Response>> {
     return this.clientService.getClients().pipe(
-        tap((res => {
-          this.rawClients = [...res.list];
-          this.sortClients();
-        }))
-      );
+      tap((res => {
+        this.rawClients = [...res.list];
+        this.sortClients();
+      }))
+    );
   }
 
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
