@@ -213,7 +213,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
       {
         title: 'Дата',
         name: 'date',
-        getValue: (item) => DateUtils.getFormatedDate(item.date),
+        getValue: (item) => DateUtils.getFormatedDate(+item.date.toString()),
         sortable: () => true
       },
       {

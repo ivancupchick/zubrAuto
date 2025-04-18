@@ -43,7 +43,7 @@ export class CreateRoleComponent implements OnInit {
 
     this.fieldConfigs = this.config.data.fieldConfigs;
 
-    const formFields = [];
+    const formFields: DynamicFieldBase<string>[] = [];
 
     formFields.push(this.dfcs.getDynamicFieldFromOptions({
       id: -1,

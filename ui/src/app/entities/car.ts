@@ -1,8 +1,8 @@
-import { ServerFile as serverFile } from '../../../../src/entities/File'
-import { ServerCar as serverCar } from '../../../../src/entities/Car'
-import { ServerCarImage as serverCarImage } from '../../../../src/entities/Car'
-import { CarFormEnums as carForm } from '../../../../src/entities/FieldNames';
-import { CarStatistic as carStatistic } from '../../../../src/entities/CarStatistic';
+import { ServerFile as serverFile } from '../../../../src/temp/entities/File'
+import { ServerCar as serverCar } from '../../../../src/temp/entities/Car'
+import { ServerCarImage as serverCarImage } from '../../../../src/temp/entities/Car'
+import { CarFormEnums as carForm } from '../../../../src/temp/entities/FieldNames';
+import { CarStatistic as carStatistic } from '../../../../src/temp/entities/CarStatistic';
 import { FieldsUtils } from './field';
 import { FieldNames } from './FieldNames';
 

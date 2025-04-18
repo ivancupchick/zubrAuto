@@ -1625,7 +1625,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   changeFilter(filterConfig: TextUIFilter, e: { originalEvent: PointerEvent | Event, value: string }) {
     const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
 
-    if (filterConfig.type === this.FieldTypes.Number) {
+    if (filterConfig.type as unknown === this.FieldTypes.Number) {
       return;
     }
 
@@ -1648,7 +1648,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   changeMultiselectFilter(filterConfig: MultiselectUIFilter, e: { originalEvent: PointerEvent | Event, value: string[], itemValue: string }) {
     const index = this.selectedFilters.findIndex(filter => filter.name === filterConfig.name);
 
-    if (filterConfig.type === this.FieldTypes.Number) {
+    if (filterConfig.type as unknown === FieldType.Number) {
       return;
     }
 

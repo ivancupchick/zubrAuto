@@ -1,4 +1,4 @@
-import { ServerRole as role } from '../../../../src/entities/Role';
+import { ServerRole as role } from '../../../../src/temp/entities/Role';
 
 export import ServerRole = role;
 

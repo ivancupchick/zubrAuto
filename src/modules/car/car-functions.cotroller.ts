@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, UploadedFile, UploadedFiles } from '@nestjs/common';
 import { CarService } from './car.service';
-import { Constants } from 'src/core/constants/constansts';
+import { Constants } from 'src/core/constants/constants';
 import { CarStatisticService } from './services/car-statistic.service';
 import { CarStatistic } from 'src/temp/entities/CarStatistic';
 import { ServerCar } from 'src/temp/entities/Car';

@@ -8,7 +8,6 @@ import { ServerUser } from 'src/app/entities/user';
 import { Subject, takeUntil, tap, zip } from 'rxjs';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
-import { FieldNames } from '../../../../../../../../src/entities/FieldNames';
 import * as moment from 'moment';
 import { DateUtils } from 'src/app/shared/utils/date.util';
 import { ServerRole } from 'src/app/entities/role';
@@ -22,6 +21,7 @@ import { ClientNextActionDataService } from './client-next-action-data.service';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { ClientChangeLogsComponent } from '../../../pages/change-log/componets/client-change-logs/client-change-logs.component';
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 
 export enum TabIndex {

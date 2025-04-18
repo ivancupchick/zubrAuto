@@ -36,7 +36,7 @@ import { getClientStatus, getDealStatus, ServerClient } from 'src/app/entities/c
   styleUrls: ['./clients-base.component.scss'],
   providers: [ClientBaseDataService, ClientService, DialogService],
   imports: [
-    SpinnerComponent, 
+    SpinnerComponent,
     PageagleGridComponent,
     ToolbarModule,
     ButtonModule,
@@ -54,7 +54,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
   first: number = 0;
   dealStatuses: {name: string, value: string}[] = Object.values(FieldNames.DealStatus).map(s => ({ name: s, value: s }));
   clientStatuses: {name: string, value: string}[] = Object.values(FieldNames.ClientStatus).map(s => ({ name: s, value: s }));
-  sourceList: {name: string, value: string}[] = Object.values(FieldNames.ClientSource).map(s => ({ name: s, value: s }));
+  sourceList: {name: FieldNames.ClientSource, value: FieldNames.ClientSource}[] = Object.values(FieldNames.ClientSource).map(s => ({ name: s, value: s }));
   specialistList: {name: string, value: string}[] = [];
   initialDealStatuses = [FieldNames.DealStatus.InProgress, FieldNames.DealStatus.OnDeposit];
   specialists: ServerUser.Response[] = [];
@@ -69,7 +69,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
   loading$ = this.clientBaseDataService.loading$;
   list$ = this.clientBaseDataService.list$;
   destoyed = new Subject();
-  
+
   constructor(
     public clientBaseDataService: ClientBaseDataService,
     public fb: UntypedFormBuilder,
@@ -128,7 +128,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
       const { specialist, ...rest } = filters;
       filters = { 'specialist-id': specialist, ...rest }
     }
-    
+
     if (filters.clientStatus){
       const { clientStatus, ...rest } = filters;
       filters = { 'client-status': clientStatus, ...rest }
@@ -140,7 +140,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     }
     if (filters.number){
       const { number, ...rest } = filters;
-      filters = { 
+      filters = {
         number: `%${number.replaceAll('+','')}%`,
         'filter-operator-number': 'LIKE',
         ...rest
@@ -150,14 +150,14 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     if (filters.date){
       const { date, ...rest } = filters;
       if (date[1] !== null) {
-        filters = { 
+        filters = {
           'createdDate': `${Date.parse(String(date[0]).replace('00:00:00', '00:00:01'))}-${Date.parse(String(date[1]).replace('00:00:00', '23:59:59'))}`,
-          'filter-operator-createdDate': 'range', 
+          'filter-operator-createdDate': 'range',
           ...rest }
       } else {
-        filters = { 
+        filters = {
           'createdDate': Date.parse(String(date[0]).replace('00:00:00','00:00:01')),
-          'filter-operator-createdDate': '>', 
+          'filter-operator-createdDate': '>',
           ...rest }
       }
     }
@@ -185,7 +185,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
 
     this.subscribeOnCloseModalRef(ref);
   };
-  
+
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
     ref.onClose.pipe(takeUntil(this.destoyed)).subscribe(res => {
       if (res) {
@@ -381,7 +381,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
         mergeMap(res => res && this.clientBaseDataService.fetchData() || of(null))
       ).subscribe();
   };
-  
+
   showClientUpdates(client: ServerClient.Response): void {
     const ref = this.dialogService.open(ClientChangeLogsComponent, {
       data: {

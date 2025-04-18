@@ -1,5 +1,5 @@
-import { FieldDomains } from '../../../../src/entities/Field';
-import { FieldAccess as fieldAccess } from '../../../../src/entities/FieldAccess';
+import { FieldDomains } from '../../../../src/core/fields/fields';
+import { FieldAccess as fieldAccess } from '../../../../src/temp/entities/FieldAccess';
 
 export import FieldAccess = fieldAccess;
 

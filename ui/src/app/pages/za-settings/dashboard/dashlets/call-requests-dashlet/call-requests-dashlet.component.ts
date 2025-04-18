@@ -83,7 +83,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   }
 
   form: UntypedFormGroup | null = null;
-  
+
   constructor(
     private sessionService: SessionService,
     private requestService: RequestService,
@@ -251,7 +251,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       {
         title: 'Дата',
         name: 'createdDate',
-        getValue: (item) => DateUtils.getFormatedDateTime(+item.createdDate),
+        getValue: (item) => DateUtils.getFormatedDateTime(+item.createdDate.toString()),
         sortable: () => true
       },
       {

@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nes
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { Constants } from 'src/core/constants/constansts';
+import { Constants } from 'src/core/constants/constants';
 import { AuthGuard } from 'src/core/guards/auth.guard';
 
 @Controller(Constants.API.ROLES)

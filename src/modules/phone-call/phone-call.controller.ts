@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards } fro
 import { PhoneCallService } from './phone-call.service';
 import { CreatePhoneCallDto } from './dto/create-phone-call.dto';
 import { UpdatePhoneCallDto } from './dto/update-phone-call.dto';
-import { Constants } from 'src/core/constants/constansts';
+import { Constants } from 'src/core/constants/constants';
 import { AuthGuard } from 'src/core/guards/auth.guard';
 
 @Controller('phone-call')

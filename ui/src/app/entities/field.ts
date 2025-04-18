@@ -1,6 +1,7 @@
-import { RealField, ServerField, FieldDomains as domain, FieldType as type } from '../../../../src/entities/Field'
+import { RealField, ServerField } from '../../../../src/temp/entities/Field'
+import { FieldDomains as domain, FieldType as type } from '../../../../src/core/fields/fields'
 import { FieldAccess } from './fieldAccess';
-import { FlagField as flagField } from '../../../../src/utils/flag.utils'
+import { FlagField as flagField } from '../../../../src/core/utils/flag.utils'
 
 export interface UIVariant {
   key: string;

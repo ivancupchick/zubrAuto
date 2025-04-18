@@ -1,4 +1,4 @@
-import { ServerClient as client } from '../../../../src/entities/Client';
+import { ServerClient as client } from '../../../../src/temp/entities/Client';
 import { FieldsUtils } from './field';
 import { FieldNames } from './FieldNames';
 

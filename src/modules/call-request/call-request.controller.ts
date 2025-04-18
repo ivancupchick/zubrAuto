@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } fro
 import { CallRequestService } from './call-request.service';
 import { CreateCallRequestDto } from './dto/create-call-request.dto';
 import { UpdateCallRequestDto } from './dto/update-call-request.dto';
-import { Constants } from 'src/core/constants/constansts';
+import { Constants } from 'src/core/constants/constants';
 import { SitesCallRequest } from 'src/temp/models/sites-call-request';
 import { AuthGuard } from 'src/core/guards/auth.guard';
 

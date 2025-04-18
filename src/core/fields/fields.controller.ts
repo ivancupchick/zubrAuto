@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nes
 import { FieldsService } from './fields.service';
 import { CreateFieldDto } from './dto/create-field.dto';
 import { UpdateFieldDto } from './dto/update-field.dto';
-import { Constants } from '../constants/constansts';
+import { Constants } from '../constants/constants';
 import { FieldDomains } from './fields';
 import { AuthGuard } from '../guards/auth.guard';
 

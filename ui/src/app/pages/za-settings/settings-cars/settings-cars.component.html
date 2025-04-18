@@ -97,7 +97,7 @@
                 [autoDisplayFirst]="true"
                 [options]="filter.variants || []"
                 [(ngModel)]="filter.value"
-                (onChange)="changeFilter(filter, $event)"
+                (onChange)="changeFilter($any(filter), $event)"
                 optionLabel="label"
                 optionValue="value"
               ></p-dropdown>

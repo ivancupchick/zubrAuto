@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } fro
 import { CarService } from './car.service';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
-import { Constants } from 'src/core/constants/constansts';
+import { Constants } from 'src/core/constants/constants';
 import { CarRemoveDto } from './dto/car-remove.dto';
 import { AuthGuard } from 'src/core/guards/auth.guard';
 

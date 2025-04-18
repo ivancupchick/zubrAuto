@@ -143,7 +143,7 @@ export class ClientChangeLogsComponent implements OnInit, OnDestroy {
       const userShortName = (userName || '').split(' ').map(word => word[0]).join('');
 
       return {
-        title: `${userShortName} <b>${log.type}</b><br> ${DateUtils.getFormatedDateTime(log.date)}`,
+        title: `${userShortName} <b>${log.type}</b><br> ${DateUtils.getFormatedDateTime(+log.date.toString())}`,
         tooltip: `${userName}, ${user.email}`,
       }
     });

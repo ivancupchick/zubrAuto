@@ -429,7 +429,7 @@ export class CarService {
             }
 
             const item: UICarStatistic.Item = {
-              date: new Date(+record.date),
+              date: new Date(+record.date.toString()),
               type,
               content: record.content
             }

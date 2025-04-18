@@ -84,7 +84,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.form = this.fb.group(callsFiltersInialState);
-    
+
     this.getAdditionalData()
       .pipe(takeUntil(this.destoyed))
       .subscribe(() => {
@@ -167,7 +167,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
                         u.roleLevel === ServerRole.System.Admin || u.roleLevel === ServerRole.System.SuperAdmin
                       )
                     ));
-        
+
         this.availableSpecialists = this.specialists.map((u) => {
           return { name: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), number: +u.fields[2].value }
         });
@@ -281,7 +281,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
       {
         title: 'Дата',
         name: 'createdDate',
-        getValue: (item) => DateUtils.getFormatedDateTime(+item.createdDate),
+        getValue: (item) => DateUtils.getFormatedDateTime(+item.createdDate.toString()),
         sortable: () => true
       },
       {

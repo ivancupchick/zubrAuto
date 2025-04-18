@@ -1,6 +1,6 @@
-import { Constants as consts } from '../../../../src/utils/constansts';
-import { Models as serverModels } from '../../../../src/entities/Models';
-import { BaseList as baseList } from '../../../../src/entities/Types';
+import { Constants as consts } from '../../../../src/core/constants/constants';
+import { Models as serverModels } from '../../../../src/temp/entities/Models';
+import { BaseList as baseList } from '../../../../src/temp/entities/Types';
 
 export import Constants = consts;
 export import DBModels = serverModels;

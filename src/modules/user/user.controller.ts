@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } fro
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Constants } from 'src/core/constants/constansts';
+import { Constants } from 'src/core/constants/constants';
 import { AuthGuard } from 'src/core/guards/auth.guard';
 
 @Controller(Constants.API.USERS)

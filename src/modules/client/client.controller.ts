@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } fro
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { Constants } from 'src/core/constants/constansts';
+import { Constants } from 'src/core/constants/constants';
 import { ControllerActivity } from 'src/core/decorators/activity.decorator';
 import { ActivityType } from 'src/core/enums/activity-type.enum';
 import { Models } from 'src/temp/entities/Models';
