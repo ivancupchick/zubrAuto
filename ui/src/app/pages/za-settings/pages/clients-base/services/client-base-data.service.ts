@@ -37,7 +37,7 @@ export class ClientBaseDataService extends PageagleGridService<ServerClient.Resp
   private carService = inject(CarService)
 
   constructor(
-    private requestService: RequestService  
+    private requestService: RequestService
   ) { super() }
 
   public fetchData(): void {
@@ -51,21 +51,23 @@ export class ClientBaseDataService extends PageagleGridService<ServerClient.Resp
           }, []).filter(id => id && !Number.isNaN(id));
 
           if (carIds.length === 0) {
-            return zip(of(clientRes), of([]));
+            return zip(of(clientRes), of({
+              list: [],
+              total: 0
+            } satisfies BaseList<ServerCar.Response>));
           }
 
           const query: StringHash = { id: [...(new Set(carIds))].join(',') };
 
-          return zip(of(clientRes), this.carService.getCarsByQuery(query))
+          return zip(of(clientRes), this.carService.getCarsByQuery(query));
         }),
         takeUntil(this.destroy$),
         finalize(() => this.loading.next(false))
       )
       .subscribe(([clientRes, carsRes]) => {
         this.clientBaseItems.next(clientRes);
-        console.log(carsRes);
-        this.clientCarsSubject.next(carsRes)
-        
+        this.clientCarsSubject.next(carsRes.list);
+
       });
   }
 
@@ -85,7 +87,7 @@ export class ClientBaseDataService extends PageagleGridService<ServerClient.Resp
         this.payload.sortOrder
       ];
     }
-    
+
     this.payload = payload;
 
     this.fetchData();
