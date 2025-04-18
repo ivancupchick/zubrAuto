@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subject, finalize, map, mergeMap, switchMap, take, takeUntil, tap, zip } from 'rxjs';
+import { Observable, Subject, takeUntil, tap, zip } from 'rxjs';
 import { ServerCallRequest } from 'src/app/entities/call-request';
 import { RequestService } from 'src/app/services/request/request.service';
 import { SessionService } from 'src/app/services/session/session.service';
@@ -14,13 +14,12 @@ import { ServerClient } from 'src/app/entities/client';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CreateClientComponent } from '../../../modals/create-client/create-client.component';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DialogService } from 'primeng/dynamicdialog';
 import { CallRequestsDataService } from './call-requests-data.service';
 import { BaseList, StringHash } from 'src/app/entities/constants';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { callRequestFiltersInialState } from './call-requests-dashlet';
-import * as moment from 'moment';
 
 
 const isClientCreated = (allClients: ServerClient.Response[], item: ServerCallRequest.Response) => !!allClients.find(c => FieldsUtils.getFieldStringValue(c, FieldNames.Client.number) === item.clientNumber);
@@ -66,16 +65,16 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   isCarSales = this.sessionService.isCarSales;
 
   queriesByTabIndex: {
-    [key in TabIndex]: StringHash
+    [key in TabIndex]: StringHash<string | boolean>
   } = {
     [TabIndex.MyCallRequests]: {
       ['userId']: `${this.sessionService.userId}`,
-      ['isUsed']: '0',
+      ['isUsed']: false,
     },
     [TabIndex.AllCallRequests]: {
     },
     [TabIndex.UsedCallRequests]: {
-      ['isUsed']: '1',
+      ['isUsed']: true,
       ...(!this.sessionService.isAdminOrHigher ? {
         ['userId']: `${this.sessionService.userId}`,
       } : {})
@@ -101,7 +100,9 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       this.setGridSettings();
     });
 
-    this.callRequestsDataService.clients$.pipe(takeUntil(this.destoyed)).subscribe((clientsRes) => {
+    this.callRequestsDataService.clients$.pipe(
+      takeUntil(this.destoyed),
+    ).subscribe((clientsRes) => {
       this.allClients = clientsRes.list;
       // this.setGridSettings();
     });
@@ -117,7 +118,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   getQuery(index: TabIndex): StringHash {
     const query: StringHash = {
       [`sortField`]: 'id',
-      [`sortOrder`]: SortDirection.Desc,
+      [`sortOrder`]: ZASortDirection.Desc,
       ...this.queriesByTabIndex[index],
     };
     // filters
@@ -251,7 +252,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
       {
         title: 'Дата',
         name: 'createdDate',
-        getValue: (item) => DateUtils.getFormatedDateTime(+item.createdDate.toString()),
+        getValue: (item) => DateUtils.getFormatedDateTime(Number(item.createdDate)),
         sortable: () => true
       },
       {
@@ -354,7 +355,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
 
     if (res) {
       this.requestService.put<ServerCallRequest.Response[]>(`${environment.serverUrl}/${'call-requests'}/${call.id}`, {
-        isUsed: 1
+        isUsed: true
       }).pipe(
         takeUntil(this.destoyed)
       ).subscribe(() => {
@@ -384,7 +385,7 @@ export class CallRequestsDashletComponent implements OnInit, OnDestroy {
           .put<ServerCallRequest.Response[]>(
             `${environment.serverUrl}/${'call-requests'}/${call.id}`,
             {
-              isUsed: 1,
+              isUsed: true,
             }
           )
           .pipe(

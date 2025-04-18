@@ -7,7 +7,7 @@ import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
-import { SortDirection, SortEventDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection, SortEventDirection } from 'src/app/shared/enums/sort-direction.enum';
 
 @Component({
   selector: 'za-pageagle-grid',
@@ -121,14 +121,14 @@ export class PageagleGridComponent<GridItemType extends { id: number }> implemen
   // }
 
   updatePage(event: LazyLoadEvent) {
-    const sortOrder: SortDirection | undefined = event.sortOrder && SortEventDirection[event.sortOrder] || undefined;
+    const sortOrder: ZASortDirection | undefined = event.sortOrder && SortEventDirection[event.sortOrder] || undefined;
     const sortField = event.sortField || undefined;
 
-    this.dataService.updatePage({ 
-      size: event.rows!, 
-      page: (event.first! + event.rows!) / event.rows!, 
+    this.dataService.updatePage({
+      size: event.rows!,
+      page: (event.first! + event.rows!) / event.rows!,
       sortField, sortOrder,
-      'deal-status': this.initialDealStatuses, 
+      'deal-status': this.initialDealStatuses,
     });
       // .pipe(
       //   finalize(() => this.loading = false)

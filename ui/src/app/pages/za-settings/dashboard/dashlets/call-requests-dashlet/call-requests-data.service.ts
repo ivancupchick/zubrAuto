@@ -8,7 +8,7 @@ import { ClientService } from 'src/app/services/client/client.service';
 import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
 import { FieldNames } from 'src/app/entities/FieldNames';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 
 type CallRequestsFilters = {
   [key: string]: number | string;
@@ -57,7 +57,7 @@ export class CallRequestsDataService extends PageagleGridService<ServerCallReque
       });
   }
 
-  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: SortDirection; }): void {
+  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: ZASortDirection; }): void {
     [
       this.payload.size,
       this.payload.page,

@@ -18,7 +18,7 @@ import { DateUtils } from 'src/app/shared/utils/date.util';
 import { CreateClientComponent } from '../../../modals/create-client/create-client.component';
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { CallsDashletDataService } from './calls-dashlet-data.service';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { callsFiltersInialState } from './calls-dashlet';
 
@@ -69,7 +69,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
   form: UntypedFormGroup | null = null;
 
   queriesByTabIndex: {
-    [key in TabIndex]: StringHash
+    [key in TabIndex]: StringHash<string | boolean>
   } | null = null;
 
   constructor(
@@ -120,7 +120,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
     const query: StringHash = {
       ['type']: Webhook.CallType.Inbound,
       [`sortField`]: 'id',
-      [`sortOrder`]: SortDirection.Desc,
+      [`sortOrder`]: ZASortDirection.Desc,
       ...this.queriesByTabIndex[index],
     };
 
@@ -175,12 +175,12 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
         this.queriesByTabIndex = {
           [TabIndex.MyPhoneCalls]: {
             ['innerNumber']: FieldsUtils.getFieldStringValue(this.currentUser.fields, FieldNames.User.number).slice(1),
-            ['isUsed']: '0',
+            ['isUsed']: false,
           },
           [TabIndex.AllPhoneCalls]: {
           },
           [TabIndex.UsedPhoneCalls]: {
-            ['isUsed']: '1',
+            ['isUsed']: true,
             ...(!this.sessionService.isAdminOrHigher ? {
               ['innerNumber']: FieldsUtils.getFieldStringValue(this.currentUser.fields, FieldNames.User.number).slice(1)
             } : {})
@@ -373,7 +373,7 @@ export class CallsDashletComponent implements OnInit, OnDestroy {
 
     if (res) {
       this.requestService.put<ServerPhoneCall.Response[]>(`${environment.serverUrl}/${'phone-call'}/${call.id}`, { // replace to api service adapter
-        isUsed: 1
+        isUsed: true
       }).pipe(
         takeUntil(this.destoyed)
       ).subscribe(() => {

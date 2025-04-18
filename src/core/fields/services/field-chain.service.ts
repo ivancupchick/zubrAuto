@@ -16,7 +16,7 @@ export class FieldChainService {
     where: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput,
     sortOrder?: Prisma.SortOrder,
   ): Promise<Models.FieldChain[]> {
-    const orderBy: Prisma.fieldIdsOrderByWithRelationInput = {};
+    const orderBy: Prisma.fieldIdsOrderByWithRelationInput = { value: 'asc' };
 
     if (sortOrder) {
       orderBy.value = sortOrder;

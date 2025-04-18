@@ -8,7 +8,7 @@ import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import { FieldNames } from 'src/app/entities/FieldNames';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 
 type CallDashletFilters = {
   [key: string]: number | string;
@@ -60,7 +60,7 @@ export class CallsDashletDataService extends PageagleGridService<ServerPhoneCall
       });
   }
 
-  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: SortDirection; }): void {
+  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: ZASortDirection; }): void {
     [
       this.payload.size,
       this.payload.page,

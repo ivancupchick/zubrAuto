@@ -15,7 +15,7 @@ export class UserService {
   constructor(private requestService: RequestService, private fieldService: FieldService) { }
 
   getUsers(isCachableRequest = false): Observable<BaseList<ServerUser.Response>> {
-    return this.requestService.get<BaseList<ServerUser.Response>>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, { deleted: 0 }, isCachableRequest);
+    return this.requestService.get<BaseList<ServerUser.Response>>(`${environment.serverUrl}/${Constants.API.USERS}/${Constants.API.CRUD}`, { deleted: false }, isCachableRequest);
   }
 
   getAllUsers(isCachableRequest = false): Observable<BaseList<ServerUser.Response>> {

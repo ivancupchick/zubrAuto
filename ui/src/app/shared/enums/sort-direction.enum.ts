@@ -1,11 +1,11 @@
-export enum SortDirection {
-  Asc = 'ASC',
-  Desc = 'DESC',
+export enum ZASortDirection {
+  Asc = 'asc',
+  Desc = 'desc',
 }
 
 export const SortEventDirection: {
-  [key: number]: SortDirection
+  [key: number]: ZASortDirection
 } = {
-  [1]: SortDirection.Asc,
-  [-1]: SortDirection.Desc,
+  [1]: ZASortDirection.Asc,
+  [-1]: ZASortDirection.Desc,
 }

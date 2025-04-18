@@ -5,7 +5,7 @@ import { BehaviorSubject, Observable, Subject, finalize, takeUntil } from 'rxjs'
 import { BaseList } from 'src/app/entities/constants';
 import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 
 const API = 'change-log';
@@ -49,7 +49,7 @@ export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> imp
       });
   }
 
-  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: SortDirection; }): void {
+  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: ZASortDirection; }): void {
     [
       this.payload.size,
       this.payload.page

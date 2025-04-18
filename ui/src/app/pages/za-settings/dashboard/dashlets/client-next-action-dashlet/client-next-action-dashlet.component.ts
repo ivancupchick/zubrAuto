@@ -19,7 +19,7 @@ import { CreateClientComponent } from '../../../modals/create-client/create-clie
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
 import { ClientNextActionDataService } from './client-next-action-data.service';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { ClientChangeLogsComponent } from '../../../pages/change-log/componets/client-change-logs/client-change-logs.component';
 import { FieldNames } from 'src/app/entities/FieldNames';
 
@@ -86,11 +86,11 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '>',
       [`sortField`]: FieldNames.Client.dateNextAction,
-      [`sortOrder`]: SortDirection.Desc,
+      [`sortOrder`]: ZASortDirection.Desc,
     },
     [TabIndex.AllClients]: {
       [`sortField`]: FieldNames.Client.dateNextAction,
-      [`sortOrder`]: SortDirection.Desc, // ?
+      [`sortOrder`]: ZASortDirection.Desc, // ?
     },
     [TabIndex.SomeClients]: {
       [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
@@ -100,7 +100,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
       [FieldNames.Client.dateNextAction]: '' + +moment(`${moment(new Date()).format('YYYY.MM.DD')} 23:59`),
       [`filter-operator-${FieldNames.Client.dateNextAction}`]: '>',
       [`sortField`]: FieldNames.Client.dateNextAction,
-      [`sortOrder`]: SortDirection.Desc,
+      [`sortOrder`]: ZASortDirection.Desc,
     },
   }
 

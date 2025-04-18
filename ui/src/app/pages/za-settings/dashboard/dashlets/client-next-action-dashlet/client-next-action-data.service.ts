@@ -4,7 +4,7 @@ import { ClientService } from 'src/app/services/client/client.service';
 import { BehaviorSubject, Observable, Subject, finalize, mergeMap, of, takeUntil, zip } from 'rxjs';
 import { ServerClient } from 'src/app/entities/client';
 import { BaseList, StringHash } from 'src/app/entities/constants';
-import { SortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
@@ -64,7 +64,7 @@ export class ClientNextActionDataService extends PageagleGridService<ServerClien
       });
   }
 
-  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: SortDirection; }): void {
+  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: ZASortDirection; }): void {
     [
       this.payload.size,
       this.payload.page,
