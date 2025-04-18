@@ -286,7 +286,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
           [DBModels.Table.CallRequests]: 'заявке',
         }
 
-        const entity = categoryByTableName[item.sourceName];
+        const entity = categoryByTableName[item?.sourceName];
         if (entity) {
           instance.title = `Посмотеть все изменения по ${entity} c id = ${item.sourceId}`
         }
