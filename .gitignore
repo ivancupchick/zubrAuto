@@ -6,9 +6,6 @@ id_rsa
 # compiled output
 /build
 /ui/dist
-/dist
-dist/
-dist
 
 # Only exists if Bazel was run
 /bazel-out
