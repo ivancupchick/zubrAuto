@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { StringHash } from "src/temp/models/hashes";
 
-type NaturalDelegate = Prisma.activitiesDelegate | Prisma.callRequestsDelegate | Prisma.phoneCallsDelegate | Prisma.usersDelegate | Prisma.carsDelegate;
+type NaturalDelegate = Prisma.activitiesDelegate | Prisma.callRequestsDelegate | Prisma.phoneCallsDelegate | Prisma.usersDelegate | Prisma.carsDelegate  | Prisma.carOwnersDelegate;
 
 export class BaseQuery {
   page: number;
