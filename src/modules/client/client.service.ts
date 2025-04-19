@@ -79,7 +79,7 @@ export class ClientService {
       query
     );
 
-    let clientsIds: string[] = [...searchClientsIds];
+    let clientsIds: number[] = [...searchClientsIds];
 
     if (sortField && sortOrder) {
       const sortFieldConfig = await this.prisma.fields.findFirst({ where: { name:sortField}}); // findUnique?
@@ -90,7 +90,7 @@ export class ClientService {
             sourceName: Models.Table.Clients,
         }, sortOrder.toLowerCase() as Prisma.SortOrder);
 
-        clientsIds = sortChaines.map(ch => `${ch.sourceId}`);
+        clientsIds = sortChaines.map(ch => ch.sourceId);
       }
     }
 

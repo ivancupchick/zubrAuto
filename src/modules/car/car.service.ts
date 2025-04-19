@@ -13,6 +13,7 @@ import { ServerCar } from 'src/temp/entities/Car';
 import { FieldsUtils, getFieldsWithValues } from 'src/core/utils/field.utils';
 import { FieldDomains } from 'src/core/fields/fields';
 import { CarInfoGetterService } from './services/car-info-getter.service';
+import { getEntityIdsByNaturalQuery } from 'src/core/utils/enitities-functions';
 
 @Injectable()
 export class CarService {
@@ -115,7 +116,7 @@ export class CarService {
       }
     });
 
-    return result as any; //TODO
+    return result;
   }
 
   async findOne(id: number) {
@@ -156,27 +157,107 @@ export class CarService {
     const {
       page,
       size,
+      sortOrder,
+      sortField,
     } = query;
     delete query['page'];
     delete query['size'];
+    delete query['sortOrder'];
+    delete query['sortField'];
 
-    const searchCarIds = await this.fieldChainService.getEntityIdsByQuery(
+    const naturalFields = [
+      'createdDate',
+      'ownerId',
+    ];
+
+    let naturalQuery = {};
+
+    for (const key in query) {
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
+        if (naturalFields.includes(key)) {
+          naturalQuery[key] = query[key];
+          delete query[key];
+        }
+      }
+    }
+
+    const ownerFields = Object.values(FieldNames.CarOwner) as string[];
+
+    let ownerQuery = {};
+
+    for (const key in query) {
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
+        if (ownerFields.includes(key)) {
+          ownerQuery[key] = query[key];
+          delete query[key];
+        }
+      }
+    }
+
+    let searchCarIds: number[] = Object.values(query).length ? await this.fieldChainService.getEntityIdsByQuery(
       Models.Table.Cars,
       FieldDomains.Car,
       query
-    );
+    ) : [];
 
-    let carIds = [...searchCarIds];
+    const ownerSearchCarIds = Object.values(ownerQuery).length ?  await this.fieldChainService.getEntityIdsByQuery(
+      Models.Table.CarOwners,
+      FieldDomains.CarOwner,
+      ownerQuery
+    ) : [];
+
+    if (Object.values(ownerQuery)) {
+      searchCarIds = searchCarIds.filter(id => ownerSearchCarIds.includes(id));
+    }
+
+    const naturalsearchCarIds = Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)) ? await getEntityIdsByNaturalQuery(
+      this.prisma.cars,
+      naturalQuery
+    ) : [];
+
+    let carsIds = [...searchCarIds];
+
+    if (searchCarIds.length && naturalsearchCarIds.length) {
+      carsIds = searchCarIds.filter(id => naturalsearchCarIds.includes(id));
+    }
+    if (!searchCarIds.length && naturalsearchCarIds.length) {
+      carsIds = [...naturalsearchCarIds];
+    }
+
+    if (sortField && sortOrder && !naturalFields.includes(sortField)) {
+      const sortFieldConfig = await this.prisma.fields.findFirst({
+        where: {
+          name: sortField
+        }
+      });
+
+      if (sortFieldConfig && searchCarIds.length) {
+        const sortChaines = await this.prisma.fieldIds.findMany({
+          where: {
+            fieldId: sortFieldConfig.id,
+            sourceId: { in: searchCarIds },
+            sourceName: Models.Table.Users,
+          },
+          orderBy: {
+            id: sortOrder as any
+          },
+        });
+
+        carsIds = sortChaines.map((ch) => ch.sourceId);
+      }
+    }
 
     if (page && size) {
       const start = (+page - 1) * +size;
 
-      carIds = carIds.slice(start, start + +size);
+      carsIds = carsIds.slice(start, start + +size);
     }
 
-    const cars = carIds.length > 0 ? await this.prisma.cars.findMany({ where: {
-      id: {in: carIds.map(id => +id)}
+    const carsResult = carsIds.length > 0 ? await this.prisma.cars.findMany({ where: {
+      id: {in: carsIds.map(id => +id)}
     }}) : [];
+
+    const cars = carsIds.map(id => carsResult.find(cr => +cr.id === +id));
 
     const [
       carFields,
@@ -190,7 +271,12 @@ export class CarService {
       this.fieldsService.getFieldsByDomain(FieldDomains.CarOwner),
     ]);
 
-    return this.getCars(cars, carFields, carOwners, carOwnerFields);
+    let list = await this.getCars(cars, carFields, carOwners, carOwnerFields);
+
+    return {
+      list: list,
+      total: searchCarIds.length
+    };
   }
 
   private async getCarAndOwnerCarFields(carData: RealField.With.Request): Promise<[RealField.Request[], RealField.Request[]]> {

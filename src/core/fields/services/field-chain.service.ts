@@ -153,7 +153,7 @@ export class FieldChainService {
     sourceName: Models.Table,
     entityDomain: FieldDomains,
     query: StringHash,
-  ): Promise<string[]> {
+  ): Promise<number[]> {
     const ids = new Set<string>(query['id']?.split(',') || []);
     delete query['id'];
 
@@ -250,12 +250,14 @@ export class FieldChainService {
         !specialFieldNames.includes(n),
     );
 
+    console.log('fieldNames', fieldNames);
+
     if (fieldNames.length === 0 && ids.size > 0) {
       if (specialIds && specialIds.length > 0) {
         ids;
-        return specialIds.filter((id) => ids.has(`${id}`)).map((id) => `${id}`); // TODO test
+        return specialIds.filter((id) => ids.has(`${id}`)); // TODO test
       } else {
-        return [...ids];
+        return [...ids].map(id => +id);
       }
     }
 
@@ -324,6 +326,6 @@ export class FieldChainService {
       });
     }
 
-    return [...searchIds];
+    return [...searchIds].map(id => +id);
   }
 }

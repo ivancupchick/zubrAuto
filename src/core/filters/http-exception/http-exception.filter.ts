@@ -9,9 +9,10 @@ export class HttpExceptionFilter<T> implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+    const status = typeof exception.getStatus === 'function' ? exception.getStatus() : exception.getStatus as unknown as number || 500;
 
     response
-      .status(500)
+      .status(status)
       .json(exception);
   }
 }
