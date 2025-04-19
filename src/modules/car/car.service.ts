@@ -170,7 +170,6 @@ export class CarService {
       'createdDate',
       'ownerId',
     ];
-
     let naturalQuery = {};
 
     for (const key in query) {
@@ -189,8 +188,7 @@ export class CarService {
       }
     }
 
-    const ownerFields = Object.values(FieldNames.CarOwner) as string[];
-
+    const ownerFields = [FieldNames.CarOwner.name] as string[];
     let ownerQuery = {};
 
     for (const key in query) {
@@ -198,6 +196,32 @@ export class CarService {
         if (ownerFields.includes(key)) {
           ownerQuery[key] = query[key];
           delete query[key];
+        }
+
+        if (key.indexOf('filter-operator-') === 0) {
+          if (ownerFields.includes(key.split('-')[2])) {
+            ownerQuery[key] = query[key];
+            delete query[key];
+          }
+        }
+      }
+    }
+
+    const ownerNaturalFields = ['number'] as string[];
+    let ownerNaturalQuery = {};
+
+    for (const key in query) {
+      if (Object.prototype.hasOwnProperty.call(query, key)) {
+        if (ownerNaturalFields.includes(key)) {
+          ownerNaturalQuery[key] = query[key];
+          delete query[key];
+        }
+
+        if (key.indexOf('filter-operator-') === 0) {
+          if (ownerNaturalFields.includes(key.split('-')[2])) {
+            ownerNaturalQuery[key] = query[key];
+            delete query[key];
+          }
         }
       }
     }
@@ -223,12 +247,30 @@ export class CarService {
       (sortField && naturalFields.includes(sortField))  ? { ...naturalQuery, sortOrder, sortField} : naturalQuery
     ) : [];
 
+    const naturalsearchOwnerCarIds = Object.values(ownerNaturalQuery).length ? await getEntityIdsByNaturalQuery(
+      this.prisma.carOwners,
+      ownerNaturalQuery
+    ) : [];
+
     let carsIds = [...searchCarIds];
 
     if ((Object.values(query).length || Object.values(ownerQuery).length) && (Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)))) {
       carsIds = searchCarIds.filter(id => naturalsearchCarIds.includes(id));
     } else if (!(Object.values(query).length || Object.values(ownerQuery).length) && (Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)))) {
       carsIds = [...naturalsearchCarIds];
+    }
+
+    if (Object.values(ownerNaturalQuery).length) {
+      const carsByNaturalOwners = await this.prisma.cars.findMany({
+        where: {
+          ownerId: {
+            in: naturalsearchOwnerCarIds
+          }
+        }
+      });
+      const carsIdsByNaturalOwners = carsByNaturalOwners.map(car => car.id);
+
+      carsIds = carsIds.filter(id => carsIdsByNaturalOwners.includes(id));
     }
 
     if (sortField && sortOrder && !naturalFields.includes(sortField)) {
