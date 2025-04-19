@@ -179,6 +179,13 @@ export class CarService {
           naturalQuery[key] = query[key];
           delete query[key];
         }
+
+        if (key.indexOf('filter-operator-') === 0) {
+          if (naturalFields.includes(key.split('-')[2])) {
+            naturalQuery[key] = query[key];
+            delete query[key];
+          }
+        }
       }
     }
 
@@ -218,10 +225,9 @@ export class CarService {
 
     let carsIds = [...searchCarIds];
 
-    if (searchCarIds.length && naturalsearchCarIds.length) {
+    if ((Object.values(query).length || Object.values(ownerQuery).length) && (Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)))) {
       carsIds = searchCarIds.filter(id => naturalsearchCarIds.includes(id));
-    }
-    if (!searchCarIds.length && naturalsearchCarIds.length) {
+    } else if (!(Object.values(query).length || Object.values(ownerQuery).length) && (Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)))) {
       carsIds = [...naturalsearchCarIds];
     }
 
