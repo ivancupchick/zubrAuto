@@ -30,13 +30,13 @@ export class CarsBaseDataService extends PageagleGridService<ServerCar.Response>
   public clientBaseItems = new BehaviorSubject<BaseList<ServerCar.Response>>({ list: [], total: 0 });
   public list$ = this.clientBaseItems.asObservable();
 
-  private clientCarsSubject = new BehaviorSubject<ServerCar.Response[]>([]);
-  public clientCars$ = this.clientCarsSubject.asObservable();
+  // private clientCarsSubject = new BehaviorSubject<ServerCar.Response[]>([]);
+  // public clientCars$ = this.clientCarsSubject.asObservable();
 
   private destroy$ = new Subject();
 
   constructor(
-    private requestService: RequestService  
+    private requestService: RequestService
   ) { super() }
 
   public fetchData(): void {
@@ -47,8 +47,7 @@ export class CarsBaseDataService extends PageagleGridService<ServerCar.Response>
         finalize(() => this.loading.next(false))
       )
       .subscribe((carsRes) => {
-        console.log(carsRes);
-        this.clientCarsSubject.next(carsRes as unknown as ServerCar.Response[])
+        this.clientBaseItems.next(carsRes)
         this.loading.next(false);
       });
   }
@@ -61,15 +60,10 @@ export class CarsBaseDataService extends PageagleGridService<ServerCar.Response>
     };
 
     if (this.payload.sortField && this.payload.sortOrder) {
-      [
-        payload.sortField,
-        payload.sortOrder
-      ] = [
-        this.payload.sortField,
-        this.payload.sortOrder
-      ];
+      payload.sortField = payload.sortField || this.payload.sortField;
+      payload.sortOrder = payload.sortOrder || this.payload.sortOrder;
     }
-    
+
     this.payload = payload;
 
     this.fetchData();
