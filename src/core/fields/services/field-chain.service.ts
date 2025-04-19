@@ -16,10 +16,10 @@ export class FieldChainService {
     where: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput,
     sortOrder?: Prisma.SortOrder,
   ): Promise<Models.FieldChain[]> {
-    const orderBy: Prisma.fieldIdsOrderByWithRelationInput = { id: 'desc' }; // TODO test
+    let orderBy: Prisma.fieldIdsOrderByWithRelationInput = { id: 'desc' }; // TODO test
 
     if (sortOrder) {
-      orderBy.value = sortOrder;
+      orderBy = { value: sortOrder };
     }
 
     const [fieldChains, longtextFieldChains] = await Promise.all([
