@@ -42,7 +42,7 @@ import { StatusesByAdmin, StatusesByAllCallBase, StatusesByCarsForSale, Statuses
   styleUrls: ['./cars-base.component.scss'],
   providers: [RequestService, CarsBaseDataService, DialogService],
   imports: [
-    SpinnerComponent, 
+    SpinnerComponent,
     PageagleGridComponent,
     ToolbarModule,
     ButtonModule,
@@ -94,7 +94,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
   list$ = this.carsBaseDataService.list$;
   destroyed = new Subject();
-  
+
   get onSelectContactUserAvailable() {
     return this.sessionService.isContactCenterChief && (this.type === QueryCarTypes.allCallBase || this.type === QueryCarTypes.allCallBaseReady);
   }
@@ -112,7 +112,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     this.type = !this.isSelectCarModalMode
       ? this.route.snapshot.queryParamMap.get('type') as QueryCarTypes || ''
       : QueryCarTypes.carsForSaleTemp;
-    
+
     console.log(this.type);
     this.setAvailableStatuses();
 
@@ -139,7 +139,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
           this.initCars();
         }
       });
-      
+
       this.sessionService.roleSubj
       .pipe(
         takeUntil(this.destroyed)
@@ -175,9 +175,9 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       return;
     }
     let filters = skipEmptyFilters({...structuredClone(this.form.value) });
-    if (filters.carModel){
-      const { carModel, ...rest } = filters;
-      filters = { 'car-model': carModel, ...rest }
+    if (filters.mark){
+      const { mark, ...rest } = filters;
+      filters = { 'mark': mark, ...rest }
     }
     if (filters.carStatus){
       const { carStatus, ...rest } = filters;
@@ -189,7 +189,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     }
     if (filters.number){
       const { number, ...rest } = filters;
-      filters = { 
+      filters = {
         number: `%${number.replaceAll('+','')}%`,
         'filter-operator-number': 'LIKE',
         ...rest
@@ -198,14 +198,14 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     if (filters.date){
       const { date, ...rest } = filters;
       if (date[1] !== null) {
-        filters = { 
+        filters = {
           'createdDate': `${Date.parse(String(date[0]).replace('00:00:00', '00:00:01'))}-${Date.parse(String(date[1]).replace('00:00:00', '23:59:59'))}`,
-          'filter-operator-createdDate': 'range', 
+          'filter-operator-createdDate': 'range',
           ...rest }
       } else {
-        filters = { 
+        filters = {
           'createdDate': Date.parse(String(date[0]).replace('00:00:00','00:00:01')),
-          'filter-operator-createdDate': '>', 
+          'filter-operator-createdDate': '>',
           ...rest }
       }
     }
@@ -282,7 +282,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
           ...StatusesByShootedBase.map(s => ({ label: s, value: s }))
         ];
         break;
-      default: 
+      default:
         this.availableCarStatuses = []
     }
   }
@@ -321,7 +321,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     }, this.type !== QueryCarTypes.carsForSale && this.type !== QueryCarTypes.carsForSaleTemp
       ? {
         title: this.strings.date,
-        name: 'CreatedDate',
+        name: 'createdDate',
         getValue: (item) => this.getDate(item),
         available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
         isDate: true,
@@ -352,7 +352,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       available: () => !(this.sessionService.isCarSales || this.sessionService.isCarSalesChief),
     }, {
       title: this.strings.brandAndModel,
-      name: 'brandAndModel',
+      name: FieldNames.Car.mark,
       getValue: (item) => `${FieldsUtils.getFieldValue(item, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(item, FieldNames.Car.model)}`,
       sortable: () => true,
     }, {
@@ -531,7 +531,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
         available: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
       }
     ];
-    
+
     console.log(configs.filter(config => !config.available || config.available()));
 
     return configs.filter(config => !config.available || config.available());
@@ -689,7 +689,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
   calculateComission(price: number) {
     let commission = 0;
-  
+
     if (price < 10000) {
       commission = 400;
     } else if (10000 <= price && price < 15000) {
@@ -705,13 +705,13 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     } else if (50000 <= price) {
       commission = 1000;
     }
-  
+
     return commission;
   }
 
   calculateBargain(price: number) {
     let bargain = 0;
-  
+
     if (price < 10000) {
       bargain = 200;
     } else if (10000 <= price && price < 15000) {
@@ -727,7 +727,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     } else if (50000 <= price) {
       bargain = 1500;
     }
-  
+
     return bargain;
   }
 

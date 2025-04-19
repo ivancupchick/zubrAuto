@@ -14,6 +14,7 @@ import { FieldsUtils, getFieldsWithValues } from 'src/core/utils/field.utils';
 import { FieldDomains } from 'src/core/fields/fields';
 import { CarInfoGetterService } from './services/car-info-getter.service';
 import { getEntityIdsByNaturalQuery } from 'src/core/utils/enitities-functions';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CarService {
@@ -212,7 +213,7 @@ export class CarService {
 
     const naturalsearchCarIds = Object.values(naturalQuery).length || (sortField && naturalFields.includes(sortField)) ? await getEntityIdsByNaturalQuery(
       this.prisma.cars,
-      naturalQuery
+      (sortField && naturalFields.includes(sortField))  ? { ...naturalQuery, sortOrder, sortField} : naturalQuery
     ) : [];
 
     let carsIds = [...searchCarIds];
@@ -227,25 +228,33 @@ export class CarService {
     if (sortField && sortOrder && !naturalFields.includes(sortField)) {
       const sortFieldConfig = await this.prisma.fields.findFirst({
         where: {
+          domain: FieldDomains.Car,
           name: sortField
         }
       });
 
-      if (sortFieldConfig && searchCarIds.length) {
+      if (sortFieldConfig) {
+        const where: Prisma.fieldIdsWhereInput = {
+          fieldId: sortFieldConfig.id,
+          sourceName: Models.Table.Cars,
+        };
+
+        if (carsIds.length) {
+          where.sourceId = { in: carsIds };
+        }
+
         const sortChaines = await this.prisma.fieldIds.findMany({
-          where: {
-            fieldId: sortFieldConfig.id,
-            sourceId: { in: searchCarIds },
-            sourceName: Models.Table.Users,
-          },
+          where: where,
           orderBy: {
-            id: sortOrder as any
+            value: sortOrder as Prisma.SortOrder
           },
         });
 
         carsIds = sortChaines.map((ch) => ch.sourceId);
       }
     }
+
+    const total = carsIds.length;
 
     if (page && size) {
       const start = (+page - 1) * +size;
@@ -275,7 +284,7 @@ export class CarService {
 
     return {
       list: list,
-      total: searchCarIds.length
+      total: total
     };
   }
 

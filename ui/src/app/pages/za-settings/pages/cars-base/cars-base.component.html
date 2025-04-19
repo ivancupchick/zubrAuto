@@ -6,10 +6,10 @@
       (ngSubmit)="filter()">
       <div class="flex flex-row justify-content-start align-items-center row-gap-1 col-12">
         <input
-          class="ml-2 p-inputtext" 
-          type="text" 
-          formControlName="carModel"
-          pInputText 
+          class="ml-2 p-inputtext"
+          type="text"
+          formControlName="mark"
+          pInputText
           placeholder="Марка/модель"/>
 
         <p-multiSelect
@@ -26,7 +26,7 @@
 
         <!-- *ngIf="onSelectContactUserAvailable && contactCenterUserOptions.length > 0 " -->
         <p-dropdown
-           
+
           class="ml-2"
           [options]="contactCenterUserOptions"
           formControlName="selectedContactCenterUser"
@@ -48,16 +48,16 @@
           [firstDayOfWeek]="1"
           [showClear]="true"></p-calendar>
 
-        <input 
-          pInputText 
-          class="ml-2 p-inputtext" 
-          type="text" 
-          formControlName="number" 
-          pInputText 
+        <input
+          pInputText
+          class="ml-2 p-inputtext"
+          type="text"
+          formControlName="number"
+          pInputText
           placeholder="Телефон"/>
 
       </div>
-    
+
       <p-toolbar>
         <div class="p-toolbar-group-left">
           <span>Выбрано автомобилей: {{getAllSelectedCars()}}</span>
@@ -72,7 +72,7 @@
             (click)="openNewCarWindow()"
           ></button>
         </div>
-      
+
         <div class="p-toolbar-group-right">
           <p-button size="small" label="Получить" type="submit" (onClick)="filter()" class="mr-2">
             <i class="pi pi-refresh"></i>
