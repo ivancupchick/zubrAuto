@@ -45,7 +45,7 @@ export const settingsCarsStrings: StringHash = {
 
 export const CarBaseFilterFormsInitialState = {
   mark: '',
-  carStatus: '',
+  status: '',
   selectedContactCenterUser: '',
   date: '',
   number: '',

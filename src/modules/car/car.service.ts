@@ -207,7 +207,7 @@ export class CarService {
       ownerQuery
     ) : [];
 
-    if (Object.values(ownerQuery)) {
+    if (Object.values(ownerQuery).length) {
       searchCarIds = searchCarIds.filter(id => ownerSearchCarIds.includes(id));
     }
 
