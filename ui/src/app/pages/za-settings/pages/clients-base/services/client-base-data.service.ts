@@ -102,10 +102,8 @@ export class ClientBaseDataService
     };
 
     if (this.payload.sortField && this.payload.sortOrder) {
-      [payload.sortField, payload.sortOrder] = [
-        this.payload.sortField,
-        this.payload.sortOrder,
-      ];
+      payload.sortField = payload.sortField || this.payload.sortField;
+      payload.sortOrder = payload.sortOrder || this.payload.sortOrder;
     }
 
     this.payload = payload;

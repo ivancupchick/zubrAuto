@@ -532,7 +532,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.getCarsSubs && this.getCarsSubs.unsubscribe();
 
-    let getCarsObs = this.carService.getCars();
+    let getCarsObs = of({
+      list: [],
+      total: 0
+    });
     const query: StringHash = {};
 
     if (this.selectedContactCenterUsers.length > 0) {
@@ -544,7 +547,10 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     }
 
     if (Object.keys(query).length > 0) {
-      getCarsObs = this.carService.getCarsByQuery(query)
+      getCarsObs = of({
+        list: [],
+        total: 0
+      }); // this.carService.getCarsByQuery(query)
     }
     this.getCarsSubs = getCarsObs.pipe(
       finalize(() => this.loading = false),
