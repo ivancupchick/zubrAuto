@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { StringHash } from "src/temp/models/hashes";
 
-type NaturalDelegate = Prisma.activitiesDelegate | Prisma.callRequestsDelegate | Prisma.phoneCallsDelegate | Prisma.usersDelegate;
+type NaturalDelegate = Prisma.activitiesDelegate | Prisma.callRequestsDelegate | Prisma.phoneCallsDelegate | Prisma.usersDelegate | Prisma.carsDelegate;
 
 export class BaseQuery {
   page: number;
@@ -39,7 +39,7 @@ export async function getEntityIdsByNaturalQuery<T extends { id: number }>(repos
     if (ids.size > 0) {
       return [...ids].map(id => +id);
     } else {
-      const entities = await (repository as any).findMany({ orderBy: { [sortField]: sortOrder.toLowerCase() as Prisma.SortOrder }} );
+      const entities = await (repository as any).findMany({ orderBy: { [sortField || 'id']: sortOrder?.toLowerCase() as Prisma.SortOrder || Prisma.SortOrder.desc }} );
       return entities.map(e => +e.id);
     }
   }
