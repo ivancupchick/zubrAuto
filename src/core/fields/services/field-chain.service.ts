@@ -300,7 +300,7 @@ export class FieldChainService {
         ? await this.prisma.fieldIds.findMany({ where: fieldIdsWhereInput })
         : [];
 
-    const searchIds = new Set<string>();
+    const searchIds = new Set<number>();
 
     const matchObj: ExpressionHash<any> = {};
 
@@ -326,13 +326,15 @@ export class FieldChainService {
         if (currentMatch === matchKeys.length) {
           if (specialIds && specialIds.length > 0) {
             if (specialIds.includes(ch.sourceId)) {
-              searchIds.add(`${ch.sourceId}`);
+              searchIds.add(ch.sourceId);
             }
           } else {
-            searchIds.add(`${ch.sourceId}`);
+            searchIds.add(ch.sourceId);
           }
         }
       });
+    } else if (specialIds.length) {
+      return [...specialIds];
     }
 
     return [...searchIds].map(id => +id);
