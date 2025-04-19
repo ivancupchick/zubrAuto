@@ -16,7 +16,7 @@ export class FieldChainService {
     where: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput,
     sortOrder?: Prisma.SortOrder,
   ): Promise<Models.FieldChain[]> {
-    const orderBy: Prisma.fieldIdsOrderByWithRelationInput = { value: 'asc' };
+    const orderBy: Prisma.fieldIdsOrderByWithRelationInput = { id: 'desc' }; // TODO test
 
     if (sortOrder) {
       orderBy.value = sortOrder;
@@ -45,7 +45,7 @@ export class FieldChainService {
     return { count: fieldChains.count + longtextFieldChains.count, ...fieldChains, ...longtextFieldChains };
   }
 
-  async findOne(where: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput): Promise<Models.FieldChain> { // TODO need make sure that only one field meets all the conditions
+  async findOne(where: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput): Promise<Models.FieldChain> { // TODO need to make sure that only one field meets all the conditions
     const [fieldChain, longtextFieldChain] = await Promise.all([this.prisma.fieldIds.findMany({where}), this.prisma.longtextFieldsIds.findMany({where})]);
 
     return [...fieldChain, ...longtextFieldChain][0];
