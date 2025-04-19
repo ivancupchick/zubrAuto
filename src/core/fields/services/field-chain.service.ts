@@ -192,7 +192,7 @@ export class FieldChainService {
           specialFieldNames.map((fieldName) => {
             const id = specialFieldIds.find((fc) => fc.name === fieldName);
             const fieldIdsQuery: Prisma.fieldIdsWhereInput = {
-              sourceName: Models.Table.Clients,
+              sourceName: sourceName,
               fieldId: id.id,
             };
 
@@ -260,8 +260,6 @@ export class FieldChainService {
         !specialFieldNameOperators.includes(n) &&
         !specialFieldNames.includes(n),
     );
-
-    console.log('fieldNames', fieldNames);
 
     if (fieldNames.length === 0 && ids.size > 0) {
       if (specialIds && specialIds.length > 0) {

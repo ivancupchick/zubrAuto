@@ -10,12 +10,12 @@
           type="text"
           formControlName="mark"
           pInputText
-          placeholder="Марка/модель"/>
+          placeholder="Марка"/>
 
         <p-multiSelect
           *ngIf="availableCarStatuses.length > 1"
           class="ml-2"
-          formControlName="carStatus"
+          formControlName="status"
           [options]="availableCarStatuses"
           placeholder="Статус"
           optionLabel="label"

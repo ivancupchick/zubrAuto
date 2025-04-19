@@ -177,11 +177,18 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     let filters = skipEmptyFilters({...structuredClone(this.form.value) });
     if (filters.mark){
       const { mark, ...rest } = filters;
-      filters = { 'mark': mark, ...rest }
+      filters = {
+        'mark': mark,
+        'filter-operator-mark': 'LIKE',
+        ...rest
+      }
     }
-    if (filters.carStatus){
-      const { carStatus, ...rest } = filters;
-      filters = { 'car-status': carStatus, ...rest }
+    if (filters.status){
+      const { status, ...rest } = filters;
+      filters = {
+        'status': status,
+        ...rest
+      }
     }
     if (filters.selectedContactCenterUser){
       const { selectedContactCenterUser, ...rest } = filters;
