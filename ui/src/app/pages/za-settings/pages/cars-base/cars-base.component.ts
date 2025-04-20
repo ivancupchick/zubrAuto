@@ -1,4 +1,10 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { PageagleGridComponent } from '../../shared/pageagle-grid/pageagle-grid.component';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -13,6 +19,7 @@ import {
   take,
   takeUntil,
   tap,
+  zip,
 } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid';
@@ -35,13 +42,23 @@ import {
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { FieldDomains, FieldsUtils, ServerField } from 'src/app/entities/field';
+import {
+  FieldDomains,
+  FieldsUtils,
+  FieldType,
+  ServerField,
+  UIRealField,
+} from 'src/app/entities/field';
 import { RequestService } from 'src/app/services/request/request.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { QueryCarTypes } from './cars.enums';
 import {
   CarBaseFilterFormsInitialState,
+  MultiselectUIFilter,
+  NumberUIFilter,
   settingsCarsStrings,
+  TextUIFilter,
+  UIFilter,
 } from './cars-base.strings';
 import { DateUtils } from 'src/app/shared/utils/date.util';
 import * as moment from 'moment';
@@ -66,6 +83,10 @@ import {
   StatusesByShootedBase,
   StatusesCarsForSaleTemp,
 } from './cars-field-names.enum';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { SliderModule } from 'primeng/slider';
+import { UserService } from 'src/app/services/user/user.service';
+import { ServerRole } from 'src/app/entities/role';
 
 @Component({
   selector: 'za-cars-base',
@@ -84,6 +105,8 @@ import {
     ReactiveFormsModule,
     CalendarModule,
     MultiSelectModule,
+    OverlayPanelModule,
+    SliderModule,
   ],
 })
 export class CarsBaseComponent implements OnInit, OnDestroy {
@@ -122,6 +145,11 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
   selectedContactCenterUsers: string[] = []; // не перезасечены
   sortedCars: ServerCar.Response[] = []; // не перезасечены
   selectedCars: ServerCar.Response[] = []; // не перезасечены
+  filters: UIFilter[] = [];
+  FieldTypes = FieldType;
+  selectedFilters: { [name: string]: { [serverField: string]: any } } = {};
+  selectedStatus: FieldNames.CarStatus[] = [];
+  rangeDates: [Date, Date | null] | null = null;
 
   // инпуты вынести в отдельную логику
   @Input() type: QueryCarTypes | '' = '';
@@ -141,6 +169,11 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     );
   }
 
+  get selectedFiltersLabel(): string {
+    const length = Object.values(this.selectedFilters).length;
+    return length > 0 ? length + ' фильтров выбрано' : 'Фильтры';
+  }
+
   constructor(
     public carsBaseDataService: CarsBaseDataService,
     public fb: UntypedFormBuilder,
@@ -148,6 +181,8 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private fieldService: FieldService,
     private route: ActivatedRoute,
+    private cd: ChangeDetectorRef,
+    private userService: UserService,
   ) {}
 
   ngOnInit(): void {
@@ -189,9 +224,36 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
           : QueryCarTypes.carsForSaleTemp;
 
         this.setGridSettings();
-
-        // this.getCars(true).subscribe();
       });
+    zip(
+      this.carsBaseDataService.getCarFields(),
+      this.carsBaseDataService.getCarOwnersFields(),
+      this.userService.getUsers(true),
+    ).subscribe(([carFieldConfigs, carOwnerFieldConfigs, users]) => {
+      this.carFieldConfigs = carFieldConfigs;
+      this.carOwnerFieldConfigs = carOwnerFieldConfigs;
+      this.contactCenterUsers = users.list.filter(
+        (u) =>
+          u.customRoleName === ServerRole.Custom.contactCenter ||
+          u.customRoleName === ServerRole.Custom.contactCenterChief ||
+          u.roleLevel === ServerRole.System.Admin ||
+          u.roleLevel === ServerRole.System.SuperAdmin,
+      );
+      this.carShootingUsers = users.list.filter(
+        (u) =>
+          u.customRoleName === ServerRole.Custom.carShooting ||
+          u.customRoleName === ServerRole.Custom.carShootingChief ||
+          u.roleLevel === ServerRole.System.Admin ||
+          u.roleLevel === ServerRole.System.SuperAdmin,
+      );
+
+      this.contactCenterUserOptions = this.contactCenterUsers.map((u) => ({
+        label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name),
+        key: `${u.id}`,
+      }));
+
+      this.generateFilters();
+    });
   }
   getclientFieldConfigs() {
     // тут  надо вернуть обычное значение this.clientFieldConfigs уже засетченое, чутка не шарю
@@ -204,7 +266,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
   initCars() {
     // this.resetState();
     // this.setAvailableStatuses();
-    // this.setDefaultStatuses();
+    this.setDefaultStatuses();
     // this.getCars();
   }
 
@@ -216,11 +278,11 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     let filters = skipEmptyFilters({ ...structuredClone(this.form.value) });
     if (filters.mark) {
       const { mark, ...rest } = filters;
-      filters = { 'mark': mark, 'filter-operator-mark': 'LIKE', ...rest };
+      filters = { mark: mark, 'filter-operator-mark': 'LIKE', ...rest };
     }
     if (filters.status) {
       const { status, ...rest } = filters;
-      filters = { 'status': status, ...rest };
+      filters = { status: status, ...rest };
     }
     if (filters.selectedContactCenterUser) {
       const { selectedContactCenterUser, ...rest } = filters;
@@ -255,6 +317,9 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
         };
       }
     }
+    Object.values(this.selectedFilters).forEach((specialFilter) => {
+      filters = { ...specialFilter, ...filters };
+    });
 
     this.carsBaseDataService.updateFilters(filters);
     this.first = 0;
@@ -1451,6 +1516,291 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     );
   }
 
+  private generateFilters() {
+    const transmissionField = this.carFieldConfigs.find(
+      (config) => config.name === FieldNames.Car.transmission,
+    );
+    const engineField = this.carFieldConfigs.find(
+      (config) => config.name === FieldNames.Car.engine,
+    );
+    const driveTypeField = this.carFieldConfigs.find(
+      (config) => config.name === FieldNames.Car.driveType,
+    );
+    const bodyTypeField = this.carFieldConfigs.find(
+      (config) => config.name === FieldNames.Car.bodyType,
+    );
+
+    if (
+      !transmissionField ||
+      !engineField ||
+      !driveTypeField ||
+      !bodyTypeField
+    ) {
+      console.log('Поля не найдены в carFieldConfigs');
+      return;
+    }
+
+    const createVariants = (field: ServerField.Response) => {
+      return new UIRealField(field, 'd').variants.map((variant) => ({
+        label: variant.value,
+        value: variant.key,
+      }));
+    };
+
+    this.filters = [
+      {
+        title: this.strings.mileage,
+        name: FieldNames.Car.mileage,
+        type: FieldType.Number,
+        values: [0, 300000],
+        defaultValues: [0, 300000],
+        max: 300000,
+        min: 0,
+        step: 10000,
+      },
+      {
+        title: this.strings.transmission,
+        name: FieldNames.Car.transmission,
+        type: FieldType.Multiselect,
+        value: [],
+        defaultValue: [],
+        variants: [...createVariants(transmissionField)],
+      },
+      {
+        title: this.strings.color,
+        name: FieldNames.Car.color,
+        type: FieldType.Text,
+        value: '',
+        defaultValue: '',
+      },
+      {
+        title: this.strings.engineCapacity,
+        name: FieldNames.Car.engineCapacity,
+        type: FieldType.Number,
+        values: [1.0, 5.0],
+        defaultValues: [1.0, 5.0],
+        max: 5.0,
+        min: 1.0,
+        step: 0.1,
+      },
+      {
+        title: this.strings.driveType,
+        name: FieldNames.Car.driveType,
+        type: FieldType.Multiselect,
+        value: [],
+        defaultValue: [],
+        variants: [...createVariants(driveTypeField)],
+      },
+      {
+        title: this.strings.bodyType,
+        name: FieldNames.Car.bodyType,
+        type: FieldType.Multiselect,
+        value: [],
+        defaultValue: [],
+        variants: [...createVariants(bodyTypeField)],
+      },
+      {
+        title: this.strings.year,
+        name: FieldNames.Car.year,
+        type: FieldType.Number,
+        values: [1990, new Date().getFullYear()],
+        defaultValues: [1990, new Date().getFullYear()],
+        max: new Date().getFullYear(),
+        min: 1990,
+        step: 1,
+      },
+      {
+        title: this.strings.engine,
+        name: FieldNames.Car.engine,
+        type: FieldType.Multiselect,
+        value: [],
+        defaultValue: [],
+        variants: [...createVariants(engineField)],
+      },
+      {
+        title: this.strings.carOwnerPrice,
+        name: FieldNames.Car.carOwnerPrice,
+        type: FieldType.Number,
+        values: [5000, 50000],
+        defaultValues: [5000, 50000],
+        max: 50000,
+        min: 5000,
+        step: 500,
+      },
+    ];
+  }
+
+  changeFilter(
+    filterConfig: TextUIFilter,
+    e: { originalEvent: PointerEvent | Event; value: string },
+  ) {
+    if ((filterConfig.type as unknown) === this.FieldTypes.Number) {
+      return;
+    }
+
+    if (this.selectedFilters[filterConfig.name]) {
+      if (filterConfig.defaultValue === e.value) {
+        delete this.selectedFilters[filterConfig.name];
+      } else {
+        this.selectedFilters[filterConfig.name] = {
+          [filterConfig.name]: e.value,
+        };
+      }
+    } else if (filterConfig.defaultValue !== e.value) {
+      this.selectedFilters[filterConfig.name] = {
+        [filterConfig.name]: e.value,
+      };
+    }
+  }
+
+  changeMultiselectFilter(
+    filterConfig: MultiselectUIFilter,
+    e: {
+      originalEvent: PointerEvent | Event;
+      value: string[];
+      itemValue: string;
+    },
+  ) {
+    if ((filterConfig.type as unknown) === FieldType.Number) {
+      return;
+    }
+    if (this.selectedFilters[filterConfig.name]) {
+      if (filterConfig.defaultValue.length === e.value.length) {
+        // TODO improve array comparing expression
+        delete this.selectedFilters[filterConfig.name];
+      } else {
+        this.selectedFilters[filterConfig.name] = {
+          [filterConfig.name]: e.value,
+        };
+      }
+    } else if (filterConfig.defaultValue !== e.value) {
+      this.selectedFilters[filterConfig.name] = {
+        [filterConfig.name]: e.value,
+      };
+    }
+    console.log(this.selectedFilters);
+  }
+
+  changeNumberRangeFilter(
+    filterConfig: NumberUIFilter,
+    e: { values: number[] },
+  ) {
+    if (filterConfig.type !== this.FieldTypes.Number) {
+      return;
+    }
+
+    let value: any = {
+      [filterConfig.name]: `${e.values[0]}-${e.values[1]}`,
+      [`filter-operator-${filterConfig.name}`]: 'range',
+    };
+
+    if (
+      filterConfig?.type === this.FieldTypes.Number &&
+      e.values[1] === filterConfig.max
+    ) {
+      value = {
+        [filterConfig.name]: e.values[0],
+        [`filter-operator-${filterConfig.name}`]: '>',
+      };
+    }
+
+    if (
+      filterConfig?.type === this.FieldTypes.Number &&
+      e.values[0] === filterConfig.min
+    ) {
+      value = {
+        [filterConfig.name]: e.values[1],
+        [`filter-operator-${filterConfig.name}`]: '<',
+      };
+    }
+
+    if (this.selectedFilters[filterConfig.name]) {
+      if (
+        filterConfig.defaultValues[0] === e.values[0] &&
+        filterConfig.defaultValues[1] === e.values[1]
+      ) {
+        delete this.selectedFilters[filterConfig.name];
+      } else {
+        this.selectedFilters[filterConfig.name] = value;
+      }
+    } else if (
+      !(
+        filterConfig.defaultValues[0] === e.values[0] &&
+        filterConfig.defaultValues[1] === e.values[1]
+      )
+    ) {
+      this.selectedFilters[filterConfig.name] = value;
+    }
+  }
+
+  transformFormInputEvent(e: Event): {
+    originalEvent: PointerEvent | Event;
+    value: string;
+  } {
+    const inputTarget: HTMLInputElement = e.target as HTMLInputElement;
+
+    return {
+      originalEvent: e,
+      value: inputTarget.value,
+    };
+  }
+
+  setDefaultStatuses() {
+    switch (this.type) {
+      case QueryCarTypes.byAdmin:
+        this.selectedStatus = [
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_Deny,
+          FieldNames.CarStatus.contactCenter_Refund,
+          FieldNames.CarStatus.carShooting_InProgres,
+          FieldNames.CarStatus.carShooting_Refund,
+          FieldNames.CarStatus.carShooting_Ready,
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+          FieldNames.CarStatus.customerService_OnDelete,
+          FieldNames.CarStatus.customerService_Sold,
+          FieldNames.CarStatus.carSales_Deposit,
+          FieldNames.CarStatus.admin_Deleted,
+        ];
+        break;
+      case QueryCarTypes.myCallBase:
+        this.selectedStatus = [
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_InProgress,
+          FieldNames.CarStatus.contactCenter_MakingDecision,
+          FieldNames.CarStatus.contactCenter_NoAnswer,
+          FieldNames.CarStatus.contactCenter_Refund,
+        ];
+
+        break;
+      case QueryCarTypes.allCallBase:
+        this.selectedStatus = [
+          FieldNames.CarStatus.contactCenter_WaitingShooting,
+          FieldNames.CarStatus.contactCenter_Refund,
+        ];
+
+        break;
+      case QueryCarTypes.myShootingBase:
+      case QueryCarTypes.allShootingBase:
+        this.selectedStatus = [
+          FieldNames.CarStatus.carShooting_InProgres,
+          FieldNames.CarStatus.carShooting_Refund,
+        ];
+
+        break;
+      case QueryCarTypes.carsForSaleTemp:
+      case QueryCarTypes.carsForSale:
+        this.selectedStatus = [
+          FieldNames.CarStatus.customerService_InProgress,
+          FieldNames.CarStatus.customerService_OnPause,
+        ];
+
+        break;
+    }
+  }
   ngOnDestroy(): void {
     this.destroyed.next(null);
   }

@@ -19,6 +19,8 @@ import { ServerClient } from 'src/app/entities/client';
 import { ServerCar, ServerFile } from 'src/app/entities/car';
 import { CarService } from 'src/app/services/car/car.service';
 import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { FieldService } from 'src/app/services/field/field.service';
+import { FieldDomains } from 'src/app/entities/field';
 
 const API = 'cars/crud';
 
@@ -29,7 +31,6 @@ export class CarsBaseDataService
   extends PageagleGridService<ServerCar.Response>
   implements OnDestroy
 {
-
   private loading = new BehaviorSubject<boolean>(true);
   public loading$ = this.loading.asObservable();
 
@@ -43,7 +44,10 @@ export class CarsBaseDataService
 
   private destroy$ = new Subject();
 
-  constructor(private requestService: RequestService) {
+  constructor(
+    private requestService: RequestService,
+    private fieldService: FieldService,
+  ) {
     super();
   }
 
@@ -52,7 +56,7 @@ export class CarsBaseDataService
     this.requestService
       .get<BaseList<ServerCar.Response>>(
         `${environment.serverUrl}/${API}`,
-        this.payload
+        this.payload,
       )
       .pipe(
         takeUntil(this.destroy$),
@@ -94,6 +98,14 @@ export class CarsBaseDataService
           return true;
         }),
       );
+  }
+
+  getCarFields() {
+    return this.fieldService.getFieldsByDomain(FieldDomains.Car);
+  }
+
+  getCarOwnersFields() {
+    return this.fieldService.getFieldsByDomain(FieldDomains.CarOwner);
   }
 
   ngOnDestroy(): void {

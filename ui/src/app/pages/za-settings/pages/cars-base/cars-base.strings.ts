@@ -1,3 +1,5 @@
+import { FieldType } from 'src/app/entities/field';
+
 interface StringHash {
   [key: string]: string;
 }
@@ -38,7 +40,7 @@ export const settingsCarsStrings: StringHash = {
   photo360: 'Фото 360',
   linkToVideo: 'Видео',
   bodyType: 'Кузов',
-  dateOfLastCustomerCall: 'Дата последнего звонка'
+  dateOfLastCustomerCall: 'Дата последнего звонка',
 
   // nextAction: 'Следующее действие',
 };
@@ -49,4 +51,64 @@ export const CarBaseFilterFormsInitialState = {
   selectedContactCenterUser: '',
   date: '',
   number: '',
-}
+};
+
+export type UIFilter = {
+  title: string;
+  name: string;
+} & (
+  | {
+      type: FieldType.Text;
+      value: string;
+      defaultValue: string;
+    }
+  | {
+      type: FieldType.Dropdown;
+      value: string;
+      defaultValue: string;
+      variants: { label: string | 'Все'; value: string | 'Все' }[];
+    }
+  | {
+      type: FieldType.Number;
+      values: [number, number];
+      defaultValues: [number, number];
+      max: number;
+      min: number;
+      step: number;
+    }
+  | {
+      type: FieldType.Multiselect;
+      value: string[];
+      defaultValue: string[];
+      variants: { label: string; value: string }[];
+    }
+);
+
+export type TextUIFilter = UIFilter & {
+  type: FieldType.Text;
+  value: string;
+  defaultValue: string;
+};
+
+export type DropdownUIFilter = UIFilter & {
+  type: FieldType.Dropdown;
+  value: string;
+  defaultValue: string;
+  variants: { label: string | 'Все'; value: string | 'Все' }[];
+};
+
+export type NumberUIFilter = UIFilter & {
+  type: FieldType.Number;
+  values: [number, number];
+  defaultValues: [number, number];
+  max: number;
+  min: number;
+  step: number;
+};
+
+export type MultiselectUIFilter = UIFilter & {
+  type: FieldType.Multiselect;
+  value: string[];
+  defaultValue: string[];
+  variants: { label: string; value: string }[];
+};
