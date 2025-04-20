@@ -13,7 +13,7 @@
 >
   <p-table
     [lazy]="true"
-    (onPage)="pageChange($event)"
+    (onLazyLoad)="updatePage($event)"
     [sortField]="sortField"
     [sortOrder]="-1"
     [(contextMenuSelection)]="contextSelectedItem"

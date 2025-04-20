@@ -32,10 +32,6 @@ export class ClientBaseDataService
   extends PageagleGridService<ServerClient.Response>
   implements OnDestroy
 {
-  private payload: ClientBaseFilters = {
-    page: 1,
-    size: 10,
-  };
 
   private loading = new BehaviorSubject<boolean>(true);
   public loading$ = this.loading.asObservable();
@@ -92,23 +88,6 @@ export class ClientBaseDataService
         this.clientBaseItems.next(clientRes);
         this.clientCarsSubject.next(carsRes?.list || []);
       });
-  }
-
-  public updatePage(filters: ClientBaseFilters): void {
-    const payload: any = {
-      size: this.payload.size,
-      page: 1,
-      ...skipEmptyFilters(filters),
-    };
-
-    if (this.payload.sortField && this.payload.sortOrder) {
-      payload.sortField = payload.sortField || this.payload.sortField;
-      payload.sortOrder = payload.sortOrder || this.payload.sortOrder;
-    }
-
-    this.payload = payload;
-
-    this.fetchData();
   }
 
   getClients(): Observable<BaseList<ServerClient.Response>> {

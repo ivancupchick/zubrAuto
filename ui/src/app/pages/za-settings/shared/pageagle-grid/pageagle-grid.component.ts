@@ -52,19 +52,6 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
   @Input() dataService!: PageagleGridService<GridItemType>;
   @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
   @Input() first!: number;
-  @Input() initialDealStatuses!: string[];
-
-  // @Input() set gridData(value: GridItemType[]) {
-  //   if (Array.isArray(value)) {
-  //     this._gridData = value;
-  //   } else {
-  //     this._gridData = [];
-  //   }
-  // }
-
-  // get gridData(): GridItemType[] {
-  //   return this._gridData;
-  // }
 
   gridItemHeight = gridItemHeight;
   size = 10;
@@ -74,16 +61,9 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
   contextSelectedItem!: GridItemType;
   contextActions: MenuItem[] = [];
   selectedKeys!: GridItemType[];
-  // private _gridData: GridItemType[] = [];
 
   constructor(private elem: ElementRef<HTMLElement>) {}
   ngOnInit(): void {
-    this.updatePage({
-      first: 0,
-      rows: 30,
-      sortField: 'createdDate',
-      sortOrder: -1,
-    });
     this.selectedKeys = [...this.selected];
     this.updateActions();
 
@@ -117,10 +97,6 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
       console.error('sorting not working on this field');
       return;
     }
-
-    // this.gridData = [...this.gridData.sort(
-    //   getGridFieldsCompare(gridConfig, event)
-    // )];
   }
 
   onShow(e: any) {
@@ -145,55 +121,11 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
     });
   }
 
-  // fetchData(event: LazyLoadEvent) {
-
-  // }
-
   updatePage(event: LazyLoadEvent) {
-    console.log(event);
     const sortOrder: ZASortDirection | undefined =
       (event.sortOrder && SortEventDirection[event.sortOrder]) || undefined;
     const sortField = event.sortField || undefined;
-    console.log(this.initialDealStatuses);
-    console.log('1');
-    this.initialDealStatuses
-      ? this.dataService.updatePage({
-          size: event.rows!,
-          page: (event.first! + event.rows!) / event.rows!,
-          sortField,
-          sortOrder,
-          'deal-status': this.initialDealStatuses,
-        })
-      : this.dataService.updatePage({
-          size: event.rows!,
-          page: (event.first! + event.rows!) / event.rows!,
-          sortField,
-          sortOrder,
-        });
 
-    // .pipe(
-    //   finalize(() => this.loading = false)
-    // ).subscribe(data => {
-    //   this.gridData = data.list;
-    //   this.totalRecords = data.total;
-    // });
-  }
-
-  pageChange(event) {
-    console.log('2');
-    console.log(event);
-    this.first = event.first;
-
-    const sortOrder: ZASortDirection | undefined =
-      (event.sortOrder && SortEventDirection[event.sortOrder]) || undefined;
-    const sortField = event.sortField || undefined;
-    // + сюда добавить предыдующий фильтр created
-    this.dataService.filtersObject.next({
-      size: event.rows!,
-      page: (event.first! + event.rows!) / event.rows!,
-      sortField,
-      sortOrder,
-    });
-    this.dataService.updatePage(this.dataService.filtersObject.getValue());
+    this.dataService.updatePage({ size: event.rows!, page: (event.first! + event.rows!) / event.rows!, sortField, sortOrder });
   }
 }
