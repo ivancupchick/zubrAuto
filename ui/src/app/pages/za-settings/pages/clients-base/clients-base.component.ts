@@ -162,7 +162,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.clientBaseDataService.updatePage(filters);
+    this.clientBaseDataService.updateFilters(filters);
     this.first = 0;
   };
 
@@ -170,7 +170,7 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
     this.form.reset(ClientBaseFilterFormsInitialState);
     const filters = skipEmptyFilters({...this.form.value });
     this.first = 0;
-    this.clientBaseDataService.updatePage(filters);
+    this.clientBaseDataService.updateFilters(filters);
   }
 
   openNewClientWindow(): void {

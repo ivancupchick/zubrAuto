@@ -24,11 +24,6 @@ export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> imp
   private changeLogs = new BehaviorSubject<BaseList<ChangeLogItem>>({ list: [], total: 0 });
   public list$ = this.changeLogs.asObservable();
 
-  private payload: ChangeLogFilters = {
-    page: 1,
-    size: 10
-  };
-
   private destroy$ = new Subject();
 
   constructor(private requestService: RequestService) {
@@ -47,28 +42,6 @@ export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> imp
         this.changeLogs.next(res);
 
       });
-  }
-
-  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: ZASortDirection; }): void {
-    [
-      this.payload.size,
-      this.payload.page
-    ] = [
-      payload.size,
-      payload.page
-    ];
-
-    if (payload.sortField && payload.sortOrder) {
-      [
-        this.payload.sortField,
-        this.payload.sortOrder
-      ] = [
-        payload.sortField,
-        payload.sortOrder
-      ];
-    }
-
-    this.fetchData();
   }
 
   public onFilter(filters: ChangeLogFilters) {

@@ -25,11 +25,6 @@ export class CallsDashletDataService extends PageagleGridService<ServerPhoneCall
   private clientsSubject = new BehaviorSubject<BaseList<ServerClient.Response>>({ list: [], total: 0 });
   public clients$ = this.clientsSubject.asObservable();
 
-  private payload: CallDashletFilters = {
-    page: 1,
-    size: 10,
-  };
-
   ready = false;
 
   private destroy$ = new Subject();
@@ -58,28 +53,6 @@ export class CallsDashletDataService extends PageagleGridService<ServerPhoneCall
         this.clientsSubject.next(clientRes)
         this.calls.next(callsRes);
       });
-  }
-
-  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: ZASortDirection; }): void {
-    [
-      this.payload.size,
-      this.payload.page,
-    ] = [
-      payload.size,
-      payload.page
-    ];
-
-    if (payload.sortField && payload.sortOrder) {
-      [
-        this.payload.sortField,
-        this.payload.sortOrder
-      ] = [
-        payload.sortField,
-        payload.sortOrder
-      ];
-    }
-
-    this.fetchData();
   }
 
   public onFilter(callDashletFilters: CallDashletFilters) {

@@ -89,13 +89,10 @@
         <div class="p-toolbar-group-right">
           <p-button
             size="small"
-            label="Получить"
+            label="Обновить"
             type="submit"
-            (onClick)="filter()"
             class="mr-2"
-          >
-            <i class="pi pi-refresh"></i>
-          </p-button>
+          />
           <p-button
             size="small"
             type="button"
@@ -118,7 +115,6 @@
     [dataService]="clientBaseDataService"
     [sortField]="'date'"
     [first]="first"
-    [initialDealStatuses]="initialDealStatuses"
   ></za-pageagle-grid>
 </div>
 

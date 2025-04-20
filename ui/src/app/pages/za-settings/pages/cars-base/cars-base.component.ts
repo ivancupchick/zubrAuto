@@ -214,13 +214,13 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       return;
     }
     let filters = skipEmptyFilters({ ...structuredClone(this.form.value) });
-    if (filters.carModel) {
-      const { carModel, ...rest } = filters;
-      filters = { 'car-model': carModel, ...rest };
+    if (filters.mark) {
+      const { mark, ...rest } = filters;
+      filters = { 'mark': mark, 'filter-operator-mark': 'LIKE', ...rest };
     }
-    if (filters.carStatus) {
-      const { carStatus, ...rest } = filters;
-      filters = { 'car-status': carStatus, ...rest };
+    if (filters.status) {
+      const { status, ...rest } = filters;
+      filters = { 'status': status, ...rest };
     }
     if (filters.selectedContactCenterUser) {
       const { selectedContactCenterUser, ...rest } = filters;
@@ -256,7 +256,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       }
     }
 
-    this.carsBaseDataService.updatePage(filters);
+    this.carsBaseDataService.updateFilters(filters);
     this.first = 0;
   }
 
@@ -264,7 +264,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     this.form.reset(CarBaseFilterFormsInitialState);
     const filters = skipEmptyFilters({ ...this.form.value });
     this.first = 0;
-    this.carsBaseDataService.updatePage(filters);
+    this.carsBaseDataService.updateFilters(filters);
   }
 
   openNewCarWindow() {}
@@ -440,7 +440,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       },
       {
         title: this.strings.brandAndModel,
-        name: 'brandAndModel',
+        name: `${FieldNames.Car.mark}/${FieldNames.Car.model}`,
         getValue: (item) =>
           `${FieldsUtils.getFieldValue(item, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(item, FieldNames.Car.model)}`,
         sortable: () => true,

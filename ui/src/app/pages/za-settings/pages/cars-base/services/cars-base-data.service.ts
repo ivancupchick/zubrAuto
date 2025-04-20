@@ -18,12 +18,9 @@ import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { ServerClient } from 'src/app/entities/client';
 import { ServerCar, ServerFile } from 'src/app/entities/car';
 import { CarService } from 'src/app/services/car/car.service';
+import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 
 const API = 'cars/crud';
-
-type CarsBaseFilters = {
-  [key: string]: number | string | string[];
-};
 
 @Injectable({
   providedIn: 'root',
@@ -32,10 +29,6 @@ export class CarsBaseDataService
   extends PageagleGridService<ServerCar.Response>
   implements OnDestroy
 {
-  private payload: CarsBaseFilters = {
-    page: 1,
-    size: 10,
-  };
 
   private loading = new BehaviorSubject<boolean>(true);
   public loading$ = this.loading.asObservable();
@@ -59,7 +52,7 @@ export class CarsBaseDataService
     this.requestService
       .get<BaseList<ServerCar.Response>>(
         `${environment.serverUrl}/${API}`,
-        this.filtersObject.getValue(),
+        this.payload
       )
       .pipe(
         takeUntil(this.destroy$),
@@ -71,25 +64,6 @@ export class CarsBaseDataService
         this.carsBaseItems.next({ list: carsRes.list, total: carsRes.total });
         this.loading.next(false);
       });
-  }
-
-  public updatePage(filters: CarsBaseFilters): void {
-    const payload: any = {
-      size: this.payload.size,
-      page: 1,
-      ...skipEmptyFilters(filters),
-    };
-
-    if (this.payload.sortField && this.payload.sortOrder) {
-      [payload.sortField, payload.sortOrder] = [
-        this.payload.sortField,
-        this.payload.sortOrder,
-      ];
-    }
-
-    this.filtersObject.next(payload);
-
-    this.fetchData();
   }
 
   getCarsImages(id: number) {

@@ -25,11 +25,6 @@ export class ClientNextActionDataService extends PageagleGridService<ServerClien
   private clientCarsSubject = new BehaviorSubject<ServerCar.Response[]>([]);
   public clientCars$ = this.clientCarsSubject.asObservable();
 
-  private payload: ClientNextActionFilters = {
-    page: 1,
-    size: 10,
-  };
-
   private destroy$ = new Subject();
   private clientService = inject(ClientService);
   private carService = inject(CarService);
@@ -37,7 +32,7 @@ export class ClientNextActionDataService extends PageagleGridService<ServerClien
   public fetchData() {
     this.loading.next(true);
 
-    this.clientService.getClientsByQuery(this.payload)
+    this.clientService.getClientsByQuery(this.payload as unknown as any) // TODO fix
       .pipe(
         mergeMap((clientRes) => {
           const carIds = clientRes.list.reduce<number[]>((prev, client) => {
@@ -62,28 +57,6 @@ export class ClientNextActionDataService extends PageagleGridService<ServerClien
           this.clients.next(clientsRes);
         }
       });
-  }
-
-  public updatePage(payload: { size: number; page: number; sortField?: string; sortOrder?: ZASortDirection; }): void {
-    [
-      this.payload.size,
-      this.payload.page,
-    ] = [
-      payload.size,
-      payload.page
-    ];
-
-    if (payload.sortField && payload.sortOrder) {
-      [
-        this.payload.sortField,
-        this.payload.sortOrder
-      ] = [
-        payload.sortField,
-        payload.sortOrder
-      ];
-    }
-
-    this.fetchData();
   }
 
   public onFilter(ClientNextActionFilters: ClientNextActionFilters) {
