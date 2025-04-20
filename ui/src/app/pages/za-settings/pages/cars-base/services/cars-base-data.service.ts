@@ -1,6 +1,16 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
-import { BehaviorSubject, Observable, Subject, finalize, map, mergeMap, of, takeUntil, zip } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  finalize,
+  map,
+  mergeMap,
+  of,
+  takeUntil,
+  zip,
+} from 'rxjs';
 import { BaseList, Constants, StringHash } from 'src/app/entities/constants';
 import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
@@ -16,38 +26,49 @@ type CarsBaseFilters = {
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class CarsBaseDataService extends PageagleGridService<ServerCar.Response> implements OnDestroy {
+export class CarsBaseDataService
+  extends PageagleGridService<ServerCar.Response>
+  implements OnDestroy
+{
   private payload: CarsBaseFilters = {
     page: 1,
-    size: 10
+    size: 10,
   };
 
   private loading = new BehaviorSubject<boolean>(true);
   public loading$ = this.loading.asObservable();
 
-  public clientBaseItems = new BehaviorSubject<BaseList<ServerCar.Response>>({ list: [], total: 0 });
-  public list$ = this.clientBaseItems.asObservable();
+  public carsBaseItems = new BehaviorSubject<BaseList<ServerCar.Response>>({
+    list: [],
+    total: 0,
+  });
+  public list$ = this.carsBaseItems.asObservable();
 
-  // private clientCarsSubject = new BehaviorSubject<ServerCar.Response[]>([]);
-  // public clientCars$ = this.clientCarsSubject.asObservable();
+  public filters$ = new BehaviorSubject<any>({});
 
   private destroy$ = new Subject();
 
-  constructor(
-    private requestService: RequestService
-  ) { super() }
+  constructor(private requestService: RequestService) {
+    super();
+  }
 
   public fetchData(): void {
     this.loading.next(true);
-    this.requestService.get<BaseList<ServerCar.Response>>(`${environment.serverUrl}/${API}`, this.payload)
+    this.requestService
+      .get<BaseList<ServerCar.Response>>(
+        `${environment.serverUrl}/${API}`,
+        this.filtersObject.getValue(),
+      )
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => this.loading.next(false))
+        finalize(() => this.loading.next(false)),
       )
       .subscribe((carsRes) => {
-        this.clientBaseItems.next(carsRes)
+        console.log(carsRes);
+        // this.clientCarsSubject.next(carsRes as unknown as ServerCar.Response[]);
+        this.carsBaseItems.next({ list: carsRes.list, total: carsRes.total });
         this.loading.next(false);
       });
   }
@@ -60,34 +81,45 @@ export class CarsBaseDataService extends PageagleGridService<ServerCar.Response>
     };
 
     if (this.payload.sortField && this.payload.sortOrder) {
-      payload.sortField = payload.sortField || this.payload.sortField;
-      payload.sortOrder = payload.sortOrder || this.payload.sortOrder;
+      [payload.sortField, payload.sortOrder] = [
+        this.payload.sortField,
+        this.payload.sortOrder,
+      ];
     }
 
-    this.payload = payload;
+    this.filtersObject.next(payload);
 
     this.fetchData();
-  };
+  }
 
   getCarsImages(id: number) {
-    return this.requestService.get<ServerFile.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .get<
+        ServerFile.Response[]
+      >(`${environment.serverUrl}/${API}/${Constants.API.IMAGES}/${id}`)
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return result;
-      }))
+          return result;
+        }),
+      );
   }
 
   deleteCar(id: number): Observable<Boolean> {
-    return this.requestService.delete<ServerCar.Response>(`${environment.serverUrl}/${API}/${ Constants.API.CRUD }/${id}`)
+    return this.requestService
+      .delete<ServerCar.Response>(
+        `${environment.serverUrl}/${API}/${Constants.API.CRUD}/${id}`,
+      )
       .pipe(
         takeUntil(this.destroy$),
         finalize(() => this.loading.next(false)),
-        map(result => {
-        console.log(result);
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   ngOnDestroy(): void {

@@ -78,6 +78,12 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
 
   constructor(private elem: ElementRef<HTMLElement>) {}
   ngOnInit(): void {
+    this.updatePage({
+      first: 0,
+      rows: 30,
+      sortField: 'createdDate',
+      sortOrder: -1,
+    });
     this.selectedKeys = [...this.selected];
     this.updateActions();
 
@@ -144,10 +150,12 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
   // }
 
   updatePage(event: LazyLoadEvent) {
+    console.log(event);
     const sortOrder: ZASortDirection | undefined =
       (event.sortOrder && SortEventDirection[event.sortOrder]) || undefined;
     const sortField = event.sortField || undefined;
-
+    console.log(this.initialDealStatuses);
+    console.log('1');
     this.initialDealStatuses
       ? this.dataService.updatePage({
           size: event.rows!,
@@ -169,5 +177,23 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
     //   this.gridData = data.list;
     //   this.totalRecords = data.total;
     // });
+  }
+
+  pageChange(event) {
+    console.log('2');
+    console.log(event);
+    this.first = event.first;
+
+    const sortOrder: ZASortDirection | undefined =
+      (event.sortOrder && SortEventDirection[event.sortOrder]) || undefined;
+    const sortField = event.sortField || undefined;
+    // + сюда добавить предыдующий фильтр created
+    this.dataService.filtersObject.next({
+      size: event.rows!,
+      page: (event.first! + event.rows!) / event.rows!,
+      sortField,
+      sortOrder,
+    });
+    this.dataService.updatePage(this.dataService.filtersObject.getValue());
   }
 }
