@@ -74,15 +74,104 @@
             icon="pi pi-plus"
             (click)="openNewCarWindow()"
           ></button>
+          <p-button
+            [label]="selectedFiltersLabel"
+            icon="pi pi-filter"
+            (click)="op.toggle($event)"
+          ></p-button>
+          <p-overlayPanel
+            #op
+            [showCloseIcon]="true"
+            [style]="{ width: '550px', padding: '10px' }"
+          >
+            <ng-template pTemplate>
+              <div class="p-fluid grid formgrid">
+                <div
+                  *ngFor="let filter of filters"
+                  class="p-field col-4"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    padding: 10px;
+                  "
+                >
+                  <ng-container *ngIf="filter.type === FieldTypes.Dropdown">
+                    <span style="margin-bottom: 2px">{{ filter.title }}</span>
+                    <p-dropdown
+                      [ngModelOptions]="{ standalone: true }"
+                      appendTo="body"
+                      [autoDisplayFirst]="true"
+                      [options]="filter.variants || []"
+                      [(ngModel)]="filter.value"
+                      (onChange)="changeFilter($any(filter), $event)"
+                      optionLabel="label"
+                      optionValue="value"
+                    ></p-dropdown>
+                  </ng-container>
+
+                  <ng-container *ngIf="filter.type === FieldTypes.Multiselect">
+                    <span style="margin-bottom: 2px">{{ filter.title }}</span>
+                    <p-multiSelect
+                      [ngModelOptions]="{ standalone: true }"
+                      appendTo="body"
+                      [options]="filter.variants || []"
+                      [(ngModel)]="filter.value"
+                      placeholder="Все"
+                      optionLabel="label"
+                      optionValue="value"
+                      (onChange)="changeMultiselectFilter(filter, $event)"
+                      selectedItemsLabel="{0} выбрано"
+                      [maxSelectedLabels]="0"
+                    ></p-multiSelect>
+                  </ng-container>
+
+                  <ng-container *ngIf="filter.type === FieldTypes.Text">
+                    <span style="margin-bottom: 2px">{{ filter.title }}</span>
+
+                    <input
+                      [ngModelOptions]="{ standalone: true }"
+                      type="text"
+                      [(ngModel)]="filter.value"
+                      (change)="
+                        changeFilter(filter, transformFormInputEvent($event))
+                      "
+                      pInputText
+                      [placeholder]="'Все'"
+                    />
+                  </ng-container>
+
+                  <ng-container *ngIf="filter.type === FieldTypes.Number">
+                    <span style="margin-bottom: 10px"
+                      >{{ filter.title }}
+                      {{
+                        (filter.values[0] === filter.min
+                          ? 'Все'
+                          : filter.values[0]) +
+                          ' - ' +
+                          (filter.values[1] === filter.max
+                            ? 'Все'
+                            : filter.values[1])
+                      }}</span
+                    >
+                    <p-slider
+                      [ngModelOptions]="{ standalone: true }"
+                      [min]="filter.min"
+                      [max]="filter.max"
+                      [(ngModel)]="filter.values"
+                      [step]="filter.step"
+                      [range]="true"
+                      (onChange)="changeNumberRangeFilter(filter, $event)"
+                    ></p-slider>
+                  </ng-container>
+                </div>
+              </div>
+            </ng-template>
+          </p-overlayPanel>
         </div>
 
         <div class="p-toolbar-group-right">
-          <p-button
-            size="small"
-            label="Обновить"
-            type="submit"
-            class="mr-2"
-          >
+          <p-button size="small" label="Обновить" type="submit" class="mr-2">
           </p-button>
           <p-button
             size="small"
