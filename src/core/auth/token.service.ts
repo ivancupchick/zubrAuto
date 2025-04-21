@@ -67,6 +67,6 @@ export class TokenService {
   }
 
   async findToken(refreshToken: string) {
-    return await this.prisma.userTokens.findFirst({ where: {refreshToken: refreshToken}});
+    return await this.prisma.userTokens.findFirst({ where: { refreshToken: refreshToken }});
   }
 }

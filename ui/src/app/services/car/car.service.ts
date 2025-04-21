@@ -97,6 +97,7 @@ export class CarService {
   }
 
   getCarsImages(id: number) {
+    console.log(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`);
     return this.requestService.get<ServerFile.Response[]>(`${environment.serverUrl}/${API}/${ Constants.API.IMAGES }/${id}`)
       .pipe(map(result => {
         console.log(result);

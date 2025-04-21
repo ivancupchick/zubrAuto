@@ -46,6 +46,15 @@ export abstract class PageagleGridService<ResponseItemType> {
       page, size, sortOrder, sortField,
       ...skipEmptyFilters(filters),
     };
+  }
+
+  public updateFiltersAndFetch(filters: FiltersData): void {
+    const { page, size, sortOrder, sortField } = this.payload;
+
+    this.payload = {
+      page, size, sortOrder, sortField,
+      ...skipEmptyFilters(filters),
+    };
 
     this.fetchData();
   }

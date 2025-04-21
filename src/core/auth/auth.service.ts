@@ -97,7 +97,7 @@ export class AuthService {
     }
 
     const userData: ServerAuth.Payload = this.tokenService.validateRefreshToken(refreshToken) as ServerAuth.Payload;
-    const tokenFromDb  = await this.tokenService.findToken(refreshToken);
+    const tokenFromDb = await this.prisma.userTokens.findFirst({ where: { refreshToken: refreshToken }});
 
     // console.log(`refresh: start tokin refreshing for ${userData.id} user `);
 

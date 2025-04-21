@@ -78,6 +78,7 @@ import {
   StatusesByAdmin,
   StatusesByAllCallBase,
   StatusesByCarsForSale,
+  StatusesByMyCallBase,
   StatusesByMyCallBaseReady,
   StatusesByMyShootingBase,
   StatusesByShootedBase,
@@ -87,6 +88,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { SliderModule } from 'primeng/slider';
 import { UserService } from 'src/app/services/user/user.service';
 import { ServerRole } from 'src/app/entities/role';
+import { CarService } from 'src/app/services/car/car.service';
 
 @Component({
   selector: 'za-cars-base',
@@ -148,7 +150,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
   filters: UIFilter[] = [];
   FieldTypes = FieldType;
   selectedFilters: { [name: string]: { [serverField: string]: any } } = {};
-  selectedStatus: FieldNames.CarStatus[] = [];
+  // selectedStatus: FieldNames.CarStatus[] = [];
   rangeDates: [Date, Date | null] | null = null;
 
   // инпуты вынести в отдельную логику
@@ -160,6 +162,8 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
   list$ = this.carsBaseDataService.list$;
   destroyed = new Subject();
+
+  FieldNames = FieldNames;
 
   get onSelectContactUserAvailable() {
     return (
@@ -183,6 +187,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private cd: ChangeDetectorRef,
     private userService: UserService,
+    private carService: CarService,
   ) {}
 
   ngOnInit(): void {
@@ -212,6 +217,10 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
         if (oldType !== this.type) {
           this.initCars();
+          this.carsBaseDataService.carsBaseItems.next({
+            list: [],
+            total: 0,
+          });
         }
       });
 
@@ -254,6 +263,9 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
       this.generateFilters();
     });
+
+    this.setGridSettings();
+    this.initCars();
   }
   getclientFieldConfigs() {
     // тут  надо вернуть обычное значение this.clientFieldConfigs уже засетченое, чутка не шарю
@@ -265,12 +277,12 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
   // доделать закоменченое
   initCars() {
     // this.resetState();
-    // this.setAvailableStatuses();
+    this.setAvailableStatuses();
     this.setDefaultStatuses();
     // this.getCars();
   }
 
-  filter() {
+  filter(isChangePage = true) {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -280,16 +292,13 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       const { mark, ...rest } = filters;
       filters = { mark: mark, 'filter-operator-mark': 'LIKE', ...rest };
     }
-    if (filters.status) {
+    if (filters.status?.length) {
       const { status, ...rest } = filters;
       filters = { status: status, ...rest };
-    }
-    if (filters.selectedContactCenterUser) {
-      const { selectedContactCenterUser, ...rest } = filters;
-      filters = {
-        'selected-contact-center-user': selectedContactCenterUser,
-        ...rest,
-      };
+    } else {
+      if (this.availableCarStatuses.length > 0) {
+        filters[FieldNames.Car.status] = this.availableCarStatuses.map(s => s.value);
+      }
     }
     if (filters.number) {
       const { number, ...rest } = filters;
@@ -321,15 +330,29 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       filters = { ...specialFilter, ...filters };
     });
 
-    this.carsBaseDataService.updateFilters(filters);
-    this.first = 0;
+    if (isChangePage) {
+      this.first = 1; // TODO refactor it
+      this.cd.detectChanges();
+      this.first = 0;
+    }
+
+    const payload = { ...filters };
+    if (isChangePage) {
+      payload.page = 1
+    }
+
+    this.carsBaseDataService.updateFiltersAndFetch(payload);
   }
 
   clearFilters() {
     this.form.reset(CarBaseFilterFormsInitialState);
     const filters = skipEmptyFilters({ ...this.form.value });
+    this.selectedFilters = {};
+
+    this.first = 1; // TODO refactor it
+    this.cd.detectChanges();
     this.first = 0;
-    this.carsBaseDataService.updateFilters(filters);
+    this.carsBaseDataService.updateFiltersAndFetch({page: 1, ...filters});
   }
 
   openNewCarWindow() {}
@@ -366,7 +389,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
         break;
       case QueryCarTypes.myCallBase:
         this.availableCarStatuses = [
-          ...StatusesByMyCallBaseReady.map((s) => ({ label: s, value: s })),
+          ...StatusesByMyCallBase.map((s) => ({ label: s, value: s })),
         ];
         break;
       case QueryCarTypes.allCallBase:
@@ -820,10 +843,6 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
           this.sessionService.isContactCenterChief,
       },
     ];
-
-    console.log(
-      configs.filter((config) => !config.available || config.available()),
-    );
 
     return configs.filter((config) => !config.available || config.available());
   }
@@ -1431,7 +1450,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
   subscribeOnCloseModalRef(ref: DynamicDialogRef) {
     ref.onClose.subscribe((res) => {
       if (res) {
-        this.filter();
+        this.filter(false);
       }
     });
   }
@@ -1492,7 +1511,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       return of(false);
     }
 
-    return this.carsBaseDataService.getCarsImages(car.id).pipe(
+    return this.carService.getCarsImages(car.id).pipe(
       map((images) => {
         const carImages = images.filter(
           (image) => image.type === ServerFile.Types.Image,
@@ -1746,9 +1765,11 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
   }
 
   setDefaultStatuses() {
+
+    let statuses: FieldNames.CarStatus[] = [];
     switch (this.type) {
       case QueryCarTypes.byAdmin:
-        this.selectedStatus = [
+        statuses = [
           FieldNames.CarStatus.contactCenter_InProgress,
           FieldNames.CarStatus.contactCenter_NoAnswer,
           FieldNames.CarStatus.contactCenter_MakingDecision,
@@ -1767,7 +1788,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
         ];
         break;
       case QueryCarTypes.myCallBase:
-        this.selectedStatus = [
+        statuses = [
           FieldNames.CarStatus.contactCenter_WaitingShooting,
           FieldNames.CarStatus.contactCenter_InProgress,
           FieldNames.CarStatus.contactCenter_MakingDecision,
@@ -1777,7 +1798,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
         break;
       case QueryCarTypes.allCallBase:
-        this.selectedStatus = [
+        statuses = [
           FieldNames.CarStatus.contactCenter_WaitingShooting,
           FieldNames.CarStatus.contactCenter_Refund,
         ];
@@ -1785,7 +1806,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
         break;
       case QueryCarTypes.myShootingBase:
       case QueryCarTypes.allShootingBase:
-        this.selectedStatus = [
+        statuses = [
           FieldNames.CarStatus.carShooting_InProgres,
           FieldNames.CarStatus.carShooting_Refund,
         ];
@@ -1793,15 +1814,35 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
         break;
       case QueryCarTypes.carsForSaleTemp:
       case QueryCarTypes.carsForSale:
-        this.selectedStatus = [
+        statuses = [
           FieldNames.CarStatus.customerService_InProgress,
           FieldNames.CarStatus.customerService_OnPause,
         ];
 
         break;
     }
+
+    this.form.get(FieldNames.Car.status)?.setValue(statuses);
+
+    let filters = skipEmptyFilters({ ...structuredClone(this.form.value) });
+    if (filters.status?.length) {
+      const { status, ...rest } = filters;
+      filters = { status: status, ...rest };
+    } else {
+      if (this.availableCarStatuses.length > 0) {
+        const { status, ...rest } = filters;
+        filters = { status: this.availableCarStatuses.map(s => s.value), ...rest };
+      }
+    }
+
+    this.carsBaseDataService.updateFilters({ page: 1, ...filters });
   }
+
   ngOnDestroy(): void {
     this.destroyed.next(null);
+    this.carsBaseDataService.carsBaseItems.next({
+      list: [],
+      total: 0,
+    });
   }
 }
