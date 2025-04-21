@@ -2,22 +2,44 @@
   <div class="content">
     <div *ngIf="availableStatuses.length > 1" class="status-wrapper">
       <h5>Поменять статус на</h5>
-      <p-dropdown appendTo="body" [options]="statuses" [(ngModel)]="selectedStatus" placeholder="Выберите статус" optionLabel="value" optionValue="key"></p-dropdown>
+      <p-dropdown
+        appendTo="body"
+        [options]="statuses"
+        [(ngModel)]="selectedStatus"
+        placeholder="Выберите статус"
+        optionLabel="value"
+        optionValue="key"
+      ></p-dropdown>
     </div>
     <div class="comment-wrapper">
       <h5>Комментарий</h5>
-      <input type="text" pInputText [(ngModel)]="comment">
+      <input type="text" pInputText [(ngModel)]="comment" />
     </div>
     <div *ngIf="isNextActionDateAvailable" class="dateOfNextAction-wrapper">
       <h5>Дата следующего дейтсвия</h5>
-      <input type="text" pInputText [(ngModel)]="dateOfNextAction">
+      <input type="text" pInputText [(ngModel)]="dateOfNextAction" />
     </div>
   </div>
 </div>
 
 <div class="footer">
-  <button pButton icon="pi pi-save" [disabled]="formNotValid" type="button" [label]="'Готово'" (click)="create()" class="p-mr-2 p-mb-2 p-button-success"></button>
-  <button pButton icon="pi pi-times" type="button" label="Отмена" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
+  <button
+    pButton
+    icon="pi pi-save"
+    [disabled]="formNotValid"
+    type="button"
+    [label]="'Готово'"
+    (click)="create()"
+    class="p-mr-2 p-mb-2 p-button-success"
+  ></button>
+  <button
+    pButton
+    icon="pi pi-times"
+    type="button"
+    label="Отмена"
+    class="p-mb-2 p-button-danger"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <za-spinner *ngIf="loading"></za-spinner>

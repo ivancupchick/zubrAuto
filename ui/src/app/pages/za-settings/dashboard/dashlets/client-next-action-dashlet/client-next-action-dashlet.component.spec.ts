@@ -8,9 +8,8 @@ describe('ClientNextActionDashletComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ClientNextActionDashletComponent ]
-    })
-    .compileComponents();
+      declarations: [ClientNextActionDashletComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ClientNextActionDashletComponent);
     component = fixture.componentInstance;

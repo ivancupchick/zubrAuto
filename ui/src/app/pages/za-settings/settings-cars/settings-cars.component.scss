@@ -1,11 +1,11 @@
 .p-toolbar-group {
-  &-left, &-right {
+  &-left,
+  &-right {
     & > * + * {
       margin-left: 5px;
     }
   }
 }
-
 
 :host {
   display: flex;

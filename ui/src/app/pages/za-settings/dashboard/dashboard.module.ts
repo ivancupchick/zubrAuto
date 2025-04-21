@@ -17,13 +17,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 
-
 @NgModule({
   declarations: [
     DashboardComponent,
     CallRequestsDashletComponent,
     ClientNextActionDashletComponent,
-    CallsDashletComponent
+    CallsDashletComponent,
   ],
   imports: [
     CommonModule,
@@ -41,8 +40,6 @@ import { CalendarModule } from 'primeng/calendar';
     DropdownModule,
     CalendarModule,
   ],
-  exports: [
-    DashboardComponent
-  ]
+  exports: [DashboardComponent],
 })
-export class DashboardModule { }
+export class DashboardModule {}

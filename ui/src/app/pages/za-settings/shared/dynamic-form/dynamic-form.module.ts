@@ -10,17 +10,13 @@ import { DateFormFieldsComponent } from './dynamic-form-fields/date-form-fields/
 import { CalendarModule } from 'primeng/calendar';
 import { InputMaskModule } from 'primeng/inputmask';
 
-
-
 @NgModule({
   declarations: [
     DynamicFormComponent,
     PrimitiveFormFieldComponent,
-    DateFormFieldsComponent
+    DateFormFieldsComponent,
   ],
-  exports: [
-    DynamicFormComponent
-  ],
+  exports: [DynamicFormComponent],
   imports: [
     CommonModule,
     InputTextModule,
@@ -30,6 +26,6 @@ import { InputMaskModule } from 'primeng/inputmask';
     InputTextareaModule,
     CalendarModule,
     InputMaskModule,
-  ]
+  ],
 })
-export class DynamicFormModule { }
+export class DynamicFormModule {}

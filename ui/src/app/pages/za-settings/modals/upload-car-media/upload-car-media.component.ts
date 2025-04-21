@@ -12,9 +12,7 @@ import { environment } from 'src/environments/environment';
   selector: 'za-upload-car-media',
   templateUrl: './upload-car-media.component.html',
   styleUrls: ['./upload-car-media.component.scss'],
-  providers: [
-    CarService
-  ]
+  providers: [CarService],
 })
 export class UploadCarMediaComponent implements OnInit {
   loading = false;
@@ -23,71 +21,91 @@ export class UploadCarMediaComponent implements OnInit {
   images: ServerFile.Response[] = [];
   stateImages: ServerFile.Response[] = [];
 
-  mainPhotoId: number | undefined= undefined;
+  mainPhotoId: number | undefined = undefined;
 
   get formNotValid() {
-    return false
+    return false;
   }
 
   image360: ServerFile.Response | undefined = undefined;
 
   uplo: File[] = [];
 
-  responsiveOptions = [{
-    breakpoint: '1024px',
-    numVisible: 3,
-    numScroll: 3
-  }, {
-    breakpoint: '768px',
-    numVisible: 2,
-    numScroll: 2
-  }, {
-    breakpoint: '560px',
-    numVisible: 1,
-    numScroll: 1
-  }];
+  responsiveOptions = [
+    {
+      breakpoint: '1024px',
+      numVisible: 3,
+      numScroll: 3,
+    },
+    {
+      breakpoint: '768px',
+      numVisible: 2,
+      numScroll: 2,
+    },
+    {
+      breakpoint: '560px',
+      numVisible: 1,
+      numScroll: 1,
+    },
+  ];
 
   @Input() car!: ServerCar.Response;
 
   @ViewChild('imagesFileUpload', { read: FileUpload }) fileUpload!: FileUpload;
-  @ViewChild('image360FileUpload', { read: FileUpload }) image360FileUpload!: FileUpload;
-  @ViewChild('imagesStateFileUpload', { read: FileUpload }) imagesStateFileUpload!: FileUpload;
+  @ViewChild('image360FileUpload', { read: FileUpload })
+  image360FileUpload!: FileUpload;
+  @ViewChild('imagesStateFileUpload', { read: FileUpload })
+  imagesStateFileUpload!: FileUpload;
 
   constructor(
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
 
     private carService: CarService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    this.setCar(this.config.data.car)
+    this.setCar(this.config.data.car);
   }
 
   setCar(car: ServerCar.Response) {
     this.car = car;
 
-    this.link = FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.linkToVideo);
-    this.oldWorksheet = FieldsUtils.getFieldStringValue(this.car, FieldNames.Car.oldWorksheet);
+    this.link = FieldsUtils.getFieldStringValue(
+      this.car,
+      FieldNames.Car.linkToVideo,
+    );
+    this.oldWorksheet = FieldsUtils.getFieldStringValue(
+      this.car,
+      FieldNames.Car.oldWorksheet,
+    );
 
-    this.mainPhotoId = FieldsUtils.getFieldNumberValue(this.car, FieldNames.Car.mainPhotoId);
+    this.mainPhotoId = FieldsUtils.getFieldNumberValue(
+      this.car,
+      FieldNames.Car.mainPhotoId,
+    );
 
     this.getImages().subscribe();
   }
 
   getImages() {
     this.loading = true;
-    return this.carService.getCarsImages(this.car.id)
-      .pipe(
-        finalize(() => this.loading = false),
-        tap(images => {
-          this.images = images.filter(image => image.type === ServerFile.Types.Image);
-          this.image360 = images.find(image => image.type === ServerFile.Types.Image360);
-          this.stateImages = images.filter(image => image.type === ServerFile.Types.StateImage)
+    return this.carService.getCarsImages(this.car.id).pipe(
+      finalize(() => (this.loading = false)),
+      tap((images) => {
+        this.images = images.filter(
+          (image) => image.type === ServerFile.Types.Image,
+        );
+        this.image360 = images.find(
+          (image) => image.type === ServerFile.Types.Image360,
+        );
+        this.stateImages = images.filter(
+          (image) => image.type === ServerFile.Types.StateImage,
+        );
 
-          this.loading = false;
-        })
-      )
+        this.loading = false;
+      }),
+    );
   }
 
   create() {
@@ -122,117 +140,155 @@ export class UploadCarMediaComponent implements OnInit {
     return `${image.url}`;
   }
 
-  uploadNewImage({ files }: { files: File[]}) {
+  uploadNewImage({ files }: { files: File[] }) {
     this.uplo = files;
 
     this.loading = true;
 
-    this.carService.uploadCarImages(this.car.id, this.uplo, '').pipe(
-      finalize(() => this.loading = false),
-    ).subscribe(res => {
-      this.getImages().subscribe();
+    this.carService
+      .uploadCarImages(this.car.id, this.uplo, '')
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe((res) => {
+        this.getImages().subscribe();
 
-      this.fileUpload.clear();
-    })
+        this.fileUpload.clear();
+      });
   }
 
-  uploadImage360({ files }: { files: File[]}) {
+  uploadImage360({ files }: { files: File[] }) {
     this.uplo = files;
 
     this.loading = true;
 
-    this.carService.uploadCarImage360(this.car.id, this.uplo[0], '').pipe(
-      finalize(() => this.loading = false),
-    ).subscribe(res => {
-      this.image360FileUpload.clear();
+    this.carService
+      .uploadCarImage360(this.car.id, this.uplo[0], '')
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(
+        (res) => {
+          this.image360FileUpload.clear();
 
-      this.getImages().subscribe();
-    }, e => {
-      console.log(e);
-    })
+          this.getImages().subscribe();
+        },
+        (e) => {
+          console.log(e);
+        },
+      );
   }
 
-  uploadStateImages({ files }: { files: File[]}) {
+  uploadStateImages({ files }: { files: File[] }) {
     this.uplo = files;
 
     this.loading = true;
 
-    this.carService.uploadCarStateImages(this.car.id, this.uplo, '').pipe(
-      finalize(() => this.loading = false),
-    ).subscribe(res => {
-      this.getImages().subscribe();
+    this.carService
+      .uploadCarStateImages(this.car.id, this.uplo, '')
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe((res) => {
+        this.getImages().subscribe();
 
-      this.fileUpload.clear();
-    })
+        this.fileUpload.clear();
+      });
   }
 
   selectMainPhoto(image: ServerFile.Response) {
     this.loading = true;
-    this.carService.selectMainPhoto(this.car.id, image.id).pipe(
-      finalize(() => this.loading = false),
-    ).subscribe(res => {
-      this.getImages().subscribe();
-      this.carService.getCar(this.car.id).pipe(
-        finalize(() => this.loading = false),
-      ).subscribe(car => {
-        this.setCar(car);
-      }, e => {
-        console.error(e);
-      })
-    }, e => {
-      console.error(e);
-    })
+    this.carService
+      .selectMainPhoto(this.car.id, image.id)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(
+        (res) => {
+          this.getImages().subscribe();
+          this.carService
+            .getCar(this.car.id)
+            .pipe(finalize(() => (this.loading = false)))
+            .subscribe(
+              (car) => {
+                this.setCar(car);
+              },
+              (e) => {
+                console.error(e);
+              },
+            );
+        },
+        (e) => {
+          console.error(e);
+        },
+      );
   }
 
   deletePhoto(image: ServerFile.Response) {
     this.loading = true;
-    this.carService.deleteCarImage(this.car.id, image.id).pipe(
-      finalize(() => this.loading = false),
-    ).subscribe(res => {
-      this.getImages().subscribe();
-      this.carService.getCar(this.car.id).pipe(
-        finalize(() => this.loading = false),
-      ).subscribe(car => {
-        this.setCar(car);
-      }, e => {
-        console.error(e);
-      })
-    }, e => {
-      console.error(e);
-    })
+    this.carService
+      .deleteCarImage(this.car.id, image.id)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(
+        (res) => {
+          this.getImages().subscribe();
+          this.carService
+            .getCar(this.car.id)
+            .pipe(finalize(() => (this.loading = false)))
+            .subscribe(
+              (car) => {
+                this.setCar(car);
+              },
+              (e) => {
+                console.error(e);
+              },
+            );
+        },
+        (e) => {
+          console.error(e);
+        },
+      );
   }
 
   saveLink() {
     this.loading = true;
-    this.carService.saveVideo(this.car.id, this.link).pipe(
-      finalize(() => this.loading = false),
-    ).subscribe(res => {
-      this.carService.getCar(this.car.id).pipe(
-        finalize(() => this.loading = false),
-      ).subscribe(car => {
-        this.setCar(car);
-      }, e => {
-        console.error(e);
-      })
-    }, e => {
-      console.error(e);
-    })
+    this.carService
+      .saveVideo(this.car.id, this.link)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(
+        (res) => {
+          this.carService
+            .getCar(this.car.id)
+            .pipe(finalize(() => (this.loading = false)))
+            .subscribe(
+              (car) => {
+                this.setCar(car);
+              },
+              (e) => {
+                console.error(e);
+              },
+            );
+        },
+        (e) => {
+          console.error(e);
+        },
+      );
   }
 
   saveOldWorksheet() {
     this.loading = true;
-    this.carService.saveOldWorksheet(this.car.id, this.oldWorksheet).pipe(
-      finalize(() => this.loading = false),
-    ).subscribe(res => {
-      this.carService.getCar(this.car.id).pipe(
-        finalize(() => this.loading = false),
-      ).subscribe(car => {
-        this.setCar(car);
-      }, e => {
-        console.error(e);
-      })
-    }, e => {
-      console.error(e);
-    })
+    this.carService
+      .saveOldWorksheet(this.car.id, this.oldWorksheet)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(
+        (res) => {
+          this.carService
+            .getCar(this.car.id)
+            .pipe(finalize(() => (this.loading = false)))
+            .subscribe(
+              (car) => {
+                this.setCar(car);
+              },
+              (e) => {
+                console.error(e);
+              },
+            );
+        },
+        (e) => {
+          console.error(e);
+        },
+      );
   }
 }

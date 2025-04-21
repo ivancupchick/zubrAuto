@@ -13,73 +13,111 @@ const API = 'clients';
 
 @Injectable()
 export class ClientService {
-  constructor(private requestService: RequestService, private fieldService: FieldService) { }
+  constructor(
+    private requestService: RequestService,
+    private fieldService: FieldService,
+  ) {}
 
   getClients(): Observable<BaseList<ServerClient.Response>> {
-    return this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`);
+    return this.requestService.get<BaseList<ServerClient.Response>>(
+      `${environment.serverUrl}/${API}`,
+    );
   }
 
-  getClientsByQuery(query: StringHash<string | number>): Observable<BaseList<ServerClient.Response>> {
-    return this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`, query)
+  getClientsByQuery(
+    query: StringHash<string | number>,
+  ): Observable<BaseList<ServerClient.Response>> {
+    return this.requestService.get<BaseList<ServerClient.Response>>(
+      `${environment.serverUrl}/${API}`,
+      query,
+    );
   }
 
   createClient(value: ServerClient.CreateRequest): Observable<boolean> {
-    return this.requestService.post<never>(`${environment.serverUrl}/${API}`, value)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .post<never>(`${environment.serverUrl}/${API}`, value)
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   getClient(id: number): Observable<ServerClient.Response> {
-    return this.requestService.get<ServerClient.Response[]>(`${environment.serverUrl}/${API}/${id}`)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .get<ServerClient.Response[]>(`${environment.serverUrl}/${API}/${id}`)
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return result[0];
-      }))
+          return result[0];
+        }),
+      );
   }
 
-  updateClient(value: ServerClient.UpdateRequest, id: number): Observable<boolean> {
+  updateClient(
+    value: ServerClient.UpdateRequest,
+    id: number,
+  ): Observable<boolean> {
     delete (value as any).id;
-    return this.requestService.put<any>(`${environment.serverUrl}/${API}/${id}`, value)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .put<any>(`${environment.serverUrl}/${API}/${id}`, value)
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   deleteClient(id: number): Observable<boolean> {
-    return this.requestService.delete<any>(`${environment.serverUrl}/${API}/${id}`)
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .delete<any>(`${environment.serverUrl}/${API}/${id}`)
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   completeDeal(clientId: number, carId: number | string): Observable<boolean> {
     if (typeof clientId === 'string') {
       return of(false);
     }
-    return this.requestService.post<any>(`${environment.serverUrl}/${API}/${Constants.API.COMPLETE_DEAL}`, { clientId, carId })
-      .pipe(map(result => {
-        console.log(result);
+    return this.requestService
+      .post<any>(
+        `${environment.serverUrl}/${API}/${Constants.API.COMPLETE_DEAL}`,
+        { clientId, carId },
+      )
+      .pipe(
+        map((result) => {
+          console.log(result);
 
-        return true;
-      }))
+          return true;
+        }),
+      );
   }
 
   getClientFields() {
     return this.fieldService.getFieldsByDomain(FieldDomains.Client);
   }
 
-  getClientsByNumber(payloud: StringHash<string | string[]>): Observable<BaseList<ServerClient.Response>> {
-    return this.requestService.get<BaseList<ServerClient.Response>>(`${environment.serverUrl}/${API}`, payloud)
-      .pipe(map(result => {
-        return result;
-      }))
+  getClientsByNumber(
+    payloud: StringHash<string | string[]>,
+  ): Observable<BaseList<ServerClient.Response>> {
+    return this.requestService
+      .get<
+        BaseList<ServerClient.Response>
+      >(`${environment.serverUrl}/${API}`, payloud)
+      .pipe(
+        map((result) => {
+          return result;
+        }),
+      );
   }
 }

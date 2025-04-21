@@ -2,50 +2,76 @@
   <div class="content">
     <h5>Статистика</h5>
     <p-tabView styleClass="tabview-custom">
-        <p-tabPanel *ngFor="let tab of statisticsTab">
-            <ng-template pTemplate = "header">
-                <i class="pi pi-calendar"></i>
-                <span>{{ tab.title }}</span>
-            </ng-template>
+      <p-tabPanel *ngFor="let tab of statisticsTab">
+        <ng-template pTemplate="header">
+          <i class="pi pi-calendar"></i>
+          <span>{{ tab.title }}</span>
+        </ng-template>
 
-            <div>
-              <p-chart type="line" [data]="tab.data" [options]="tab.options"></p-chart>
+        <div>
+          <p-chart
+            type="line"
+            [data]="tab.data"
+            [options]="tab.options"
+          ></p-chart>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <i class="pi pi-pencil"></i>
+          <span>{{ 'Уценки' }}</span>
+        </ng-template>
+
+        <div style="display: flex">
+          <div style="display: flex; flex-direction: column">
+            <div class="discount-wrapper">
+              <h5>Уценка</h5>
+              <input type="text" pInputText [(ngModel)]="discount" />
             </div>
-        </p-tabPanel>
-        <p-tabPanel>
-          <ng-template pTemplate = "header">
-              <i class="pi pi-pencil"></i>
-              <span>{{ 'Уценки' }}</span>
-          </ng-template>
 
-          <div style="display: flex;">
-            <div style="display: flex; flex-direction: column;">
-              <div class="discount-wrapper">
-                <h5>Уценка</h5>
-                <input type="text" pInputText [(ngModel)]="discount">
-              </div>
-
-              <button pButton icon="pi pi-save" [disabled]="discount.length === 0" type="button" [label]="'Сделать уценку'" (click)="makeDiscount()" class="p-mr-2 p-mb-2 p-button-success"></button>
-            </div>
-
-            <p-timeline [value]="discountTimeLine">
-              <ng-template pTemplate="content" let-event>
-                <small class="p-text-secondary">{{event.date}}</small>
-              </ng-template>
-              <ng-template pTemplate="opposite" let-event>
-                {{event.text}}
-              </ng-template>
-            </p-timeline>
+            <button
+              pButton
+              icon="pi pi-save"
+              [disabled]="discount.length === 0"
+              type="button"
+              [label]="'Сделать уценку'"
+              (click)="makeDiscount()"
+              class="p-mr-2 p-mb-2 p-button-success"
+            ></button>
           </div>
 
-        </p-tabPanel>
+          <p-timeline [value]="discountTimeLine">
+            <ng-template pTemplate="content" let-event>
+              <small class="p-text-secondary">{{ event.date }}</small>
+            </ng-template>
+            <ng-template pTemplate="opposite" let-event>
+              {{ event.text }}
+            </ng-template>
+          </p-timeline>
+        </div>
+      </p-tabPanel>
     </p-tabView>
   </div>
 </div>
 
 <div class="footer">
-  <button pButton icon="pi pi-save" [disabled]="formNotValid" type="button" [label]="'Записать звонок'" (click)="save()" class="p-mr-2 p-mb-2 p-button-success"></button>
-  <button pButton icon="pi pi-times" type="button" label="Отмена" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
+  <button
+    pButton
+    icon="pi pi-save"
+    [disabled]="formNotValid"
+    type="button"
+    [label]="'Записать звонок'"
+    (click)="save()"
+    class="p-mr-2 p-mb-2 p-button-success"
+  ></button>
+  <button
+    pButton
+    icon="pi pi-times"
+    type="button"
+    label="Отмена"
+    class="p-mb-2 p-button-danger"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <za-spinner *ngIf="loading"></za-spinner>

@@ -8,9 +8,8 @@ describe('ZASettingsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ZASettingsComponent ]
-    })
-    .compileComponents();
+      declarations: [ZASettingsComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

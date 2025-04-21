@@ -29,7 +29,7 @@
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "allowedCommonJsDependencies" : [
+            "allowedCommonJsDependencies": [
               "quill",
               "moment",
               "crypto-js",

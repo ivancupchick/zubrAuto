@@ -1,6 +1,12 @@
 <p-panel *ngIf="loaded" header="Следующие действия по моим клиентам">
   <ng-template pTemplate="icons">
-    <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2">
+    <form
+      *ngIf="form"
+      #ngForm="ngForm"
+      (ngSubmit)="refresh()"
+      [formGroup]="form"
+      class="gap-2"
+    >
       <p-multiSelect
         appendTo="body"
         *ngIf="availableClientStatuses.length > 0"
@@ -17,7 +23,10 @@
         appendTo="body"
         size="small"
         class="ml-2"
-        *ngIf="availableSpecialists.length > 0 && activeIndex === 3 || activeIndex === 4"
+        *ngIf="
+          (availableSpecialists.length > 0 && activeIndex === 3) ||
+          activeIndex === 4
+        "
         [options]="availableSpecialists"
         formControlName="specialist"
         placeholder="Специалист"
@@ -27,17 +36,27 @@
         [maxSelectedLabels]="1"
       ></p-multiSelect>
 
-      <input pInputText class="ml-2" type="text" formControlName="number" pInputText placeholder="Телефон"/>
+      <input
+        pInputText
+        class="ml-2"
+        type="text"
+        formControlName="number"
+        pInputText
+        placeholder="Телефон"
+      />
 
-      <button  pButton size="small" class="mx-2">
+      <button pButton size="small" class="mx-2">
         <span *ngIf="activeIndex === 3 || activeIndex === 4">Фильтр</span>
-        <i class="pi pi-refresh ms-2" [ngClass]="{'pi-spin': form.disabled}"></i>
+        <i
+          class="pi pi-refresh ms-2"
+          [ngClass]="{ 'pi-spin': form.disabled }"
+        ></i>
       </button>
     </form>
   </ng-template>
 
   <p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="refresh()">
-    <p-tabPanel header="Сегодня и прошлые ({{myClientsTotal}})">
+    <p-tabPanel header="Сегодня и прошлые ({{ myClientsTotal }})">
       <!-- <div class="h-20rem">
         <za-grid
           *ngIf="gridConfig && myClients && myClients.length"
@@ -52,7 +71,7 @@
         ></za-grid>
       </div> -->
     </p-tabPanel>
-    <p-tabPanel header="Будущие ({{myFutureClientsTotal}})">
+    <p-tabPanel header="Будущие ({{ myFutureClientsTotal }})">
       <!-- <div class="h-20rem">
         <za-grid
           *ngIf="gridConfig && myFutureClients && myFutureClients.length"
@@ -68,7 +87,7 @@
       </div> -->
     </p-tabPanel>
     <ng-container *ngIf="!isCarSales">
-      <p-tabPanel *ngIf="!isCarSales" header="Все ({{allClientsTotal}})">
+      <p-tabPanel *ngIf="!isCarSales" header="Все ({{ allClientsTotal }})">
         <!-- <div class="h-20rem">
           <za-grid
             *ngIf="gridConfig && allClients && allClients.length"
@@ -83,7 +102,10 @@
           ></za-grid>
         </div> -->
       </p-tabPanel>
-      <p-tabPanel *ngIf="!isCarSales" header="Сегодня и прошлые сотрудников ({{someClientsTotal}})">
+      <p-tabPanel
+        *ngIf="!isCarSales"
+        header="Сегодня и прошлые сотрудников ({{ someClientsTotal }})"
+      >
         <!-- <div class="h-20rem">
           <za-grid
             *ngIf="gridConfig && someClients && someClients.length"
@@ -98,7 +120,10 @@
           ></za-grid>
         </div> -->
       </p-tabPanel>
-      <p-tabPanel *ngIf="!isCarSales" header="Будущие сотрудников ({{someFutureClientsTotal}})">
+      <p-tabPanel
+        *ngIf="!isCarSales"
+        header="Будущие сотрудников ({{ someFutureClientsTotal }})"
+      >
         <!-- <div class="h-20rem">
           <za-grid
             *ngIf="gridConfig && someFutureClients && someFutureClients.length"
@@ -118,7 +143,10 @@
 
   <div class="grid-wrapper h-20rem">
     <za-pageagle-grid
-      *ngIf="(clientNextActionDataService.list$ | async)?.list?.length else empty"
+      *ngIf="
+        (clientNextActionDataService.list$ | async)?.list?.length;
+        else empty
+      "
       [gridConfig]="gridConfig"
       [actions]="gridActionsConfig"
       [getColorConfig]="getColorConfig"
@@ -128,7 +156,9 @@
     ></za-pageagle-grid>
 
     <ng-template #empty>
-      <div class="w-full h-full flex justify-content-center align-items-center surface-300">
+      <div
+        class="w-full h-full flex justify-content-center align-items-center surface-300"
+      >
         <span>Нет записей</span>
       </div>
     </ng-template>

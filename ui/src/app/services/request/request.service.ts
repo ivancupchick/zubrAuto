@@ -7,16 +7,19 @@ import { Observable, Subject, of, throwError } from 'rxjs';
 
 @Injectable()
 export class RequestService {
-
   constructor(private httpClient: HttpClient) {}
 
-  get<T>(url: string, params: StringHash<string | number | string[] | boolean> = {}, isCachableRequest: boolean = false) {
+  get<T>(
+    url: string,
+    params: StringHash<string | number | string[] | boolean> = {},
+    isCachableRequest: boolean = false,
+  ) {
     return this.baseRequest(
       this.httpClient.get<T>(url, { params }),
       url,
       RequestType.Get,
       params,
-      isCachableRequest
+      isCachableRequest,
     );
   }
 
@@ -26,7 +29,7 @@ export class RequestService {
       url,
       RequestType.Post,
       body,
-      isCachableRequest
+      isCachableRequest,
     );
   }
 
@@ -36,7 +39,7 @@ export class RequestService {
       url,
       RequestType.Put,
       body,
-      isCachableRequest
+      isCachableRequest,
     );
   }
 
@@ -46,11 +49,17 @@ export class RequestService {
       url,
       RequestType.Delete,
       {},
-      isCachableRequest
+      isCachableRequest,
     );
   }
 
-  private baseRequest<T>(obs: Observable<T>, url: string, type: RequestType, body: any, isCachableRequest = false): Observable<T> {
+  private baseRequest<T>(
+    obs: Observable<T>,
+    url: string,
+    type: RequestType,
+    body: any,
+    isCachableRequest = false,
+  ): Observable<T> {
     if (isCachableRequest) {
       const cachedRequest = cacheService.get(url, type, body);
       if (cachedRequest instanceof Subject) {
@@ -63,21 +72,26 @@ export class RequestService {
       cacheService.put(url, type, body, new Subject());
     }
 
-    return obs
-      .pipe(
-        take(1),
-        tap(response => {
-          this.fireCachedSubject(url, type, body, response, isCachableRequest);
-        }),
-        catchError((catchResult) => {
-          // console.error(catchResult);
-          this.fireCachedSubject(url, type, body, {}, isCachableRequest);
-          throw catchResult;
-        }),
-      );
+    return obs.pipe(
+      take(1),
+      tap((response) => {
+        this.fireCachedSubject(url, type, body, response, isCachableRequest);
+      }),
+      catchError((catchResult) => {
+        // console.error(catchResult);
+        this.fireCachedSubject(url, type, body, {}, isCachableRequest);
+        throw catchResult;
+      }),
+    );
   }
 
-  private fireCachedSubject(url: string, type: RequestType, body: any, response: ZAResponose, isCachableRequest: boolean) {
+  private fireCachedSubject(
+    url: string,
+    type: RequestType,
+    body: any,
+    response: ZAResponose,
+    isCachableRequest: boolean,
+  ) {
     if (isCachableRequest) {
       const prevValue = cacheService.get(url, type, body);
       if (prevValue && prevValue instanceof Subject) {

@@ -13,9 +13,7 @@ import { finalize } from 'rxjs';
   selector: 'za-create-role',
   templateUrl: './create-role.component.html',
   styleUrls: ['./create-role.component.scss'],
-  providers: [
-    DynamicFieldControlService
-  ]
+  providers: [DynamicFieldControlService],
 })
 export class CreateRoleComponent implements OnInit {
   loading = false;
@@ -34,25 +32,26 @@ export class CreateRoleComponent implements OnInit {
     private dfcs: DynamicFieldControlService,
 
     private ref: DynamicDialogRef,
-    private config: DynamicDialogConfig
+    private config: DynamicDialogConfig,
   ) {
     this.role = this.config?.data?.role || undefined;
   }
 
   ngOnInit(): void {
-
     this.fieldConfigs = this.config.data.fieldConfigs;
 
     const formFields: DynamicFieldBase<string>[] = [];
 
-    formFields.push(this.dfcs.getDynamicFieldFromOptions({
-      id: -1,
-      value: this.role?.systemName || '',
-      key: 'systemName',
-      label: 'Системное имя',
-      order: 1,
-      controlType: FieldType.Text
-    }))
+    formFields.push(
+      this.dfcs.getDynamicFieldFromOptions({
+        id: -1,
+        value: this.role?.systemName || '',
+        key: 'systemName',
+        label: 'Системное имя',
+        order: 1,
+        controlType: FieldType.Text,
+      }),
+    );
 
     this.dynamicFormFields = formFields;
   }
@@ -62,25 +61,29 @@ export class CreateRoleComponent implements OnInit {
 
     const fields = this.dynamicForm.getValue();
 
-    const systemName = fields.find(f => f.name === 'systemName')?.value || '';
+    const systemName = fields.find((f) => f.name === 'systemName')?.value || '';
     const role: ServerRole.CreateRequest = {
       systemName,
-      accesses: []
-    }
+      accesses: [],
+    };
 
-    const methodObs = this.role != undefined
-      ? this.roleService.updateRole(role, (this.role as ServerRole.Response).id)
-      : this.roleService.createRole(role)
+    const methodObs =
+      this.role != undefined
+        ? this.roleService.updateRole(
+            role,
+            (this.role as ServerRole.Response).id,
+          )
+        : this.roleService.createRole(role);
 
-    methodObs.pipe(
-      finalize(() => this.loading = false)
-    ).subscribe(result => {
-      if (result) {
-        this.ref.close(true);
-      } else {
-        alert(!!this.role ? 'Роль не обновлена' : 'Роль не создана');
-      }
-    })
+    methodObs
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe((result) => {
+        if (result) {
+          this.ref.close(true);
+        } else {
+          alert(!!this.role ? 'Роль не обновлена' : 'Роль не создана');
+        }
+      });
   }
 
   cancel() {

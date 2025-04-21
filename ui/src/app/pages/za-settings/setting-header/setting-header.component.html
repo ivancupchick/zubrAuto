@@ -2,14 +2,26 @@
   <ng-template pTemplate="start">
     <ul class="p-menubar-root-list">
       <ng-container *ngFor="let action of actions">
-        <li *ngIf="!action.visible ? true : action.visible()" class="p-element p-menuitem">
-          <a *ngIf="action.routerLink !== null && !action.handler" [routerLink]="action.routerLink" [queryParams]="action.queryParams || {}" class="p-element p-menuitem-link">
-            <span class="p-menuitem-icon {{action.icon}}"></span>
+        <li
+          *ngIf="!action.visible ? true : action.visible()"
+          class="p-element p-menuitem"
+        >
+          <a
+            *ngIf="action.routerLink !== null && !action.handler"
+            [routerLink]="action.routerLink"
+            [queryParams]="action.queryParams || {}"
+            class="p-element p-menuitem-link"
+          >
+            <span class="p-menuitem-icon {{ action.icon }}"></span>
             <span class="p-menuitem-text">{{ action.label }}</span>
           </a>
 
-          <a *ngIf="action.handler" class="p-element p-menuitem-link" (click)="action.handler()">
-            <span class="p-menuitem-icon {{action.icon}}"></span>
+          <a
+            *ngIf="action.handler"
+            class="p-element p-menuitem-link"
+            (click)="action.handler()"
+          >
+            <span class="p-menuitem-icon {{ action.icon }}"></span>
             <span class="p-menuitem-text">{{ action.label }}</span>
           </a>
         </li>
@@ -22,11 +34,24 @@
     </ul>
   </ng-template>
   <ng-template pTemplate="end">
-    <p-dropdown appendTo="body" *ngIf="!!user && (user.roleLevel === ServerRole.System.SuperAdmin || user.roleLevel === ServerRole.System.Admin)" [autoDisplayFirst]="true" [options]="userRoles" [(ngModel)]="selectedRole" (onChange)="onChangeSelectedRole($event)" optionLabel="name" optionValue="code"></p-dropdown>
+    <p-dropdown
+      appendTo="body"
+      *ngIf="
+        !!user &&
+        (user.roleLevel === ServerRole.System.SuperAdmin ||
+          user.roleLevel === ServerRole.System.Admin)
+      "
+      [autoDisplayFirst]="true"
+      [options]="userRoles"
+      [(ngModel)]="selectedRole"
+      (onChange)="onChangeSelectedRole($event)"
+      optionLabel="name"
+      optionValue="code"
+    ></p-dropdown>
 
     <!-- <p-avatar image="assets/showcase/images/demo/avatar/asiyajavayant.png" styleClass="p-mr-2" size="large" shape="circle"></p-avatar> -->
     <!-- image="assets/showcase/images/demo/avatar/amyelsner.png" -->
-    <p-chip *ngIf="!!user" [label]="user.email"  styleClass="p-mr-2"></p-chip>
+    <p-chip *ngIf="!!user" [label]="user.email" styleClass="p-mr-2"></p-chip>
 
     <button
       *ngIf="!!user"

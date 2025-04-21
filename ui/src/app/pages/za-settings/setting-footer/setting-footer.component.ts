@@ -3,13 +3,10 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'za-setting-footer',
   templateUrl: './setting-footer.component.html',
-  styleUrls: ['./setting-footer.component.scss']
+  styleUrls: ['./setting-footer.component.scss'],
 })
 export class SettingFooterComponent implements OnInit {
+  constructor() {}
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
+  ngOnInit(): void {}
 }

@@ -5,14 +5,18 @@ import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 
 export type PageableData = {
-  page: number, size: number, sortOrder?: ZASortDirection, sortField?: string
-}
+  page: number;
+  size: number;
+  sortOrder?: ZASortDirection;
+  sortField?: string;
+};
 
-export type FiltersData =  { // Todo make generic
+export type FiltersData = {
+  // Todo make generic
   [key: string]: number | string | string[];
 };
 
-export  type CarsBaseFilters = PageableData & FiltersData;
+export type CarsBaseFilters = PageableData & FiltersData;
 
 @Injectable({
   providedIn: 'root',
@@ -43,7 +47,10 @@ export abstract class PageagleGridService<ResponseItemType> {
     const { page, size, sortOrder, sortField } = this.payload;
 
     this.payload = {
-      page, size, sortOrder, sortField,
+      page,
+      size,
+      sortOrder,
+      sortField,
       ...skipEmptyFilters(filters),
     };
   }
@@ -52,7 +59,10 @@ export abstract class PageagleGridService<ResponseItemType> {
     const { page, size, sortOrder, sortField } = this.payload;
 
     this.payload = {
-      page, size, sortOrder, sortField,
+      page,
+      size,
+      sortOrder,
+      sortField,
       ...skipEmptyFilters(filters),
     };
 

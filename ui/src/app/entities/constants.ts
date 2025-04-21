@@ -7,5 +7,5 @@ export import DBModels = serverModels;
 export type BaseList<T> = baseList<T>;
 
 export interface StringHash<T = string> {
-  [key: string]: T
+  [key: string]: T;
 }
