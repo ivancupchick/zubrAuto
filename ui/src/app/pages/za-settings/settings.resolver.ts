@@ -1,17 +1,12 @@
 import { Injectable } from '@angular/core';
-import {
-  Router,
-  Resolve,
-  RouterStateSnapshot,
-  ActivatedRouteSnapshot,
-} from '@angular/router';
+import { RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ServerAuth, ServerUser } from 'src/app/entities/user';
 import { SessionService } from 'src/app/services/session/session.service';
 
 @Injectable()
-export class SettingsResolver implements Resolve<ServerAuth.IPayload | null> {
+export class SettingsResolver  {
   constructor(private sessionService: SessionService) {}
 
   resolve(

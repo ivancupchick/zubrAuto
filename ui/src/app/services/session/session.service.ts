@@ -21,7 +21,7 @@ export class SessionService {
     | ServerRole.Custom
     | ServerRole.System.SuperAdmin
     | ServerRole.System.Admin = ServerRole.System.Admin;
-  userSubj = new BehaviorSubject<ServerAuth.IPayload | null>(null);
+  userSubj = new BehaviorSubject<ServerAuth.AuthGetResponse['user'] | null>(null);
   roleSubj = new Subject<
     ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin
   >();
@@ -30,7 +30,7 @@ export class SessionService {
     return +this.user.id;
   }
   private get user() {
-    return this.userSubj.getValue() || ({} as ServerAuth.IPayload);
+    return this.userSubj.getValue() || ({} as ServerAuth.AuthGetResponse['user']);
   }
   get isAdminOrHigher() {
     return (
@@ -88,7 +88,7 @@ export class SessionService {
     );
   }
 
-  setUser(user: ServerAuth.IPayload | null) {
+  setUser(user: ServerAuth.AuthGetResponse['user'] | null) {
     this.userSubj.next(user);
   }
 

@@ -13,7 +13,7 @@ export class TokenService {
       expiresIn: '15m',
     });
     const refreshToken = sign(payload, process.env.JWT_REFRESH_SECRET, {
-      expiresIn: REFRESH_TOKEN_MAX_AGE_MS,
+      expiresIn: '7d',
     });
 
     return {

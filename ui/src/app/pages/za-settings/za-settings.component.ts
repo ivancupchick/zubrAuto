@@ -10,9 +10,9 @@ import { SessionService } from 'src/app/services/session/session.service';
   styleUrls: ['./za-settings.component.scss'],
 })
 export class ZASettingsComponent implements OnInit {
-  @Input() user!: ServerAuth.IPayload | null;
+  @Input() user!: ServerAuth.AuthGetResponse['user'] | null;
 
-  userSubj = new Subject<ServerAuth.IPayload | null>();
+  userSubj = new Subject<ServerAuth.AuthGetResponse['user'] | null>();
 
   constructor(
     private sessionService: SessionService,
