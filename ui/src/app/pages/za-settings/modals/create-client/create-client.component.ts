@@ -44,6 +44,7 @@ import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.comp
 import { ButtonModule } from 'primeng/button';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import * as moment from 'moment';
+import { RequestService } from 'src/app/services/request/request.service';
 
 @Component({
   selector: 'za-create-client',
@@ -61,7 +62,7 @@ import * as moment from 'moment';
     ButtonModule,
     InputTextareaModule,
   ],
-  providers: [DynamicFieldControlService, CarService, ClientService],
+  providers: [DynamicFieldControlService, CarService, ClientService, RequestService],
 })
 export class CreateClientComponent implements OnInit {
   loading = false;

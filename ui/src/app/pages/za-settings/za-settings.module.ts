@@ -248,6 +248,10 @@ const routes: Routes = [
     SessionService,
     FieldService,
     MessageService,
+    RequestService,
+    UserService,
+    CarService, // createClient from global toolbar ?
+    ClientService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ServerErrorMessageInterceptor,
@@ -258,10 +262,6 @@ const routes: Routes = [
       useClass: AuthInterceptor,
       multi: true,
     },
-    RequestService,
-    UserService,
-    CarService, // createClient from global toolbar ?
-    ClientService,
   ],
 })
 export class ZASettingsModule {}

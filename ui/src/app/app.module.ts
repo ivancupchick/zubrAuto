@@ -6,9 +6,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './pages/header/header.component';
 import { FooterComponent } from './pages/footer/footer.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HIGHLIGHT_OPTIONS, HighlightModule } from 'ngx-highlightjs';
+import { AccessTokenInterceptor } from './interceptors/access-token.interceptor';
 
 @NgModule({
   declarations: [AppComponent, HeaderComponent, FooterComponent],
@@ -31,6 +32,11 @@ import { HIGHLIGHT_OPTIONS, HighlightModule } from 'ngx-highlightjs';
           xml: () => import('highlight.js/lib/languages/xml'),
         },
       },
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AccessTokenInterceptor,
+      multi: true,
     },
   ],
   bootstrap: [AppComponent],
