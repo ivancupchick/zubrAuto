@@ -1,4 +1,5 @@
 import { FieldType } from 'src/app/entities/field';
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 interface StringHash {
   [key: string]: string;
@@ -47,8 +48,9 @@ export const settingsCarsStrings: StringHash = {
 
 export const CarBaseFilterFormsInitialState = {
   mark: '',
+  model: '',
   status: '',
-  selectedContactCenterUser: '',
+  [FieldNames.Car.contactCenterSpecialistId]: '',
   date: '',
   number: '',
 };

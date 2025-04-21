@@ -6,6 +6,15 @@ import { FieldType } from "../fields/fields";
 export const getFieldChainsValue = (query: StringHash, fields: Models.Field[]): string[] => {
   fields.forEach(f => {
     if (f.type === FieldType.Dropdown || f.type === FieldType.Multiselect) {
+      const tempValue = Array.isArray(query[f.name]) ? query[f.name][0] : query[f.name];
+      if (tempValue.indexOf('-') > 0) {
+        const [first, second] = tempValue.split('-');
+
+        if (first === f.name && typeof +second === 'number') {
+          return;
+        }
+      }
+
       const needVariants = Array.isArray(query[f.name]) ? query[f.name] as unknown as string[] : query[f.name].split(',');
       query[f.name] = needVariants.map(v => {
         if (f.variants) {
@@ -23,7 +32,7 @@ export const getFieldChainsValue = (query: StringHash, fields: Models.Field[]): 
   const rValues: string[] = [];
   queryValues.forEach(queryValue => {
     queryValue.forEach(vv => rValues.push(vv));
-  })
+  });
 
   return rValues;
 }

@@ -17,7 +17,7 @@ export const StatusesByAdmin = [
   FieldNames.CarStatus.carSales_Deposit,
   FieldNames.CarStatus.admin_Deleted,
 ]
-
+1
 export const StatusesByMyCallBaseReady = [
   FieldNames.CarStatus.carShooting_InProgres,
   FieldNames.CarStatus.carShooting_Refund,
@@ -86,10 +86,9 @@ export const StatusesByShootedBase = [
   FieldNames.CarStatus.carShooting_Ready,
 ]
 
-export const StatusesByCarsForSale = [ 
+export const StatusesByCarsForSale = [
   FieldNames.CarStatus.customerService_InProgress,
   FieldNames.CarStatus.customerService_OnPause,
   FieldNames.CarStatus.customerService_OnDelete,
   FieldNames.CarStatus.customerService_Sold
 ]
-

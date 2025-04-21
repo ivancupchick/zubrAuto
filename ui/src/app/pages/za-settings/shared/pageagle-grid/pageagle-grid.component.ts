@@ -51,7 +51,13 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
   @Input() dataService!: PageagleGridService<GridItemType>;
   @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
-  @Input() first!: number;
+  @Input() set first(v: number) {
+    this._first = v;
+  };
+  _first!: number;
+  get first() {
+    return this._first;
+  }
 
   gridItemHeight = gridItemHeight;
   size = 10;

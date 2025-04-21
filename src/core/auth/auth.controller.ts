@@ -45,7 +45,9 @@ export class AuthController {
 
   @Get('refresh')
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    console.log('cookie', req.cookies);
     const { refreshToken } = req.cookies;
+    console.log('refreshToken', refreshToken);
     const userData = await this.authService.refresh(refreshToken);
 
     res.cookie('refreshToken', userData.refreshToken, { maxAge: REFRESH_TOKEN_MAX_AGE_MS, httpOnly: true }) // secure: true    if https

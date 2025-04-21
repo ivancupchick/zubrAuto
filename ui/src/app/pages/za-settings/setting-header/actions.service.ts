@@ -124,13 +124,13 @@ export class ActionsService {
     return [{
       label: 'Моя база обзвона',
       icon: 'pi pi-fw pi-mobile',
-      routerLink: `cars`,
+      routerLink: `cars2`,
       queryParams: { type: QueryCarTypes.myCallBase },
       visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
     }, {
       label: 'Моя база готовых',
       icon: 'pi pi-fw pi-dollar',
-      routerLink: `cars`,
+      routerLink: `cars2`,
       queryParams: { type: QueryCarTypes.myCallBaseReady },
       visible: () => this.sessionService.isContactCenter || this.sessionService.isContactCenterChief,
     }, {
@@ -167,13 +167,13 @@ export class ActionsService {
     {
       label: 'Вся база обзвона',
       icon: 'pi pi-fw pi-mobile',
-      routerLink: 'cars',
+      routerLink: 'cars2',
       queryParams: { type: QueryCarTypes.allCallBase },
       visible: () => this.sessionService.isContactCenterChief,
     }, {
       label: 'Вся база готовых',
       icon: 'pi pi-fw pi-dollar',
-      routerLink: 'cars',
+      routerLink: 'cars2',
       queryParams: { type: QueryCarTypes.allCallBaseReady },
       visible: () => this.sessionService.isContactCenterChief,
     }]
@@ -191,7 +191,7 @@ export class ActionsService {
     {
       label: 'Вся база съёмок',
       icon: 'pi pi-fw pi-camera',
-      routerLink: 'cars',
+      routerLink: 'cars2',
       queryParams: { type: QueryCarTypes.allShootingBase },
       visible: () => this.sessionService.isCarShooting || this.sessionService.isCarShootingChief,
     },
@@ -213,13 +213,13 @@ export class ActionsService {
     return [{
       label: 'База клиентов #1',
       icon: 'pi pi-fw pi-th-large',
-      routerLink: 'cars',
+      routerLink: 'cars2',
       queryParams: { type: QueryCarTypes.shootedBase },
       visible: () => this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
     }, {
       label: 'База клиентов #2',
       icon: 'pi pi-fw pi-th-large',
-      routerLink: 'cars',
+      routerLink: 'cars2',
       queryParams: { type: QueryCarTypes.carsForSale },
       visible: () => this.sessionService.isCustomerService || this.sessionService.isCustomerServiceChief,
     }]
@@ -258,7 +258,7 @@ export class ActionsService {
     }, {
       label: 'Автомобили в продаже',
       icon: 'pi pi-fw pi-money-bill',
-      routerLink: 'cars',
+      routerLink: 'cars2',
       queryParams: { type: QueryCarTypes.carsForSaleTemp },
       visible: () => this.sessionService.isCarSales || this.sessionService.isCarSalesChief,
     }, {

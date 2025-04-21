@@ -124,6 +124,7 @@ export async function getEntityIdsByNaturalQuery<T extends { id: number }>(repos
       switch (cn) {
         case 'userId':
         case 'id':
+        case 'sourceId':
           where[cn] = +query[cn];
           break;
       }

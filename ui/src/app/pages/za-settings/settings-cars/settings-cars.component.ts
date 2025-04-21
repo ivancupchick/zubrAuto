@@ -2108,6 +2108,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
   }
 
   private validatePublish(car: ServerCar.Response): Observable<boolean> {
+    console.log(2);
     if (!FieldsUtils.getFieldValue(car, FieldNames.Car.worksheet)) {
       alert('У авто нету анкеты!');
       return of(false);

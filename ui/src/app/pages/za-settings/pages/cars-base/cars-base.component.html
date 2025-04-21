@@ -2,83 +2,76 @@
   <div class="card-body">
     <form *ngIf="form" [formGroup]="form" (ngSubmit)="filter()">
       <div
-        class="flex flex-row justify-content-start align-items-center row-gap-1 col-12"
+        class="flex flex-row justify-content-between align-items-center row-gap-1 col-12"
       >
-        <input
-          class="ml-2 p-inputtext"
-          type="text"
-          formControlName="mark"
-          pInputText
-          placeholder="Марка"
-        />
+        <div class="flex flex-row row-gap-1 align-items-center">
+          <input
+            class="ml-2 p-inputtext"
+            type="text"
+            formControlName="mark"
+            pInputText
+            placeholder="Марка"
+          />
 
-        <p-multiSelect
-          *ngIf="availableCarStatuses.length > 1"
-          class="ml-2"
-          formControlName="status"
-          [options]="availableCarStatuses"
-          placeholder="Статус"
-          optionLabel="label"
-          optionValue="value"
-          selectedItemsLabel="{0} статусов выбрано"
-          [maxSelectedLabels]="1"
-        ></p-multiSelect>
+          <input
+            class="ml-2 p-inputtext"
+            type="text"
+            formControlName="model"
+            pInputText
+            placeholder="Модель"
+          />
 
-        <!-- *ngIf="onSelectContactUserAvailable && contactCenterUserOptions.length > 0 " -->
-        <p-dropdown
-          class="ml-2"
-          [options]="contactCenterUserOptions"
-          formControlName="selectedContactCenterUser"
-          placeholder="Сотрудник ОКЦ"
-          [filter]="true"
-          filterBy="name"
-          optionLabel="label"
-          optionValue="key"
-          [showClear]="true"
-        ></p-dropdown>
+          <p-multiSelect
+            *ngIf="availableCarStatuses.length > 1"
+            class="ml-2"
+            formControlName="status"
+            [options]="availableCarStatuses"
+            placeholder="Статус"
+            optionLabel="label"
+            optionValue="value"
+            selectedItemsLabel="{0} статусов выбрано"
+            [maxSelectedLabels]="1"
+          ></p-multiSelect>
 
-        <p-calendar
-          class="ml-2"
-          formControlName="date"
-          selectionMode="range"
-          [showTime]="false"
-          [showButtonBar]="true"
-          placeholder="Даты"
-          [firstDayOfWeek]="1"
-          [showClear]="true"
-        ></p-calendar>
+          <!-- *ngIf="onSelectContactUserAvailable && contactCenterUserOptions.length > 0 " -->
+          <p-dropdown
+            class="ml-2"
+            [options]="contactCenterUserOptions"
+            [formControlName]="FieldNames.Car.contactCenterSpecialistId"
+            placeholder="Сотрудник ОКЦ"
+            [filter]="true"
+            filterBy="name"
+            optionLabel="label"
+            optionValue="key"
+            [showClear]="true"
+          ></p-dropdown>
 
-        <input
-          pInputText
-          class="ml-2 p-inputtext"
-          type="text"
-          formControlName="number"
-          pInputText
-          placeholder="Телефон"
-        />
-      </div>
+          <p-calendar
+            class="ml-2"
+            formControlName="date"
+            selectionMode="range"
+            [showTime]="false"
+            [showButtonBar]="true"
+            placeholder="Даты"
+            [firstDayOfWeek]="1"
+            [showClear]="true"
+          ></p-calendar>
 
-      <p-toolbar>
-        <div class="p-toolbar-group-left">
-          <span>Выбрано автомобилей: {{ getAllSelectedCars() }}</span>
-          <span>Всего автомобилей: {{ sortedCars.length }}</span>
-          <span
-            >Кол-во: {{ (carsBaseDataService.list$ | async)?.total || 0 }}</span
-          >
-          <!-- Быть не должно, но уверен  еще пригодится-->
-
-          <button
-            pButton
-            type="button"
-            label="Добавить машину"
-            icon="pi pi-plus"
-            (click)="openNewCarWindow()"
-          ></button>
+          <input
+            pInputText
+            class="ml-2 p-inputtext"
+            type="text"
+            formControlName="number"
+            pInputText
+            placeholder="Телефон"
+          />
+        </div>
+        <div class="flex flex-row row-gap-1 align-items-center">
           <p-button
             [label]="selectedFiltersLabel"
             icon="pi pi-filter"
             (click)="op.toggle($event)"
-          ></p-button>
+          />
           <p-overlayPanel
             #op
             [showCloseIcon]="true"
@@ -168,11 +161,7 @@
               </div>
             </ng-template>
           </p-overlayPanel>
-        </div>
 
-        <div class="p-toolbar-group-right">
-          <p-button size="small" label="Обновить" type="submit" class="mr-2">
-          </p-button>
           <p-button
             size="small"
             type="button"
@@ -181,6 +170,29 @@
             class="mr-2"
           >
           </p-button>
+        </div>
+      </div>
+
+      <p-toolbar>
+        <div class="p-toolbar-group-left">
+          <span>Выбрано автомобилей: {{ getAllSelectedCars() }}</span>
+          <span>Всего автомобилей: {{ sortedCars.length }}</span>
+          <span
+            >Кол-во: {{ (carsBaseDataService.list$ | async)?.total || 0 }}</span
+          >
+          <!-- Быть не должно, но уверен  еще пригодится-->
+
+          <button
+            pButton
+            type="button"
+            label="Добавить машину"
+            icon="pi pi-plus"
+            (click)="openNewCarWindow()"
+          ></button>
+        </div>
+
+        <div class="p-toolbar-group-right">
+          <p-button size="small" label="Обновить" type="submit" class="mr-2" />
         </div>
       </p-toolbar>
     </form>
