@@ -471,7 +471,7 @@ export class CreateClientComponent implements OnInit {
     return field;
   }
 
-  onAddCar(event: { originalEvent: KeyboardEvent; value: string }) {
+  onAddCar(event: { originalEvent: Event; value: string }) {
     event.originalEvent.preventDefault();
     event.originalEvent.stopPropagation();
 

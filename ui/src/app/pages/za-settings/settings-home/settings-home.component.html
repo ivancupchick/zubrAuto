@@ -2,4 +2,8 @@
   <span *ngIf="user === null">Авторизуйтесь!</span>
 </div>
 
-<za-dashboard *ngIf="user"></za-dashboard>
+@if (user) {
+  <za-dashboard *ngIf="user"></za-dashboard>
+} @else {
+  <za-login-form></za-login-form>
+}

@@ -89,6 +89,7 @@ import { ClientChangeLogsComponent } from './pages/change-log/componets/client-c
 import { ClientService } from 'src/app/services/client/client.service';
 import { ClientsBaseComponent } from './pages/clients-base/clients-base.component';
 import { CarsBaseComponent } from './pages/cars-base/cars-base.component';
+import { LoginFormComponent } from './pages/login-form/login-form.component';
 
 // TODO sidebar; separate dashboard [calls + call-requests], [clients];
 
@@ -238,6 +239,7 @@ const routes: Routes = [
     GridComponent,
     CreateClientComponent,
     ClientChangeLogsComponent,
+    LoginFormComponent,
   ],
   providers: [
     AuthService,

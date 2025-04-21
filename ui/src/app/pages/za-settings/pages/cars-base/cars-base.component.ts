@@ -1679,7 +1679,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     e: {
       originalEvent: PointerEvent | Event;
       value: string[];
-      itemValue: string;
+      itemValue?: string;
     },
   ) {
     if ((filterConfig.type as unknown) === FieldType.Number) {
@@ -1704,9 +1704,9 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
   changeNumberRangeFilter(
     filterConfig: NumberUIFilter,
-    e: { values: number[] },
+    e: { values?: number[] },
   ) {
-    if (filterConfig.type !== this.FieldTypes.Number) {
+    if (filterConfig.type !== this.FieldTypes.Number || !e.values) {
       return;
     }
 

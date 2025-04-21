@@ -12,9 +12,9 @@ import {
   GridConfigItem,
   gridItemHeight,
 } from '../grid/grid';
-import { LazyLoadEvent, MenuItem, SortEvent } from 'primeng/api';
+import { MenuItem, SortEvent } from 'primeng/api';
 import { PageagleGridService } from './pageagle-grid.service';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
 import { TooltipModule } from 'primeng/tooltip';
 import { ContextMenuModule } from 'primeng/contextmenu';
@@ -45,7 +45,7 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
-  @Input() selectionMode = '';
+  @Input() selectionMode: "single" | "multiple" | null = null;
   @Input() sortField = '';
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
@@ -127,10 +127,10 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
     });
   }
 
-  updatePage(event: LazyLoadEvent) {
+  updatePage(event: TableLazyLoadEvent) {
     const sortOrder: ZASortDirection | undefined =
       (event.sortOrder && SortEventDirection[event.sortOrder]) || undefined;
-    const sortField = event.sortField || undefined;
+    const sortField = Array.isArray(event.sortField) ? event.sortField[0] : event.sortField || undefined;
 
     this.dataService.updatePage({
       size: event.rows!,

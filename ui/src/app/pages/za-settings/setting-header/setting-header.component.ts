@@ -105,13 +105,6 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
     this.rebuildActions();
   }
 
-  login() {
-    const ref = this.dialogService.open(LoginComponent, {
-      header: 'Войти',
-      width: '40%',
-    });
-  }
-
   signUp() {
     const ref = this.dialogService.open(SignUpComponent, {
       header: 'Регистрация',
