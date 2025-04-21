@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "dev-ssh-db": "dotenv -e .env -- cross-var ssh -N -L 3306:localhost:3306 %DB_SSH_USER%@%DB_SSH_HOST% -i id_rsa",
+    "dev-ssh-db": "dotenv -e .env -- cross-var ssh -N -L 3307:localhost:3306 %DB_SSH_USER%@%DB_SSH_HOST% -i id_rsa",
     "dev-ui": "cd ui && npm start",
     "dev-server": "nest start --watch"
   },
