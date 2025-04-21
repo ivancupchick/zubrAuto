@@ -42,9 +42,6 @@ export class AuthService {
 
     const payloadUser: ServerAuth.IPayload = {
       ...user,
-      customRoleName:
-        customRoles.find((cr) => cr.id + 1000 === user.roleLevel)?.systemName ||
-        '',
     };
 
     // await mailService.sendActivationMail(email, `${process.env.API_URL}/activate/`+activationLink); // need test
@@ -55,7 +52,12 @@ export class AuthService {
 
     return {
       ...tokens,
-      user: userPayload,
+      user: {
+        ...payloadUser,
+        customRoleName:
+          customRoles.find((cr) => cr.id + 1000 === user.roleLevel)
+            ?.systemName || '',
+      },
     };
   }
 
@@ -84,7 +86,7 @@ export class AuthService {
     }
 
     const customRoles = await this.prisma.roles.findMany();
-    const payloadUser: ServerAuth.IPayload = {
+    const payloadUser: ServerAuth.AuthGetResponse['user'] = {
       ...user,
       customRoleName:
         customRoles.find((cr) => cr.id + 1000 === user.roleLevel)?.systemName ||
@@ -97,7 +99,7 @@ export class AuthService {
 
     return {
       ...tokens,
-      user: userPayload,
+      user: payloadUser,
     };
   }
 
@@ -134,9 +136,6 @@ export class AuthService {
 
     const userPayload = new ServerAuth.Payload({
       ...user,
-      customRoleName:
-        customRoles.find((cr) => cr.id + 1000 === user.roleLevel)?.systemName ||
-        '',
     });
 
     const tokens = this.tokenService.generateTokens({ ...userPayload });
@@ -147,7 +146,12 @@ export class AuthService {
 
     return {
       ...tokens,
-      user: userPayload,
+      user: {
+        ...userPayload,
+        customRoleName:
+          customRoles.find((cr) => cr.id + 1000 === user.roleLevel)
+            ?.systemName || '',
+      },
     };
   }
 }
