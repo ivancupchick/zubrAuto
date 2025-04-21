@@ -14,6 +14,12 @@ import { FieldsModule } from 'src/core/fields/fields.module';
 @Module({
   imports: [PrismaModule, UserModule, FieldsModule],
   controllers: [CarController, CarFunctionsController],
-  providers: [CarService, CarImageService, CarStatisticService, CarInfoGetterService, S3Service], // TODO S3 service here or not?
+  providers: [
+    CarService,
+    CarImageService,
+    CarStatisticService,
+    CarInfoGetterService,
+    S3Service,
+  ], // TODO S3 service here or not?
 })
 export class CarModule {}

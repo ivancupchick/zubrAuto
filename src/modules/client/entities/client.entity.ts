@@ -1,3 +1,3 @@
-import { ServerClient } from "src/temp/entities/client";
+import { ServerClient } from 'src/temp/entities/client';
 
 export interface ClientResponse extends ServerClient.Response {}

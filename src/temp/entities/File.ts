@@ -1,4 +1,4 @@
-import { Models } from "./Models";
+import { Models } from './Models';
 
 export namespace ServerFile {
   type Entity = Omit<Models.File, 'id'>;
@@ -6,7 +6,7 @@ export namespace ServerFile {
   export type CreateRequest = Entity;
   export type UpdateRequest = Partial<Entity>;
   export type Response = Models.File;
-  export type IdResponse = Pick<Response, 'id'>
+  export type IdResponse = Pick<Response, 'id'>;
 
   export enum Types {
     Folder,

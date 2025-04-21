@@ -8,6 +8,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [FieldsController],
   providers: [FieldsService, FieldChainService],
-  exports: [FieldChainService, FieldsService]
+  exports: [FieldChainService, FieldsService],
 })
 export class FieldsModule {}

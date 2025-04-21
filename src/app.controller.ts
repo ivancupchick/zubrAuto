@@ -8,6 +8,6 @@ export class AppController {
 
   @Get()
   getUI(@Res() res: Response) {
-    res.sendFile(process.cwd()+"/ui/dist/index.html");
+    res.sendFile(process.cwd() + '/ui/index.html');
   }
 }

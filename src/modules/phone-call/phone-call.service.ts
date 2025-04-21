@@ -14,29 +14,41 @@ import { Prisma } from '@prisma/client';
 export class PhoneCallService {
   constructor(private prisma: PrismaService) {}
 
-  async webHookNotify(webhook: Webhook.Notification): Promise<ServerPhoneCall.IdResponse> {
+  async webHookNotify(
+    webhook: Webhook.Notification,
+  ): Promise<ServerPhoneCall.IdResponse> {
     let existPhoneCall = null;
-    if (webhook.notificationType === Webhook.NotificationType.State || webhook.notificationType === Webhook.NotificationType.Finish) {
-      existPhoneCall = await this.prisma.phoneCalls.findFirst({ where: {
-        innerNumber: webhook.numberB,
-        clientNumber: webhook.numberA,
-      }});
+    if (
+      webhook.notificationType === Webhook.NotificationType.State ||
+      webhook.notificationType === Webhook.NotificationType.Finish
+    ) {
+      existPhoneCall = await this.prisma.phoneCalls.findFirst({
+        where: {
+          innerNumber: webhook.numberB,
+          clientNumber: webhook.numberA,
+        },
+      });
     }
 
-    if (webhook.notificationType === Webhook.NotificationType.Start || !existPhoneCall) {
-      const date = webhook.notificationType === Webhook.NotificationType.Start
-        ? webhook.date
-        : (new Date()).toString();
+    if (
+      webhook.notificationType === Webhook.NotificationType.Start ||
+      !existPhoneCall
+    ) {
+      const date =
+        webhook.notificationType === Webhook.NotificationType.Start
+          ? webhook.date
+          : new Date().toString();
 
-      const crmCallType =  webhook.notificationType === Webhook.NotificationType.Start
-        ? webhook.crmCallType
-        : Webhook.CallType.Internal;
+      const crmCallType =
+        webhook.notificationType === Webhook.NotificationType.Start
+          ? webhook.crmCallType
+          : Webhook.CallType.Internal;
 
       const phoneCall: ServerPhoneCall.CreateRequest = {
         originalNotifications: JSON.stringify([webhook]),
         innerNumber: webhook.numberB,
         clientNumber: webhook.numberA,
-        createdDate: BigInt(+(new Date())),
+        createdDate: BigInt(+new Date()),
         userId: null,
         originalDate: date,
         uuid: webhook.uuid,
@@ -45,40 +57,60 @@ export class PhoneCallService {
         isFinished: false,
         recordUrl: null,
         isUsed: false,
-      }
+      };
 
-      return await this.prisma.phoneCalls.create({data:phoneCall});
+      return await this.prisma.phoneCalls.create({ data: phoneCall });
     }
 
     if (webhook.notificationType === Webhook.NotificationType.State) {
-      const phoneCall = await this.prisma.phoneCalls.findFirst({ where: {
-        innerNumber: webhook.numberB,
-        clientNumber: webhook.numberA,
-      }});
+      const phoneCall = await this.prisma.phoneCalls.findFirst({
+        where: {
+          innerNumber: webhook.numberB,
+          clientNumber: webhook.numberA,
+        },
+      });
 
       if (phoneCall) {
-        const oldNotifications: Webhook.Notification[] = JSONparse<Webhook.Notification[]>(phoneCall.originalNotifications) || [];
-        phoneCall.originalNotifications = JSON.stringify([...oldNotifications, webhook]);
+        const oldNotifications: Webhook.Notification[] =
+          JSONparse<Webhook.Notification[]>(phoneCall.originalNotifications) ||
+          [];
+        phoneCall.originalNotifications = JSON.stringify([
+          ...oldNotifications,
+          webhook,
+        ]);
 
-        return await this.prisma.phoneCalls.update({ where: { id: phoneCall.id }, data: phoneCall});
+        return await this.prisma.phoneCalls.update({
+          where: { id: phoneCall.id },
+          data: phoneCall,
+        });
       }
     }
 
     if (webhook.notificationType === Webhook.NotificationType.Finish) {
-      const phoneCall = await this.prisma.phoneCalls.findFirst({ where: {
-        innerNumber: webhook.numberB,
-        clientNumber: webhook.numberA,
-      }});
+      const phoneCall = await this.prisma.phoneCalls.findFirst({
+        where: {
+          innerNumber: webhook.numberB,
+          clientNumber: webhook.numberA,
+        },
+      });
 
       if (phoneCall) {
-        const oldNotifications: Webhook.Notification[] = JSONparse<Webhook.Notification[]>(phoneCall.originalNotifications) || [];
-        phoneCall.originalNotifications = JSON.stringify([...oldNotifications, webhook]);
+        const oldNotifications: Webhook.Notification[] =
+          JSONparse<Webhook.Notification[]>(phoneCall.originalNotifications) ||
+          [];
+        phoneCall.originalNotifications = JSON.stringify([
+          ...oldNotifications,
+          webhook,
+        ]);
 
         phoneCall.status = webhook.crmCallFinishedStatus;
         phoneCall.isFinished = webhook.isCallFinished;
         phoneCall.recordUrl = webhook.fullUrl;
 
-        return await this.prisma.phoneCalls.update({ where: { id: phoneCall.id }, data: phoneCall});
+        return await this.prisma.phoneCalls.update({
+          where: { id: phoneCall.id },
+          data: phoneCall,
+        });
       }
     }
 
@@ -86,11 +118,7 @@ export class PhoneCallService {
   }
 
   async findAll() {
-    const [
-      requests,
-    ] = await Promise.all([
-      this.prisma.phoneCalls.findMany(),
-    ]);
+    const [requests] = await Promise.all([this.prisma.phoneCalls.findMany()]);
 
     return this.getEntities(requests) as any; // TODO
   }
@@ -99,18 +127,15 @@ export class PhoneCallService {
     return entities;
   }
 
-  async findMany(query: StringHash) { // TODO type
-    const {
-      page,
-      size,
-      sortOrder,
-    } = query;
+  async findMany(query: StringHash) {
+    // TODO type
+    const { page, size, sortOrder } = query;
     delete query['page'];
     delete query['size'];
 
     const searchEntitiesIds = await getEntityIdsByNaturalQuery(
       this.prisma.phoneCalls,
-      query
+      query,
     );
 
     let entitiesIds = [...searchEntitiesIds];
@@ -121,9 +146,14 @@ export class PhoneCallService {
       entitiesIds = entitiesIds.slice(start, start + +size);
     }
 
-    const requests = entitiesIds.length > 0 ? await this.prisma.phoneCalls.findMany({ where: {
-      id: { in: entitiesIds }
-    }}) : [];
+    const requests =
+      entitiesIds.length > 0
+        ? await this.prisma.phoneCalls.findMany({
+            where: {
+              id: { in: entitiesIds },
+            },
+          })
+        : [];
 
     let list = await this.getEntities(requests);
 
@@ -133,7 +163,7 @@ export class PhoneCallService {
 
     return {
       list: list,
-      total: searchEntitiesIds.length
+      total: searchEntitiesIds.length,
     };
   }
 
@@ -141,21 +171,25 @@ export class PhoneCallService {
     return 'This action adds a new phoneCall';
   }
 
-
   async findOne(id: number) {
-    const phoneCall = await this.prisma.phoneCalls.findUnique({where:{id}});
+    const phoneCall = await this.prisma.phoneCalls.findUnique({
+      where: { id },
+    });
 
     return phoneCall;
   }
 
   async update(id: number, updatePhoneCallDto: UpdatePhoneCallDto) {
-    const phoneCall = await this.prisma.phoneCalls.update({ where: {id}, data: updatePhoneCallDto});
+    const phoneCall = await this.prisma.phoneCalls.update({
+      where: { id },
+      data: updatePhoneCallDto,
+    });
 
-    return phoneCall
+    return phoneCall;
   }
 
   async remove(id: number) {
-    const phoneCall = await this.prisma.phoneCalls.delete({where: {id}});
-    return phoneCall
+    const phoneCall = await this.prisma.phoneCalls.delete({ where: { id } });
+    return phoneCall;
   }
 }

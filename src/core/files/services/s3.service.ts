@@ -15,19 +15,21 @@ export class S3Service {
     this.s3 = new S3({
       region,
       accessKeyId,
-      secretAccessKey
-    })
+      secretAccessKey,
+    });
   }
 
   async uploadFile(file: Express.Multer.File) {
-    const compressedBuffer = await sharp(file.buffer).jpeg({ quality: 20 }).toBuffer(); // TODO: test!
+    const compressedBuffer = await sharp(file.buffer)
+      .jpeg({ quality: 20 })
+      .toBuffer(); // TODO: test!
 
-    const timestamp = (new Date()).getTime().toString();
+    const timestamp = new Date().getTime().toString();
     const uploadParams = {
       Bucket: bucketName,
       Body: compressedBuffer,
-      Key: `${timestamp}-${file.filename}`
-    }
+      Key: `${timestamp}-${file.filename}`,
+    };
 
     return this.s3.upload(uploadParams).promise();
   }

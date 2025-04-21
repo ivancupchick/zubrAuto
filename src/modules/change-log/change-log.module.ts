@@ -8,6 +8,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [ChangeLogController],
   providers: [ChangeLogService],
-  exports: [ChangeLogService]
+  exports: [ChangeLogService],
 })
 export class ChangeLogModule {}

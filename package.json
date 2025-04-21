@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build --webpack && cp -r public dist && cd ui && npm run build",
+    "build": "nest build --webpack && cp -r public dist && cp dist/main.js dist/public/main.js && rm dist/main.js && cd ui && npm run build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start --watch",
     "start:dev": "nest start --watch",

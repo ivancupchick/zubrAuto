@@ -358,41 +358,50 @@ export class CarService {
         });
         const secondSortIds = secondSortChaines.map((ch) => ch.sourceId);
 
-        const groupsByFirst = firstSortChaines.reduce<{
-          id: number;
-          sourceId: number;
-          fieldId: number;
-          value: string | null;
-          sourceName: string | null;
-        }[][]>((prev, cur) => {
-          let curGroup = prev[prev.length - 1];
+        const groupsByFirst = firstSortChaines.reduce<
+          {
+            id: number;
+            sourceId: number;
+            fieldId: number;
+            value: string | null;
+            sourceName: string | null;
+          }[][]
+        >(
+          (prev, cur) => {
+            let curGroup = prev[prev.length - 1];
 
-          if (!curGroup.length) {
-            return [[cur]];
-          }
+            if (!curGroup.length) {
+              return [[cur]];
+            }
 
-          if (curGroup[0].value.trim() !== cur.value.trim()) {
-            return [...prev, [cur]];
-          } else {
-            prev[prev.length - 1].push(cur);
-            return prev;
-          }
-        }, [[]]);
+            if (curGroup[0].value.trim() !== cur.value.trim()) {
+              return [...prev, [cur]];
+            } else {
+              prev[prev.length - 1].push(cur);
+              return prev;
+            }
+          },
+          [[]],
+        );
 
         carsIds = [];
-        groupsByFirst.forEach(groupByFirst => {
-          const groupByFirstIds = groupByFirst.map(g => g.sourceId);
+        groupsByFirst.forEach((groupByFirst) => {
+          const groupByFirstIds = groupByFirst.map((g) => g.sourceId);
 
-          const groupBySecond = secondSortIds.filter(s => groupByFirstIds.includes(s));
+          const groupBySecond = secondSortIds.filter((s) =>
+            groupByFirstIds.includes(s),
+          );
           carsIds.push(...groupBySecond);
         });
       } else {
-        const sortFieldConfig = !naturalFields.includes(sortField) ? await this.prisma.fields.findFirst({
-          where: {
-            domain: FieldDomains.Car,
-            name: sortField,
-          },
-        }) : null;
+        const sortFieldConfig = !naturalFields.includes(sortField)
+          ? await this.prisma.fields.findFirst({
+              where: {
+                domain: FieldDomains.Car,
+                name: sortField,
+              },
+            })
+          : null;
 
         if (sortFieldConfig) {
           const where: Prisma.fieldIdsWhereInput = {
@@ -416,15 +425,15 @@ export class CarService {
           const sortedCarIds = await this.prisma.cars.findMany({
             where: {
               id: {
-                in: carsIds
-              }
+                in: carsIds,
+              },
             },
             orderBy: {
-              [sortField]: sortOrder
-            }
+              [sortField]: sortOrder,
+            },
           });
 
-          carsIds = sortedCarIds.map(car => car.id);
+          carsIds = sortedCarIds.map((car) => car.id);
         }
       }
     }
@@ -446,9 +455,12 @@ export class CarService {
           })
         : [];
 
-    const cars = carsIds.map((id) => carsResult.find((cr) => +cr.id === +id)).filter(Boolean);
+    const cars = carsIds
+      .map((id) => carsResult.find((cr) => +cr.id === +id))
+      .filter(Boolean);
 
-    if (!cars.length) { // TODO test
+    if (!cars.length) {
+      // TODO test
       return {
         list: [],
         total: 0,

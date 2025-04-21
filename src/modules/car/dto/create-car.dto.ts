@@ -1,5 +1,5 @@
 // export class CreateCarDto {}
 
-import { ServerCar } from "src/temp/entities/Car";
+import { ServerCar } from 'src/temp/entities/Car';
 
 export type CreateCarDto = ServerCar.CreateRequest;

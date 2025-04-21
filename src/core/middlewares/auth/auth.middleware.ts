@@ -29,7 +29,7 @@ export class AuthMiddleware implements NestMiddleware {
       next();
     } catch (e) {
       // console.log(e);
-      return next(ApiError.UnauthorizedError())
+      return next(ApiError.UnauthorizedError());
     }
   }
 }

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CarService } from './car.service';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
@@ -18,7 +28,8 @@ export class CarController {
 
   @UseGuards(AuthGuard)
   @Get(Constants.API.CRUD)
-  findAll(@Query() query: any) { // TODO! enum for params
+  findAll(@Query() query: any) {
+    // TODO! enum for params
     const queryKeys = Object.keys(query);
 
     return queryKeys.length > 0
@@ -27,19 +38,19 @@ export class CarController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(`/${ Constants.API.CRUD }/:id`)
+  @Get(`/${Constants.API.CRUD}/:id`)
   findOne(@Param('id') id: string) {
     return this.carService.findOne(+id);
   }
 
   @UseGuards(AuthGuard)
-  @Put(`/${ Constants.API.CRUD }/:id`)
+  @Put(`/${Constants.API.CRUD}/:id`)
   update(@Param('id') id: string, @Body() updateCarDto: UpdateCarDto) {
     return this.carService.update(+id, updateCarDto);
   }
 
   @UseGuards(AuthGuard)
-  @Delete(`/${ Constants.API.CRUD }/:id`)
+  @Delete(`/${Constants.API.CRUD}/:id`)
   remove(@Param('id') id: string) {
     return this.carService.remove(+id);
   }

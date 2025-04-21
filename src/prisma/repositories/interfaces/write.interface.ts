@@ -1,4 +1,4 @@
-import { ExpressionHash } from "src/core/utils/sql-queries";
+import { ExpressionHash } from 'src/core/utils/sql-queries';
 
 export interface IWrite<T> {
   create(item: T): Promise<T>;

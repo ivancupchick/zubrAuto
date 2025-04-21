@@ -1,4 +1,4 @@
-import { BitHelper } from "../../core/utils/bit.utils";
+import { BitHelper } from '../../core/utils/bit.utils';
 
 export namespace FieldAccess {
   export enum AccessBits {

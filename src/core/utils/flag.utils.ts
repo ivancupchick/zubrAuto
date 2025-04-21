@@ -1,4 +1,4 @@
-import { BitHelper } from "../utils/bit.utils";
+import { BitHelper } from '../utils/bit.utils';
 
 export namespace FlagField {
   export enum Flags {
@@ -8,7 +8,7 @@ export namespace FlagField {
 
   export function setFlagOn(v: { flags: number }, bit: Flags) {
     // v.flags |= bit;
-    v.flags = BitHelper.setOn(v.flags, bit)
+    v.flags = BitHelper.setOn(v.flags, bit);
   }
 
   export function setFlagOff(v: { flags: number }, bit: Flags) {

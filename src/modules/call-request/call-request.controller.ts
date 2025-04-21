@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CallRequestService } from './call-request.service';
 import { CreateCallRequestDto } from './dto/create-call-request.dto';
 import { UpdateCallRequestDto } from './dto/update-call-request.dto';
@@ -18,7 +28,8 @@ export class CallRequestController {
 
   @UseGuards(AuthGuard)
   @Get()
-  findAll(@Query() query: any) { // TODO! enum for params
+  findAll(@Query() query: any) {
+    // TODO! enum for params
     const queryKeys = Object.keys(query);
 
     return queryKeys.length > 0
@@ -34,7 +45,10 @@ export class CallRequestController {
 
   @UseGuards(AuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateCallRequestDto: UpdateCallRequestDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCallRequestDto: UpdateCallRequestDto,
+  ) {
     return this.callRequestService.update(+id, updateCallRequestDto);
   }
 

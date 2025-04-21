@@ -1,4 +1,4 @@
-import { Models } from "./Models";
+import { Models } from './Models';
 
 export namespace ServerCallRequest {
   type Entity = Omit<Models.CallRequest, 'id'>;
@@ -6,5 +6,5 @@ export namespace ServerCallRequest {
   export type CreateRequest = Entity;
   export type UpdateRequest = Partial<Entity>;
   export type Response = Models.CallRequest;
-  export type IdResponse = Pick<Response, 'id'>
+  export type IdResponse = Pick<Response, 'id'>;
 }

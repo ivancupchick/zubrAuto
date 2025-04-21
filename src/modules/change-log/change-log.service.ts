@@ -12,7 +12,9 @@ import { ApiError } from 'src/core/exceptions/api.error';
 export class ChangeLogService {
   constructor(private prisma: PrismaService) {}
 
-  async createActivity(createChangeLogDto: CreateChangeLogDto): Promise<ServerActivity.Response> {
+  async createActivity(
+    createChangeLogDto: CreateChangeLogDto,
+  ): Promise<ServerActivity.Response> {
     // const callRequest: ServerActivity.CreateRequest = {
     //   originalNotification: JSON.stringify(sitesCallRequest),
     //   innerNumber: '',
@@ -24,15 +26,11 @@ export class ChangeLogService {
     // }
     const activity: CreateChangeLogDto = Object.assign(createChangeLogDto);
 
-    return await this.prisma.activities.create({data: activity});
+    return await this.prisma.activities.create({ data: activity });
   }
 
   async findAll() {
-    const [
-      entities,
-    ] = await Promise.all([
-      this.prisma.activities.findMany(),
-    ]);
+    const [entities] = await Promise.all([this.prisma.activities.findMany()]);
 
     return this.getEntities(entities) as any; // TODO
   }
@@ -42,17 +40,13 @@ export class ChangeLogService {
   }
 
   async findMany(query: StringHash) {
-    const {
-      page,
-      size,
-      sortOrder,
-    } = query;
+    const { page, size, sortOrder } = query;
     delete query['page'];
     delete query['size'];
 
     const searchEntitiesIds = await getEntityIdsByNaturalQuery(
       this.prisma.activities,
-      query
+      query,
     );
 
     let entitiesIds = [...searchEntitiesIds];
@@ -63,7 +57,12 @@ export class ChangeLogService {
       entitiesIds = entitiesIds.slice(start, start + +size);
     }
 
-    const requests = entitiesIds.length > 0 ? await this.prisma.activities.findMany({ where: {id: { in: entitiesIds }}}) : [];
+    const requests =
+      entitiesIds.length > 0
+        ? await this.prisma.activities.findMany({
+            where: { id: { in: entitiesIds } },
+          })
+        : [];
 
     let list = await this.getEntities(requests);
 
@@ -73,26 +72,31 @@ export class ChangeLogService {
 
     return {
       list: list,
-      total: searchEntitiesIds.length
+      total: searchEntitiesIds.length,
     };
   }
 
   async create(createChangeLogDto: CreateChangeLogDto) {
-    const entity = await this.prisma.activities.create({data: createChangeLogDto});
+    const entity = await this.prisma.activities.create({
+      data: createChangeLogDto,
+    });
 
     return entity;
   }
 
   async findOne(id: number) {
-    const entity = await this.prisma.activities.findUnique({where:{id}});
+    const entity = await this.prisma.activities.findUnique({ where: { id } });
 
     return entity;
   }
 
   async update(id: number, updateChangeLogDto: UpdateChangeLogDto) {
-    const entity = await this.prisma.activities.update({where:{id}, data: updateChangeLogDto});
+    const entity = await this.prisma.activities.update({
+      where: { id },
+      data: updateChangeLogDto,
+    });
 
-    return entity
+    return entity;
   }
 
   async remove(id: number) {

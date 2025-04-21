@@ -1,5 +1,5 @@
-import { RealField } from "src/temp/entities/Field";
-import { ServerUser } from "src/temp/entities/User";
+import { RealField } from 'src/temp/entities/Field';
+import { ServerUser } from 'src/temp/entities/User';
 import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class CreateUserDto implements ServerUser.CreateRequest {

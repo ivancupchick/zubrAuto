@@ -10,30 +10,43 @@ import { FieldChainService } from './services/field-chain.service';
 
 @Injectable()
 export class FieldsService {
-  constructor(private prisma: PrismaService, private fieldChainService: FieldChainService) {}
+  constructor(
+    private prisma: PrismaService,
+    private fieldChainService: FieldChainService,
+  ) {}
 
   async create(createFieldDto: CreateFieldDto) {
-    const existField = await this.prisma.fields.findFirst({where:{ name: createFieldDto.name, domain: createFieldDto.domain }})
+    const existField = await this.prisma.fields.findFirst({
+      where: { name: createFieldDto.name, domain: createFieldDto.domain },
+    });
     if (existField) {
       throw ApiError.BadRequest(`Field ${createFieldDto.name} exists`);
     }
 
-    const field: Models.Field = await this.prisma.fields.create({ data: {
-      flags: createFieldDto.flags || 0,
-      type: createFieldDto.type || FieldType.Text,
-      name: createFieldDto.name.toLowerCase(),
-      domain: createFieldDto.domain,
-      variants: createFieldDto.variants,
-      showUserLevel: createFieldDto.showUserLevel
-    }});
+    const field: Models.Field = await this.prisma.fields.create({
+      data: {
+        flags: createFieldDto.flags || 0,
+        type: createFieldDto.type || FieldType.Text,
+        name: createFieldDto.name.toLowerCase(),
+        domain: createFieldDto.domain,
+        variants: createFieldDto.variants,
+        showUserLevel: createFieldDto.showUserLevel,
+      },
+    });
 
     if (createFieldDto.accesses) {
-      await Promise.all((createFieldDto.accesses || []).map(a => this.prisma.fieldAccesses.create({data:{
-        sourceId: a.sourceId,
-        fieldId: field.id,
-        access: a.access,
-        sourceName: getTableNameByDomain(a.domain)
-      }})))
+      await Promise.all(
+        (createFieldDto.accesses || []).map((a) =>
+          this.prisma.fieldAccesses.create({
+            data: {
+              sourceId: a.sourceId,
+              fieldId: field.id,
+              access: a.access,
+              sourceName: getTableNameByDomain(a.domain),
+            },
+          }),
+        ),
+      );
     }
 
     // let tableName = '';
@@ -70,18 +83,20 @@ export class FieldsService {
   async findAll() {
     const [fields, fieldAccesses] = await Promise.all([
       this.prisma.fields.findMany(),
-      this.prisma.fieldAccesses.findMany()
+      this.prisma.fieldAccesses.findMany(),
     ]);
 
-    const result: ServerField.Response[] = fields.map(field => ({
+    const result: ServerField.Response[] = fields.map((field) => ({
       ...field,
-      accesses: fieldAccesses.filter(fa => fa.fieldId === field.id).map(fa => ({
-        id: fa.id,
-        fieldId: fa.fieldId,
-        sourceId: fa.sourceId,
-        domain: getDomainByTableName(fa.sourceName),
-        access: fa.access
-      })),
+      accesses: fieldAccesses
+        .filter((fa) => fa.fieldId === field.id)
+        .map((fa) => ({
+          id: fa.id,
+          fieldId: fa.fieldId,
+          sourceId: fa.sourceId,
+          domain: getDomainByTableName(fa.sourceName),
+          access: fa.access,
+        })),
     }));
 
     return result; // TODO BaseList
@@ -89,19 +104,21 @@ export class FieldsService {
 
   async findOne(id: number) {
     const [field, fieldAccesses] = await Promise.all([
-      this.prisma.fields.findUnique({where: {id}}),
-      this.prisma.fieldAccesses.findMany()
+      this.prisma.fields.findUnique({ where: { id } }),
+      this.prisma.fieldAccesses.findMany(),
     ]);
 
     const result = {
       ...field,
-      accesses: fieldAccesses.filter(fa => fa.fieldId === field.id).map(fa => ({
-        id: fa.id,
-        fieldId: fa.fieldId,
-        sourceId: fa.sourceId,
-        domain: getDomainByTableName(fa.sourceName),
-        access: fa.access
-      })),
+      accesses: fieldAccesses
+        .filter((fa) => fa.fieldId === field.id)
+        .map((fa) => ({
+          id: fa.id,
+          fieldId: fa.fieldId,
+          sourceId: fa.sourceId,
+          domain: getDomainByTableName(fa.sourceName),
+          access: fa.access,
+        })),
     };
 
     return result;
@@ -115,102 +132,136 @@ export class FieldsService {
       updateFieldDto.name === updateFieldDto.name.trim();
     }
 
-    const field: Models.Field = await this.prisma.fields.update({ where: {id}, data: updateFieldDto});
+    const field: Models.Field = await this.prisma.fields.update({
+      where: { id },
+      data: updateFieldDto,
+    });
 
-    const createdAccess = accesses.length > 0
-      ? await this.prisma.fieldAccesses.findMany({ where: {
-        fieldId: id
-      }})
-      : [];
-    const notCreatedAccess = accesses.filter(na => !createdAccess.find((ca => ca.sourceId === na.sourceId && ca.sourceName === getTableNameByDomain(na.domain))));
+    const createdAccess =
+      accesses.length > 0
+        ? await this.prisma.fieldAccesses.findMany({
+            where: {
+              fieldId: id,
+            },
+          })
+        : [];
+    const notCreatedAccess = accesses.filter(
+      (na) =>
+        !createdAccess.find(
+          (ca) =>
+            ca.sourceId === na.sourceId &&
+            ca.sourceName === getTableNameByDomain(na.domain),
+        ),
+    );
 
     await Promise.all(
       createdAccess
-        .map(a => {
-          const newAccess = accesses.find(na => na.sourceId === a.sourceId && getTableNameByDomain(na.domain) === a.sourceName);
-          const newAccessValue: number | null = !!newAccess ? newAccess.access : null;
+        .map((a) => {
+          const newAccess = accesses.find(
+            (na) =>
+              na.sourceId === a.sourceId &&
+              getTableNameByDomain(na.domain) === a.sourceName,
+          );
+          const newAccessValue: number | null = !!newAccess
+            ? newAccess.access
+            : null;
 
           switch (newAccessValue) {
-            case null: return this.prisma.fieldAccesses.delete({where:{ id: a.id}});
-            case 0: return this.prisma.fieldAccesses.delete({where:{ id: a.id}});
+            case null:
+              return this.prisma.fieldAccesses.delete({ where: { id: a.id } });
+            case 0:
+              return this.prisma.fieldAccesses.delete({ where: { id: a.id } });
           }
 
-          return this.prisma.fieldAccesses.update({ where: {id: a.id}, data: { access: newAccessValue }})
+          return this.prisma.fieldAccesses.update({
+            where: { id: a.id },
+            data: { access: newAccessValue },
+          });
         })
-        .filter(a => a)
-    )
+        .filter((a) => a),
+    );
 
     await Promise.all(
-      notCreatedAccess
-        .map(na => this.prisma.fieldAccesses.create({data: {
-          sourceId: na.sourceId,
-          fieldId: id,
-          access: na.access,
-          sourceName: getTableNameByDomain(na.domain)
-        }}))
-    )
+      notCreatedAccess.map((na) =>
+        this.prisma.fieldAccesses.create({
+          data: {
+            sourceId: na.sourceId,
+            fieldId: id,
+            access: na.access,
+            sourceName: getTableNameByDomain(na.domain),
+          },
+        }),
+      ),
+    );
 
     // const field = await fieldRepository.updateById(id, updateFieldDto);
-    return field
+    return field;
   }
 
   async remove(id: number) {
-    const field = await this.prisma.fields.findUnique({where:{id}});
+    const field = await this.prisma.fields.findUnique({ where: { id } });
 
     let tableName = '';
     let entities: { id: number }[] = [];
     switch (field.domain) {
       case FieldDomains.Car:
-        tableName = Models.Table.Cars
+        tableName = Models.Table.Cars;
         entities = await this.prisma.cars.findMany();
         break;
       case FieldDomains.User:
-        tableName = Models.Table.Users
+        tableName = Models.Table.Users;
         entities = await this.prisma.users.findMany();
         break;
       case FieldDomains.CarOwner:
-        tableName = Models.Table.CarOwners
+        tableName = Models.Table.CarOwners;
         entities = await this.prisma.carOwners.findMany();
         break;
       case FieldDomains.Client:
-        tableName = Models.Table.Clients
+        tableName = Models.Table.Clients;
         entities = await this.prisma.clients.findMany();
         break;
     }
 
-    const createdAccess = (await this.prisma.fieldAccesses.findMany({ where:{
-      fieldId: id
-    }})) || [];
+    const createdAccess =
+      (await this.prisma.fieldAccesses.findMany({
+        where: {
+          fieldId: id,
+        },
+      })) || [];
 
     await this.fieldChainService.deleteMany({
       // maybe need to add sourceName
-      sourceId: { in: entities.map(e => e.id)},
-      fieldId: field.id
+      sourceId: { in: entities.map((e) => e.id) },
+      fieldId: field.id,
     });
 
     await Promise.all([
-      ...createdAccess.map(a => this.prisma.fieldAccesses.delete({ where: { id: a.id }}))
+      ...createdAccess.map((a) =>
+        this.prisma.fieldAccesses.delete({ where: { id: a.id } }),
+      ),
     ]);
 
-    await this.prisma.fields.delete({where: {id}});
-    return field
+    await this.prisma.fields.delete({ where: { id } });
+    return field;
   }
 
   async getFieldsByDomain(domain: FieldDomains) {
     const [fields, fieldAccesses] = await Promise.all([
-      this.prisma.fields.findMany({ where: { domain: +domain }}),
-      this.prisma.fieldAccesses.findMany()
+      this.prisma.fields.findMany({ where: { domain: +domain } }),
+      this.prisma.fieldAccesses.findMany(),
     ]);
 
-    const result = fields.map(field => ({
+    const result = fields.map((field) => ({
       ...field,
-      accesses: fieldAccesses.filter(fa => fa.fieldId === field.id).map(fa => ({
-        id: fa.id,
-        fieldId: fa.fieldId,
-        sourceId: fa.sourceId,
-        domain: getDomainByTableName(fa.sourceName), // !TODO wehat is this
-        access: fa.access
-      })),
+      accesses: fieldAccesses
+        .filter((fa) => fa.fieldId === field.id)
+        .map((fa) => ({
+          id: fa.id,
+          fieldId: fa.fieldId,
+          sourceId: fa.sourceId,
+          domain: getDomainByTableName(fa.sourceName), // !TODO wehat is this
+          access: fa.access,
+        })),
     }));
 
     return result;

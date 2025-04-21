@@ -3,4 +3,4 @@ export type SitesCallRequest = {
   number: string;
   comment: string;
   source: string;
-}
+};

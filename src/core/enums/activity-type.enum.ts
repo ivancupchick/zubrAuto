@@ -20,7 +20,6 @@ export enum ActivityType {
   DeletePhoneCall = 'DeletePhoneCall',
   DeleteSomePhoneCall = 'DeleteSomePhoneCall',
 
-
   // entityCreate,
   // entityDelete,
   // fieldChange,

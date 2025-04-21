@@ -1,9 +1,12 @@
-import { Models } from "./Models";
+import { Models } from './Models';
 
 export namespace ServerAuth {
-  export type IPayload = Pick<Models.User, 'id' | 'email' | 'isActivated' | 'roleLevel'> & { customRoleName: string }
+  export type IPayload = Pick<
+    Models.User,
+    'id' | 'email' | 'isActivated' | 'roleLevel'
+  > & { customRoleName: string };
 
-  export class Payload implements IPayload{
+  export class Payload implements IPayload {
     public id: number;
     public email: string;
     public isActivated: boolean;
@@ -20,8 +23,8 @@ export namespace ServerAuth {
   }
 
   export interface AuthGetResponse {
-    user: IPayload,
-    accessToken: string,
-    refreshToken: string
+    user: IPayload;
+    accessToken: string;
+    refreshToken: string;
   }
 }

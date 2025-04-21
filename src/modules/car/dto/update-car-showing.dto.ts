@@ -1,7 +1,6 @@
 import { IsNumber, IsObject, IsNotEmpty } from 'class-validator';
 
 export class updateCarShowing {
-
   @IsNumber()
   @IsNotEmpty()
   showingId: number;

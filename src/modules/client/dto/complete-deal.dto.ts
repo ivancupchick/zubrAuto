@@ -7,5 +7,5 @@ export class CompleteDealDto {
 
   @IsNumber()
   @IsNotEmpty()
-  carId: number
+  carId: number;
 }

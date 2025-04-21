@@ -1,4 +1,4 @@
-import { ExpressionHash } from "src/core/utils/sql-queries";
+import { ExpressionHash } from 'src/core/utils/sql-queries';
 
 export interface IRead<T> {
   getAll(): Promise<T[]>;

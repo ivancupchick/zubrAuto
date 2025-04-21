@@ -9,6 +9,6 @@ import { FieldsModule } from 'src/core/fields/fields.module';
   imports: [PrismaModule, FieldsModule],
   controllers: [UserController],
   providers: [UserService],
-  exports: [UserService]
+  exports: [UserService],
 })
 export class UserModule {}
