@@ -23,5 +23,5 @@ export namespace Constants {
     WEB_HOOK = 'web-hook',
     CALL_REQUEST = 'call-request',
     CALL_REQUESTS = 'call-requests',
-  };
+  }
 }

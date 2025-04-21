@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -14,7 +24,10 @@ export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @UseGuards(AuthGuard)
-  @ControllerActivity({ type: ActivityType.CreateClient, sourceName: Models.Table.Clients })
+  @ControllerActivity({
+    type: ActivityType.CreateClient,
+    sourceName: Models.Table.Clients,
+  })
   @Post()
   create(@Body() createClientDto: CreateClientDto) {
     return this.clientService.create(createClientDto);
@@ -22,7 +35,8 @@ export class ClientController {
 
   @UseGuards(AuthGuard)
   @Get()
-  findAll(@Query() query: any) { // TODO! enum for params
+  findAll(@Query() query: any) {
+    // TODO! enum for params
     const queryKeys = Object.keys(query);
 
     return queryKeys.length > 0
@@ -37,14 +51,20 @@ export class ClientController {
   }
 
   @UseGuards(AuthGuard)
-  @ControllerActivity({ type: ActivityType.UpdateClient, sourceName: Models.Table.Clients })
+  @ControllerActivity({
+    type: ActivityType.UpdateClient,
+    sourceName: Models.Table.Clients,
+  })
   @Put(':id')
   update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
     return this.clientService.update(+id, updateClientDto);
   }
 
   @UseGuards(AuthGuard)
-  @ControllerActivity({ type: ActivityType.DeleteClient, sourceName: Models.Table.Clients })
+  @ControllerActivity({
+    type: ActivityType.DeleteClient,
+    sourceName: Models.Table.Clients,
+  })
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.clientService.remove(+id);

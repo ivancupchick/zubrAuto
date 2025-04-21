@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { FieldsService } from './fields.service';
 import { CreateFieldDto } from './dto/create-field.dto';
 import { UpdateFieldDto } from './dto/update-field.dto';
@@ -23,19 +32,19 @@ export class FieldsController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(`/${ Constants.API.CRUD }/:id`)
+  @Get(`/${Constants.API.CRUD}/:id`)
   findOne(@Param('id') id: string) {
     return this.fieldsService.findOne(+id);
   }
 
   @UseGuards(AuthGuard)
-  @Put(`/${ Constants.API.CRUD }/:id`)
+  @Put(`/${Constants.API.CRUD}/:id`)
   update(@Param('id') id: string, @Body() updateFieldDto: UpdateFieldDto) {
     return this.fieldsService.update(+id, updateFieldDto);
   }
 
   @UseGuards(AuthGuard)
-  @Delete(`/${ Constants.API.CRUD }/:id`)
+  @Delete(`/${Constants.API.CRUD}/:id`)
   remove(@Param('id') id: string) {
     return this.fieldsService.remove(+id);
   }

@@ -5,5 +5,5 @@ export class AddCustomerDiscountDto {
   discount: number;
 
   @IsNumber()
-  amount: number
+  amount: number;
 }

@@ -42,7 +42,7 @@ export namespace FieldNames {
     ourLinks = 'our-links',
     contactCenterSpecialistId = 'contact-center-specialist-id',
     carShootingSpecialistId = 'car-shooting-specialist-id',
-    source = "source",
+    source = 'source',
     statistic = 'statistic',
     bodyType = 'body-type',
     contactCenterSpecialist = 'contact-center-specialist',
@@ -99,12 +99,12 @@ export namespace FieldNames {
     Other = 'Другое',
     Messagers = 'Viber Whatsup Telegram',
     EMail = 'Эл почта',
-    Recommend = 'Рекомендация'
+    Recommend = 'Рекомендация',
   }
 
   export enum CarOwner {
     name = 'name',
-    ownerNumber = 'ownerNumber'
+    ownerNumber = 'ownerNumber',
   }
 
   export enum User {

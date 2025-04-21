@@ -1,7 +1,16 @@
-import { BadRequestException, HttpException, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 export class ApiError extends HttpException {
-  constructor(status: HttpStatus, message: string, public errors = []) {
+  constructor(
+    status: HttpStatus,
+    message: string,
+    public errors = [],
+  ) {
     super(message, status);
   }
 

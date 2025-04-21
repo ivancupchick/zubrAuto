@@ -33,28 +33,51 @@ export class FieldChainService {
     return [...fieldChains, ...longtextFieldChains];
   }
 
-  async update( // TODO refactor
+  async update(
+    // TODO refactor
     data: Prisma.fieldIdsUpdateInput & Prisma.longtextFieldsIdsUpdateInput,
     where: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput,
   ): Promise<Prisma.BatchPayload> {
-    const [fieldChains, longtextFieldChains]: [Prisma.BatchPayload, Prisma.BatchPayload] = await Promise.all([
+    const [fieldChains, longtextFieldChains]: [
+      Prisma.BatchPayload,
+      Prisma.BatchPayload,
+    ] = await Promise.all([
       this.prisma.fieldIds.updateMany({ where: where, data: data }), // TODO updateUnique
       this.prisma.longtextFieldsIds.updateMany({ where: where, data: data }), // TODO updateUnique
     ]);
 
-    return { count: fieldChains.count + longtextFieldChains.count, ...fieldChains, ...longtextFieldChains };
+    return {
+      count: fieldChains.count + longtextFieldChains.count,
+      ...fieldChains,
+      ...longtextFieldChains,
+    };
   }
 
-  async findOne(where: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput): Promise<Models.FieldChain> { // TODO need to make sure that only one field meets all the conditions
-    const [fieldChain, longtextFieldChain] = await Promise.all([this.prisma.fieldIds.findMany({where}), this.prisma.longtextFieldsIds.findMany({where})]);
+  async findOne(
+    where: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput,
+  ): Promise<Models.FieldChain> {
+    // TODO need to make sure that only one field meets all the conditions
+    const [fieldChain, longtextFieldChain] = await Promise.all([
+      this.prisma.fieldIds.findMany({ where }),
+      this.prisma.longtextFieldsIds.findMany({ where }),
+    ]);
 
     return [...fieldChain, ...longtextFieldChain][0];
   }
 
-  async deleteMany(payload: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput): Promise<Prisma.BatchPayload> {
-    const [fieldChains, longtextFieldChains] = await Promise.all([this.prisma.fieldIds.deleteMany({ where: payload }), this.prisma.longtextFieldsIds.deleteMany({where: payload})]);
+  async deleteMany(
+    payload: Prisma.fieldIdsWhereInput & Prisma.longtextFieldsIdsWhereInput,
+  ): Promise<Prisma.BatchPayload> {
+    const [fieldChains, longtextFieldChains] = await Promise.all([
+      this.prisma.fieldIds.deleteMany({ where: payload }),
+      this.prisma.longtextFieldsIds.deleteMany({ where: payload }),
+    ]);
 
-    return { count: fieldChains.count + longtextFieldChains.count, ...fieldChains, ...longtextFieldChains };
+    return {
+      count: fieldChains.count + longtextFieldChains.count,
+      ...fieldChains,
+      ...longtextFieldChains,
+    };
   }
 
   async create(fieldChainData: Omit<Models.FieldChain, 'id'>) {
@@ -266,7 +289,7 @@ export class FieldChainService {
         ids;
         return specialIds.filter((id) => ids.has(`${id}`)); // TODO test
       } else {
-        return [...ids].map(id => +id);
+        return [...ids].map((id) => +id);
       }
     }
 
@@ -337,6 +360,6 @@ export class FieldChainService {
       return [...specialIds];
     }
 
-    return [...searchIds].map(id => +id);
+    return [...searchIds].map((id) => +id);
   }
 }

@@ -74,7 +74,7 @@ export interface ICar {
     id: number;
     main: boolean;
     medium: IPhoto;
-    mimeType: "image/jpeg" | string;
+    mimeType: 'image/jpeg' | string;
     small: IPhoto;
   }[];
   price: {
@@ -82,12 +82,12 @@ export interface ICar {
     eur: IPrice<'eur'>;
     rub: IPrice<'rub'>;
     usd: IPrice<'usd'>;
-  }
+  };
   properties: ICarProperty[];
   publicStatus: {
     label: string;
     name: 'active' | string;
-  }
+  };
   publicUrl: string;
   publishedAt: string;
   refreshedAt: string;
@@ -110,11 +110,11 @@ export interface IPhoto {
 }
 export interface IPrice<T> {
   amount: number;
-  currency: T
+  currency: T;
 }
 export interface ICarProperty {
   fallbackType: 'string' | 'boolean' | 'int' | string;
   id: number;
-  name: PropertyName,
+  name: PropertyName;
   value: boolean | string | number;
 }

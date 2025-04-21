@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Put, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ChangeLogService } from './change-log.service';
 import { CreateChangeLogDto } from './dto/create-change-log.dto';
 import { UpdateChangeLogDto } from './dto/update-change-log.dto';
@@ -32,7 +41,10 @@ export class ChangeLogController {
 
   @UseGuards(AuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateChangeLogDto: UpdateChangeLogDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateChangeLogDto: UpdateChangeLogDto,
+  ) {
     return this.changeLogService.update(+id, updateChangeLogDto);
   }
 

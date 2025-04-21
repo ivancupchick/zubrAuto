@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { PhoneCallService } from './phone-call.service';
 import { CreatePhoneCallDto } from './dto/create-phone-call.dto';
 import { UpdatePhoneCallDto } from './dto/update-phone-call.dto';
@@ -17,7 +27,8 @@ export class PhoneCallController {
 
   @UseGuards(AuthGuard)
   @Get()
-  findAll(@Query() query: any) { // TODO! enum for params
+  findAll(@Query() query: any) {
+    // TODO! enum for params
     const queryKeys = Object.keys(query);
 
     return queryKeys.length > 0
@@ -33,7 +44,10 @@ export class PhoneCallController {
 
   @UseGuards(AuthGuard)
   @Put(':id')
-  update(@Param('id') id: string, @Body() updatePhoneCallDto: UpdatePhoneCallDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updatePhoneCallDto: UpdatePhoneCallDto,
+  ) {
     return this.phoneCallService.update(+id, updatePhoneCallDto);
   }
 

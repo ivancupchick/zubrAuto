@@ -1,11 +1,11 @@
-import { Models } from "../../temp/entities/Models";
+import { Models } from '../../temp/entities/Models';
 
 export enum FieldDomains {
   'Car',
   'CarOwner',
   'Client',
   'User',
-  'Role'
+  'Role',
 }
 
 export enum FieldType {
@@ -16,7 +16,7 @@ export enum FieldType {
   'Number',
   'Dropdown',
   'Date',
-  'Textarea' // LongtextFieldsChainRepository
+  'Textarea', // LongtextFieldsChainRepository
 }
 
 export function getDomainByTableName(tableName: string): FieldDomains {
@@ -25,7 +25,9 @@ export function getDomainByTableName(tableName: string): FieldDomains {
     // case Models.Table.CarOwners: return FieldDomains.CarOwner;
     // case Models.Table.Clients: return FieldDomains.Client;
     // case Models.Table.Users: return FieldDomains.User;
-    case Models.Table.Roles: return FieldDomains.Role;
-    default: return FieldDomains.Car;
+    case Models.Table.Roles:
+      return FieldDomains.Role;
+    default:
+      return FieldDomains.Car;
   }
 }

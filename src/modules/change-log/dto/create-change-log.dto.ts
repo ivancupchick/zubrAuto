@@ -1,6 +1,5 @@
-import { ServerActivity } from "src/temp/entities/Activity";
+import { ServerActivity } from 'src/temp/entities/Activity';
 
 export interface CreateChangeLogDto extends ServerActivity.CreateRequest {}
-
 
 // export class CreateChangeLogDto {}
