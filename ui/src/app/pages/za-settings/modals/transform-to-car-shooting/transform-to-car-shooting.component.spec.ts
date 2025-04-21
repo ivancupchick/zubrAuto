@@ -8,9 +8,8 @@ describe('TransformToCarShooting', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TransformToCarShooting ]
-    })
-    .compileComponents();
+      declarations: [TransformToCarShooting],
+    }).compileComponents();
   });
 
   beforeEach(() => {

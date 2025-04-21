@@ -38,7 +38,7 @@ export const settingsCarsStrings: StringHash = {
   photo360: 'Фото 360',
   linkToVideo: 'Видео',
   bodyType: 'Кузов',
-  dateOfLastCustomerCall: 'Дата последнего звонка'
+  dateOfLastCustomerCall: 'Дата последнего звонка',
 
   // nextAction: 'Следующее действие',
 };

@@ -6,7 +6,7 @@ import { DynamicFieldBase } from '../../dynamic-fields/dynamic-field-base';
 @Component({
   selector: 'za-primitive-form-field',
   templateUrl: './primitive-form-field.component.html',
-  styleUrls: ['./primitive-form-field.component.scss']
+  styleUrls: ['./primitive-form-field.component.scss'],
 })
 export class PrimitiveFormFieldComponent implements OnInit {
   FieldType = FieldType;
@@ -21,9 +21,7 @@ export class PrimitiveFormFieldComponent implements OnInit {
     return this.form.controls[this.field.key].errors;
   }
 
-  constructor() { }
+  constructor() {}
 
-  ngOnInit(): void {
-  }
-
+  ngOnInit(): void {}
 }

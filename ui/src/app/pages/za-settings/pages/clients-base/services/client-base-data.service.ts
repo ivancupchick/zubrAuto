@@ -32,7 +32,6 @@ export class ClientBaseDataService
   extends PageagleGridService<ServerClient.Response>
   implements OnDestroy
 {
-
   private loading = new BehaviorSubject<boolean>(true);
   public loading$ = this.loading.asObservable();
 

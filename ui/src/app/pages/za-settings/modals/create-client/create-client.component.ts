@@ -1,9 +1,24 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormsModule, ReactiveFormsModule, UntypedFormControl, ValidationErrors } from '@angular/forms';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import {
+  AbstractControl,
+  FormsModule,
+  ReactiveFormsModule,
+  UntypedFormControl,
+  ValidationErrors,
+} from '@angular/forms';
+import {
+  DialogService,
+  DynamicDialogConfig,
+  DynamicDialogRef,
+} from 'primeng/dynamicdialog';
 import { getCarStatus, ServerCar } from 'src/app/entities/car';
 import { ServerClient } from 'src/app/entities/client';
-import { ServerField, UIRealField, FieldsUtils, FieldType } from 'src/app/entities/field';
+import {
+  ServerField,
+  UIRealField,
+  FieldsUtils,
+  FieldType,
+} from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 import { ClientService } from 'src/app/services/client/client.service';
@@ -11,7 +26,10 @@ import { settingsClientsStrings } from '../../settings-clients/settings-clients.
 import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
 import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
-import { CarChip, SelectCarComponent } from '../select-car/select-car.component';
+import {
+  CarChip,
+  SelectCarComponent,
+} from '../select-car/select-car.component';
 import { StringHash } from 'src/app/entities/constants';
 import { CarStatusLists, QueryCarTypes } from '../../settings-cars/cars.enums';
 import { SessionService } from 'src/app/services/session/session.service';
@@ -41,27 +59,24 @@ import * as moment from 'moment';
     ReactiveFormsModule,
     SpinnerComponent,
     ButtonModule,
-    InputTextareaModule
+    InputTextareaModule,
   ],
-  providers: [
-    DynamicFieldControlService,
-    CarService,
-    ClientService,
-  ]
+  providers: [DynamicFieldControlService, CarService, ClientService],
 })
 export class CreateClientComponent implements OnInit {
   loading = false;
 
   @Input() predefinedCar: ServerCar.Response | undefined = undefined;
   @Input() client: ServerClient.Response | undefined = undefined;
-  @Input() predefinedFields: Partial<{ [key in FieldNames.Client]: string }> = {};
+  @Input() predefinedFields: Partial<{ [key in FieldNames.Client]: string }> =
+    {};
   @Input() fieldConfigs: ServerField.Response[] = [];
   @Input() specialists: ServerUser.Response[] = [];
 
   @Input()
   get hasSelectionOfCars(): boolean {
     return this.config?.data?.hasSelectionOfCars ?? true;
-  };
+  }
 
   selectedCars: CarChip[] = [];
   private originalCarChips: CarChip[] = [];
@@ -114,45 +129,65 @@ export class CreateClientComponent implements OnInit {
       }
     });
 
-    const formFields = this.dfcs.getDynamicFieldsFromDBFields(this.fieldConfigs
-      .filter(fc => !this.excludeFields.includes(fc.name as FieldNames.Client))
-      .map(fc => {
-        let fieldValue = !!this.client
-          ? this.client.fields.find(f => f.id === fc.id)?.value || ''
-          : this.predefinedFields[fc.name as FieldNames.Client] || '';
+    const formFields = this.dfcs
+      .getDynamicFieldsFromDBFields(
+        this.fieldConfigs
+          .filter(
+            (fc) => !this.excludeFields.includes(fc.name as FieldNames.Client),
+          )
+          .map((fc) => {
+            let fieldValue = !!this.client
+              ? this.client.fields.find((f) => f.id === fc.id)?.value || ''
+              : this.predefinedFields[fc.name as FieldNames.Client] || '';
 
-        if ([FieldNames.Client.dateNextAction, FieldNames.Client.saleDate].includes(fc.name as FieldNames.Client)) {
-          fc.type = FieldType.Date;
+            if (
+              [
+                FieldNames.Client.dateNextAction,
+                FieldNames.Client.saleDate,
+              ].includes(fc.name as FieldNames.Client)
+            ) {
+              fc.type = FieldType.Date;
 
-          if (fieldValue && Number.isNaN(+fieldValue)) { // TODO fix  Number.isNaN
-            fieldValue = `${+moment(fieldValue)}`;
-          }
-        }
+              if (fieldValue && Number.isNaN(+fieldValue)) {
+                // TODO fix  Number.isNaN
+                fieldValue = `${+moment(fieldValue)}`;
+              }
+            }
 
-        const newField = new UIRealField(
-          fc,
-          fieldValue
-        );
+            const newField = new UIRealField(fc, fieldValue);
 
-        return newField;
-      }))
-        .map(fc => this.updateFieldConfig(fc));
+            return newField;
+          }),
+      )
+      .map((fc) => this.updateFieldConfig(fc));
 
-    if (this.sessionService.isAdminOrHigher || this.sessionService.isCarSalesChief || this.sessionService.isCustomerServiceChief) {
-      const specialistIdField = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.specialistId);
+    if (
+      this.sessionService.isAdminOrHigher ||
+      this.sessionService.isCarSalesChief ||
+      this.sessionService.isCustomerServiceChief
+    ) {
+      const specialistIdField = this.fieldConfigs.find(
+        (cfc) => cfc.name === FieldNames.Client.specialistId,
+      );
       formFields.push(
         this.dfcs.getDynamicFieldFromOptions({
           id: specialistIdField?.id || -1,
-          value: this.client?.fields.find(f => f.name === FieldNames.Client.specialistId)?.value || 'None',
+          value:
+            this.client?.fields.find(
+              (f) => f.name === FieldNames.Client.specialistId,
+            )?.value || 'None',
           key: FieldNames.Client.specialistId,
           label: 'Специалист',
           order: 1,
           controlType: FieldType.Dropdown,
           variants: [
             { value: 'Никто', key: 'None' },
-            ...this.specialists.map(u => ({ key: `${u.id}`, value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name) || u.email}` }))
-          ]
-        })
+            ...this.specialists.map((u) => ({
+              key: `${u.id}`,
+              value: `${FieldsUtils.getFieldStringValue(u, FieldNames.User.name) || u.email}`,
+            })),
+          ],
+        }),
       );
     }
 
@@ -161,30 +196,43 @@ export class CreateClientComponent implements OnInit {
     this.loading = true;
 
     const query: StringHash = {};
-    query[FieldNames.Car.status] = CarStatusLists[QueryCarTypes.carsForSale].join(',');
+    query[FieldNames.Car.status] =
+      CarStatusLists[QueryCarTypes.carsForSale].join(',');
 
-    const obs = this.client && this.client.carIds && this.client.carIds.split(',').length
-      ? this.carService.getCarsByQuery(Object.assign(query, { id: this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a)})).pipe(map(res => res.list))
-      : of([])
+    const obs =
+      this.client && this.client.carIds && this.client.carIds.split(',').length
+        ? this.carService
+            .getCarsByQuery(
+              Object.assign(query, {
+                id: this.client.carIds
+                  .split(',')
+                  .map((a) => (!Number.isNaN(+a) ? +a : a)),
+              }),
+            )
+            .pipe(map((res) => res.list))
+        : of([]);
 
-    obs.pipe(
-      finalize(() => this.loading = false)
-    ).subscribe(cars => {
+    obs.pipe(finalize(() => (this.loading = false))).subscribe((cars) => {
       if (this.client) {
         let carIds: (number | string)[] = [];
 
-        this.description = FieldsUtils.getFieldStringValue(this.client.fields, FieldNames.Client.description);
+        this.description = FieldsUtils.getFieldStringValue(
+          this.client.fields,
+          FieldNames.Client.description,
+        );
 
         try {
           carIds = this.client.carIds
-            ? this.client.carIds.split(',').map(a => !Number.isNaN(+a) ? +a : a) || []
+            ? this.client.carIds
+                .split(',')
+                .map((a) => (!Number.isNaN(+a) ? +a : a)) || []
             : [];
         } catch (error) {
           carIds = [];
         }
 
-        this.originalCarChips = carIds.map(id => {
-          const car = cars.find(c => c.id === id);
+        this.originalCarChips = carIds.map((id) => {
+          const car = cars.find((c) => c.id === id);
           const markModel = car
             ? `${FieldsUtils.getFieldValue(car, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(car, FieldNames.Car.model)}`
             : `${id}`;
@@ -194,28 +242,30 @@ export class CreateClientComponent implements OnInit {
           return {
             id,
             markModel,
-          }
+          };
         });
 
-        this.setCarsToForm(this.originalCarChips)
+        this.setCarsToForm(this.originalCarChips);
       } else if (this.predefinedCar) {
-        this.selectedRealCars.push(this.predefinedCar)
+        this.selectedRealCars.push(this.predefinedCar);
 
-        this.originalCarChips = [{
-          id: this.predefinedCar.id,
-          markModel: `${FieldsUtils.getFieldValue(this.predefinedCar, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(this.predefinedCar, FieldNames.Car.model)}`,
-        }];
+        this.originalCarChips = [
+          {
+            id: this.predefinedCar.id,
+            markModel: `${FieldsUtils.getFieldValue(this.predefinedCar, FieldNames.Car.mark)} ${FieldsUtils.getFieldValue(this.predefinedCar, FieldNames.Car.model)}`,
+          },
+        ];
 
-        this.setCarsToForm(this.originalCarChips)
+        this.setCarsToForm(this.originalCarChips);
       }
-    })
+    });
   }
 
   create() {
     this.loading = true;
 
     if (this.isJustCall.value) {
-      const carIds = this.selectedCars.map(sc => sc.id);
+      const carIds = this.selectedCars.map((sc) => sc.id);
 
       if (!carIds.length) {
         this.loading = false;
@@ -223,109 +273,147 @@ export class CreateClientComponent implements OnInit {
         return;
       }
 
-      this.carService.addCall(carIds).pipe(
-        finalize(() => this.loading = false)
-      ).subscribe(result => {
-        if (result) {
-          alert('Звонки учтены');
-          this.cancel(true);
-        } else {
-          alert('Звонки не учтены, нажмите F12, заскриньте красные ошибки в консоли и отправьте администратору.');
-        }
-      })
+      this.carService
+        .addCall(carIds)
+        .pipe(finalize(() => (this.loading = false)))
+        .subscribe((result) => {
+          if (result) {
+            alert('Звонки учтены');
+            this.cancel(true);
+          } else {
+            alert(
+              'Звонки не учтены, нажмите F12, заскриньте красные ошибки в консоли и отправьте администратору.',
+            );
+          }
+        });
     } else {
       const fields = this.dynamicForm.getAllValue();
 
-      const carIds = this.selectedCars.map(sc => sc.id).join(',');
+      const carIds = this.selectedCars.map((sc) => sc.id).join(',');
       const client: ServerClient.CreateRequest = {
         carIds,
-        fields: fields.filter(fc => fc.name === FieldNames.Client.specialistId || !this.excludeFields.includes(fc.name as FieldNames.Client))
-      }
+        fields: fields.filter(
+          (fc) =>
+            fc.name === FieldNames.Client.specialistId ||
+            !this.excludeFields.includes(fc.name as FieldNames.Client),
+        ),
+      };
 
       if (!this.client) {
-        const dateField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.date);
+        const dateField = this.fieldConfigs.find(
+          (fc) => fc.name === FieldNames.Client.date,
+        );
         if (dateField) {
           client.fields.push({
             id: dateField.id,
             name: dateField.name,
-            value: `${+(new Date())}`
-          })
+            value: `${+new Date()}`,
+          });
         } else {
-          console.log("Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику");
+          console.log(
+            'Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику',
+          );
         }
       }
 
-      const descriptionField = this.fieldConfigs.find(fc => fc.name === FieldNames.Client.description);
+      const descriptionField = this.fieldConfigs.find(
+        (fc) => fc.name === FieldNames.Client.description,
+      );
       if (descriptionField) {
         client.fields.push({
           id: descriptionField.id,
           name: descriptionField.name,
-          value: this.description
-        })
+          value: this.description,
+        });
       } else {
         // TODO create right expression for this error
-        console.log("Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику");
+        console.log(
+          'Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику',
+        );
       }
 
-      if (!this.client && !(
-        this.sessionService.isAdminOrHigher || this.sessionService.isCarSalesChief || this.sessionService.isCustomerServiceChief
-      )) {
-        const specialistIdField = this.fieldConfigs.find(cfc => cfc.name === FieldNames.Client.specialistId);
+      if (
+        !this.client &&
+        !(
+          this.sessionService.isAdminOrHigher ||
+          this.sessionService.isCarSalesChief ||
+          this.sessionService.isCustomerServiceChief
+        )
+      ) {
+        const specialistIdField = this.fieldConfigs.find(
+          (cfc) => cfc.name === FieldNames.Client.specialistId,
+        );
         if (specialistIdField) {
           client.fields.push({
             id: specialistIdField.id,
             name: specialistIdField.name,
-            value: `${this.sessionService.userId}`
-          })
+            value: `${this.sessionService.userId}`,
+          });
         } else {
           // TODO create right expression for this error
           console.error('specialistIdField is undefined');
-          console.log("Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику");
+          console.log(
+            'Заскриньте пожалуйста ошибку, запомните шаги что привело к этому, и сообщите начальнику',
+          );
         }
       }
 
-
-      if (!FieldsUtils.getFieldStringValue(client.fields, FieldNames.Client.number)) {
-        console.error("Нету номера");
+      if (
+        !FieldsUtils.getFieldStringValue(
+          client.fields,
+          FieldNames.Client.number,
+        )
+      ) {
+        console.error('Нету номера');
 
         this.loading = false;
         return;
       }
 
-
-      const methodObs = this.client != undefined
-        ? this.clientService.updateClient(client, (this.client as ServerClient.Response).id)
-        : this.clientService.getClientsByNumber({ [FieldNames.Client.number]: FieldsUtils.getFieldStringValue(client.fields, FieldNames.Client.number) }).pipe(
-          mergeMap((res) => {
-            if (res && res.list.length) {
-              res.list.forEach((existClient, index) => {
-                this.dialogService.open(ClientPreviewComponent, {
-                  data: {
-                    client: existClient,
-                    users: this.specialists,
-                  },
-                  header: `Уже созданный клиент #${index + 1}`,
-                  width: '60%',
-                  height: '50%',
-                });
+      const methodObs =
+        this.client != undefined
+          ? this.clientService.updateClient(
+              client,
+              (this.client as ServerClient.Response).id,
+            )
+          : this.clientService
+              .getClientsByNumber({
+                [FieldNames.Client.number]: FieldsUtils.getFieldStringValue(
+                  client.fields,
+                  FieldNames.Client.number,
+                ),
               })
+              .pipe(
+                mergeMap((res) => {
+                  if (res && res.list.length) {
+                    res.list.forEach((existClient, index) => {
+                      this.dialogService.open(ClientPreviewComponent, {
+                        data: {
+                          client: existClient,
+                          users: this.specialists,
+                        },
+                        header: `Уже созданный клиент #${index + 1}`,
+                        width: '60%',
+                        height: '50%',
+                      });
+                    });
 
-              return of(false);
-            }
+                    return of(false);
+                  }
 
-            return this.clientService.createClient(client);
-          })
-        )
+                  return this.clientService.createClient(client);
+                }),
+              );
 
-      methodObs.pipe(
-        finalize(() => this.loading = false)
-      ).subscribe((result: boolean) => {
-        if (result) {
-          this.cancel(true);
-        } else {
-          alert(!!this.client ? 'Клиент не обновлён' : 'Клиент не создан');
-        }
-      })
+      methodObs
+        .pipe(finalize(() => (this.loading = false)))
+        .subscribe((result: boolean) => {
+          if (result) {
+            this.cancel(true);
+          } else {
+            alert(!!this.client ? 'Клиент не обновлён' : 'Клиент не создан');
+          }
+        });
     }
   }
 
@@ -339,7 +427,7 @@ export class CreateClientComponent implements OnInit {
 
   setDirtyFormFields(value: boolean) {
     if (value) {
-      Object.keys(this.dynamicForm.formGroup.controls).forEach(key => {
+      Object.keys(this.dynamicForm.formGroup.controls).forEach((key) => {
         this.dynamicForm.formGroup.get(key)!.markAsDirty();
       });
     }
@@ -351,51 +439,69 @@ export class CreateClientComponent implements OnInit {
     }
 
     if (field.key === FieldNames.Client.number) {
-      field.validators.push((control: AbstractControl): ValidationErrors | null => {
-        const controlValue = control.value;
+      field.validators.push(
+        (control: AbstractControl): ValidationErrors | null => {
+          const controlValue = control.value;
 
-        if (controlValue.length === 13 && controlValue[0] === '+' && controlValue[1] === '3' && controlValue[2] === '7' && controlValue[3] === '5') {
-          return null;
-        }
+          if (
+            controlValue.length === 13 &&
+            controlValue[0] === '+' &&
+            controlValue[1] === '3' &&
+            controlValue[2] === '7' &&
+            controlValue[3] === '5'
+          ) {
+            return null;
+          }
 
-        if (controlValue.length === 12 && controlValue[0] === '+' && controlValue[1] === '7') {
-          return null;
-        }
+          if (
+            controlValue.length === 12 &&
+            controlValue[0] === '+' &&
+            controlValue[1] === '7'
+          ) {
+            return null;
+          }
 
-        return {
-          numberIsInvalid: { value: control.value }
-        };
-      });
+          return {
+            numberIsInvalid: { value: control.value },
+          };
+        },
+      );
     }
 
     return field;
   }
 
-  onAddCar(event: { originalEvent: KeyboardEvent, value: string }) {
+  onAddCar(event: { originalEvent: KeyboardEvent; value: string }) {
     event.originalEvent.preventDefault();
     event.originalEvent.stopPropagation();
 
-    this.selectedCars = [{
-      id: event.value,
-      markModel: event.value,
-    }];
+    this.selectedCars = [
+      {
+        id: event.value,
+        markModel: event.value,
+      },
+    ];
   }
 
   openEditCars() {
-    this.dialogService.open(SelectCarComponent, {
-      data: {
-        cars: this.selectedCars,
-        origignalCars: this.selectedRealCars,
-      },
-      header: 'Выбор машины',
-      width: '90%',
-      height: '90%',
-    }).onClose.subscribe((res: { chips: CarChip[], realCars: ServerCar.Response[] } | false) => {
-      if (res && Array.isArray(res.chips)) {
-        this.selectedRealCars = res.realCars;
-        this.setCarsToForm([...res.chips]);
-      }
-    });
+    this.dialogService
+      .open(SelectCarComponent, {
+        data: {
+          cars: this.selectedCars,
+          origignalCars: this.selectedRealCars,
+        },
+        header: 'Выбор машины',
+        width: '90%',
+        height: '90%',
+      })
+      .onClose.subscribe(
+        (res: { chips: CarChip[]; realCars: ServerCar.Response[] } | false) => {
+          if (res && Array.isArray(res.chips)) {
+            this.selectedRealCars = res.realCars;
+            this.setCarsToForm([...res.chips]);
+          }
+        },
+      );
   }
 
   setCarsToForm(cars: CarChip[]) {

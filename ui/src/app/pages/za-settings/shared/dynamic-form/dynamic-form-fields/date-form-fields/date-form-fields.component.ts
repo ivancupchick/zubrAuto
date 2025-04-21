@@ -7,7 +7,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'za-date-form-fields',
   templateUrl: './date-form-fields.component.html',
-  styleUrls: ['./date-form-fields.component.scss']
+  styleUrls: ['./date-form-fields.component.scss'],
 })
 export class DateFormFieldsComponent implements OnInit, OnDestroy {
   FieldType = FieldType;
@@ -34,8 +34,7 @@ export class DateFormFieldsComponent implements OnInit, OnDestroy {
         } else {
           this.form.get(this.field.key)?.enable({ emitEvent: false });
         }
-
-      })
+      });
     }
   }
 

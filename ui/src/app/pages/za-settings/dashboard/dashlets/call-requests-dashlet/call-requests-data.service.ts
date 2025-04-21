@@ -1,6 +1,14 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
-import { BehaviorSubject, finalize, mergeMap, of, Subject, takeUntil, zip } from 'rxjs';
+import {
+  BehaviorSubject,
+  finalize,
+  mergeMap,
+  of,
+  Subject,
+  takeUntil,
+  zip,
+} from 'rxjs';
 import { ServerCallRequest } from 'src/app/entities/call-request';
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { ServerClient } from 'src/app/entities/client';
@@ -15,14 +23,22 @@ type CallRequestsFilters = {
 };
 
 @Injectable()
-export class CallRequestsDataService extends PageagleGridService<ServerCallRequest.Response> implements OnDestroy {
+export class CallRequestsDataService
+  extends PageagleGridService<ServerCallRequest.Response>
+  implements OnDestroy
+{
   private loading = new BehaviorSubject<boolean>(false);
   public loading$ = this.loading.asObservable();
 
-  private calls = new BehaviorSubject<BaseList<ServerCallRequest.Response>>({ list: [], total: 0 });
+  private calls = new BehaviorSubject<BaseList<ServerCallRequest.Response>>({
+    list: [],
+    total: 0,
+  });
   public list$ = this.calls.asObservable();
 
-  private clientsSubject = new BehaviorSubject<BaseList<ServerClient.Response>>({ list: [], total: 0 });
+  private clientsSubject = new BehaviorSubject<BaseList<ServerClient.Response>>(
+    { list: [], total: 0 },
+  );
   public clients$ = this.clientsSubject.asObservable();
 
   ready = false;
@@ -34,20 +50,33 @@ export class CallRequestsDataService extends PageagleGridService<ServerCallReque
   public fetchData() {
     this.loading.next(true);
 
-    this.requestService.get<BaseList<ServerCallRequest.Response>>(`${environment.serverUrl}/${'call-requests'}`, this.payload) //
+    this.requestService
+      .get<BaseList<ServerCallRequest.Response>>(
+        `${environment.serverUrl}/${'call-requests'}`,
+        this.payload,
+      ) //
       .pipe(
         mergeMap((callsRes) => {
-          const numbers = callsRes.list.map(callRequest => callRequest.clientNumber);
+          const numbers = callsRes.list.map(
+            (callRequest) => callRequest.clientNumber,
+          );
 
-          const query: StringHash<string[]> = { [FieldNames.Client.number]: numbers };
+          const query: StringHash<string[]> = {
+            [FieldNames.Client.number]: numbers,
+          };
 
-          return zip(of(callsRes), numbers.length ? this.clientService.getClientsByNumber(query) : of({ list: [], total: 0 }))
+          return zip(
+            of(callsRes),
+            numbers.length
+              ? this.clientService.getClientsByNumber(query)
+              : of({ list: [], total: 0 }),
+          );
         }),
         takeUntil(this.destroy$),
-        finalize(() => this.loading.next(false))
+        finalize(() => this.loading.next(false)),
       )
       .subscribe(([callsRes, clientRes]) => {
-        this.clientsSubject.next(clientRes)
+        this.clientsSubject.next(clientRes);
         this.calls.next(callsRes);
       });
   }
@@ -56,16 +85,13 @@ export class CallRequestsDataService extends PageagleGridService<ServerCallReque
     const payload = {
       size: this.payload.size,
       page: 1,
-      ...(callDashletFilters as any)
+      ...(callDashletFilters as any),
     };
 
     if (this.payload.sortField && this.payload.sortOrder) {
-      [
-        payload.sortField,
-        payload.sortOrder
-      ] = [
+      [payload.sortField, payload.sortOrder] = [
         this.payload.sortField,
-        this.payload.sortOrder
+        this.payload.sortOrder,
       ];
     }
 
@@ -75,6 +101,6 @@ export class CallRequestsDataService extends PageagleGridService<ServerCallReque
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next(null)
+    this.destroy$.next(null);
   }
 }

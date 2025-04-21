@@ -20,7 +20,8 @@ p-accordiontab.invalid::ng-deep .p-accordion-header {
   border: red 1px solid;
 }
 
-.tab-wrapper.questionnaire, .tab-wrapper.general-condition {
+.tab-wrapper.questionnaire,
+.tab-wrapper.general-condition {
   form {
     .form-field {
       // width: 100%;
@@ -81,7 +82,7 @@ p-accordiontab.invalid::ng-deep .p-accordion-header {
     }
 
     .independent-inputs {
-      margin: 20px 0 ;
+      margin: 20px 0;
     }
   }
 }
@@ -182,7 +183,7 @@ p-accordiontab.invalid::ng-deep .p-accordion-header {
   }
 
   .footer button {
-    margin: 0 .5rem 0 0;
+    margin: 0 0.5rem 0 0;
     width: auto;
   }
 }

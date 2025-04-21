@@ -1,4 +1,6 @@
-<div class="card flex md:flex-row md:justify-content-start md:align-items-center row-gap-1 mb-2">
+<div
+  class="card flex md:flex-row md:justify-content-start md:align-items-center row-gap-1 mb-2"
+>
   <p-multiSelect
     appendTo="body"
     *ngIf="availableStatuses.length > 0"
@@ -59,7 +61,8 @@
       [(ngModel)]="dateFrom"
       [showTime]="false"
       hourFormat="24"
-      [firstDayOfWeek]="1">
+      [firstDayOfWeek]="1"
+    >
     </p-calendar>
   </div>
   <div class="date-wrapper">
@@ -71,7 +74,8 @@
       [(ngModel)]="dateTo"
       [showTime]="false"
       hourFormat="24"
-      [firstDayOfWeek]="1">
+      [firstDayOfWeek]="1"
+    >
     </p-calendar>
   </div>
 
@@ -80,9 +84,12 @@
     (change)="sortClients()"
     [(ngModel)]="phoneNumber"
     pInputText
-    placeholder="Телефон"/>
+    placeholder="Телефон"
+  />
 
-  <ng-container *ngIf="selectedStatus.includes($any(fieldNames.DealStatus.Sold))">
+  <ng-container
+    *ngIf="selectedStatus.includes($any(fieldNames.DealStatus.Sold))"
+  >
     <div class="date-wrapper">
       <p-calendar
         appendTo="body"
@@ -92,7 +99,8 @@
         [(ngModel)]="saleDateFrom"
         [showTime]="false"
         hourFormat="24"
-        [firstDayOfWeek]="1">
+        [firstDayOfWeek]="1"
+      >
       </p-calendar>
     </div>
     <div class="date-wrapper">
@@ -104,7 +112,8 @@
         [(ngModel)]="saleDateTo"
         [showTime]="false"
         hourFormat="24"
-        [firstDayOfWeek]="1">
+        [firstDayOfWeek]="1"
+      >
       </p-calendar>
     </div>
   </ng-container>
@@ -112,9 +121,7 @@
 
 <p-toolbar>
   <div class="p-toolbar-group-left">
-    <span>
-      Кол-во: {{ sortedClients.length }}
-    </span>
+    <span> Кол-во: {{ sortedClients.length }} </span>
     <button
       pButton
       type="button"
@@ -127,7 +134,7 @@
 
   <div class="p-toolbar-group-right">
     <p-button size="small" (onClick)="refresh()" class="mr-2">
-      <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+      <i class="pi pi-refresh" [ngClass]="{ 'pi-spin': loading }"></i>
     </p-button>
   </div>
 </p-toolbar>

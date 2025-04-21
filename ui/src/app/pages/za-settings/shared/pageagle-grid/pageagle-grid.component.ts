@@ -53,7 +53,7 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
   @Input() doubleClickFuction: ((item: GridItemType) => void) | undefined;
   @Input() set first(v: number) {
     this._first = v;
-  };
+  }
   _first!: number;
   get first() {
     return this._first;
@@ -132,6 +132,11 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
       (event.sortOrder && SortEventDirection[event.sortOrder]) || undefined;
     const sortField = event.sortField || undefined;
 
-    this.dataService.updatePage({ size: event.rows!, page: (event.first! + event.rows!) / event.rows!, sortField, sortOrder });
+    this.dataService.updatePage({
+      size: event.rows!,
+      page: (event.first! + event.rows!) / event.rows!,
+      sortField,
+      sortOrder,
+    });
   }
 }

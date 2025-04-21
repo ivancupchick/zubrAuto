@@ -4,11 +4,18 @@
       <div class="content">
         <div class="link-wrapper">
           <h5>Ссылка на фильтр</h5>
-          <input type="text" pInputText [(ngModel)]="link">
+          <input type="text" pInputText [(ngModel)]="link" />
         </div>
         <div class="employ-wrapper">
           <h5>Сотрудник</h5>
-          <p-dropdown appendTo="body" [options]="contactCenterUsers" [(ngModel)]="selectedContactUser" placeholder="Выберите содрудника" optionLabel="value" optionValue="key"></p-dropdown>
+          <p-dropdown
+            appendTo="body"
+            [options]="contactCenterUsers"
+            [(ngModel)]="selectedContactUser"
+            placeholder="Выберите содрудника"
+            optionLabel="value"
+            optionValue="key"
+          ></p-dropdown>
         </div>
       </div>
     </p-tabPanel>
@@ -17,17 +24,49 @@
       <div *ngIf="form" class="content">
         <div [formGroup]="form" class="flex flex-column w-full">
           <!-- !TODO form controls classes -->
-          <div class="form-control ">
+          <div class="form-control">
             <label for="specialist" class="mr-3">Сотрудник</label>
-            <p-dropdown appendTo="body" [options]="contactCenterUsers" formControlName="specialist" id="specialist" placeholder="Выберите содрудника" optionLabel="value" optionValue="key"></p-dropdown>
+            <p-dropdown
+              appendTo="body"
+              [options]="contactCenterUsers"
+              formControlName="specialist"
+              id="specialist"
+              placeholder="Выберите содрудника"
+              optionLabel="value"
+              optionValue="key"
+            ></p-dropdown>
           </div>
           <div formArrayName="cars" class="flex flex-column w-full">
-            <div *ngFor="let carControl of carsControls; let carIndex = index; let first = first" class="flex flex-row justify-content-between w-full mt-2">
-              <textarea rows="5" class="w-full mr-3" pInputTextarea placeholder="Машины" [formControlName]="carIndex"></textarea>
-              <button pButton icon="pi pi-times" *ngIf="!first" type="button" label="Удалить" class="mt-3 p-button-danger" (click)="deleteCarsItem(carIndex)"></button>
-
+            <div
+              *ngFor="
+                let carControl of carsControls;
+                let carIndex = index;
+                let first = first
+              "
+              class="flex flex-row justify-content-between w-full mt-2"
+            >
+              <textarea
+                rows="5"
+                class="w-full mr-3"
+                pInputTextarea
+                placeholder="Машины"
+                [formControlName]="carIndex"
+              ></textarea>
+              <button
+                pButton
+                icon="pi pi-times"
+                *ngIf="!first"
+                type="button"
+                label="Удалить"
+                class="mt-3 p-button-danger"
+                (click)="deleteCarsItem(carIndex)"
+              ></button>
             </div>
-            <p-button class="mt-3" label="Добавить" (onClick)="addOneCarsItem()" />
+            <p-button
+              class="mt-3"
+              label="Добавить"
+              (onClick)="addOneCarsItem()"
+            />
           </div>
         </div>
       </div>
@@ -36,8 +75,23 @@
 </div>
 
 <div class="footer">
-  <button pButton icon="pi pi-save" [disabled]="activeIndex === 0 && formNotValid" type="button" [label]="'Готово'" (click)="activeIndex === 0 ? create() : pushManualCars()" class="mr-2 p-mb-2 p-button-success"></button>
-  <button pButton icon="pi pi-times" type="button" label="Отмена" class="p-mb-2 p-button-danger" (click)="cancel()"></button>
+  <button
+    pButton
+    icon="pi pi-save"
+    [disabled]="activeIndex === 0 && formNotValid"
+    type="button"
+    [label]="'Готово'"
+    (click)="activeIndex === 0 ? create() : pushManualCars()"
+    class="mr-2 p-mb-2 p-button-success"
+  ></button>
+  <button
+    pButton
+    icon="pi pi-times"
+    type="button"
+    label="Отмена"
+    class="p-mb-2 p-button-danger"
+    (click)="cancel()"
+  ></button>
 </div>
 
 <za-spinner *ngIf="loading"></za-spinner>

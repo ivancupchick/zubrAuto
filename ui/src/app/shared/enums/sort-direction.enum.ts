@@ -4,8 +4,8 @@ export enum ZASortDirection {
 }
 
 export const SortEventDirection: {
-  [key: number]: ZASortDirection
+  [key: number]: ZASortDirection;
 } = {
   [1]: ZASortDirection.Asc,
   [-1]: ZASortDirection.Desc,
-}
+};

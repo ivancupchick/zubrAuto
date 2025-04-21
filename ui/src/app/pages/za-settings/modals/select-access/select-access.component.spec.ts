@@ -8,9 +8,8 @@ describe('SelectAccessComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ SelectAccessComponent ]
-    })
-    .compileComponents();
+      declarations: [SelectAccessComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

@@ -7,9 +7,7 @@ import { CarService } from 'src/app/services/car/car.service';
   selector: 'za-change-car-owner-number',
   templateUrl: './change-car-owner-number.component.html',
   styleUrls: ['./change-car-owner-number.component.scss'],
-  providers: [
-    CarService
-  ]
+  providers: [CarService],
 })
 export class ChangeCarOwnerNumberComponent implements OnInit {
   loading = false;
@@ -18,15 +16,14 @@ export class ChangeCarOwnerNumberComponent implements OnInit {
 
   get formNotValid() {
     return false;
-  };
-
+  }
 
   constructor(
     private ref: DynamicDialogRef,
     private config: DynamicDialogConfig,
 
     private carService: CarService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.carId = this.config.data.carId;
@@ -38,23 +35,23 @@ export class ChangeCarOwnerNumberComponent implements OnInit {
 
     const ownerNumber = this.ownerNumber;
 
-    this.carService.updateCar(
-      { ownerNumber, fields: [] },
-      this.carId,
-    ).pipe(
-      finalize(() => this.loading = false)
-    ).subscribe(res => {
-
-      if (res) {
-        alert('Телефон изменен');
-        this.ref.close(true);
-      } else {
-        alert('Телефон не изменен');
-      }
-    }, e => {
-      console.error(e);
-      alert('Телефон не изменен');
-    })
+    this.carService
+      .updateCar({ ownerNumber, fields: [] }, this.carId)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe(
+        (res) => {
+          if (res) {
+            alert('Телефон изменен');
+            this.ref.close(true);
+          } else {
+            alert('Телефон не изменен');
+          }
+        },
+        (e) => {
+          console.error(e);
+          alert('Телефон не изменен');
+        },
+      );
   }
 
   cancel() {

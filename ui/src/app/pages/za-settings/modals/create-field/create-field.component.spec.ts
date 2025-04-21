@@ -8,9 +8,8 @@ describe('CreateFieldComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CreateFieldComponent ]
-    })
-    .compileComponents();
+      declarations: [CreateFieldComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

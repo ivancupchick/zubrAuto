@@ -1,4 +1,4 @@
-import { FieldNames } from "src/app/entities/FieldNames";
+import { FieldNames } from 'src/app/entities/FieldNames';
 
 export enum QueryCarTypes {
   byAdmin = 'by-admin',
@@ -14,7 +14,8 @@ export enum QueryCarTypes {
 }
 
 export const CarStatusLists = {
-  [QueryCarTypes.byAdmin]: [ // all statuses
+  [QueryCarTypes.byAdmin]: [
+    // all statuses
     FieldNames.CarStatus.contactCenter_InProgress,
     FieldNames.CarStatus.contactCenter_NoAnswer,
     FieldNames.CarStatus.contactCenter_MakingDecision,
@@ -35,6 +36,6 @@ export const CarStatusLists = {
     FieldNames.CarStatus.customerService_InProgress,
     FieldNames.CarStatus.customerService_OnPause,
     FieldNames.CarStatus.customerService_OnDelete,
-    FieldNames.CarStatus.customerService_Sold
+    FieldNames.CarStatus.customerService_Sold,
   ],
 };

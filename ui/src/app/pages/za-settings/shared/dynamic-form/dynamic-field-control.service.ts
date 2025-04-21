@@ -1,18 +1,30 @@
 import { Injectable } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { FieldType, FieldsUtils, FlagField, UIRealField } from 'src/app/entities/field';
-import { DynamicFieldBase, DynamicFieldOptions } from './dynamic-fields/dynamic-field-base';
+import {
+  UntypedFormControl,
+  UntypedFormGroup,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
+import {
+  FieldType,
+  FieldsUtils,
+  FlagField,
+  UIRealField,
+} from 'src/app/entities/field';
+import {
+  DynamicFieldBase,
+  DynamicFieldOptions,
+} from './dynamic-fields/dynamic-field-base';
 import { FieldNames } from 'src/app/entities/FieldNames';
-
 
 @Injectable()
 export class DynamicFieldControlService {
-  constructor() { }
+  constructor() {}
 
-  toFormGroup(fields: DynamicFieldBase<string>[] ) {
+  toFormGroup(fields: DynamicFieldBase<string>[]) {
     const group: any = {};
 
-    fields.forEach(field => {
+    fields.forEach((field) => {
       const validators: ValidatorFn[] = [...field.validators];
       if (field.required) {
         validators.push(Validators.required);
@@ -20,13 +32,17 @@ export class DynamicFieldControlService {
 
       switch (field.controlType) {
         case FieldType.Date:
-          group[field.key] = new UntypedFormControl(field.value && new Date(+field.value) || '', [...validators]);
+          group[field.key] = new UntypedFormControl(
+            (field.value && new Date(+field.value)) || '',
+            [...validators],
+          );
           break;
         default:
-          group[field.key] = new UntypedFormControl(field.value || '', [...validators]);
+          group[field.key] = new UntypedFormControl(field.value || '', [
+            ...validators,
+          ]);
           break;
       }
-
 
       // TODO replace to other place
       if (field.readonly) {
@@ -37,11 +53,17 @@ export class DynamicFieldControlService {
   }
 
   getDynamicFieldsFromDBFields(dbFields: UIRealField[]) {
-    const requiredFields: string[] = [FieldNames.Client.name,FieldNames.Client.number, FieldNames.Client.dealStatus, FieldNames.Client.source, FieldNames.Client.specialistId];
+    const requiredFields: string[] = [
+      FieldNames.Client.name,
+      FieldNames.Client.number,
+      FieldNames.Client.dealStatus,
+      FieldNames.Client.source,
+      FieldNames.Client.specialistId,
+    ];
 
     const fields: DynamicFieldBase<string>[] = dbFields
-      .filter(dbField => !FlagField.Is(dbField, FlagField.Flags.Virtual))
-      .map(dbField => {
+      .filter((dbField) => !FlagField.Is(dbField, FlagField.Flags.Virtual))
+      .map((dbField) => {
         return new DynamicFieldBase<string>({
           id: dbField.id,
           value: dbField.hasOwnProperty('value') ? dbField.value : '',
@@ -53,9 +75,12 @@ export class DynamicFieldControlService {
           controlType: dbField.type,
           type: '',
           variants: dbField.variants,
-          readonlyFunction: dbField.name === FieldNames.Client.saleDate
-            ? (formGroup) => formGroup.get(FieldNames.Client.dealStatus)?.value !== 'deal-status-2' // TODO think about get deal-status-2 by FieldNames.DealStatus.Sold
-            : undefined,
+          readonlyFunction:
+            dbField.name === FieldNames.Client.saleDate
+              ? (formGroup) =>
+                  formGroup.get(FieldNames.Client.dealStatus)?.value !==
+                  'deal-status-2' // TODO think about get deal-status-2 by FieldNames.DealStatus.Sold
+              : undefined,
         });
       });
 

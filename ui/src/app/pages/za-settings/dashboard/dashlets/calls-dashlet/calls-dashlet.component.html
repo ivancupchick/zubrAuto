@@ -1,7 +1,13 @@
 <p-panel *ngIf="loaded" header="Звонки">
   <ng-template pTemplate="icons">
-    <form *ngIf="form" #ngForm="ngForm" (ngSubmit)="refresh()" [formGroup]="form" class="gap-2">
-      <p-dropdown 
+    <form
+      *ngIf="form"
+      #ngForm="ngForm"
+      (ngSubmit)="refresh()"
+      [formGroup]="form"
+      class="gap-2"
+    >
+      <p-dropdown
         appendTo="body"
         size="small"
         [options]="availableSpecialists"
@@ -9,15 +15,25 @@
         placeholder="Специалист"
         optionLabel="name"
         optionValue="number"
-      ></p-dropdown >
+      ></p-dropdown>
 
-      <input pInputText class="ml-2" type="text" formControlName="number" pInputText placeholder="Телефон"/>
+      <input
+        pInputText
+        class="ml-2"
+        type="text"
+        formControlName="number"
+        pInputText
+        placeholder="Телефон"
+      />
 
       <p-button size="small" (onClick)="refresh()" class="mr-2 mx-2">
         <span>Фильтр </span>
-        <i class="pi pi-refresh" [ngClass]="{'pi-spin': callsDataService.loading$ | async}"></i>
+        <i
+          class="pi pi-refresh"
+          [ngClass]="{ 'pi-spin': callsDataService.loading$ | async }"
+        ></i>
       </p-button>
-      
+
       <p-button size="small" (onClick)="clearFilters()" class="mr-2 mx-2">
         <span>Очистить </span>
       </p-button>
@@ -68,7 +84,7 @@
 
   <div class="grid-wrapper h-12rem">
     <za-pageagle-grid
-      *ngIf="(callsDataService.list$ | async)?.list?.length else empty"
+      *ngIf="(callsDataService.list$ | async)?.list?.length; else empty"
       [gridConfig]="gridConfig"
       [actions]="gridActionsConfig"
       [getColorConfig]="getColorConfig"
@@ -78,7 +94,9 @@
     ></za-pageagle-grid>
 
     <ng-template #empty>
-      <div class="w-full h-full flex justify-content-center align-items-center surface-300">
+      <div
+        class="w-full h-full flex justify-content-center align-items-center surface-300"
+      >
         <span>Нет записей</span>
       </div>
     </ng-template>

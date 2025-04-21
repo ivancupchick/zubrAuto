@@ -297,7 +297,9 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       filters = { status: status, ...rest };
     } else {
       if (this.availableCarStatuses.length > 0) {
-        filters[FieldNames.Car.status] = this.availableCarStatuses.map(s => s.value);
+        filters[FieldNames.Car.status] = this.availableCarStatuses.map(
+          (s) => s.value,
+        );
       }
     }
     if (filters.number) {
@@ -338,7 +340,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
     const payload = { ...filters };
     if (isChangePage) {
-      payload.page = 1
+      payload.page = 1;
     }
 
     this.carsBaseDataService.updateFiltersAndFetch(payload);
@@ -352,7 +354,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     this.first = 1; // TODO refactor it
     this.cd.detectChanges();
     this.first = 0;
-    this.carsBaseDataService.updateFiltersAndFetch({page: 1, ...filters});
+    this.carsBaseDataService.updateFiltersAndFetch({ page: 1, ...filters });
   }
 
   openNewCarWindow() {}
@@ -1765,7 +1767,6 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
   }
 
   setDefaultStatuses() {
-
     let statuses: FieldNames.CarStatus[] = [];
     switch (this.type) {
       case QueryCarTypes.byAdmin:
@@ -1831,7 +1832,10 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     } else {
       if (this.availableCarStatuses.length > 0) {
         const { status, ...rest } = filters;
-        filters = { status: this.availableCarStatuses.map(s => s.value), ...rest };
+        filters = {
+          status: this.availableCarStatuses.map((s) => s.value),
+          ...rest,
+        };
       }
     }
 

@@ -5,5 +5,5 @@ export import ServerUser = user;
 export import ServerAuth = auth;
 
 export enum LocalStorageKey {
-  Token = 'token'
+  Token = 'token',
 }

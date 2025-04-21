@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { DialogService } from 'primeng/dynamicdialog';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,12 +26,8 @@ import { FieldNames, convertClientNumber } from 'src/app/entities/FieldNames';
   selector: 'za-setting-header',
   templateUrl: './setting-header.component.html',
   styleUrls: ['./setting-header.component.scss'],
-  providers: [
-    DialogService,
-    ActionsService,
-    ClientService
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  providers: [DialogService, ActionsService, ClientService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingHeaderComponent implements OnInit, OnDestroy {
   ServerRole = ServerRole;
@@ -33,20 +36,44 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
   readonly actions: ActionsItem[] = this.actionsService.getActions();
 
   userRoles = [
-    {name: settingsUsersStrings.carSales, code: ServerRole.Custom.carSales},
-    {name: settingsUsersStrings.carSalesChief, code: ServerRole.Custom.carSalesChief},
-    {name: settingsUsersStrings.carShooting, code: ServerRole.Custom.carShooting},
-    {name: settingsUsersStrings.carShootingChief, code: ServerRole.Custom.carShootingChief},
-    {name: settingsUsersStrings.contactCenter, code: ServerRole.Custom.contactCenter},
-    {name: settingsUsersStrings.contactCenterChief, code: ServerRole.Custom.contactCenterChief},
-    {name: settingsUsersStrings.customerService, code: ServerRole.Custom.customerService},
-    {name: settingsUsersStrings.customerServiceChief, code: ServerRole.Custom.customerServiceChief},
-    {name: 'Admin', code: ServerRole.System.Admin},
+    { name: settingsUsersStrings.carSales, code: ServerRole.Custom.carSales },
+    {
+      name: settingsUsersStrings.carSalesChief,
+      code: ServerRole.Custom.carSalesChief,
+    },
+    {
+      name: settingsUsersStrings.carShooting,
+      code: ServerRole.Custom.carShooting,
+    },
+    {
+      name: settingsUsersStrings.carShootingChief,
+      code: ServerRole.Custom.carShootingChief,
+    },
+    {
+      name: settingsUsersStrings.contactCenter,
+      code: ServerRole.Custom.contactCenter,
+    },
+    {
+      name: settingsUsersStrings.contactCenterChief,
+      code: ServerRole.Custom.contactCenterChief,
+    },
+    {
+      name: settingsUsersStrings.customerService,
+      code: ServerRole.Custom.customerService,
+    },
+    {
+      name: settingsUsersStrings.customerServiceChief,
+      code: ServerRole.Custom.customerServiceChief,
+    },
+    { name: 'Admin', code: ServerRole.System.Admin },
     // {name: 'Boolean', code: ServerRole.System.SuperAdmin}
   ];
 
   isSuperAdmin = this.sessionService.isSuperAdminOrHigher;
-  selectedRole: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin = ServerRole.System.Admin;
+  selectedRole:
+    | ServerRole.Custom
+    | ServerRole.System.SuperAdmin
+    | ServerRole.System.Admin = ServerRole.System.Admin;
   clientFieldsConfigs: ServerField.Response[] = [];
 
   destroyed = new Subject();
@@ -58,22 +85,19 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private clientService: ClientService,
     private xlsxService: XlsxService,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
-    this.clientService.getClientFields().subscribe(fields => {
+    this.clientService.getClientFields().subscribe((fields) => {
       this.clientFieldsConfigs = fields;
-    })
+    });
 
     this.sessionService.userSubj
-      .pipe(
-        takeUntil(this.destroyed)
-      )
-      .subscribe(user => {
+      .pipe(takeUntil(this.destroyed))
+      .subscribe((user) => {
         this.user = user;
         this.rebuildActions();
       });
-
   }
 
   onChangeSelectedRole(v: any) {
@@ -84,14 +108,14 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
   login() {
     const ref = this.dialogService.open(LoginComponent, {
       header: 'Войти',
-      width: '40%'
+      width: '40%',
     });
   }
 
   signUp() {
     const ref = this.dialogService.open(SignUpComponent, {
       header: 'Регистрация',
-      width: '40%'
+      width: '40%',
     });
   }
 
@@ -103,7 +127,7 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
     this.destroyed.next(null);
   }
 
-  rebuildActions() {;
+  rebuildActions() {
     this.cdr.detectChanges();
   }
 
@@ -121,25 +145,33 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
   }
 
   convertXlsToJSON(list: any[]) {
-    return list.map(item => {
+    return list.map((item) => {
       const client: ServerClient.CreateRequest = {
         carIds: item['Автомобиль'] || '',
         fields: [],
-      }
+      };
 
       if (item['№']) {
-        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.name)!;
+        const field = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.name,
+        )!;
         client.fields.push({
           id: field.id,
           name: field.name,
-          value: `${item['№']} ${item['Имя']} `
-        })
+          value: `${item['№']} ${item['Имя']} `,
+        });
       }
 
       if (item['Статус']) {
-        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.dealStatus)!;
-        const fieldClientStatus = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.clientStatus)!;
-        const fieldComment = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.description)!;
+        const field = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.dealStatus,
+        )!;
+        const fieldClientStatus = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.clientStatus,
+        )!;
+        const fieldComment = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.description,
+        )!;
 
         let value = FieldNames.DealStatus.InProgress;
         let comment = `${item['ТЦ'] || ''} ${item['Комментарий']}`;
@@ -164,7 +196,10 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
         const v = FieldsUtils.setDropdownValue(field, value);
 
         if (clientStatus) {
-          const vv = FieldsUtils.setDropdownValue(fieldClientStatus, clientStatus);
+          const vv = FieldsUtils.setDropdownValue(
+            fieldClientStatus,
+            clientStatus,
+          );
 
           client.fields.push({
             id: fieldClientStatus.id,
@@ -187,7 +222,9 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
       }
 
       if (item['Дата зая-ки']) {
-        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.date)!;
+        const field = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.date,
+        )!;
         client.fields.push({
           id: field.id,
           name: field.name,
@@ -196,7 +233,9 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
       }
 
       if (item['Дата след дей-я']) {
-        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.dateNextAction)!;
+        const field = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.dateNextAction,
+        )!;
         client.fields.push({
           id: field.id,
           name: field.name,
@@ -205,7 +244,9 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
       }
 
       if (item['Пометка']) {
-        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.nextAction)!;
+        const field = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.nextAction,
+        )!;
         client.fields.push({
           id: field.id,
           name: field.name,
@@ -283,7 +324,9 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
       // }
 
       if (true) {
-        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.source)!;
+        const field = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.source,
+        )!;
 
         let value = FieldNames.ClientSource.TC;
 
@@ -297,7 +340,9 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
       }
 
       if (true) {
-        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.specialistId)!;
+        const field = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.specialistId,
+        )!;
         let value = '59';
 
         // switch (item['М-р']) {
@@ -339,7 +384,9 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
       }
 
       if (item['Телефон']) {
-        const field = this.clientFieldsConfigs.find(c => c.name === FieldNames.Client.number)!;
+        const field = this.clientFieldsConfigs.find(
+          (c) => c.name === FieldNames.Client.number,
+        )!;
 
         // console.log(item['Телефон']);
         // console.log(convertClientNumber(`${item['Телефон']}`));

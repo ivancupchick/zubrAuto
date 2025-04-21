@@ -1,23 +1,33 @@
 import { CommonModule, NgStyle } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import * as moment from 'moment';
 import { MenuItem, SortEvent } from 'primeng/api';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { TableModule } from 'primeng/table';
-import { GridActionConfigItem, GridConfigItem, getGridFieldsCompare } from './grid';
+import {
+  GridActionConfigItem,
+  GridConfigItem,
+  getGridFieldsCompare,
+} from './grid';
 
 @Component({
   selector: 'za-grid',
   templateUrl: './grid.component.html',
   styleUrls: ['./grid.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    TableModule,
-    ContextMenuModule,
-  ]
+  imports: [CommonModule, TableModule, ContextMenuModule],
 })
-export class GridComponent<GridItemType extends { id: number }> implements OnInit {
+export class GridComponent<GridItemType extends { id: number }>
+  implements OnInit
+{
   @Input() gridConfig!: GridConfigItem<GridItemType>[];
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
@@ -29,8 +39,9 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   @Input() set gridData(value: GridItemType[]) {
     if (Array.isArray(value)) {
       this._gridData = value;
-      const scrollHeight = this.elem.nativeElement.offsetHeight  - 100;
-      this.scrollHeight = this.fixedHeight || (scrollHeight > 0 ? scrollHeight : 300);
+      const scrollHeight = this.elem.nativeElement.offsetHeight - 100;
+      this.scrollHeight =
+        this.fixedHeight || (scrollHeight > 0 ? scrollHeight : 300);
     }
   }
   @Input() virtualScroll = true;
@@ -56,7 +67,7 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
   }
 
   rowDoubleClick(item: GridItemType) {
-    this.doubleClickFuction && this.doubleClickFuction(item)
+    this.doubleClickFuction && this.doubleClickFuction(item);
   }
 
   onSelect(c: any) {
@@ -64,25 +75,26 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
       return;
     }
 
-    let selected = this.selectionMode === 'multiple'
-      ? this.selectedKeys || []
-      : [this.selectedKeys as any].filter(r => !!r)
+    let selected =
+      this.selectionMode === 'multiple'
+        ? this.selectedKeys || []
+        : [this.selectedKeys as any].filter((r) => !!r);
 
     this.onSelectEntity.emit(selected);
   }
 
   customSort(event: SortEvent) {
     const fieldName = event.field;
-    const gridConfig = this.gridConfig.find(gd => gd.name === fieldName);
+    const gridConfig = this.gridConfig.find((gd) => gd.name === fieldName);
 
     if (!event.order || !fieldName || !gridConfig || !event.data) {
-      console.error('sorting not working on this field')
+      console.error('sorting not working on this field');
       return;
     }
 
-    this.gridData = [...this.gridData.sort(
-      getGridFieldsCompare(gridConfig, event)
-    )];
+    this.gridData = [
+      ...this.gridData.sort(getGridFieldsCompare(gridConfig, event)),
+    ];
   }
 
   onShow(e: any) {
@@ -91,7 +103,9 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
 
   updateActions() {
     this.contextActions = this.actions.map((action) => {
-      const updatedAction = action.updater ? action.updater(action, this.contextSelectedItem) : action;
+      const updatedAction = action.updater
+        ? action.updater(action, this.contextSelectedItem)
+        : action;
 
       return {
         label: updatedAction.title,
@@ -99,7 +113,8 @@ export class GridComponent<GridItemType extends { id: number }> implements OnIni
         command: (e: { originalEvent: PointerEvent; item: MenuItem }) =>
           updatedAction.handler(this.contextSelectedItem),
         disabled:
-          !!updatedAction.disabled && updatedAction.disabled(this.contextSelectedItem),
+          !!updatedAction.disabled &&
+          updatedAction.disabled(this.contextSelectedItem),
       };
     });
   }

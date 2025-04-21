@@ -1,14 +1,22 @@
 <form class="p-fluid p-grid" [formGroup]="formGroup">
   <div class="p-field p-col-12 p-md-4">
     <span class="p-float-label">
-      <input id="float-input" type="text" pInputText formControlName="name">
+      <input id="float-input" type="text" pInputText formControlName="name" />
       <label for="float-input">Системное имя</label>
     </span>
   </div>
 
   <div class="p-field p-col-12 p-md-4">
     <span class="p-float-label">
-      <p-dropdown appendTo="body" inputId="dropdown" [autoDisplayFirst]="true" [options]="types" optionLabel="name" formControlName="type" optionValue="code"></p-dropdown>
+      <p-dropdown
+        appendTo="body"
+        inputId="dropdown"
+        [autoDisplayFirst]="true"
+        [options]="types"
+        optionLabel="name"
+        formControlName="type"
+        optionValue="code"
+      ></p-dropdown>
       <label for="dropdown">Тип</label>
     </span>
   </div>
@@ -22,28 +30,46 @@
 
   <div class="p-field p-col-12 p-md-4">
     <div class="p-field-checkbox">
-      <p-checkbox name="isSystem" inputId="isSystem" [binary]="true" formControlName="isSystem"></p-checkbox>
+      <p-checkbox
+        name="isSystem"
+        inputId="isSystem"
+        [binary]="true"
+        formControlName="isSystem"
+      ></p-checkbox>
       <label for="isSystem">Это системный филд</label>
     </div>
   </div>
 
   <div class="p-field p-col-12 p-md-4">
     <div class="p-field-checkbox">
-      <p-checkbox name="isVirtual" inputId="isVirtual" [binary]="true" formControlName="isVirtual"></p-checkbox>
+      <p-checkbox
+        name="isVirtual"
+        inputId="isVirtual"
+        [binary]="true"
+        formControlName="isVirtual"
+      ></p-checkbox>
       <label for="isVirtual">Это виртуальный филд</label>
     </div>
   </div>
 
-
   <div class="p-field p-col-12 p-md-4">
     <span class="p-float-label access-wrapper">
-      <p-chips inputId="chips" class="p-inputwrapper-focus" formControlName="accesses">
+      <p-chips
+        inputId="chips"
+        class="p-inputwrapper-focus"
+        formControlName="accesses"
+      >
         <ng-template let-item pTemplate="item">
-            {{item.domainName}} - {{item.sourceName}} - {{item.accessName}}
+          {{ item.domainName }} - {{ item.sourceName }} - {{ item.accessName }}
         </ng-template>
       </p-chips>
       <label for="chips">Варианты (через запятую)</label>
-      <button pButton icon="pi pi-pencil" type="button" (click)="openEditAccesses()"></button>
+      <button
+        pButton
+        icon="pi pi-pencil"
+        type="button"
+        (click)="openEditAccesses()"
+      ></button>
     </span>
   </div>
 </form>

@@ -1,7 +1,7 @@
 <div [formGroup]="form" class="p-field p-col-12 p-md-12">
   <ng-container [ngSwitch]="field.controlType">
     <span class="p-float-label">
-      <ng-container  *ngSwitchCase="FieldType.Text">
+      <ng-container *ngSwitchCase="FieldType.Text">
         <input
           *ngIf="!field.mask"
           pInputText
@@ -16,7 +16,7 @@
           [mask]="field.mask"
           [placeholder]="field.mask"
           [id]="field.key"
-          mask="{{field.mask}}"
+          mask="{{ field.mask }}"
           [formControlName]="field.key"
           [type]="field.type || 'text'"
           autocomplete="nope"
@@ -26,8 +26,6 @@
           +375000000000 или +70000000000
         </div>
       </ng-container>
-
-
 
       <!-- need test -->
       <p-dropdown
@@ -41,7 +39,7 @@
         optionValue="key"
       ></p-dropdown>
 
-      <label [attr.for]="field.key">{{field.label}}</label>
+      <label [attr.for]="field.key">{{ field.label }}</label>
 
       <!-- <div class="errorMessage" *ngIf="!isValid">{{field.label}} is required</div> -->
       <!-- <small *ngIf="!isValid" class="p-error">Username is not available.</small> -->

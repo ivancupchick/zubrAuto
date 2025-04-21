@@ -14,9 +14,7 @@ import { DynamicFormComponent } from '../../../shared/dynamic-form/dynamic-form.
   selector: 'za-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
-  providers: [
-    DynamicFieldControlService
-  ]
+  providers: [DynamicFieldControlService],
 })
 export class LoginComponent implements OnInit {
   loading = false;
@@ -31,7 +29,7 @@ export class LoginComponent implements OnInit {
     private sessionService: SessionService,
     private dfcs: DynamicFieldControlService,
 
-    private ref: DynamicDialogRef
+    private ref: DynamicDialogRef,
   ) {}
 
   ngOnInit(): void {
@@ -45,7 +43,7 @@ export class LoginComponent implements OnInit {
         required: true,
         controlType: FieldType.Text,
         validators: [Validators.email],
-        type: 'email'
+        type: 'email',
       }),
       this.dfcs.getDynamicFieldFromOptions({
         id: 2,
@@ -55,8 +53,8 @@ export class LoginComponent implements OnInit {
         order: 2,
         required: true,
         controlType: FieldType.Text,
-        type: 'password'
-      })
+        type: 'password',
+      }),
     ];
 
     this.dynamicFormFields = formFields;
@@ -66,12 +64,13 @@ export class LoginComponent implements OnInit {
     this.loading = true;
 
     const fields = this.dynamicForm.getValue();
-    const email = fields.find(f => f.name === 'email')?.value || '';
-    const password = fields.find(f => f.name === 'password')?.value || '';
+    const email = fields.find((f) => f.name === 'email')?.value || '';
+    const password = fields.find((f) => f.name === 'password')?.value || '';
 
-    this.sessionService.login(email, password)
+    this.sessionService
+      .login(email, password)
       .pipe(
-        finalize(() => this.loading = false),
+        finalize(() => (this.loading = false)),
         catchError((err: any, c) => {
           if (err instanceof HttpErrorResponse) {
             alert(err.message);
@@ -80,7 +79,7 @@ export class LoginComponent implements OnInit {
           return of(null);
         }),
       )
-      .subscribe(res => {
+      .subscribe((res) => {
         if (res) {
           alert('Вы залогинились!');
           this.ref.close(true);

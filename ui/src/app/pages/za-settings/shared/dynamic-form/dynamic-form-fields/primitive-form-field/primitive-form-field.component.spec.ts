@@ -8,9 +8,8 @@ describe('PrimitiveFormFieldComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ PrimitiveFormFieldComponent ]
-    })
-    .compileComponents();
+      declarations: [PrimitiveFormFieldComponent],
+    }).compileComponents();
   });
 
   beforeEach(() => {

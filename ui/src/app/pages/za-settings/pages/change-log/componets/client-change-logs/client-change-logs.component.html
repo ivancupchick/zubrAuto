@@ -4,28 +4,37 @@
 >
   <ng-template pTemplate="header">
     <tr>
-      <th>
-      </th>
-      <th *ngFor="let headerItem of tableHeader" [innerHTML]="headerItem.title"></th>
+      <th></th>
+      <th
+        *ngFor="let headerItem of tableHeader"
+        [innerHTML]="headerItem.title"
+      ></th>
     </tr>
   </ng-template>
 
   <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
-    <tr
-      style="height:24px"
-    >
+    <tr style="height: 24px">
       <td>{{ gridItem[0] }}</td>
       <td *ngFor="let headerItem of tableHeader; let index = index">
-        <div *ngIf="gridItem[index+1] == null && index != 0" [class.backgroundGray]="true">
+        <div
+          *ngIf="gridItem[index + 1] == null && index != 0"
+          [class.backgroundGray]="true"
+        >
           --//--
         </div>
 
-        <div *ngIf="gridItem[index+1] != null && gridItem[index+1] != '' " [class.backgroundMint]="true">
+        <div
+          *ngIf="gridItem[index + 1] != null && gridItem[index + 1] != ''"
+          [class.backgroundMint]="true"
+        >
           {{ gridItem[index + 1] }}
         </div>
 
         <!-- Хотел добавить красный бекграунд на удаленные ячейки (пустые) -->
-        <div *ngIf="gridItem[index+1] == '' && index != 0" [class.backgroundRed]="true">
+        <div
+          *ngIf="gridItem[index + 1] == '' && index != 0"
+          [class.backgroundRed]="true"
+        >
           {{ gridItem[index + 1] }}
         </div>
       </td>

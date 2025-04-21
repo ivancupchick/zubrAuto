@@ -16,14 +16,12 @@ import { CheckboxModule } from 'primeng/checkbox';
 const routes: Routes = [
   {
     path: '',
-    component: ChangeLogComponent
-  }
+    component: ChangeLogComponent,
+  },
 ];
 
 @NgModule({
-  declarations: [
-    ChangeLogComponent,
-  ],
+  declarations: [ChangeLogComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -37,9 +35,6 @@ const routes: Routes = [
     CalendarModule,
     CheckboxModule,
   ],
-  providers: [
-    RequestService,
-    ChangeLogDataService
-  ]
+  providers: [RequestService, ChangeLogDataService],
 })
-export class ChangeLogModule { }
+export class ChangeLogModule {}
