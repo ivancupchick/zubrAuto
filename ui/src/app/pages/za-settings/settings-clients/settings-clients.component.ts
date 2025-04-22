@@ -44,7 +44,6 @@ const availableStatuses = [
   selector: 'za-settings-clients',
   templateUrl: './settings-clients.component.html',
   styleUrls: ['./settings-clients.component.scss'],
-  providers: [DialogService, ClientService, CarService, UserService],
 })
 export class SettingsClientsComponent implements OnInit, OnDestroy {
   sortedClients: ServerClient.Response[] = [];

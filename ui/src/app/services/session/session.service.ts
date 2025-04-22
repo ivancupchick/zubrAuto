@@ -5,7 +5,9 @@ import { ServerRole } from 'src/app/entities/role';
 import { LocalStorageKey, ServerAuth } from 'src/app/entities/user';
 import { AuthService } from '../auth/auth.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class SessionService {
   defer: Subject<ServerAuth.AuthGetResponse> | null = null;
 

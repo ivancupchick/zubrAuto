@@ -15,14 +15,14 @@ import { DBModels, StringHash } from 'src/app/entities/constants';
 import { ServerUser } from 'src/app/entities/user';
 import { DateUtils } from 'src/app/shared/utils/date.util';
 import { settingsCarsStrings } from 'src/app/pages/za-settings/settings-cars/settings-cars.strings';
+import { RequestService } from 'src/app/services/request/request.service';
 
 @Component({
   selector: 'za-client-change-logs',
   templateUrl: './client-change-logs.component.html',
   styleUrls: ['./client-change-logs.component.scss'],
   standalone: true,
-  imports: [TableModule, TooltipModule, ContextMenuModule, CommonModule],
-  providers: [ChangeLogDataService],
+  imports: [TableModule, TooltipModule, ContextMenuModule, CommonModule, ],
 })
 export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   loading = false;

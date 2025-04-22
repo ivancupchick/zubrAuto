@@ -11,7 +11,9 @@ import { RequestService } from '../request/request.service';
 const API = 'clients';
 // const ITEM_ID_NAME = 'clientId'
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ClientService {
   constructor(
     private requestService: RequestService,

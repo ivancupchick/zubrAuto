@@ -8,7 +8,9 @@ import { RequestService } from '../request/request.service';
 
 const API = 'roles';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class RoleService {
   constructor(
     private requestService: RequestService,

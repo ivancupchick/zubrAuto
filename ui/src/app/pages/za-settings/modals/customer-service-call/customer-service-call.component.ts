@@ -11,7 +11,6 @@ import { CarService } from 'src/app/services/car/car.service';
   selector: 'za-customer-service-call',
   templateUrl: './customer-service-call.component.html',
   styleUrls: ['./customer-service-call.component.scss'],
-  providers: [CarService],
 })
 export class CustomerServiceCallComponent implements OnInit {
   loading = false;

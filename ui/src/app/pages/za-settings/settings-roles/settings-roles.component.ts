@@ -11,7 +11,6 @@ import { Observable } from 'rxjs';
   selector: 'za-settings-roles',
   templateUrl: './settings-roles.component.html',
   styleUrls: ['./settings-roles.component.scss'],
-  providers: [DialogService, RoleService],
 })
 export class SettingsRolesComponent implements OnInit {
   sortedRoles: ServerRole.Response[] = [];

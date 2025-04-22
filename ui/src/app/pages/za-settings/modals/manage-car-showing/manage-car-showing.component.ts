@@ -22,7 +22,6 @@ import { CreateCarShowingComponent } from '../create-car-showing/create-car-show
   selector: 'za-manage-car-showing',
   templateUrl: './manage-car-showing.component.html',
   styleUrls: ['./manage-car-showing.component.scss'],
-  providers: [CarService],
 })
 export class ManageCarShowingComponent implements OnInit {
   loading = false;

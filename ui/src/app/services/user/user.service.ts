@@ -9,7 +9,9 @@ import { environment } from 'src/environments/environment';
 import { FieldService } from '../field/field.service';
 import { RequestService } from '../request/request.service';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class UserService {
   constructor(
     private requestService: RequestService,

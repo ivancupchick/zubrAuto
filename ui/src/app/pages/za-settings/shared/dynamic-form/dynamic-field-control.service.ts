@@ -17,7 +17,9 @@ import {
 } from './dynamic-fields/dynamic-field-base';
 import { FieldNames } from 'src/app/entities/FieldNames';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class DynamicFieldControlService {
   constructor() {}
 

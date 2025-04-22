@@ -38,13 +38,6 @@ export enum TabIndex {
   selector: 'za-client-next-action-dashlet',
   templateUrl: './client-next-action-dashlet.component.html',
   styleUrls: ['./client-next-action-dashlet.component.scss'],
-  providers: [
-    UserService,
-    ClientService,
-    DialogService,
-    CarService,
-    ClientNextActionDataService,
-  ],
 })
 export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   first: number = 0;

@@ -13,7 +13,6 @@ import { finalize } from 'rxjs';
   selector: 'za-create-role',
   templateUrl: './create-role.component.html',
   styleUrls: ['./create-role.component.scss'],
-  providers: [DynamicFieldControlService],
 })
 export class CreateRoleComponent implements OnInit {
   loading = false;

@@ -5,7 +5,9 @@ import { StringHash } from 'src/app/entities/constants';
 import { RequestType, ZAResponose, cacheService } from './cache.service';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class RequestService {
   constructor(private httpClient: HttpClient) {}
 

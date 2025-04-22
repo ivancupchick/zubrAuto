@@ -19,7 +19,9 @@ const API = Constants.API.CARS;
 
 export interface CarImageMetadata {}
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class CarService {
   constructor(
     private requestService: RequestService,

@@ -7,8 +7,6 @@ import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -89,6 +87,7 @@ import { ClientChangeLogsComponent } from './pages/change-log/componets/client-c
 import { ClientService } from 'src/app/services/client/client.service';
 import { ClientsBaseComponent } from './pages/clients-base/clients-base.component';
 import { CarsBaseComponent } from './pages/cars-base/cars-base.component';
+import { LoginFormComponent } from './pages/login-form/login-form.component';
 
 // TODO sidebar; separate dashboard [calls + call-requests], [clients];
 
@@ -146,6 +145,7 @@ const routes: Routes = [
       },
       {
         path: 'change-log',
+        canActivate: [AuthGuard],
         loadChildren: () =>
           import('./pages/change-log/change-log.module').then(
             (m) => m.ChangeLogModule,
@@ -199,8 +199,6 @@ const routes: Routes = [
     CardModule,
     ToolbarModule,
     ButtonModule,
-    DialogModule,
-    DynamicDialogModule,
     InputTextModule,
     DropdownModule,
     FormsModule,
@@ -238,28 +236,7 @@ const routes: Routes = [
     GridComponent,
     CreateClientComponent,
     ClientChangeLogsComponent,
-  ],
-  providers: [
-    AuthService,
-    AuthGuard,
-    SettingsResolver,
-    SessionService,
-    FieldService,
-    MessageService,
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ServerErrorMessageInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true,
-    },
-    RequestService,
-    UserService,
-    CarService, // createClient from global toolbar ?
-    ClientService,
+    LoginFormComponent,
   ],
 })
 export class ZASettingsModule {}

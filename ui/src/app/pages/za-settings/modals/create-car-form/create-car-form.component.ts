@@ -44,7 +44,6 @@ function keys<T extends Object>(obj: T): Array<keyof typeof obj> {
   selector: 'za-create-car-form',
   templateUrl: './create-car-form.component.html',
   styleUrls: ['./create-car-form.component.scss'],
-  providers: [CarService],
 })
 export class CreateCarFormComponent implements OnInit {
   readonly carFormStrings = CarFormEnumsStrings;

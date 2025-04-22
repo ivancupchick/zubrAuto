@@ -15,7 +15,6 @@ import { CarService } from 'src/app/services/car/car.service';
   selector: 'za-create-car-showing',
   templateUrl: './create-car-showing.component.html',
   styleUrls: ['./create-car-showing.component.scss'],
-  providers: [CarService],
 })
 export class CreateCarShowingComponent implements OnInit {
   loading = false;

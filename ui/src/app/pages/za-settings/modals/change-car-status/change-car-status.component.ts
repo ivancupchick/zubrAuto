@@ -8,7 +8,6 @@ import { CarService } from 'src/app/services/car/car.service';
   selector: 'za-change-car-status',
   templateUrl: './change-car-status.component.html',
   styleUrls: ['./change-car-status.component.scss'],
-  providers: [CarService],
 })
 export class ChangeCarStatusComponent implements OnInit {
   loading = false;

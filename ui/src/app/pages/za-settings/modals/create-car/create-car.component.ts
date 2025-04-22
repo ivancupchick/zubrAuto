@@ -25,7 +25,6 @@ import { finalize } from 'rxjs';
   selector: 'za-create-car',
   templateUrl: './create-car.component.html',
   styleUrls: ['./create-car.component.scss'],
-  providers: [DynamicFieldControlService, UserService, CarService],
 })
 export class CreateCarComponent implements OnInit {
   loading = false;

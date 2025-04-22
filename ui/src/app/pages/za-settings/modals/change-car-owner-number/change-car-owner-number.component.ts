@@ -7,7 +7,6 @@ import { CarService } from 'src/app/services/car/car.service';
   selector: 'za-change-car-owner-number',
   templateUrl: './change-car-owner-number.component.html',
   styleUrls: ['./change-car-owner-number.component.scss'],
-  providers: [CarService],
 })
 export class ChangeCarOwnerNumberComponent implements OnInit {
   loading = false;

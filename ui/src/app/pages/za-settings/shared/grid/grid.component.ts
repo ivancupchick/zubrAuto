@@ -32,7 +32,7 @@ export class GridComponent<GridItemType extends { id: number }>
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
-  @Input() selectionMode = '';
+  @Input() selectionMode: "single" | "multiple" | null = null;
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
   @Input() fixedHeight: number = 0;

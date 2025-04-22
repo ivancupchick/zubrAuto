@@ -12,7 +12,6 @@ import { environment } from 'src/environments/environment';
   selector: 'za-upload-car-media',
   templateUrl: './upload-car-media.component.html',
   styleUrls: ['./upload-car-media.component.scss'],
-  providers: [CarService],
 })
 export class UploadCarMediaComponent implements OnInit {
   loading = false;

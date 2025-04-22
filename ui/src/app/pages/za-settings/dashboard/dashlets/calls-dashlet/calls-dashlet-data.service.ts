@@ -22,7 +22,9 @@ type CallDashletFilters = {
   [key: string]: number | string;
 };
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class CallsDashletDataService
   extends PageagleGridService<ServerPhoneCall.Response>
   implements OnDestroy

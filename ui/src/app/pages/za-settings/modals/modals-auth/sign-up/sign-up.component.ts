@@ -14,7 +14,6 @@ import { DynamicFormComponent } from '../../../shared/dynamic-form/dynamic-form.
   selector: 'za-sign-up',
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.scss'],
-  providers: [SessionService, DynamicFieldControlService],
 })
 export class SignUpComponent implements OnInit {
   loading = false;

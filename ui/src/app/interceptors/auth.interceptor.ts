@@ -12,7 +12,9 @@ import { catchError, switchMap, takeUntil } from 'rxjs/operators';
 import { SessionService } from '../services/session/session.service';
 import { MessageService } from 'primeng/api';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthInterceptor implements HttpInterceptor {
   private refreshTokenSubject = new BehaviorSubject<string>('');
   private logout = new Subject();

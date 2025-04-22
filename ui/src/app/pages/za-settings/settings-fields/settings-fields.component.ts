@@ -26,7 +26,6 @@ export interface GridField {
   selector: 'za-settings-fields',
   templateUrl: './settings-fields.component.html',
   styleUrls: ['./settings-fields.component.scss'],
-  providers: [DialogService],
 })
 export class SettingsFieldsComponent implements OnInit {
   loading = false;

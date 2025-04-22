@@ -46,7 +46,6 @@ import {
   templateUrl: './clients-base.component.html',
   standalone: true,
   styleUrls: ['./clients-base.component.scss'],
-  providers: [ClientBaseDataService, ClientService, DialogService],
   imports: [
     SpinnerComponent,
     PageagleGridComponent,

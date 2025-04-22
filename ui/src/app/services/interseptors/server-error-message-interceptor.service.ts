@@ -9,7 +9,9 @@ import {
 import { Observable, catchError, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ServerErrorMessageInterceptor implements HttpInterceptor {
   constructor(private messageService: MessageService) {}
 

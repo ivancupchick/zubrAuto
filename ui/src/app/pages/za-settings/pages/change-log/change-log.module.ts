@@ -5,7 +5,6 @@ import { RouterModule, Routes } from '@angular/router';
 import { PageagleGridComponent } from '../../shared/pageagle-grid/pageagle-grid.component';
 import { ToolbarModule } from 'primeng/toolbar';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
-import { RequestService } from 'src/app/services/request/request.service';
 import { ChangeLogDataService } from './services/change-log-data.service';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -35,6 +34,5 @@ const routes: Routes = [
     CalendarModule,
     CheckboxModule,
   ],
-  providers: [RequestService, ChangeLogDataService],
 })
 export class ChangeLogModule {}

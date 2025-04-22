@@ -1,21 +1,24 @@
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+import { finalize, catchError, of } from 'rxjs';
 import { FieldType } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
-import { DynamicFieldControlService } from '../../../shared/dynamic-form/dynamic-field-control.service';
-import { DynamicFieldBase } from '../../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
-import { DynamicFormComponent } from '../../../shared/dynamic-form/dynamic-form.component';
+import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
+import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
+import { DynamicFormModule } from '../../shared/dynamic-form/dynamic-form.module';
+import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
-  selector: 'za-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+  selector: 'za-login-form',
+  standalone: true,
+  imports: [ DynamicFormModule, SpinnerComponent, ButtonModule ],
+  templateUrl: './login-form.component.html',
+  styleUrl: './login-form.component.scss'
 })
-export class LoginComponent implements OnInit {
+export class LoginFormComponent implements OnInit {
   loading = false;
 
   formValid = false;
@@ -27,8 +30,6 @@ export class LoginComponent implements OnInit {
   constructor(
     private sessionService: SessionService,
     private dfcs: DynamicFieldControlService,
-
-    private ref: DynamicDialogRef,
   ) {}
 
   ngOnInit(): void {
@@ -81,13 +82,8 @@ export class LoginComponent implements OnInit {
       .subscribe((res) => {
         if (res) {
           alert('Вы залогинились!');
-          this.ref.close(true);
         }
       });
-  }
-
-  cancel() {
-    this.ref.close(false);
   }
 
   setValidForm(value: boolean) {

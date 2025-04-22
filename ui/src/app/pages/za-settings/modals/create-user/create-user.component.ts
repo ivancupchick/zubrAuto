@@ -18,7 +18,6 @@ import { finalize } from 'rxjs';
   selector: 'za-create-user',
   templateUrl: './create-user.component.html',
   styleUrls: ['./create-user.component.scss'],
-  providers: [DynamicFieldControlService],
 })
 export class CreateUserComponent implements OnInit {
   loading = false;

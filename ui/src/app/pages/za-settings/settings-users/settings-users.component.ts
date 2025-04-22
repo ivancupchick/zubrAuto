@@ -18,7 +18,6 @@ import { FieldNames } from 'src/app/entities/FieldNames';
   selector: 'za-settings-users',
   templateUrl: './settings-users.component.html',
   styleUrls: ['./settings-users.component.scss'],
-  providers: [DialogService, UserService, RoleService],
 })
 export class SettingsUsersComponent implements OnInit {
   readonly strings = settingsUsersStrings;

@@ -26,7 +26,6 @@ import { DBModels, StringHash } from 'src/app/entities/constants';
   selector: 'za-change-log',
   templateUrl: './change-log.component.html',
   styleUrls: ['./change-log.component.scss'],
-  providers: [DialogService, ClientService],
 })
 export class ChangeLogComponent implements OnInit, OnDestroy {
   first: number = 0;

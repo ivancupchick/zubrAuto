@@ -18,7 +18,6 @@ import { UserService } from 'src/app/services/user/user.service';
   selector: 'za-create-call-base',
   templateUrl: './create-call-base.component.html',
   styleUrls: ['./create-call-base.component.scss'],
-  providers: [UserService, CarService],
 })
 export class CreateCallBaseComponent implements OnInit {
   carsControlscarsControls: any;

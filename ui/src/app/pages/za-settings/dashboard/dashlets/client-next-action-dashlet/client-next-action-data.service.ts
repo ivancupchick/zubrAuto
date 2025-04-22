@@ -23,7 +23,9 @@ type ClientNextActionFilters = {
   [key: string]: number | string;
 };
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ClientNextActionDataService
   extends PageagleGridService<ServerClient.Response>
   implements OnDestroy

@@ -22,7 +22,9 @@ type CallRequestsFilters = {
   [key: string]: number | string;
 };
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class CallRequestsDataService
   extends PageagleGridService<ServerCallRequest.Response>
   implements OnDestroy

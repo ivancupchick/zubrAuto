@@ -20,7 +20,6 @@ import { finalize } from 'rxjs';
   selector: 'za-complete-client-deal',
   templateUrl: './complete-client-deal.component.html',
   styleUrls: ['./complete-client-deal.component.scss'],
-  providers: [DynamicFieldControlService, ClientService],
 })
 export class CompleteClientDealComponent implements OnInit {
   private selectedRealCars: ServerCar.Response[] = [];

@@ -11,7 +11,6 @@ import { UserService } from 'src/app/services/user/user.service';
   selector: 'za-transform-to-car-shooting',
   templateUrl: './transform-to-car-shooting.component.html',
   styleUrls: ['./transform-to-car-shooting.component.scss'],
-  providers: [CarService, UserService],
 })
 export class TransformToCarShooting implements OnInit {
   get formNotValid() {

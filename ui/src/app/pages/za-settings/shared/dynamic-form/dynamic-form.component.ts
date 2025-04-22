@@ -21,7 +21,6 @@ import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
   selector: 'za-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   styleUrls: ['./dynamic-form.component.scss'],
-  providers: [DynamicFieldControlService],
 })
 export class DynamicFormComponent implements OnInit {
   formGroup!: UntypedFormGroup;

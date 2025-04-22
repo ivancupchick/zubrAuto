@@ -156,7 +156,6 @@ function calculateComission(price: number) {
   templateUrl: './settings-cars.component.html',
   styleUrls: ['./settings-cars.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [DialogService, CarService, UserService, ClientService],
 })
 export class SettingsCarsComponent implements OnInit, OnDestroy {
   queryCarTypes = QueryCarTypes;
@@ -2011,7 +2010,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
     e: {
       originalEvent: PointerEvent | Event;
       value: string[];
-      itemValue: string;
+      itemValue?: string;
     },
   ) {
     const index = this.selectedFilters.findIndex(
@@ -2041,13 +2040,13 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
 
   changeNumberRangeFilter(
     filterConfig: NumberUIFilter,
-    e: { values: [number, number] },
+    e: { values?: number[] },
   ) {
     const index = this.selectedFilters.findIndex(
       (filter) => filter.name === filterConfig.name,
     );
 
-    if (filterConfig.type !== this.FieldTypes.Number) {
+    if (filterConfig.type !== this.FieldTypes.Number || !e.values) {
       return;
     }
 

@@ -26,7 +26,6 @@ import { FieldNames, convertClientNumber } from 'src/app/entities/FieldNames';
   selector: 'za-setting-header',
   templateUrl: './setting-header.component.html',
   styleUrls: ['./setting-header.component.scss'],
-  providers: [DialogService, ActionsService, ClientService],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SettingHeaderComponent implements OnInit, OnDestroy {
@@ -103,13 +102,6 @@ export class SettingHeaderComponent implements OnInit, OnDestroy {
   onChangeSelectedRole(v: any) {
     this.sessionService.setCustomRole(this.selectedRole);
     this.rebuildActions();
-  }
-
-  login() {
-    const ref = this.dialogService.open(LoginComponent, {
-      header: 'Войти',
-      width: '40%',
-    });
   }
 
   signUp() {

@@ -32,7 +32,6 @@ import { finalize } from 'rxjs';
   selector: 'za-field-form',
   templateUrl: './field-form.component.html',
   styleUrls: ['./field-form.component.scss'],
-  providers: [DialogService, RoleService],
 })
 export class FieldFormComponent implements OnInit {
   FieldType = FieldType;

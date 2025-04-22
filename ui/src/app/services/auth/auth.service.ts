@@ -7,7 +7,9 @@ import { cacheService } from '../request/cache.service';
 
 const API = 'auth';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class AuthService {
   constructor(private requestService: RequestService) {}
 

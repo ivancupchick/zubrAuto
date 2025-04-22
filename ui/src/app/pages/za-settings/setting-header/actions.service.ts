@@ -19,7 +19,9 @@ export interface ActionsItem {
   visible?: () => boolean;
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class ActionsService {
   // selectedRole: ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin = ServerRole.System.Admin;
 

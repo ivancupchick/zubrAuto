@@ -45,12 +45,6 @@ export enum TabIndex {
   selector: 'za-calls-dashlet',
   templateUrl: './calls-dashlet.component.html',
   styleUrls: ['./calls-dashlet.component.scss'],
-  providers: [
-    UserService,
-    ClientService,
-    DialogService,
-    CallsDashletDataService,
-  ],
 })
 export class CallsDashletComponent implements OnInit, OnDestroy {
   first = 0;
