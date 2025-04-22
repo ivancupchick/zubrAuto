@@ -8,7 +8,7 @@ describe('CallRequestsDashletComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CallRequestsDashletComponent],
+      imports: [CallRequestsDashletComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CallRequestsDashletComponent);

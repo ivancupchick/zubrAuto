@@ -8,7 +8,7 @@ describe('ChangeLogComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ChangeLogComponent],
+      imports: [ChangeLogComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChangeLogComponent);

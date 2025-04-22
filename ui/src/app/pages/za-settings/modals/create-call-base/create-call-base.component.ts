@@ -4,6 +4,8 @@ import {
   UntypedFormBuilder,
   UntypedFormControl,
   UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { finalize } from 'rxjs';
@@ -13,11 +15,29 @@ import { ServerRole } from 'src/app/entities/role';
 import { CarService } from 'src/app/services/car/car.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective, Button } from 'primeng/button';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
+import { TabViewModule } from 'primeng/tabview';
 
 @Component({
   selector: 'za-create-call-base',
   templateUrl: './create-call-base.component.html',
   styleUrls: ['./create-call-base.component.scss'],
+  standalone: true,
+  imports: [
+    TabViewModule,
+    FormsModule,
+    InputTextModule,
+    DropdownModule,
+    ReactiveFormsModule,
+    InputTextareaModule,
+    ButtonDirective,
+    Button,
+    SpinnerComponent,
+  ],
 })
 export class CreateCallBaseComponent implements OnInit {
   carsControlscarsControls: any;

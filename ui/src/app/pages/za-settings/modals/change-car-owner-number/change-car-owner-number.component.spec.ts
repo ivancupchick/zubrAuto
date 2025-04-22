@@ -8,7 +8,7 @@ describe('ChangeCarOwnerNumberComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ChangeCarOwnerNumberComponent],
+      imports: [ChangeCarOwnerNumberComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChangeCarOwnerNumberComponent);

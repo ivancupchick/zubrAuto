@@ -13,11 +13,17 @@ import { settingsUsersStrings } from './settings-users.strings';
 import { finalize, map, tap } from 'rxjs/operators';
 import { SessionService } from 'src/app/services/session/session.service';
 import { FieldNames } from 'src/app/entities/FieldNames';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { GridComponent } from '../shared/grid/grid.component';
+import { ButtonDirective } from 'primeng/button';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'za-settings-users',
   templateUrl: './settings-users.component.html',
   styleUrls: ['./settings-users.component.scss'],
+  standalone: true,
+  imports: [ToolbarModule, ButtonDirective, GridComponent, SpinnerComponent],
 })
 export class SettingsUsersComponent implements OnInit {
   readonly strings = settingsUsersStrings;

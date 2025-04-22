@@ -8,7 +8,7 @@ describe('CreateCarFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CreateCarFormComponent],
+      imports: [CreateCarFormComponent],
     }).compileComponents();
   });
 

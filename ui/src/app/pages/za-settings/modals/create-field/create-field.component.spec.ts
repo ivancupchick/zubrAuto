@@ -8,7 +8,7 @@ describe('CreateFieldComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CreateFieldComponent],
+      imports: [CreateFieldComponent],
     }).compileComponents();
   });
 

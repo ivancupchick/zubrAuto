@@ -6,11 +6,24 @@ import { ServerRole } from 'src/app/entities/role';
 import { CarService } from 'src/app/services/car/car.service';
 import { SessionService } from 'src/app/services/session/session.service';
 import { UserService } from 'src/app/services/user/user.service';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 
 @Component({
   selector: 'za-transform-to-car-shooting',
   templateUrl: './transform-to-car-shooting.component.html',
   styleUrls: ['./transform-to-car-shooting.component.scss'],
+  standalone: true,
+  imports: [
+    CalendarModule,
+    FormsModule,
+    InputTextModule,
+    ButtonDirective,
+    SpinnerComponent,
+  ],
 })
 export class TransformToCarShooting implements OnInit {
   get formNotValid() {

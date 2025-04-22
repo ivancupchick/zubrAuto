@@ -9,11 +9,15 @@ import { SessionService } from 'src/app/services/session/session.service';
 import { DynamicFieldControlService } from '../../../shared/dynamic-form/dynamic-field-control.service';
 import { DynamicFieldBase } from '../../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
 import { DynamicFormComponent } from '../../../shared/dynamic-form/dynamic-form.component';
+import { ButtonDirective } from 'primeng/button';
+import { SpinnerComponent } from '../../../../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'za-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  standalone: true,
+  imports: [DynamicFormComponent, SpinnerComponent, ButtonDirective],
 })
 export class LoginComponent implements OnInit {
   loading = false;

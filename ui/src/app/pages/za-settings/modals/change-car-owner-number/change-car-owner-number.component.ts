@@ -2,11 +2,17 @@ import { Component, Input, OnInit } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { finalize, take } from 'rxjs';
 import { CarService } from 'src/app/services/car/car.service';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'za-change-car-owner-number',
   templateUrl: './change-car-owner-number.component.html',
   styleUrls: ['./change-car-owner-number.component.scss'],
+  standalone: true,
+  imports: [FormsModule, InputTextModule, ButtonDirective, SpinnerComponent],
 })
 export class ChangeCarOwnerNumberComponent implements OnInit {
   loading = false;

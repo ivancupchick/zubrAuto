@@ -8,7 +8,7 @@ describe('ManageCarShowingComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ManageCarShowingComponent],
+      imports: [ManageCarShowingComponent],
     }).compileComponents();
   });
 

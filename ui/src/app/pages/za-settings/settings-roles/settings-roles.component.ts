@@ -6,11 +6,17 @@ import { CreateRoleComponent } from '../modals/create-role/create-role.component
 import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid';
 import { finalize, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { GridComponent } from '../shared/grid/grid.component';
+import { ButtonDirective } from 'primeng/button';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'za-settings-roles',
   templateUrl: './settings-roles.component.html',
   styleUrls: ['./settings-roles.component.scss'],
+  standalone: true,
+  imports: [ToolbarModule, ButtonDirective, GridComponent, SpinnerComponent],
 })
 export class SettingsRolesComponent implements OnInit {
   sortedRoles: ServerRole.Response[] = [];

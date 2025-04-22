@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
   selector: 'za-setting-footer',
   templateUrl: './setting-footer.component.html',
   styleUrls: ['./setting-footer.component.scss'],
+  standalone: true,
 })
 export class SettingFooterComponent implements OnInit {
   constructor() {}

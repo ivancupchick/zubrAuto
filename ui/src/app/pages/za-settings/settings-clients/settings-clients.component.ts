@@ -32,6 +32,15 @@ import { UserService } from 'src/app/services/user/user.service';
 import { ServerUser } from 'src/app/entities/user';
 import { ServerRole } from 'src/app/entities/role';
 import { ClientChangeLogsComponent } from '../pages/change-log/componets/client-change-logs/client-change-logs.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { GridComponent } from '../shared/grid/grid.component';
+import { NgClass } from '@angular/common';
+import { ButtonDirective, Button } from 'primeng/button';
+import { ToolbarModule } from 'primeng/toolbar';
+import { InputTextModule } from 'primeng/inputtext';
+import { CalendarModule } from 'primeng/calendar';
+import { FormsModule } from '@angular/forms';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 const availableStatuses = [
   FieldNames.DealStatus.Deny,
@@ -44,6 +53,19 @@ const availableStatuses = [
   selector: 'za-settings-clients',
   templateUrl: './settings-clients.component.html',
   styleUrls: ['./settings-clients.component.scss'],
+  standalone: true,
+  imports: [
+    MultiSelectModule,
+    FormsModule,
+    CalendarModule,
+    InputTextModule,
+    ToolbarModule,
+    ButtonDirective,
+    Button,
+    NgClass,
+    GridComponent,
+    SpinnerComponent,
+  ],
 })
 export class SettingsClientsComponent implements OnInit, OnDestroy {
   sortedClients: ServerClient.Response[] = [];

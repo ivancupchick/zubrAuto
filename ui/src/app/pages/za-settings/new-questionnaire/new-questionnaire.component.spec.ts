@@ -8,7 +8,7 @@ describe('NewQuestionnaireComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [NewQuestionnaireComponent],
+      imports: [NewQuestionnaireComponent],
     }).compileComponents();
   });
 

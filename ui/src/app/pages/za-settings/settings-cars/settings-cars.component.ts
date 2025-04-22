@@ -46,6 +46,18 @@ import { GridActionConfigItem, GridConfigItem } from '../shared/grid/grid';
 import { settingsCarsStrings } from './settings-cars.strings';
 import { CarStatusLists, QueryCarTypes } from './cars.enums';
 import { ChangeCarOwnerNumberComponent } from '../modals/change-car-owner-number/change-car-owner-number.component';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { GridComponent } from '../shared/grid/grid.component';
+import { SliderModule } from 'primeng/slider';
+import { DropdownModule } from 'primeng/dropdown';
+import { PrimeTemplate } from 'primeng/api';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { CalendarModule } from 'primeng/calendar';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { ButtonDirective, Button } from 'primeng/button';
+import { ToolbarModule } from 'primeng/toolbar';
 
 type UIFilter = {
   title: string;
@@ -156,6 +168,22 @@ function calculateComission(price: number) {
   templateUrl: './settings-cars.component.html',
   styleUrls: ['./settings-cars.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    ToolbarModule,
+    ButtonDirective,
+    FormsModule,
+    InputTextModule,
+    MultiSelectModule,
+    CalendarModule,
+    Button,
+    OverlayPanelModule,
+    PrimeTemplate,
+    DropdownModule,
+    SliderModule,
+    GridComponent,
+    SpinnerComponent,
+  ],
 })
 export class SettingsCarsComponent implements OnInit, OnDestroy {
   queryCarTypes = QueryCarTypes;

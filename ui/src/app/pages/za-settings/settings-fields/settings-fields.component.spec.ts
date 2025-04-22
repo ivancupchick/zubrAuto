@@ -8,7 +8,7 @@ describe('SettingsFieldsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SettingsFieldsComponent],
+      imports: [SettingsFieldsComponent],
     }).compileComponents();
   });
 

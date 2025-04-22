@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { StringHash } from 'src/app/entities/constants';
 import {
@@ -11,6 +11,13 @@ import { AccessChip } from 'src/app/entities/fieldAccess';
 import { ServerRole } from 'src/app/entities/role';
 import { settingsUsersStrings } from '../../settings-users/settings-users.strings';
 import { GridActionConfigItem } from '../../shared/grid/grid';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { FormsModule } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
+import { TableModule } from 'primeng/table';
+import { MenubarModule } from 'primeng/menubar';
 
 interface IAccessSource {
   name: string;
@@ -36,6 +43,17 @@ interface GridItemType {
   selector: 'za-select-access',
   templateUrl: './select-access.component.html',
   styleUrls: ['./select-access.component.scss'],
+  standalone: true,
+  imports: [
+    MenubarModule,
+    TableModule,
+    PrimeTemplate,
+    DropdownModule,
+    FormsModule,
+    RadioButtonModule,
+    ButtonDirective,
+    SpinnerComponent,
+  ],
 })
 export class SelectAccessComponent implements OnInit {
   loading = false;

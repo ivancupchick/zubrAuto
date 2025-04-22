@@ -19,12 +19,25 @@ import { DBModels, StringHash } from 'src/app/entities/constants';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
 import { CreateClientComponent } from '../../../modals/create-client/create-client.component';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ClientNextActionDataService } from './client-next-action-data.service';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { ClientChangeLogsComponent } from '../../../pages/change-log/componets/client-change-logs/client-change-logs.component';
 import { FieldNames } from 'src/app/entities/FieldNames';
+import { PageagleGridComponent } from '../../../shared/pageagle-grid/pageagle-grid.component';
+import { TabViewModule } from 'primeng/tabview';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { ButtonDirective } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { PrimeTemplate } from 'primeng/api';
+import { PanelModule } from 'primeng/panel';
 
 export enum TabIndex {
   MyClients = 0,
@@ -38,6 +51,20 @@ export enum TabIndex {
   selector: 'za-client-next-action-dashlet',
   templateUrl: './client-next-action-dashlet.component.html',
   styleUrls: ['./client-next-action-dashlet.component.scss'],
+  standalone: true,
+  imports: [
+    PanelModule,
+    PrimeTemplate,
+    FormsModule,
+    ReactiveFormsModule,
+    MultiSelectModule,
+    InputTextModule,
+    ButtonDirective,
+    NgClass,
+    TabViewModule,
+    PageagleGridComponent,
+    AsyncPipe,
+  ],
 })
 export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   first: number = 0;

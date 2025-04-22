@@ -1,8 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { UntypedFormGroup } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { FieldType, RealField } from 'src/app/entities/field';
 import { DynamicFieldControlService } from './dynamic-field-control.service';
 import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
+import { PrimitiveFormFieldComponent } from './dynamic-form-fields/primitive-form-field/primitive-form-field.component';
+import { DateFormFieldsComponent } from './dynamic-form-fields/date-form-fields/date-form-fields.component';
 
 // export interface DataConfigItem {
 //   title: string;
@@ -21,6 +27,13 @@ import { DynamicFieldBase } from './dynamic-fields/dynamic-field-base';
   selector: 'za-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   styleUrls: ['./dynamic-form.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    DateFormFieldsComponent,
+    PrimitiveFormFieldComponent,
+  ],
 })
 export class DynamicFormComponent implements OnInit {
   formGroup!: UntypedFormGroup;

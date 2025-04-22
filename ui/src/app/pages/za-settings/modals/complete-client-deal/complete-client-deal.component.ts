@@ -15,11 +15,24 @@ import {
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { FieldsUtils } from 'src/app/entities/field';
 import { finalize } from 'rxjs';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { PrimeTemplate } from 'primeng/api';
+import { FormsModule } from '@angular/forms';
+import { ChipsModule } from 'primeng/chips';
 
 @Component({
   selector: 'za-complete-client-deal',
   templateUrl: './complete-client-deal.component.html',
   styleUrls: ['./complete-client-deal.component.scss'],
+  standalone: true,
+  imports: [
+    ChipsModule,
+    FormsModule,
+    PrimeTemplate,
+    ButtonDirective,
+    SpinnerComponent,
+  ],
 })
 export class CompleteClientDealComponent implements OnInit {
   private selectedRealCars: ServerCar.Response[] = [];

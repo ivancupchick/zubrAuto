@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormGroup, FormsModule } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { finalize } from 'rxjs';
 import {
@@ -10,11 +10,23 @@ import {
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
+import { ButtonDirective } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'za-create-car-showing',
   templateUrl: './create-car-showing.component.html',
   styleUrls: ['./create-car-showing.component.scss'],
+  standalone: true,
+  imports: [
+    DropdownModule,
+    FormsModule,
+    CalendarModule,
+    InputTextModule,
+    ButtonDirective,
+  ],
 })
 export class CreateCarShowingComponent implements OnInit {
   loading = false;

@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
   selector: 'za-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
+  standalone: true,
 })
 export class HeaderComponent implements OnInit {
   constructor() {}

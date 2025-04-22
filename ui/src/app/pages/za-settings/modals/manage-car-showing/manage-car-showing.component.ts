@@ -17,11 +17,17 @@ import { DateUtils } from 'src/app/shared/utils/date.util';
 import { CarService } from 'src/app/services/car/car.service';
 import { GridActionConfigItem, GridConfigItem } from '../../shared/grid/grid';
 import { CreateCarShowingComponent } from '../create-car-showing/create-car-showing.component';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { GridComponent } from '../../shared/grid/grid.component';
+import { ButtonDirective } from 'primeng/button';
+import { ToolbarModule } from 'primeng/toolbar';
 
 @Component({
   selector: 'za-manage-car-showing',
   templateUrl: './manage-car-showing.component.html',
   styleUrls: ['./manage-car-showing.component.scss'],
+  standalone: true,
+  imports: [ToolbarModule, ButtonDirective, GridComponent, SpinnerComponent],
 })
 export class ManageCarShowingComponent implements OnInit {
   loading = false;

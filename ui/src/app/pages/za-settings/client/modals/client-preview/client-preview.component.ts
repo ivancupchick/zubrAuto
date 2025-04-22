@@ -9,11 +9,14 @@ import { settingsClientsStrings } from '../../../settings-clients/settings-clien
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import * as moment from 'moment';
 import { ServerUser } from 'src/app/entities/user';
+import { HighlightModule } from 'ngx-highlightjs';
 
 @Component({
   selector: 'za-client-preview',
   templateUrl: './client-preview.component.html',
   styleUrls: ['./client-preview.component.scss'],
+  standalone: true,
+  imports: [HighlightModule],
 })
 export class ClientPreviewComponent implements OnInit {
   @Input() client!: ServerClient.Response;

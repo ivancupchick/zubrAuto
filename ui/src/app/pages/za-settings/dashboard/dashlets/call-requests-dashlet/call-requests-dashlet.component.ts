@@ -21,8 +21,22 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { CallRequestsDataService } from './call-requests-data.service';
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { callRequestFiltersInialState } from './call-requests-dashlet';
+import { PageagleGridComponent } from '../../../shared/pageagle-grid/pageagle-grid.component';
+import { TabViewModule } from 'primeng/tabview';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { Button } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { PrimeTemplate } from 'primeng/api';
+import { PanelModule } from 'primeng/panel';
 
 const isClientCreated = (
   allClients: ServerClient.Response[],
@@ -44,6 +58,21 @@ export enum TabIndex {
   selector: 'za-call-requests-dashlet',
   templateUrl: './call-requests-dashlet.component.html',
   styleUrls: ['./call-requests-dashlet.component.scss'],
+  standalone: true,
+  imports: [
+    PanelModule,
+    PrimeTemplate,
+    FormsModule,
+    ReactiveFormsModule,
+    DropdownModule,
+    InputTextModule,
+    CalendarModule,
+    Button,
+    NgClass,
+    TabViewModule,
+    PageagleGridComponent,
+    AsyncPipe,
+  ],
 })
 export class CallRequestsDashletComponent implements OnInit, OnDestroy {
   first = 0;

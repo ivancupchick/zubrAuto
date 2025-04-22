@@ -8,7 +8,7 @@ describe('CreateClientComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CreateClientComponent],
+      imports: [CreateClientComponent],
     }).compileComponents();
   });
 

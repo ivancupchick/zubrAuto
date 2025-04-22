@@ -13,11 +13,15 @@ import { Validators } from '@angular/forms';
 import { StringHash } from 'src/app/entities/constants';
 import { SessionService } from 'src/app/services/session/session.service';
 import { finalize } from 'rxjs';
+import { ButtonDirective } from 'primeng/button';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'za-create-user',
   templateUrl: './create-user.component.html',
   styleUrls: ['./create-user.component.scss'],
+  standalone: true,
+  imports: [DynamicFormComponent, SpinnerComponent, ButtonDirective],
 })
 export class CreateUserComponent implements OnInit {
   loading = false;

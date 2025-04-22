@@ -1,17 +1,38 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { FileUpload } from 'primeng/fileupload';
+import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { finalize, tap } from 'rxjs/operators';
 import { ServerFile, ServerCar } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 import { environment } from 'src/environments/environment';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ImageModule } from 'primeng/image';
+import { PrimeTemplate } from 'primeng/api';
+import { CarouselModule } from 'primeng/carousel';
+import { Button, ButtonDirective } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { TabViewModule } from 'primeng/tabview';
 
 @Component({
   selector: 'za-upload-car-media',
   templateUrl: './upload-car-media.component.html',
   styleUrls: ['./upload-car-media.component.scss'],
+  standalone: true,
+  imports: [
+    TabViewModule,
+    FormsModule,
+    InputTextModule,
+    Button,
+    FileUploadModule,
+    CarouselModule,
+    PrimeTemplate,
+    ImageModule,
+    ButtonDirective,
+    SpinnerComponent,
+  ],
 })
 export class UploadCarMediaComponent implements OnInit {
   loading = false;

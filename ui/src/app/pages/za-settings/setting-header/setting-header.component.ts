@@ -21,12 +21,29 @@ import { XlsxService } from 'src/app/services/xlsx/xlsx.service';
 import { ServerClient } from 'src/app/entities/client';
 import { FieldsUtils, ServerField } from 'src/app/entities/field';
 import { FieldNames, convertClientNumber } from 'src/app/entities/FieldNames';
+import { ButtonDirective } from 'primeng/button';
+import { ChipModule } from 'primeng/chip';
+import { FormsModule } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
+import { RouterLink } from '@angular/router';
+import { PrimeTemplate } from 'primeng/api';
+import { MenubarModule } from 'primeng/menubar';
 
 @Component({
   selector: 'za-setting-header',
   templateUrl: './setting-header.component.html',
   styleUrls: ['./setting-header.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    MenubarModule,
+    PrimeTemplate,
+    RouterLink,
+    DropdownModule,
+    FormsModule,
+    ChipModule,
+    ButtonDirective,
+  ],
 })
 export class SettingHeaderComponent implements OnInit, OnDestroy {
   ServerRole = ServerRole;

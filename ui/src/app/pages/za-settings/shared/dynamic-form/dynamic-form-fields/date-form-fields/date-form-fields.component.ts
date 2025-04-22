@@ -1,13 +1,20 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { DynamicFieldBase } from '../../dynamic-fields/dynamic-field-base';
-import { UntypedFormGroup } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { FieldType } from 'src/app/entities/field';
 import { Subject, takeUntil } from 'rxjs';
+import { CalendarModule } from 'primeng/calendar';
 
 @Component({
   selector: 'za-date-form-fields',
   templateUrl: './date-form-fields.component.html',
   styleUrls: ['./date-form-fields.component.scss'],
+  standalone: true,
+  imports: [FormsModule, ReactiveFormsModule, CalendarModule],
 })
 export class DateFormFieldsComponent implements OnInit, OnDestroy {
   FieldType = FieldType;

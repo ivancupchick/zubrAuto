@@ -8,7 +8,7 @@ describe('NewWorksheetComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [NewWorksheetComponent],
+      imports: [NewWorksheetComponent],
     }).compileComponents();
   });
 

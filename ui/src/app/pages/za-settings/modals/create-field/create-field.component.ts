@@ -4,11 +4,15 @@ import { FieldDomains, ServerField } from 'src/app/entities/field';
 import { FieldService } from 'src/app/services/field/field.service';
 import { FieldFormComponent } from '../../shared/fields/field-form/field-form.component';
 import { finalize } from 'rxjs';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
 
 @Component({
   selector: 'za-create-field',
   templateUrl: './create-field.component.html',
   styleUrls: ['./create-field.component.scss'],
+  standalone: true,
+  imports: [FieldFormComponent, ButtonDirective, SpinnerComponent],
 })
 export class CreateFieldComponent implements OnInit {
   loading = false;

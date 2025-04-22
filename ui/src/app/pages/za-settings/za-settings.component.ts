@@ -3,11 +3,17 @@ import { PrimeNGConfig } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { ServerAuth, ServerUser } from 'src/app/entities/user';
 import { SessionService } from 'src/app/services/session/session.service';
+import { RouterOutlet } from '@angular/router';
+import { CardModule } from 'primeng/card';
+import { SettingHeaderComponent } from './setting-header/setting-header.component';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'za-za-settings',
   templateUrl: './za-settings.component.html',
   styleUrls: ['./za-settings.component.scss'],
+  standalone: true,
+  imports: [ToastModule, SettingHeaderComponent, CardModule, RouterOutlet],
 })
 export class ZASettingsComponent implements OnInit {
   @Input() user!: ServerAuth.AuthGetResponse['user'] | null;

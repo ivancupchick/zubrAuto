@@ -3,6 +3,8 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import {
@@ -18,6 +20,13 @@ import { CarFormEnumsStrings } from './car-form.strings';
 import { SessionService } from 'src/app/services/session/session.service';
 import * as CryptoJS from 'crypto-js';
 import { finalize } from 'rxjs';
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { EditorModule } from 'primeng/editor';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { AccordionModule } from 'primeng/accordion';
 
 type CarFormEnum =
   | CarFormEnums.CarQuestionnaire
@@ -44,6 +53,19 @@ function keys<T extends Object>(obj: T): Array<keyof typeof obj> {
   selector: 'za-create-car-form',
   templateUrl: './create-car-form.component.html',
   styleUrls: ['./create-car-form.component.scss'],
+  standalone: true,
+  imports: [
+    AccordionModule,
+    NgClass,
+    FormsModule,
+    ReactiveFormsModule,
+    NgTemplateOutlet,
+    EditorModule,
+    ButtonDirective,
+    SpinnerComponent,
+    InputTextModule,
+    CheckboxModule,
+  ],
 })
 export class CreateCarFormComponent implements OnInit {
   readonly carFormStrings = CarFormEnumsStrings;

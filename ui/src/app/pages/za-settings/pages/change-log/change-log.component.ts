@@ -17,15 +17,36 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { FieldService } from 'src/app/services/field/field.service';
 import { DBModels, StringHash } from 'src/app/entities/constants';
+import { AsyncPipe } from '@angular/common';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { PageagleGridComponent } from '../../shared/pageagle-grid/pageagle-grid.component';
+import { Button } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'za-change-log',
   templateUrl: './change-log.component.html',
   styleUrls: ['./change-log.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    DropdownModule,
+    CalendarModule,
+    CheckboxModule,
+    Button,
+    PageagleGridComponent,
+    SpinnerComponent,
+    AsyncPipe,
+  ],
 })
 export class ChangeLogComponent implements OnInit, OnDestroy {
   first: number = 0;

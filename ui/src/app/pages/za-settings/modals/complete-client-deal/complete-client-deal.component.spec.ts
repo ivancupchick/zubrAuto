@@ -8,7 +8,7 @@ describe('CompleteClientDealComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CompleteClientDealComponent],
+      imports: [CompleteClientDealComponent],
     }).compileComponents();
   });
 

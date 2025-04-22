@@ -8,7 +8,7 @@ describe('UploadCarMediaComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UploadCarMediaComponent],
+      imports: [UploadCarMediaComponent],
     }).compileComponents();
   });
 

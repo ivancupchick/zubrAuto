@@ -3,11 +3,24 @@ import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { finalize } from 'rxjs';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'za-change-car-status',
   templateUrl: './change-car-status.component.html',
   styleUrls: ['./change-car-status.component.scss'],
+  standalone: true,
+  imports: [
+    DropdownModule,
+    FormsModule,
+    InputTextModule,
+    ButtonDirective,
+    SpinnerComponent,
+  ],
 })
 export class ChangeCarStatusComponent implements OnInit {
   loading = false;

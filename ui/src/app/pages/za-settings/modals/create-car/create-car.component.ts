@@ -20,11 +20,23 @@ import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-fi
 import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
 import { finalize } from 'rxjs';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { FormsModule } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 
 @Component({
   selector: 'za-create-car',
   templateUrl: './create-car.component.html',
   styleUrls: ['./create-car.component.scss'],
+  standalone: true,
+  imports: [
+    DynamicFormComponent,
+    CalendarModule,
+    FormsModule,
+    ButtonDirective,
+    SpinnerComponent,
+  ],
 })
 export class CreateCarComponent implements OnInit {
   loading = false;

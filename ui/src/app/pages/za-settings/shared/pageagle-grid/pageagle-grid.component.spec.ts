@@ -8,7 +8,7 @@ describe('PageagleGridComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [PageagleGridComponent],
+      imports: [PageagleGridComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PageagleGridComponent);

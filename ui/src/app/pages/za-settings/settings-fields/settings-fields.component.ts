@@ -14,6 +14,13 @@ import { settingsCarsStrings } from '../settings-cars/settings-cars.strings';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { StringHash } from 'src/app/entities/constants';
 import { Observable, of } from 'rxjs';
+import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
+import { PrimeTemplate } from 'primeng/api';
+import { TableModule } from 'primeng/table';
+import { ButtonDirective } from 'primeng/button';
+import { FormsModule } from '@angular/forms';
+import { DropdownModule } from 'primeng/dropdown';
+import { ToolbarModule } from 'primeng/toolbar';
 
 export interface GridField {
   name: string;
@@ -26,6 +33,16 @@ export interface GridField {
   selector: 'za-settings-fields',
   templateUrl: './settings-fields.component.html',
   styleUrls: ['./settings-fields.component.scss'],
+  standalone: true,
+  imports: [
+    ToolbarModule,
+    DropdownModule,
+    FormsModule,
+    ButtonDirective,
+    TableModule,
+    PrimeTemplate,
+    SpinnerComponent,
+  ],
 })
 export class SettingsFieldsComponent implements OnInit {
   loading = false;

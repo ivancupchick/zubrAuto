@@ -6,11 +6,30 @@ import { ServerCar, UICarStatistic, CarStatistic } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { TimelineModule } from 'primeng/timeline';
+import { ButtonDirective } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { ChartModule } from 'primeng/chart';
+import { PrimeTemplate } from 'primeng/api';
+import { TabViewModule } from 'primeng/tabview';
 
 @Component({
   selector: 'za-customer-service-call',
   templateUrl: './customer-service-call.component.html',
   styleUrls: ['./customer-service-call.component.scss'],
+  standalone: true,
+  imports: [
+    TabViewModule,
+    PrimeTemplate,
+    ChartModule,
+    FormsModule,
+    InputTextModule,
+    ButtonDirective,
+    TimelineModule,
+    SpinnerComponent,
+  ],
 })
 export class CustomerServiceCallComponent implements OnInit {
   loading = false;

@@ -4,6 +4,7 @@ import { Component, OnInit } from '@angular/core';
   selector: 'za-new-questionnaire',
   templateUrl: './new-questionnaire.component.html',
   styleUrls: ['./new-questionnaire.component.scss'],
+  standalone: true,
 })
 export class NewQuestionnaireComponent implements OnInit {
   constructor() {}

@@ -10,6 +10,8 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { DialogService } from 'primeng/dynamicdialog';
 import { StringHash } from 'src/app/entities/constants';
@@ -27,11 +29,32 @@ import { RoleService } from 'src/app/services/role/role.service';
 import { SelectAccessComponent } from '../../../modals/select-access/select-access.component';
 import { settingsUsersStrings } from '../../../settings-users/settings-users.strings';
 import { finalize } from 'rxjs';
+import { SpinnerComponent } from '../../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { PrimeTemplate } from 'primeng/api';
+import { ChipsModule } from 'primeng/chips';
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'za-field-form',
   templateUrl: './field-form.component.html',
   styleUrls: ['./field-form.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    DropdownModule,
+    InputTextareaModule,
+    CheckboxModule,
+    ChipsModule,
+    PrimeTemplate,
+    ButtonDirective,
+    SpinnerComponent,
+  ],
 })
 export class FieldFormComponent implements OnInit {
   FieldType = FieldType;

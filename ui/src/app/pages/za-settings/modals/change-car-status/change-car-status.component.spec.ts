@@ -8,7 +8,7 @@ describe('ChangeCarStatusComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ChangeCarStatusComponent],
+      imports: [ChangeCarStatusComponent],
     }).compileComponents();
   });
 

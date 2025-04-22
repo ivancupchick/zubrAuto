@@ -11,11 +11,6 @@ import { CalendarModule } from 'primeng/calendar';
 import { InputMaskModule } from 'primeng/inputmask';
 
 @NgModule({
-  declarations: [
-    DynamicFormComponent,
-    PrimitiveFormFieldComponent,
-    DateFormFieldsComponent,
-  ],
   exports: [DynamicFormComponent],
   imports: [
     CommonModule,
@@ -26,6 +21,9 @@ import { InputMaskModule } from 'primeng/inputmask';
     InputTextareaModule,
     CalendarModule,
     InputMaskModule,
+    DynamicFormComponent,
+    PrimitiveFormFieldComponent,
+    DateFormFieldsComponent,
   ],
 })
 export class DynamicFormModule {}

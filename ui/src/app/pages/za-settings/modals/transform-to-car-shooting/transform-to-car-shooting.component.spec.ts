@@ -8,7 +8,7 @@ describe('TransformToCarShooting', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TransformToCarShooting],
+      imports: [TransformToCarShooting],
     }).compileComponents();
   });
 

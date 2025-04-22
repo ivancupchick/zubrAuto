@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
   selector: 'za-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
+  standalone: true,
 })
 export class MainComponent implements OnInit {
   constructor(private router: Router) {}

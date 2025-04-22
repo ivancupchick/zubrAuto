@@ -20,7 +20,6 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [ChangeLogComponent],
   imports: [
     CommonModule,
     RouterModule.forChild(routes),
@@ -33,6 +32,7 @@ const routes: Routes = [
     DropdownModule,
     CalendarModule,
     CheckboxModule,
+    ChangeLogComponent,
   ],
 })
 export class ChangeLogModule {}

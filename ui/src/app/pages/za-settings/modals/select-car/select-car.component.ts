@@ -5,6 +5,9 @@ import { ServerCar } from 'src/app/entities/car';
 import { FieldsUtils } from 'src/app/entities/field';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { QueryCarTypes } from '../../settings-cars/cars.enums';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { ButtonDirective } from 'primeng/button';
+import { SettingsCarsComponent } from '../../settings-cars/settings-cars.component';
 
 export interface CarChip {
   id: number | string;
@@ -15,6 +18,8 @@ export interface CarChip {
   selector: 'za-select-car',
   templateUrl: './select-car.component.html',
   styleUrls: ['./select-car.component.scss'],
+  standalone: true,
+  imports: [SettingsCarsComponent, ButtonDirective, SpinnerComponent],
 })
 export class SelectCarComponent implements OnInit {
   QueryCarTypes = QueryCarTypes;

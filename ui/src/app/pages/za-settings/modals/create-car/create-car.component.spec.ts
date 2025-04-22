@@ -8,7 +8,7 @@ describe('CreateCarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CreateCarComponent],
+      imports: [CreateCarComponent],
     }).compileComponents();
   });
 

@@ -25,7 +25,7 @@ import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
-  declarations: [AppComponent, HeaderComponent, FooterComponent],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
@@ -36,6 +36,8 @@ import { DialogModule } from 'primeng/dialog';
     HighlightModule,
     DynamicDialogModule,
     DialogModule,
+    HeaderComponent,
+    FooterComponent,
   ],
   providers: [
     {
@@ -58,16 +60,7 @@ import { DialogModule } from 'primeng/dialog';
       useClass: AuthInterceptor,
       multi: true,
     },
-    // AuthService,
-    // AuthGuard,
-    // SettingsResolver,
-    // SessionService,
-    // FieldService,
     MessageService,
-    // RequestService,
-    // UserService,
-    // CarService, // createClient from global toolbar ?
-    // ClientService,
     DialogService,
   ],
   bootstrap: [AppComponent],

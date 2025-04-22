@@ -8,7 +8,7 @@ describe('FieldFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [FieldFormComponent],
+      imports: [FieldFormComponent],
     }).compileComponents();
   });
 

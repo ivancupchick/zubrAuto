@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgClass, AsyncPipe } from '@angular/common';
 import { SessionService } from 'src/app/services/session/session.service';
 import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
@@ -22,8 +22,20 @@ import { CreateClientComponent } from '../../../modals/create-client/create-clie
 import { BaseList, StringHash } from 'src/app/entities/constants';
 import { CallsDashletDataService } from './calls-dashlet-data.service';
 import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
-import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { callsFiltersInialState } from './calls-dashlet';
+import { PageagleGridComponent } from '../../../shared/pageagle-grid/pageagle-grid.component';
+import { TabViewModule } from 'primeng/tabview';
+import { Button } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { PrimeTemplate } from 'primeng/api';
+import { PanelModule } from 'primeng/panel';
 
 const isPhoneCallUsed = (
   allClients: ServerClient.Response[],
@@ -45,6 +57,20 @@ export enum TabIndex {
   selector: 'za-calls-dashlet',
   templateUrl: './calls-dashlet.component.html',
   styleUrls: ['./calls-dashlet.component.scss'],
+  standalone: true,
+  imports: [
+    PanelModule,
+    PrimeTemplate,
+    FormsModule,
+    ReactiveFormsModule,
+    DropdownModule,
+    InputTextModule,
+    Button,
+    NgClass,
+    TabViewModule,
+    PageagleGridComponent,
+    AsyncPipe,
+  ],
 })
 export class CallsDashletComponent implements OnInit, OnDestroy {
   first = 0;

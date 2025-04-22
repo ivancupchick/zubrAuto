@@ -8,11 +8,15 @@ import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-fi
 import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
 import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
 import { finalize } from 'rxjs';
+import { ButtonDirective } from 'primeng/button';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'za-create-role',
   templateUrl: './create-role.component.html',
   styleUrls: ['./create-role.component.scss'],
+  standalone: true,
+  imports: [DynamicFormComponent, SpinnerComponent, ButtonDirective],
 })
 export class CreateRoleComponent implements OnInit {
   loading = false;
