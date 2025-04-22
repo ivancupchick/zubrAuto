@@ -20,7 +20,7 @@ import { join } from 'path';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), '/ui/dist/', ''),
+      rootPath: join(process.cwd(), '/ui/', ''),
     }),
     ClientModule,
     FieldsModule,
