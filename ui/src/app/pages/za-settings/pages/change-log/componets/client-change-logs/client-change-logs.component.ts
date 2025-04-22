@@ -22,7 +22,7 @@ import { RequestService } from 'src/app/services/request/request.service';
   templateUrl: './client-change-logs.component.html',
   styleUrls: ['./client-change-logs.component.scss'],
   standalone: true,
-  imports: [TableModule, TooltipModule, ContextMenuModule, CommonModule, ],
+  imports: [TableModule, TooltipModule, ContextMenuModule, CommonModule],
 })
 export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   loading = false;

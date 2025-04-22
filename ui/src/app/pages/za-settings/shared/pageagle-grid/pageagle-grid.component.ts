@@ -45,7 +45,7 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
   @Input() actions!: GridActionConfigItem<GridItemType>[];
   @Input() selected: GridItemType[] = [];
   @Input() checkboxMode = false;
-  @Input() selectionMode: "single" | "multiple" | null = null;
+  @Input() selectionMode: 'single' | 'multiple' | null = null;
   @Input() sortField = '';
   @Input() getColorConfig: ((item: GridItemType) => string) | undefined;
   @Input() getTooltipConfig: ((item: GridItemType) => string) | undefined;
@@ -130,7 +130,9 @@ export class PageagleGridComponent<GridItemType extends { id: number }>
   updatePage(event: TableLazyLoadEvent) {
     const sortOrder: ZASortDirection | undefined =
       (event.sortOrder && SortEventDirection[event.sortOrder]) || undefined;
-    const sortField = Array.isArray(event.sortField) ? event.sortField[0] : event.sortField || undefined;
+    const sortField = Array.isArray(event.sortField)
+      ? event.sortField[0]
+      : event.sortField || undefined;
 
     this.dataService.updatePage({
       size: event.rows!,

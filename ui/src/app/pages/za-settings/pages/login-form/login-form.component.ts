@@ -1,7 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { DynamicFieldControlService } from '../../shared/dynamic-form/dynamic-field-control.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { finalize, catchError, of } from 'rxjs';
 import { FieldType } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
@@ -10,65 +15,48 @@ import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.com
 import { DynamicFormModule } from '../../shared/dynamic-form/dynamic-form.module';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'za-login-form',
   standalone: true,
-  imports: [ DynamicFormModule, SpinnerComponent, ButtonModule ],
+  imports: [
+    SpinnerComponent,
+    ButtonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    InputTextModule,
+  ],
   templateUrl: './login-form.component.html',
-  styleUrl: './login-form.component.scss'
+  styleUrl: './login-form.component.scss',
 })
-export class LoginFormComponent implements OnInit {
+export class LoginFormComponent {
   loading = false;
 
-  formValid = false;
+  form = new FormGroup({
+    email: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    password: new FormControl<string>('', {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+  });
 
-  dynamicFormFields: DynamicFieldBase<string>[] = [];
-
-  @ViewChild(DynamicFormComponent) dynamicForm!: DynamicFormComponent;
-
-  constructor(
-    private sessionService: SessionService,
-    private dfcs: DynamicFieldControlService,
-  ) {}
-
-  ngOnInit(): void {
-    const formFields = [
-      this.dfcs.getDynamicFieldFromOptions({
-        id: 1,
-        value: '',
-        key: 'email',
-        label: 'Электронная почта',
-        order: 1,
-        required: true,
-        controlType: FieldType.Text,
-        validators: [Validators.email],
-        type: 'email',
-      }),
-      this.dfcs.getDynamicFieldFromOptions({
-        id: 2,
-        value: '',
-        key: 'password',
-        label: 'Пароль',
-        order: 2,
-        required: true,
-        controlType: FieldType.Text,
-        type: 'password',
-      }),
-    ];
-
-    this.dynamicFormFields = formFields;
-  }
+  constructor(private sessionService: SessionService) {}
 
   login() {
+    if (this.form.invalid) {
+      this.form.get('email')?.markAsDirty();
+      this.form.get('password')?.markAsDirty();
+      return;
+    }
+
     this.loading = true;
 
-    const fields = this.dynamicForm.getValue();
-    const email = fields.find((f) => f.name === 'email')?.value || '';
-    const password = fields.find((f) => f.name === 'password')?.value || '';
-
     this.sessionService
-      .login(email, password)
+      .login(this.form.getRawValue())
       .pipe(
         finalize(() => (this.loading = false)),
         catchError((err: any, c) => {
@@ -84,9 +72,5 @@ export class LoginFormComponent implements OnInit {
           alert('Вы залогинились!');
         }
       });
-  }
-
-  setValidForm(value: boolean) {
-    this.formValid = value;
   }
 }

@@ -67,7 +67,7 @@ export class LoginComponent implements OnInit {
     const password = fields.find((f) => f.name === 'password')?.value || '';
 
     this.sessionService
-      .login(email, password)
+      .login({ email, password })
       .pipe(
         finalize(() => (this.loading = false)),
         catchError((err: any, c) => {

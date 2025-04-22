@@ -8,7 +8,7 @@ import { SessionService } from 'src/app/services/session/session.service';
 @Injectable({
   providedIn: 'root',
 })
-export class SettingsResolver  {
+export class SettingsResolver {
   constructor(private sessionService: SessionService) {}
 
   resolve(

@@ -24,7 +24,6 @@ import { UserService } from './services/user/user.service';
 import { DialogService, DynamicDialogModule } from 'primeng/dynamicdialog';
 import { DialogModule } from 'primeng/dialog';
 
-
 @NgModule({
   declarations: [AppComponent, HeaderComponent, FooterComponent],
   imports: [

@@ -23,7 +23,9 @@ export class SessionService {
     | ServerRole.Custom
     | ServerRole.System.SuperAdmin
     | ServerRole.System.Admin = ServerRole.System.Admin;
-  userSubj = new BehaviorSubject<ServerAuth.AuthGetResponse['user'] | null>(null);
+  userSubj = new BehaviorSubject<ServerAuth.AuthGetResponse['user'] | null>(
+    null,
+  );
   roleSubj = new Subject<
     ServerRole.Custom | ServerRole.System.SuperAdmin | ServerRole.System.Admin
   >();
@@ -32,7 +34,9 @@ export class SessionService {
     return +this.user.id;
   }
   private get user() {
-    return this.userSubj.getValue() || ({} as ServerAuth.AuthGetResponse['user']);
+    return (
+      this.userSubj.getValue() || ({} as ServerAuth.AuthGetResponse['user'])
+    );
   }
   get isAdminOrHigher() {
     return (
@@ -94,7 +98,7 @@ export class SessionService {
     this.userSubj.next(user);
   }
 
-  login(email: string, password: string) {
+  login({ email, password }: { email: string; password: string }) {
     return this.authService.login(email, password).pipe(
       map((res) => {
         localStorage.setItem(LocalStorageKey.Token, res.accessToken);
