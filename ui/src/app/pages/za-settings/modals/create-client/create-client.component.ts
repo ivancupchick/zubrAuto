@@ -37,14 +37,13 @@ import { ServerUser } from 'src/app/entities/user';
 import { finalize, map, mergeMap, of } from 'rxjs';
 import { ClientPreviewComponent } from '../../client/modals/client-preview/client-preview.component';
 
-import { DynamicFormModule } from '../../shared/dynamic-form/dynamic-form.module';
+
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipsModule } from 'primeng/chips';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { ButtonModule } from 'primeng/button';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import * as moment from 'moment';
-import { RequestService } from 'src/app/services/request/request.service';
 
 @Component({
   selector: 'za-create-client',
@@ -52,7 +51,6 @@ import { RequestService } from 'src/app/services/request/request.service';
   styleUrls: ['./create-client.component.scss'],
   standalone: true,
   imports: [
-    DynamicFormModule,
     CheckboxModule,
     ChipsModule,
     FormsModule,
@@ -60,7 +58,8 @@ import { RequestService } from 'src/app/services/request/request.service';
     SpinnerComponent,
     ButtonModule,
     InputTextareaModule,
-  ],
+    DynamicFormComponent,
+],
 })
 export class CreateClientComponent implements OnInit {
   loading = false;

@@ -8,11 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { finalize, catchError, of } from 'rxjs';
-import { FieldType } from 'src/app/entities/field';
 import { SessionService } from 'src/app/services/session/session.service';
-import { DynamicFieldBase } from '../../shared/dynamic-form/dynamic-fields/dynamic-field-base';
-import { DynamicFormComponent } from '../../shared/dynamic-form/dynamic-form.component';
-import { DynamicFormModule } from '../../shared/dynamic-form/dynamic-form.module';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';

@@ -50,8 +50,6 @@ import { DropdownModule } from 'primeng/dropdown';
 })
 export class ChangeLogComponent implements OnInit, OnDestroy {
   first: number = 0;
-  // sortedClients: ChangeLogItem[] = [];
-  // rawClients: ChangeLogItem[] = [];
   list: ChangeLogItem[] = [];
 
   loading = false;
@@ -68,49 +66,21 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
 
   sold = false;
 
-  // allCars: ServerCar.Response[] = [];
-
   gridConfig!: GridConfigItem<ChangeLogItem>[];
   gridActionsConfig: GridActionConfigItem<ChangeLogItem>[] = [];
   getColorConfig: ((item: ChangeLogItem) => string) | undefined;
 
   fieldConfigs: ServerField.Response[] = [];
 
-  // availableStatuses: { label: FieldNames.DealStatus, value: FieldNames.DealStatus }[] = [];
-  // selectedStatus: FieldNames.DealStatus[] = [];
-
-  // availableClientStatuses: { label: FieldNames.ClientStatus, value: FieldNames.ClientStatus }[] = [];
-  // selectedClientStatus: FieldNames.ClientStatus[] = [];
-
-  // availableClientSources: { label: FieldNames.ClientSource, value: FieldNames.ClientSource }[] = [];
-  // selectedClientSource: FieldNames.ClientSource[] = [];
-
-  // availableSpecialists: { label: string, value: number }[] = [];
-  // selectedSpecialist: number[] = [];
-
   specialists: ServerUser.Response[] = [];
   allUsers: ServerUser.Response[] = [];
 
-  // dateFrom: Date | null = null;
-  // dateTo: Date | null = null;
-
-  // phoneNumber = '';
-
   destoyed = new Subject<void>();
-
-  // isCarSalesChiefOrAdmin = this.sessionService.isCarSalesChief || this.sessionService.isAdminOrHigher;
-
-  // getTooltipConfig: ((item: ChangeLogItem) => string) = (car) => {
-  //   return FieldsUtils.getFieldStringValue(car, FieldNames.Client.Description)
-  // };
 
   constructor(
     public changeLogDataService: ChangeLogDataService,
-    private clientService: ClientService,
     private fieldService: FieldService,
     private dialogService: DialogService,
-    private sessionService: SessionService,
-    // private carService: CarService,
     private userService: UserService,
     private fb: UntypedFormBuilder,
   ) {}
@@ -141,24 +111,10 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
           date: [''],
         });
       });
-
-    // this.availableStatuses = availableStatuses.map(s => ({ label: s, value: s }));
-    // this.availableClientStatuses = Object.values(FieldNames.ClientStatus).map(s => ({ label: s, value: s }));
-    // this.availableClientSources = Object.values(FieldNames.ClientSource).map(s => ({ label: s, value: s }));
-
-    // this.selectedStatus = [
-    //   FieldNames.DealStatus.InProgress,
-    //   FieldNames.DealStatus.OnDeposit,
-    // ];
-
-    // setTimeout(() => {
-    //   this.rawClients.forEach(c => this.deleteClient(c));
-    // }, 20000);
   }
 
   getData(): Observable<any> {
     return zip(
-      // this.getClients(),
       this.fieldService.getFields(),
       this.userService.getAllUsers(true),
     ).pipe(
@@ -178,8 +134,6 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
               u.roleLevel === ServerRole.System.SuperAdmin,
           );
 
-        // this.availableSpecialists = this.specialists.map(u => ({ label: FieldsUtils.getFieldStringValue(u, FieldNames.User.name), value: u.id }));
-
         return null;
       }),
     );
@@ -188,26 +142,6 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
   setGridSettings() {
     this.gridConfig = this.getGridConfig();
     this.gridActionsConfig = this.getGridActionsConfig();
-    this.getGridColorConfig();
-  }
-
-  getGridColorConfig() {
-    // this.getColorConfig = (client) => {
-    //   const status = getDealStatus(client);
-    //   switch (status) {
-    //     case FieldNames.DealStatus.Deny: return '#ff00002b'
-    //     // case FieldNames.DealStatus.InProgress: return '#fff'
-    //     case FieldNames.DealStatus.OnDeposit: return '#07ff003d'
-    //     case FieldNames.DealStatus.Sold: return '#005dff3d'
-    //   }
-    //   const clientStatus = getClientStatus(client);
-    //   switch (clientStatus) {
-    //     case FieldNames.ClientStatus.Thinking: return '#EFD334'
-    //     case FieldNames.ClientStatus.InProgress: return '#99FF99'
-    //     case FieldNames.ClientStatus.HavingInteresting: return '#7FC7FF'
-    //   }
-    //   return '';
-    // }
   }
 
   getGridConfig(): GridConfigItem<ChangeLogItem>[] {
@@ -216,15 +150,7 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
         title: 'ID',
         name: 'id',
         getValue: (item) => {
-          // const specialist: ServerUser.Response = this.specialists.find(user => user.id === item.userId)!;
-
-          // if (item.userId && specialist) {
-          //   const specialistName = FieldsUtils.getFieldValue(specialist, FieldNames.User.name);
-
-          //   return `${item.id} ${(specialistName || '').split(' ').map(word => word[0]).join('')}`;
-          // } else {
           return item.id;
-          // }
         },
       },
       {
@@ -247,18 +173,15 @@ export class ChangeLogComponent implements OnInit, OnDestroy {
 
           return 'Никто';
         },
-        // sortable: () => true
       },
       {
         title: 'Домен',
         name: 'sourceName',
-        // sortable: () => true,
         getValue: (item) => item.sourceName,
       },
       {
         title: 'Тип операции',
         name: 'type',
-        // sortable: () => true,
         getValue: (item) => item.type,
       },
     ];

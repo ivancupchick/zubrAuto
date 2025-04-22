@@ -53,8 +53,8 @@ import { AuthGuard } from './auth.guard';
 import { SessionService } from 'src/app/services/session/session.service';
 import { SettingsResolver } from './settings.resolver';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { ModalsAuthModule } from 'src/app/pages/za-settings/modals/modals-auth/modals-auth.module';
-import { DynamicFormModule } from './shared/dynamic-form/dynamic-form.module';
+
+
 import { RequestService } from 'src/app/services/request/request.service';
 import { SettingsRolesComponent } from './settings-roles/settings-roles.component';
 import { CreateRoleComponent } from './modals/create-role/create-role.component';
@@ -79,7 +79,7 @@ import { MessageService } from 'primeng/api';
 import { ChangeCarOwnerNumberComponent } from './modals/change-car-owner-number/change-car-owner-number.component';
 import { ClientPreviewComponent } from './client/modals/client-preview/client-preview.component';
 import { HighlightModule } from 'ngx-highlightjs';
-import { DashboardModule } from './dashboard/dashboard.module';
+
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
 import { UserService } from 'src/app/services/user/user.service';
 import { CarService } from 'src/app/services/car/car.service';
@@ -198,10 +198,7 @@ const routes: Routes = [
     ContextMenuModule,
     EditorModule,
     TooltipModule,
-    ModalsAuthModule,
-    DynamicFormModule,
     HighlightModule,
-    DashboardModule,
     GridComponent,
     CreateClientComponent,
     ClientChangeLogsComponent,
@@ -235,6 +232,6 @@ const routes: Routes = [
     CompleteClientDealComponent,
     ChangeCarOwnerNumberComponent,
     ClientPreviewComponent,
-  ],
+],
 })
 export class ZASettingsModule {}
