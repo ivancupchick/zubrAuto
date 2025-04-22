@@ -1,69 +1,70 @@
 <p-menubar>
   <ng-template pTemplate="start">
     <ul class="p-menubar-root-list">
-      <ng-container *ngFor="let action of actions">
-        <li
-          *ngIf="!action.visible ? true : action.visible()"
-          class="p-element p-menuitem"
-        >
-          <div class="p-menuitem-content">
-            <a
-              *ngIf="action.routerLink !== null && !action.handler"
-              [routerLink]="action.routerLink"
-              [queryParams]="action.queryParams || {}"
-              class="p-element p-menuitem-link"
-            >
-              <span class="p-menuitem-icon {{ action.icon }}"></span>
-              <span class="p-menuitem-text">{{ action.label }}</span>
-            </a>
+      @for (action of actions; track action) {
+        @if (!action.visible ? true : action.visible()) {
+          <li class="p-element p-menuitem">
+            <div class="p-menuitem-content">
+              @if (action.routerLink !== null && !action.handler) {
+                <a
+                  [routerLink]="action.routerLink"
+                  [queryParams]="action.queryParams || {}"
+                  class="p-element p-menuitem-link"
+                >
+                  <span class="p-menuitem-icon {{ action.icon }}"></span>
+                  <span class="p-menuitem-text">{{ action.label }}</span>
+                </a>
+              }
+              @if (action.handler) {
+                <a class="p-element p-menuitem-link" (click)="action.handler()">
+                  <span class="p-menuitem-icon {{ action.icon }}"></span>
+                  <span class="p-menuitem-text">{{ action.label }}</span>
+                </a>
+              }
+            </div>
+          </li>
+        }
+      }
 
-            <a
-              *ngIf="action.handler"
-              class="p-element p-menuitem-link"
-              (click)="action.handler()"
-            >
-              <span class="p-menuitem-icon {{ action.icon }}"></span>
-              <span class="p-menuitem-text">{{ action.label }}</span>
-            </a>
-          </div>
-        </li>
-      </ng-container>
-
-      <!-- <li *ngIf="isSuperAdmin">
-        <input type="file" #fileInput (change)="onFileChange($event)" class="custom-file-input">
-        <label class="custom-file-label">Choose a file</label>
-      </li> -->
+    <!-- <li *ngIf="isSuperAdmin">
+      <input type="file" #fileInput (change)="onFileChange($event)" class="custom-file-input">
+      <label class="custom-file-label">Choose a file</label>
+    </li> -->
     </ul>
   </ng-template>
   <ng-template pTemplate="end">
-    <p-dropdown
-      appendTo="body"
-      *ngIf="
-        !!user &&
-        (user.roleLevel === ServerRole.System.SuperAdmin ||
-          user.roleLevel === ServerRole.System.Admin)
-      "
-      [autoDisplayFirst]="true"
-      [options]="userRoles"
-      [(ngModel)]="selectedRole"
-      (onChange)="onChangeSelectedRole($event)"
-      optionLabel="name"
-      optionValue="code"
-    ></p-dropdown>
+    @if (
+      !!user &&
+      (user.roleLevel === ServerRole.System.SuperAdmin ||
+        user.roleLevel === ServerRole.System.Admin)
+    ) {
+      <p-dropdown
+        appendTo="body"
+        [autoDisplayFirst]="true"
+        [options]="userRoles"
+        [(ngModel)]="selectedRole"
+        (onChange)="onChangeSelectedRole($event)"
+        optionLabel="name"
+        optionValue="code"
+      ></p-dropdown>
+    }
 
     <!-- <p-avatar image="assets/showcase/images/demo/avatar/asiyajavayant.png" styleClass="p-mr-2" size="large" shape="circle"></p-avatar> -->
     <!-- image="assets/showcase/images/demo/avatar/amyelsner.png" -->
-    <p-chip *ngIf="!!user" [label]="user.email" styleClass="p-mr-2"></p-chip>
+    @if (!!user) {
+      <p-chip [label]="user.email" styleClass="p-mr-2"></p-chip>
+    }
 
-    <button
-      *ngIf="!!user"
-      pButton
-      icon="pi pi-ban"
-      type="button"
-      [label]="'Выйти'"
-      (click)="logOut()"
-      class="p-mr-2 p-mb-2 p-button-rounded p-button-sm"
-    ></button>
+    @if (!!user) {
+      <button
+        pButton
+        icon="pi pi-ban"
+        type="button"
+        [label]="'Выйти'"
+        (click)="logOut()"
+        class="p-mr-2 p-mb-2 p-button-rounded p-button-sm"
+      ></button>
+    }
 
     <!-- <button
       *ngIf="!user"

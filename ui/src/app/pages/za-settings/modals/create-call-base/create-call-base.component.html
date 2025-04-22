@@ -21,55 +21,58 @@
     </p-tabPanel>
 
     <p-tabPanel header="Добавить машины вручную">
-      <div *ngIf="form" class="content">
-        <div [formGroup]="form" class="flex flex-column w-full">
-          <!-- !TODO form controls classes -->
-          <div class="form-control">
-            <label for="specialist" class="mr-3">Сотрудник</label>
-            <p-dropdown
-              appendTo="body"
-              [options]="contactCenterUsers"
-              formControlName="specialist"
-              id="specialist"
-              placeholder="Выберите содрудника"
-              optionLabel="value"
-              optionValue="key"
-            ></p-dropdown>
-          </div>
-          <div formArrayName="cars" class="flex flex-column w-full">
-            <div
-              *ngFor="
-                let carControl of carsControls;
-                let carIndex = index;
-                let first = first
-              "
-              class="flex flex-row justify-content-between w-full mt-2"
-            >
-              <textarea
-                rows="5"
-                class="w-full mr-3"
-                pInputTextarea
-                placeholder="Машины"
-                [formControlName]="carIndex"
-              ></textarea>
-              <button
-                pButton
-                icon="pi pi-times"
-                *ngIf="!first"
-                type="button"
-                label="Удалить"
-                class="mt-3 p-button-danger"
-                (click)="deleteCarsItem(carIndex)"
-              ></button>
+      @if (form) {
+        <div class="content">
+          <div [formGroup]="form" class="flex flex-column w-full">
+            <!-- !TODO form controls classes -->
+            <div class="form-control">
+              <label for="specialist" class="mr-3">Сотрудник</label>
+              <p-dropdown
+                appendTo="body"
+                [options]="contactCenterUsers"
+                formControlName="specialist"
+                id="specialist"
+                placeholder="Выберите содрудника"
+                optionLabel="value"
+                optionValue="key"
+              ></p-dropdown>
             </div>
-            <p-button
-              class="mt-3"
-              label="Добавить"
-              (onClick)="addOneCarsItem()"
-            />
+            <div formArrayName="cars" class="flex flex-column w-full">
+              @for (
+                carControl of carsControls;
+                track carControl;
+                let carIndex = $index;
+                let first = $first
+              ) {
+                <div class="flex flex-row justify-content-between w-full mt-2">
+                  <textarea
+                    rows="5"
+                    class="w-full mr-3"
+                    pInputTextarea
+                    placeholder="Машины"
+                    [formControlName]="carIndex"
+                  ></textarea>
+                  @if (!first) {
+                    <button
+                      pButton
+                      icon="pi pi-times"
+                      type="button"
+                      label="Удалить"
+                      class="mt-3 p-button-danger"
+                      (click)="deleteCarsItem(carIndex)"
+                    ></button>
+                  }
+                </div>
+              }
+              <p-button
+                class="mt-3"
+                label="Добавить"
+                (onClick)="addOneCarsItem()"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      }
     </p-tabPanel>
   </p-tabView>
 </div>
@@ -94,4 +97,6 @@
   ></button>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

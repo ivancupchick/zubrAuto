@@ -5,39 +5,42 @@
       <span>{{ 'Всего автомобилей: ' }}{{ sortedCars.length }}</span>
     </div>
 
-    <button
-      *ngIf="addCarButtonAvailable"
-      pButton
-      type="button"
-      [disabled]="carFieldConfigs.length === 0"
-      label="Добавить машину"
-      icon="pi pi-plus"
-      (click)="openNewCarWindow()"
-    ></button>
-    <button
-      *ngIf="
-        isAdminOrHigher &&
-        selectedCars.length > 0 &&
-        type === queryCarTypes.byAdmin
-      "
-      pButton
-      type="button"
-      class="p-mb-2 p-button-danger"
-      [disabled]="carFieldConfigs.length === 0"
-      label="Удалить навсегда"
-      icon="pi pi-times"
-      (click)="deleteCars()"
-    ></button>
-    <button
-      *ngIf="(isAdminOrHigher || isCarSalesChief) && selectedCars.length > 0"
-      pButton
-      type="button"
-      class="p-mb-2 p-button-danger"
-      [disabled]="carFieldConfigs.length === 0"
-      label="Удалить"
-      icon="pi pi-times"
-      (click)="changeCarsStatus()"
-    ></button>
+    @if (addCarButtonAvailable) {
+      <button
+        pButton
+        type="button"
+        [disabled]="carFieldConfigs.length === 0"
+        label="Добавить машину"
+        icon="pi pi-plus"
+        (click)="openNewCarWindow()"
+      ></button>
+    }
+    @if (
+      isAdminOrHigher &&
+      selectedCars.length > 0 &&
+      type === queryCarTypes.byAdmin
+    ) {
+      <button
+        pButton
+        type="button"
+        class="p-mb-2 p-button-danger"
+        [disabled]="carFieldConfigs.length === 0"
+        label="Удалить навсегда"
+        icon="pi pi-times"
+        (click)="deleteCars()"
+      ></button>
+    }
+    @if ((isAdminOrHigher || isCarSalesChief) && selectedCars.length > 0) {
+      <button
+        pButton
+        type="button"
+        class="p-mb-2 p-button-danger"
+        [disabled]="carFieldConfigs.length === 0"
+        label="Удалить"
+        icon="pi pi-times"
+        (click)="changeCarsStatus()"
+      ></button>
+    }
 
     <input
       type="text"
@@ -48,38 +51,36 @@
     />
 
     <div style="display: flex; flex-direction: column; align-items: center">
-      <p-multiSelect
-        appendTo="body"
-        *ngIf="availableStatuses.length > 1"
-        [options]="availableStatuses"
-        [(ngModel)]="selectedStatus"
-        placeholder="Статус"
-        optionLabel="label"
-        optionValue="value"
-        (onPanelHide)="sortCars()"
-        selectedItemsLabel="{0} статусов выбрано"
-        [maxSelectedLabels]="1"
-      ></p-multiSelect>
+      @if (availableStatuses.length > 1) {
+        <p-multiSelect
+          appendTo="body"
+          [options]="availableStatuses"
+          [(ngModel)]="selectedStatus"
+          placeholder="Статус"
+          optionLabel="label"
+          optionValue="value"
+          (onPanelHide)="sortCars()"
+          selectedItemsLabel="{0} статусов выбрано"
+          [maxSelectedLabels]="1"
+        ></p-multiSelect>
+      }
     </div>
 
-    <div
-      *ngIf="
-        onSelectContactUserAvailable && contactCenterUserOptions.length > 0
-      "
-      style="display: flex; flex-direction: column; align-items: center"
-    >
-      <p-multiSelect
-        appendTo="body"
-        [options]="contactCenterUserOptions"
-        [(ngModel)]="selectedContactCenterUsers"
-        placeholder="Сотрудник ОКЦ"
-        optionLabel="label"
-        optionValue="key"
-        (onPanelHide)="sortCars()"
-        selectedItemsLabel="{0} сотрудников выбрано"
-        [maxSelectedLabels]="1"
-      ></p-multiSelect>
-    </div>
+    @if (onSelectContactUserAvailable && contactCenterUserOptions.length > 0) {
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <p-multiSelect
+          appendTo="body"
+          [options]="contactCenterUserOptions"
+          [(ngModel)]="selectedContactCenterUsers"
+          placeholder="Сотрудник ОКЦ"
+          optionLabel="label"
+          optionValue="key"
+          (onPanelHide)="sortCars()"
+          selectedItemsLabel="{0} сотрудников выбрано"
+          [maxSelectedLabels]="1"
+        ></p-multiSelect>
+      </div>
+    }
 
     <div style="display: flex; flex-direction: column; align-items: center">
       <!-- <label for="range">Дата создания</label> -->
@@ -109,8 +110,8 @@
 
   <div class="p-toolbar-group-right">
     <!-- <p-button icon="pi pi-search"></p-button>
-    <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
-    <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button> -->
+        <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
+        <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button> -->
 
     <p-button
       icon="pi pi-refresh"
@@ -134,75 +135,78 @@
     >
       <ng-template pTemplate>
         <div class="p-fluid grid formgrid">
-          <div
-            *ngFor="let filter of filters"
-            class="p-field col-4"
-            style="
-              display: flex;
-              flex-direction: column;
-              align-items: flex-start;
-              padding: 10px;
-            "
-          >
-            <ng-container *ngIf="filter.type === FieldTypes.Dropdown">
-              <span style="margin-bottom: 2px">{{ filter.title }}</span>
-              <p-dropdown
-                appendTo="body"
-                [autoDisplayFirst]="true"
-                [options]="filter.variants || []"
-                [(ngModel)]="filter.value"
-                (onChange)="changeFilter($any(filter), $event)"
-                optionLabel="label"
-                optionValue="value"
-              ></p-dropdown>
-            </ng-container>
-
-            <ng-container *ngIf="filter.type === FieldTypes.Multiselect">
-              <span style="margin-bottom: 2px">{{ filter.title }}</span>
-              <p-multiSelect
-                appendTo="body"
-                [options]="filter.variants || []"
-                [(ngModel)]="filter.value"
-                placeholder="Все"
-                optionLabel="label"
-                optionValue="value"
-                (onChange)="changeMultiselectFilter(filter, $event)"
-                selectedItemsLabel="{0} выбрано"
-                [maxSelectedLabels]="0"
-              ></p-multiSelect>
-            </ng-container>
-
-            <ng-container *ngIf="filter.type === FieldTypes.Text">
-              <span style="margin-bottom: 2px">{{ filter.title }}</span>
-
-              <input
-                type="text"
-                [(ngModel)]="filter.value"
-                (change)="changeFilter(filter, transformFormInputEvent($event))"
-                pInputText
-                [placeholder]="'Все'"
-              />
-            </ng-container>
-
-            <ng-container *ngIf="filter.type === FieldTypes.Number">
-              <span style="margin-bottom: 10px"
-                >{{ filter.title }}
-                {{
-                  (filter.values[0] === filter.min ? 'Все' : filter.values[0]) +
-                    ' - ' +
-                    (filter.values[1] === filter.max ? 'Все' : filter.values[1])
-                }}</span
-              >
-              <p-slider
-                [min]="filter.min"
-                [max]="filter.max"
-                [(ngModel)]="filter.values"
-                [step]="filter.step"
-                [range]="true"
-                (onChange)="changeNumberRangeFilter(filter, $event)"
-              ></p-slider>
-            </ng-container>
-          </div>
+          @for (filter of filters; track filter) {
+            <div
+              class="p-field col-4"
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+              "
+            >
+              @if (filter.type === FieldTypes.Dropdown) {
+                <span style="margin-bottom: 2px">{{ filter.title }}</span>
+                <p-dropdown
+                  appendTo="body"
+                  [autoDisplayFirst]="true"
+                  [options]="filter.variants || []"
+                  [(ngModel)]="filter.value"
+                  (onChange)="changeFilter($any(filter), $event)"
+                  optionLabel="label"
+                  optionValue="value"
+                ></p-dropdown>
+              }
+              @if (filter.type === FieldTypes.Multiselect) {
+                <span style="margin-bottom: 2px">{{ filter.title }}</span>
+                <p-multiSelect
+                  appendTo="body"
+                  [options]="filter.variants || []"
+                  [(ngModel)]="filter.value"
+                  placeholder="Все"
+                  optionLabel="label"
+                  optionValue="value"
+                  (onChange)="changeMultiselectFilter(filter, $event)"
+                  selectedItemsLabel="{0} выбрано"
+                  [maxSelectedLabels]="0"
+                ></p-multiSelect>
+              }
+              @if (filter.type === FieldTypes.Text) {
+                <span style="margin-bottom: 2px">{{ filter.title }}</span>
+                <input
+                  type="text"
+                  [(ngModel)]="filter.value"
+                  (change)="
+                    changeFilter(filter, transformFormInputEvent($event))
+                  "
+                  pInputText
+                  [placeholder]="'Все'"
+                />
+              }
+              @if (filter.type === FieldTypes.Number) {
+                <span style="margin-bottom: 10px"
+                  >{{ filter.title }}
+                  {{
+                    (filter.values[0] === filter.min
+                      ? 'Все'
+                      : filter.values[0]) +
+                      ' - ' +
+                      (filter.values[1] === filter.max
+                        ? 'Все'
+                        : filter.values[1])
+                  }}</span
+                >
+                <p-slider
+                  [min]="filter.min"
+                  [max]="filter.max"
+                  [(ngModel)]="filter.values"
+                  [step]="filter.step"
+                  [range]="true"
+                  (onChange)="changeNumberRangeFilter(filter, $event)"
+                ></p-slider>
+              }
+            </div>
+          }
         </div>
       </ng-template>
     </p-overlayPanel>
@@ -221,4 +225,6 @@
   (onSelectEntity)="onSelectEntity($event)"
 ></za-grid>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

@@ -92,22 +92,22 @@
               </div>
 
               <!-- <div class="image-item">
-                <div class="image-item-content">
-                  <div class="p-mb-3">
-                    <img [src]="getImageUrl(image)" [alt]="product.name" class="product-image" />
-                  </div>
-                  <div>
-                    <h4 class="p-mb-1">{{product.name}}</h4>
-                    <h6 class="p-mt-0 p-mb-3">${{product.price}}</h6>
-                    <span [class]="'product-badge status-'+product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span>
-                    <div class="car-buttons p-mt-5">
-                      <p-button type="button" styleClass="p-button p-button-rounded p-mr-2" icon="pi pi-search"></p-button>
-                      <p-button type="button" styleClass="p-button-success p-button-rounded p-mr-2" icon="pi pi-star-fill"></p-button>
-                      <p-button type="button" styleClass="p-button-help p-button-rounded" icon="pi pi-cog"></p-button>
-                    </div>
+              <div class="image-item-content">
+                <div class="p-mb-3">
+                  <img [src]="getImageUrl(image)" [alt]="product.name" class="product-image" />
+                </div>
+                <div>
+                  <h4 class="p-mb-1">{{product.name}}</h4>
+                  <h6 class="p-mt-0 p-mb-3">${{product.price}}</h6>
+                  <span [class]="'product-badge status-'+product.inventoryStatus.toLowerCase()">{{product.inventoryStatus}}</span>
+                  <div class="car-buttons p-mt-5">
+                    <p-button type="button" styleClass="p-button p-button-rounded p-mr-2" icon="pi pi-search"></p-button>
+                    <p-button type="button" styleClass="p-button-success p-button-rounded p-mr-2" icon="pi pi-star-fill"></p-button>
+                    <p-button type="button" styleClass="p-button-help p-button-rounded" icon="pi pi-cog"></p-button>
                   </div>
                 </div>
-              </div> -->
+              </div>
+            </div> -->
             </ng-template>
           </p-carousel>
         </div>
@@ -128,14 +128,15 @@
             ></p-fileUpload>
           </div>
 
-          <p-image
-            *ngIf="image360"
-            [src]="getImageUrl(image360)"
-            [alt]="image360.name"
-            width="250"
-            [preview]="true"
-            appendTo="body"
-          ></p-image>
+          @if (image360) {
+            <p-image
+              [src]="getImageUrl(image360)"
+              [alt]="image360.name"
+              width="250"
+              [preview]="true"
+              appendTo="body"
+            ></p-image>
+          }
 
           <h5>Фото 360 загружено: {{ !!image360 ? 'Да' : 'Нет' }}</h5>
         </div>
@@ -216,4 +217,6 @@
   ></button>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

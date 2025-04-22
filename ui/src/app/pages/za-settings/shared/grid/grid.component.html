@@ -5,71 +5,77 @@
   (onShow)="onShow($event)"
 ></p-contextMenu>
 
-<p-table
-  *ngIf="scrollHeight"
-  [scrollHeight]="scrollHeight + 'px'"
-  [virtualScroll]="virtualScroll"
-  [virtualScrollItemSize]="24"
-  [(contextMenuSelection)]="contextSelectedItem"
-  [contextMenu]="cm"
-  styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
-  [value]="gridData"
-  (sortFunction)="customSort($event)"
-  [customSort]="true"
-  [selectionMode]="selectionMode || 'single'"
-  [metaKeySelection]="true"
-  [(selection)]="selectedKeys"
-  (selectionChange)="onSelect($event)"
-  dataKey="id"
-  responsiveLayout="scroll"
->
-  <ng-template pTemplate="header">
-    <tr>
-      <th *ngIf="checkboxMode" style="width: 3rem">
-        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-      </th>
-      <ng-container *ngFor="let config of gridConfig">
-        <th
-          *ngIf="config.sortable && config.sortable()"
-          [pSortableColumn]="config.name"
-        >
-          {{ config.title }} <p-sortIcon [field]="config.name"></p-sortIcon>
-        </th>
-        <th *ngIf="!config.sortable || !config.sortable()">
-          {{ config.title }}
-        </th>
-      </ng-container>
-
-      <!-- <th></th> -->
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
-    <tr
-      (dblclick)="rowDoubleClick(gridItem)"
-      style="height: 24px"
-      [pSelectableRow]="gridItem"
-      [pSelectableRowIndex]="rowIndex"
-      [pTooltip]="(getTooltipConfig && getTooltipConfig(gridItem)) || ''"
-      tooltipPosition="top"
-      [tooltipDisabled]="!getTooltipConfig"
-      appendTo="body"
-      [showDelay]="1000"
-      [ngStyle]="{
-        backgroundColor:
-          getColorConfig && getColorConfig(gridItem)
-            ? getColorConfig(gridItem)
-            : '',
-      }"
-      [pContextMenuRow]="gridItem"
-      [pSelectableRow]="gridItem"
-    >
-      <td *ngIf="checkboxMode">
-        <!-- <p-tableCheckbox [value]="gridItem"></p-tableCheckbox> -->
-      </td>
-      <td *ngFor="let config of gridConfig">
-        {{ config.getValue(gridItem) }}
-      </td>
-      <!-- <td class="buttons">
+@if (scrollHeight) {
+  <p-table
+    [scrollHeight]="scrollHeight + 'px'"
+    [virtualScroll]="virtualScroll"
+    [virtualScrollItemSize]="24"
+    [(contextMenuSelection)]="contextSelectedItem"
+    [contextMenu]="cm"
+    styleClass="p-datatable-sm p-datatable-gridlines p-datatable-striped"
+    [value]="gridData"
+    (sortFunction)="customSort($event)"
+    [customSort]="true"
+    [selectionMode]="selectionMode || 'single'"
+    [metaKeySelection]="true"
+    [(selection)]="selectedKeys"
+    (selectionChange)="onSelect($event)"
+    dataKey="id"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        @if (checkboxMode) {
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+        }
+        @for (config of gridConfig; track config) {
+          @if (config.sortable && config.sortable()) {
+            <th [pSortableColumn]="config.name">
+              {{ config.title }} <p-sortIcon [field]="config.name"></p-sortIcon>
+            </th>
+          }
+          @if (!config.sortable || !config.sortable()) {
+            <th>
+              {{ config.title }}
+            </th>
+          }
+        }
+        <!-- <th></th> -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
+      <tr
+        (dblclick)="rowDoubleClick(gridItem)"
+        style="height: 24px"
+        [pSelectableRow]="gridItem"
+        [pSelectableRowIndex]="rowIndex"
+        [pTooltip]="(getTooltipConfig && getTooltipConfig(gridItem)) || ''"
+        tooltipPosition="top"
+        [tooltipDisabled]="!getTooltipConfig"
+        appendTo="body"
+        [showDelay]="1000"
+        [ngStyle]="{
+          backgroundColor:
+            getColorConfig && getColorConfig(gridItem)
+              ? getColorConfig(gridItem)
+              : '',
+        }"
+        [pContextMenuRow]="gridItem"
+        [pSelectableRow]="gridItem"
+      >
+        @if (checkboxMode) {
+          <td>
+            <!-- <p-tableCheckbox [value]="gridItem"></p-tableCheckbox> -->
+          </td>
+        }
+        @for (config of gridConfig; track config) {
+          <td>
+            {{ config.getValue(gridItem) }}
+          </td>
+        }
+        <!-- <td class="buttons">
         <button
           *ngFor="let actionConfig of actions"
           type="button"
@@ -79,16 +85,17 @@
           icon="pi pi-{{actionConfig.icon}}"
           class="p-button-{{actionConfig.buttonClass}}"
           (click)="actionConfig.handler(gridItem)"
-        >
+          >
           {{ actionConfig?.title }}
         </button>
       </td> -->
-    </tr>
-  </ng-template>
-  <!-- <ng-template pTemplate="paginatorleft">
-    <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
-  </ng-template>
-  <ng-template pTemplate="paginatorright">
-    <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
-  </ng-template> -->
-</p-table>
+      </tr>
+    </ng-template>
+    <!-- <ng-template pTemplate="paginatorleft">
+  <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
+</ng-template>
+<ng-template pTemplate="paginatorright">
+  <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
+</ng-template> -->
+  </p-table>
+}

@@ -1,10 +1,7 @@
 <div class="card m-2">
-  <za-call-requests-dashlet
-    *ngIf="isCarSalesOrAdmin"
-  ></za-call-requests-dashlet>
-  <za-calls-dashlet class="mt-2" *ngIf="isCarSalesOrAdmin"></za-calls-dashlet>
-  <za-client-next-action-dashlet
-    class="mt-2"
-    *ngIf="isCarSalesOrAdmin"
-  ></za-client-next-action-dashlet>
+  @if (isCarSalesOrAdmin) {
+    <za-call-requests-dashlet></za-call-requests-dashlet>
+    <za-calls-dashlet class="mt-2"></za-calls-dashlet>
+    <za-client-next-action-dashlet class="mt-2"></za-client-next-action-dashlet>
+  }
 </div>

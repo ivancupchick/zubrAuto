@@ -5,39 +5,33 @@
   <ng-template pTemplate="header">
     <tr>
       <th></th>
-      <th
-        *ngFor="let headerItem of tableHeader"
-        [innerHTML]="headerItem.title"
-      ></th>
+      @for (headerItem of tableHeader; track headerItem) {
+        <th [innerHTML]="headerItem.title"></th>
+      }
     </tr>
   </ng-template>
 
   <ng-template pTemplate="body" let-gridItem let-rowIndex="rowIndex">
     <tr style="height: 24px">
       <td>{{ gridItem[0] }}</td>
-      <td *ngFor="let headerItem of tableHeader; let index = index">
-        <div
-          *ngIf="gridItem[index + 1] == null && index != 0"
-          [class.backgroundGray]="true"
-        >
-          --//--
-        </div>
-
-        <div
-          *ngIf="gridItem[index + 1] != null && gridItem[index + 1] != ''"
-          [class.backgroundMint]="true"
-        >
-          {{ gridItem[index + 1] }}
-        </div>
-
-        <!-- Хотел добавить красный бекграунд на удаленные ячейки (пустые) -->
-        <div
-          *ngIf="gridItem[index + 1] == '' && index != 0"
-          [class.backgroundRed]="true"
-        >
-          {{ gridItem[index + 1] }}
-        </div>
-      </td>
+      @for (headerItem of tableHeader; track headerItem; let index = $index) {
+        <td>
+          @if (gridItem[index + 1] == null && index != 0) {
+            <div [class.backgroundGray]="true">--//--</div>
+          }
+          @if (gridItem[index + 1] != null && gridItem[index + 1] != '') {
+            <div [class.backgroundMint]="true">
+              {{ gridItem[index + 1] }}
+            </div>
+          }
+          <!-- Хотел добавить красный бекграунд на удаленные ячейки (пустые) -->
+          @if (gridItem[index + 1] == '' && index != 0) {
+            <div [class.backgroundRed]="true">
+              {{ gridItem[index + 1] }}
+            </div>
+          }
+        </td>
+      }
     </tr>
   </ng-template>
 </p-table>

@@ -36,7 +36,7 @@ import { SessionService } from 'src/app/services/session/session.service';
 import { ServerUser } from 'src/app/entities/user';
 import { finalize, map, mergeMap, of } from 'rxjs';
 import { ClientPreviewComponent } from '../../client/modals/client-preview/client-preview.component';
-import { CommonModule } from '@angular/common';
+
 import { DynamicFormModule } from '../../shared/dynamic-form/dynamic-form.module';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipsModule } from 'primeng/chips';
@@ -52,7 +52,6 @@ import { RequestService } from 'src/app/services/request/request.service';
   styleUrls: ['./create-client.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     DynamicFormModule,
     CheckboxModule,
     ChipsModule,

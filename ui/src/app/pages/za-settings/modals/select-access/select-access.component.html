@@ -1,7 +1,6 @@
-<p-menubar
-  *ngIf="availableAccessSources.length !== gridData.length"
-  [model]="actions"
-></p-menubar>
+@if (availableAccessSources.length !== gridData.length) {
+  <p-menubar [model]="actions"></p-menubar>
+}
 
 <p-table [value]="gridData">
   <ng-template pTemplate="header">
@@ -40,20 +39,21 @@
         ></p-radioButton>
       </td>
       <td>
-        <button
-          *ngFor="let actionConfig of gridActions"
-          type="button"
-          pButton
-          [disabled]="
-            actionConfig.disabled ? actionConfig.disabled(gridItem) : false
-          "
-          pRipple
-          icon="pi pi-{{ actionConfig.icon }}"
-          class="p-button-{{ actionConfig.buttonClass }}"
-          (click)="actionConfig.handler(gridItem)"
-        >
-          <!-- {{ actionConfig?.title }} -->
-        </button>
+        @for (actionConfig of gridActions; track actionConfig) {
+          <button
+            type="button"
+            pButton
+            [disabled]="
+              actionConfig.disabled ? actionConfig.disabled(gridItem) : false
+            "
+            pRipple
+            icon="pi pi-{{ actionConfig.icon }}"
+            class="p-button-{{ actionConfig.buttonClass }}"
+            (click)="actionConfig.handler(gridItem)"
+          >
+            <!-- {{ actionConfig?.title }} -->
+          </button>
+        }
       </td>
     </tr>
   </ng-template>
@@ -79,4 +79,6 @@
   ></button>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

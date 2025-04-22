@@ -16,7 +16,7 @@
   (changed)="setValidForm($event, 'carFormValid')"
   [fields]="ourLinksDynamicFormFields"
 ></za-dynamic-form>
-<ng-container *ngIf="shootingDateAvailable">
+@if (shootingDateAvailable) {
   <h1>Дата/Время съёмки</h1>
   <p-calendar
     appendTo="body"
@@ -25,7 +25,7 @@
     hourFormat="24"
     [firstDayOfWeek]="1"
   ></p-calendar>
-</ng-container>
+}
 
 <div class="footer">
   <button
@@ -47,4 +47,6 @@
   ></button>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

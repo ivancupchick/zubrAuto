@@ -1,78 +1,80 @@
-<p-panel *ngIf="loaded" header="Следующие действия по моим клиентам">
-  <ng-template pTemplate="icons">
-    <form
-      *ngIf="form"
-      #ngForm="ngForm"
-      (ngSubmit)="refresh()"
-      [formGroup]="form"
-      class="gap-2"
-    >
-      <p-multiSelect
-        appendTo="body"
-        *ngIf="availableClientStatuses.length > 0"
-        [options]="availableClientStatuses"
-        formControlName="clientStatus"
-        placeholder="Статус клиента"
-        optionLabel="label"
-        optionValue="value"
-        selectedItemsLabel="{0} статусов клиента выбрано"
-        [maxSelectedLabels]="3"
-      ></p-multiSelect>
-
-      <p-multiSelect
-        appendTo="body"
-        size="small"
-        class="ml-2"
-        *ngIf="
-          (availableSpecialists.length > 0 && activeIndex === 3) ||
-          activeIndex === 4
-        "
-        [options]="availableSpecialists"
-        formControlName="specialist"
-        placeholder="Специалист"
-        optionLabel="name"
-        optionValue="id"
-        selectedItemsLabel="{0} спициалистов выбрано"
-        [maxSelectedLabels]="1"
-      ></p-multiSelect>
-
-      <input
-        pInputText
-        class="ml-2"
-        type="text"
-        formControlName="number"
-        pInputText
-        placeholder="Телефон"
-      />
-
-      <button pButton size="small" class="mx-2">
-        <span *ngIf="activeIndex === 3 || activeIndex === 4">Фильтр</span>
-        <i
-          class="pi pi-refresh ms-2"
-          [ngClass]="{ 'pi-spin': form.disabled }"
-        ></i>
-      </button>
-    </form>
-  </ng-template>
-
-  <p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="refresh()">
-    <p-tabPanel header="Сегодня и прошлые ({{ myClientsTotal }})">
-      <!-- <div class="h-20rem">
-        <za-grid
-          *ngIf="gridConfig && myClients && myClients.length"
-          [gridConfig]="gridConfig"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [fixedHeight]="300"
-          [virtualScroll]="false"
-          [doubleClickFuction]="updateClient"
-          [getTooltipConfig]="getTooltipConfig"
-          [gridData]="myClients"
-        ></za-grid>
-      </div> -->
-    </p-tabPanel>
-    <p-tabPanel header="Будущие ({{ myFutureClientsTotal }})">
-      <!-- <div class="h-20rem">
+@if (loaded) {
+  <p-panel header="Следующие действия по моим клиентам">
+    <ng-template pTemplate="icons">
+      @if (form) {
+        <form
+          #ngForm="ngForm"
+          (ngSubmit)="refresh()"
+          [formGroup]="form"
+          class="gap-2"
+        >
+          @if (availableClientStatuses.length > 0) {
+            <p-multiSelect
+              appendTo="body"
+              [options]="availableClientStatuses"
+              formControlName="clientStatus"
+              placeholder="Статус клиента"
+              optionLabel="label"
+              optionValue="value"
+              selectedItemsLabel="{0} статусов клиента выбрано"
+              [maxSelectedLabels]="3"
+            ></p-multiSelect>
+          }
+          @if (
+            (availableSpecialists.length > 0 && activeIndex === 3) ||
+            activeIndex === 4
+          ) {
+            <p-multiSelect
+              appendTo="body"
+              size="small"
+              class="ml-2"
+              [options]="availableSpecialists"
+              formControlName="specialist"
+              placeholder="Специалист"
+              optionLabel="name"
+              optionValue="id"
+              selectedItemsLabel="{0} спициалистов выбрано"
+              [maxSelectedLabels]="1"
+            ></p-multiSelect>
+          }
+          <input
+            pInputText
+            class="ml-2"
+            type="text"
+            formControlName="number"
+            pInputText
+            placeholder="Телефон"
+          />
+          <button pButton size="small" class="mx-2">
+            @if (activeIndex === 3 || activeIndex === 4) {
+              <span>Фильтр</span>
+            }
+            <i
+              class="pi pi-refresh ms-2"
+              [ngClass]="{ 'pi-spin': form.disabled }"
+            ></i>
+          </button>
+        </form>
+      }
+    </ng-template>
+    <p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="refresh()">
+      <p-tabPanel header="Сегодня и прошлые ({{ myClientsTotal }})">
+        <!-- <div class="h-20rem">
+          <za-grid
+            *ngIf="gridConfig && myClients && myClients.length"
+            [gridConfig]="gridConfig"
+            [actions]="gridActionsConfig"
+            [getColorConfig]="getColorConfig"
+            [fixedHeight]="300"
+            [virtualScroll]="false"
+            [doubleClickFuction]="updateClient"
+            [getTooltipConfig]="getTooltipConfig"
+            [gridData]="myClients"
+          ></za-grid>
+        </div> -->
+      </p-tabPanel>
+      <p-tabPanel header="Будущие ({{ myFutureClientsTotal }})">
+        <!-- <div class="h-20rem">
         <za-grid
           *ngIf="gridConfig && myFutureClients && myFutureClients.length"
           [gridConfig]="gridConfig"
@@ -85,10 +87,11 @@
           [gridData]="myFutureClients"
         ></za-grid>
       </div> -->
-    </p-tabPanel>
-    <ng-container *ngIf="!isCarSales">
-      <p-tabPanel *ngIf="!isCarSales" header="Все ({{ allClientsTotal }})">
-        <!-- <div class="h-20rem">
+      </p-tabPanel>
+      @if (!isCarSales) {
+        @if (!isCarSales) {
+          <p-tabPanel header="Все ({{ allClientsTotal }})">
+            <!-- <div class="h-20rem">
           <za-grid
             *ngIf="gridConfig && allClients && allClients.length"
             [gridConfig]="gridConfig"
@@ -101,68 +104,67 @@
             [gridData]="allClients"
           ></za-grid>
         </div> -->
-      </p-tabPanel>
-      <p-tabPanel
-        *ngIf="!isCarSales"
-        header="Сегодня и прошлые сотрудников ({{ someClientsTotal }})"
-      >
-        <!-- <div class="h-20rem">
-          <za-grid
-            *ngIf="gridConfig && someClients && someClients.length"
-            [gridConfig]="gridConfig"
-            [actions]="gridActionsConfig"
-            [getColorConfig]="getColorConfig"
-            [fixedHeight]="300"
-            [virtualScroll]="false"
-            [doubleClickFuction]="updateClient"
-            [getTooltipConfig]="getTooltipConfig"
-            [gridData]="someClients"
-          ></za-grid>
-        </div> -->
-      </p-tabPanel>
-      <p-tabPanel
-        *ngIf="!isCarSales"
-        header="Будущие сотрудников ({{ someFutureClientsTotal }})"
-      >
-        <!-- <div class="h-20rem">
-          <za-grid
-            *ngIf="gridConfig && someFutureClients && someFutureClients.length"
-            [gridConfig]="gridConfig"
-            [actions]="gridActionsConfig"
-            [getColorConfig]="getColorConfig"
-            [fixedHeight]="300"
-            [virtualScroll]="false"
-            [doubleClickFuction]="updateClient"
-            [getTooltipConfig]="getTooltipConfig"
-            [gridData]="someFutureClients"
-          ></za-grid>
-        </div> -->
-      </p-tabPanel>
-    </ng-container>
-  </p-tabView>
-
-  <div class="grid-wrapper h-20rem">
-    <za-pageagle-grid
-      *ngIf="
-        (clientNextActionDataService.list$ | async)?.list?.length;
-        else empty
-      "
-      [gridConfig]="gridConfig"
-      [actions]="gridActionsConfig"
-      [getColorConfig]="getColorConfig"
-      [dataService]="clientNextActionDataService"
-      [sortField]="sortField"
-      [first]="first"
-    ></za-pageagle-grid>
-
-    <ng-template #empty>
-      <div
-        class="w-full h-full flex justify-content-center align-items-center surface-300"
-      >
-        <span>Нет записей</span>
-      </div>
-    </ng-template>
-  </div>
-</p-panel>
+          </p-tabPanel>
+        }
+        @if (!isCarSales) {
+          <p-tabPanel
+            header="Сегодня и прошлые сотрудников ({{ someClientsTotal }})"
+          >
+            <!-- <div class="h-20rem">
+        <za-grid
+          *ngIf="gridConfig && someClients && someClients.length"
+          [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [fixedHeight]="300"
+          [virtualScroll]="false"
+          [doubleClickFuction]="updateClient"
+          [getTooltipConfig]="getTooltipConfig"
+          [gridData]="someClients"
+        ></za-grid>
+      </div> -->
+          </p-tabPanel>
+        }
+        @if (!isCarSales) {
+          <p-tabPanel
+            header="Будущие сотрудников ({{ someFutureClientsTotal }})"
+          >
+            <!-- <div class="h-20rem">
+      <za-grid
+        *ngIf="gridConfig && someFutureClients && someFutureClients.length"
+        [gridConfig]="gridConfig"
+        [actions]="gridActionsConfig"
+        [getColorConfig]="getColorConfig"
+        [fixedHeight]="300"
+        [virtualScroll]="false"
+        [doubleClickFuction]="updateClient"
+        [getTooltipConfig]="getTooltipConfig"
+        [gridData]="someFutureClients"
+      ></za-grid>
+    </div> -->
+          </p-tabPanel>
+        }
+      }
+    </p-tabView>
+    <div class="grid-wrapper h-20rem">
+      @if ((clientNextActionDataService.list$ | async)?.list?.length) {
+        <za-pageagle-grid
+          [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [dataService]="clientNextActionDataService"
+          [sortField]="sortField"
+          [first]="first"
+        ></za-pageagle-grid>
+      } @else {
+        <div
+          class="w-full h-full flex justify-content-center align-items-center surface-300"
+        >
+          <span>Нет записей</span>
+        </div>
+      }
+    </div>
+  </p-panel>
+}
 
 <!-- <za-spinner *ngIf="loading$ | async"></za-spinner> -->

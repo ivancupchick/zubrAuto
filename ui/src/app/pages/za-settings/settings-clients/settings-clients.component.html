@@ -1,57 +1,61 @@
 <div
   class="card flex md:flex-row md:justify-content-start md:align-items-center row-gap-1 mb-2"
 >
-  <p-multiSelect
-    appendTo="body"
-    *ngIf="availableStatuses.length > 0"
-    [options]="availableStatuses"
-    [(ngModel)]="selectedStatus"
-    placeholder="Статус сделки"
-    optionLabel="label"
-    optionValue="value"
-    (onPanelHide)="sortClients()"
-    selectedItemsLabel="{0} статусов выбрано"
-    [maxSelectedLabels]="1"
-  ></p-multiSelect>
+  @if (availableStatuses.length > 0) {
+    <p-multiSelect
+      appendTo="body"
+      [options]="availableStatuses"
+      [(ngModel)]="selectedStatus"
+      placeholder="Статус сделки"
+      optionLabel="label"
+      optionValue="value"
+      (onPanelHide)="sortClients()"
+      selectedItemsLabel="{0} статусов выбрано"
+      [maxSelectedLabels]="1"
+    ></p-multiSelect>
+  }
 
-  <p-multiSelect
-    appendTo="body"
-    *ngIf="availableClientStatuses.length > 0"
-    [options]="availableClientStatuses"
-    [(ngModel)]="selectedClientStatus"
-    placeholder="Статус клиента"
-    optionLabel="label"
-    optionValue="value"
-    (onPanelHide)="sortClients()"
-    selectedItemsLabel="{0} статусов клиента выбрано"
-    [maxSelectedLabels]="1"
-  ></p-multiSelect>
+  @if (availableClientStatuses.length > 0) {
+    <p-multiSelect
+      appendTo="body"
+      [options]="availableClientStatuses"
+      [(ngModel)]="selectedClientStatus"
+      placeholder="Статус клиента"
+      optionLabel="label"
+      optionValue="value"
+      (onPanelHide)="sortClients()"
+      selectedItemsLabel="{0} статусов клиента выбрано"
+      [maxSelectedLabels]="1"
+    ></p-multiSelect>
+  }
 
-  <p-multiSelect
-    appendTo="body"
-    *ngIf="availableClientSources.length > 0"
-    [options]="availableClientSources"
-    [(ngModel)]="selectedClientSource"
-    placeholder="Источник"
-    optionLabel="label"
-    optionValue="value"
-    (onPanelHide)="sortClients()"
-    selectedItemsLabel="{0} источников выбрано"
-    [maxSelectedLabels]="1"
-  ></p-multiSelect>
+  @if (availableClientSources.length > 0) {
+    <p-multiSelect
+      appendTo="body"
+      [options]="availableClientSources"
+      [(ngModel)]="selectedClientSource"
+      placeholder="Источник"
+      optionLabel="label"
+      optionValue="value"
+      (onPanelHide)="sortClients()"
+      selectedItemsLabel="{0} источников выбрано"
+      [maxSelectedLabels]="1"
+    ></p-multiSelect>
+  }
 
-  <p-multiSelect
-    appendTo="body"
-    *ngIf="availableSpecialists.length > 0"
-    [options]="availableSpecialists"
-    [(ngModel)]="selectedSpecialist"
-    placeholder="Специалист"
-    optionLabel="label"
-    optionValue="value"
-    (onPanelHide)="sortClients()"
-    selectedItemsLabel="{0} спициалистов выбрано"
-    [maxSelectedLabels]="1"
-  ></p-multiSelect>
+  @if (availableSpecialists.length > 0) {
+    <p-multiSelect
+      appendTo="body"
+      [options]="availableSpecialists"
+      [(ngModel)]="selectedSpecialist"
+      placeholder="Специалист"
+      optionLabel="label"
+      optionValue="value"
+      (onPanelHide)="sortClients()"
+      selectedItemsLabel="{0} спициалистов выбрано"
+      [maxSelectedLabels]="1"
+    ></p-multiSelect>
+  }
   <div class="date-wrapper">
     <p-calendar
       appendTo="body"
@@ -87,9 +91,7 @@
     placeholder="Телефон"
   />
 
-  <ng-container
-    *ngIf="selectedStatus.includes($any(fieldNames.DealStatus.Sold))"
-  >
+  @if (selectedStatus.includes($any(fieldNames.DealStatus.Sold))) {
     <div class="date-wrapper">
       <p-calendar
         appendTo="body"
@@ -116,7 +118,7 @@
       >
       </p-calendar>
     </div>
-  </ng-container>
+  }
 </div>
 
 <p-toolbar>
@@ -149,4 +151,6 @@
   ></za-grid>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

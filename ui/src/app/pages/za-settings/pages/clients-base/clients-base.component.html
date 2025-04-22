@@ -1,104 +1,104 @@
 <div class="card">
   <div class="card-body">
-    <form *ngIf="form" [formGroup]="form" (ngSubmit)="filter()">
-      <div
-        class="flex flex-row justify-content-start align-items-center row-gap-1 col-12"
-      >
-        <p-multiSelect
-          class="ml-2"
-          [options]="dealStatuses"
-          formControlName="dealStatus"
-          optionLabel="name"
-          optionValue="value"
-          [maxSelectedLabels]="2"
-          selectedItemsLabel="{0} статусов выбрано"
-          placeholder="Статус сделки"
-        />
-
-        <p-multiSelect
-          class="ml-2"
-          [options]="clientStatuses"
-          formControlName="clientStatus"
-          optionLabel="name"
-          optionValue="value"
-          [maxSelectedLabels]="2"
-          selectedItemsLabel="{0} статусов выбрано"
-          placeholder="Статус клиента"
-        />
-
-        <p-calendar
-          class="ml-2"
-          appendTo="body"
-          formControlName="date"
-          selectionMode="range"
-          [showTime]="false"
-          [firstDayOfWeek]="1"
-          placeholder="Даты"
-          [showClear]="true"
-        ></p-calendar>
-
-        <p-dropdown
-          class="ml-2"
-          [options]="sourceList"
-          formControlName="source"
-          [filter]="true"
-          filterBy="name"
-          optionLabel="name"
-          optionValue="value"
-          placeholder="Источник"
-          [showClear]="true"
-        />
-
-        <p-dropdown
-          class="ml-2"
-          [options]="specialistList"
-          formControlName="specialist"
-          [filter]="true"
-          filterBy="name"
-          optionLabel="name"
-          optionValue="value"
-          placeholder="Специалист"
-          [showClear]="true"
-        />
-
-        <input
-          pInputText
-          class="ml-2 p-inputtext"
-          type="text"
-          formControlName="number"
-          pInputText
-          placeholder="Телефон"
-        />
-      </div>
-
-      <p-toolbar>
-        <div class="p-toolbar-group-left">
-          <span
-            >Кол-во:
-            {{ (clientBaseDataService.list$ | async)?.total || 0 }}</span
-          >
-          <button
-            pButton
-            type="button"
-            label="Добавить клиента"
-            icon="pi pi-plus"
-            (click)="openNewClientWindow()"
-          ></button>
+    @if (form) {
+      <form [formGroup]="form" (ngSubmit)="filter()">
+        <div
+          class="flex flex-row justify-content-start align-items-center row-gap-1 col-12"
+        >
+          <p-multiSelect
+            class="ml-2"
+            [options]="dealStatuses"
+            formControlName="dealStatus"
+            optionLabel="name"
+            optionValue="value"
+            [maxSelectedLabels]="2"
+            selectedItemsLabel="{0} статусов выбрано"
+            placeholder="Статус сделки"
+          />
+          <p-multiSelect
+            class="ml-2"
+            [options]="clientStatuses"
+            formControlName="clientStatus"
+            optionLabel="name"
+            optionValue="value"
+            [maxSelectedLabels]="2"
+            selectedItemsLabel="{0} статусов выбрано"
+            placeholder="Статус клиента"
+          />
+          <p-calendar
+            class="ml-2"
+            appendTo="body"
+            formControlName="date"
+            selectionMode="range"
+            [showTime]="false"
+            [firstDayOfWeek]="1"
+            placeholder="Даты"
+            [showClear]="true"
+          ></p-calendar>
+          <p-dropdown
+            class="ml-2"
+            [options]="sourceList"
+            formControlName="source"
+            [filter]="true"
+            filterBy="name"
+            optionLabel="name"
+            optionValue="value"
+            placeholder="Источник"
+            [showClear]="true"
+          />
+          <p-dropdown
+            class="ml-2"
+            [options]="specialistList"
+            formControlName="specialist"
+            [filter]="true"
+            filterBy="name"
+            optionLabel="name"
+            optionValue="value"
+            placeholder="Специалист"
+            [showClear]="true"
+          />
+          <input
+            pInputText
+            class="ml-2 p-inputtext"
+            type="text"
+            formControlName="number"
+            pInputText
+            placeholder="Телефон"
+          />
         </div>
-
-        <div class="p-toolbar-group-right">
-          <p-button size="small" label="Обновить" type="submit" class="mr-2" />
-          <p-button
-            size="small"
-            type="button"
-            label="Очистить"
-            (onClick)="clearFilters()"
-            class="mr-2"
-          >
-          </p-button>
-        </div>
-      </p-toolbar>
-    </form>
+        <p-toolbar>
+          <div class="p-toolbar-group-left">
+            <span
+              >Кол-во:
+              {{ (clientBaseDataService.list$ | async)?.total || 0 }}</span
+            >
+            <button
+              pButton
+              type="button"
+              label="Добавить клиента"
+              icon="pi pi-plus"
+              (click)="openNewClientWindow()"
+            ></button>
+          </div>
+          <div class="p-toolbar-group-right">
+            <p-button
+              size="small"
+              label="Обновить"
+              type="submit"
+              class="mr-2"
+            />
+            <p-button
+              size="small"
+              type="button"
+              label="Очистить"
+              (onClick)="clearFilters()"
+              class="mr-2"
+            >
+            </p-button>
+          </div>
+        </p-toolbar>
+      </form>
+    }
   </div>
 </div>
 
@@ -113,4 +113,6 @@
   ></za-pageagle-grid>
 </div>
 
-<za-spinner *ngIf="loading$ | async"></za-spinner>
+@if (loading$ | async) {
+  <za-spinner></za-spinner>
+}

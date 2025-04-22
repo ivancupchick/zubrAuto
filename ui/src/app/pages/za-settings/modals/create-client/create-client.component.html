@@ -1,11 +1,13 @@
-<div *ngIf="!client" class="p-field-checkbox col-12">
-  <p-checkbox
-    [formControl]="isJustCall"
-    [binary]="true"
-    inputId="binary"
-  ></p-checkbox>
-  <label for="binary">Просто звонок по автомобилям...</label>
-</div>
+@if (!client) {
+  <div class="p-field-checkbox col-12">
+    <p-checkbox
+      [formControl]="isJustCall"
+      [binary]="true"
+      inputId="binary"
+    ></p-checkbox>
+    <label for="binary">Просто звонок по автомобилям...</label>
+  </div>
+}
 
 <za-dynamic-form
   (changed)="setValidForm($event)"
@@ -13,39 +15,45 @@
   [fields]="dynamicFormFields"
 ></za-dynamic-form>
 
-<div class="p-field col-12" *ngIf="hasSelectionOfCars">
-  <span class="p-float-label access-wrapper">
-    <p-chips
-      inputId="chips"
-      class="p-inputwrapper-focus"
-      [(ngModel)]="selectedCars"
-      (onAdd)="onAddCar($event)"
-    >
-      <ng-template let-car pTemplate="item">
-        {{ car.markModel }}
-      </ng-template>
-    </p-chips>
-    <label for="chips">Машины (через запятую)</label>
-    <button
-      pButton
-      icon="pi pi-pencil"
-      type="button"
-      (click)="openEditCars()"
-    ></button>
-  </span>
-</div>
+@if (hasSelectionOfCars) {
+  <div class="p-field col-12">
+    <span class="p-float-label access-wrapper">
+      <p-chips
+        inputId="chips"
+        class="p-inputwrapper-focus"
+        [(ngModel)]="selectedCars"
+        (onAdd)="onAddCar($event)"
+      >
+        <ng-template let-car pTemplate="item">
+          {{ car.markModel }}
+        </ng-template>
+      </p-chips>
+      <label for="chips">Машины (через запятую)</label>
+      <button
+        pButton
+        icon="pi pi-pencil"
+        type="button"
+        (click)="openEditCars()"
+      ></button>
+    </span>
+  </div>
+}
 
-<div class="p-field col-12" *ngIf="hasSelectionOfCars">
-  <textarea
-    rows="5"
-    class="w-full"
-    pInputTextarea
-    placeholder="Описание"
-    [(ngModel)]="description"
-  ></textarea>
-</div>
+@if (hasSelectionOfCars) {
+  <div class="p-field col-12">
+    <textarea
+      rows="5"
+      class="w-full"
+      pInputTextarea
+      placeholder="Описание"
+      [(ngModel)]="description"
+    ></textarea>
+  </div>
+}
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}
 
 <div class="footer">
   <button

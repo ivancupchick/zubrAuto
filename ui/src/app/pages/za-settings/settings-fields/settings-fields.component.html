@@ -22,10 +22,10 @@
   </div>
 
   <!-- <div class="p-toolbar-group-right">
-        <p-button icon="pi pi-search"></p-button>
-        <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
-        <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button>
-    </div> -->
+  <p-button icon="pi pi-search"></p-button>
+  <p-button icon="pi pi-calendar" styleClass="p-button-success"></p-button>
+  <p-button icon="pi pi-times" styleClass="p-button-danger"></p-button>
+</div> -->
 </p-toolbar>
 <div class="grid-wrapper">
   <p-table [value]="sortedFields">
@@ -68,4 +68,6 @@
   </p-table>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

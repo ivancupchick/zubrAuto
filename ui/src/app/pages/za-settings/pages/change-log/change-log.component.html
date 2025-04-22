@@ -1,52 +1,51 @@
 <div class="card">
   <div class="card-body">
-    <form (ngSubmit)="onFilter()" *ngIf="form" [formGroup]="form">
-      <div
-        class="flex flex-row justify-content-start align-items-center row-gap-1 col-12"
-      >
-        <p-dropdown
-          formControlName="sourceName"
-          [options]="domains"
-          optionLabel="name"
-          optionValue="value"
-          placeholder="Выберите таблицу"
-          class="ng-dirty"
-          [showClear]="true"
-        />
-
-        <p-dropdown
-          class="ml-2"
-          [options]="users"
-          formControlName="userId"
-          [filter]="true"
-          filterBy="name"
-          optionLabel="name"
-          optionValue="id"
-          [showClear]="true"
-          placeholder="Выберите пользователя"
-        />
-
-        <p-calendar
-          class="ml-2"
-          appendTo="body"
-          [formControlName]="'date'"
-          [showTime]="false"
-          [firstDayOfWeek]="1"
-          placeholder="Дата от"
-        ></p-calendar>
-
-        <ng-container *ngIf="form.get('sourceName')?.value === 'clients'">
-          <label class="mx-2" for="sold">Показать проданные</label>
-          <p-checkbox
-            id="sold"
-            [(ngModel)]="sold"
-            [ngModelOptions]="{ standalone: true }"
-            [binary]="true"
-            inputId="binary"
+    @if (form) {
+      <form (ngSubmit)="onFilter()" [formGroup]="form">
+        <div
+          class="flex flex-row justify-content-start align-items-center row-gap-1 col-12"
+        >
+          <p-dropdown
+            formControlName="sourceName"
+            [options]="domains"
+            optionLabel="name"
+            optionValue="value"
+            placeholder="Выберите таблицу"
+            class="ng-dirty"
+            [showClear]="true"
           />
-        </ng-container>
-      </div>
-    </form>
+          <p-dropdown
+            class="ml-2"
+            [options]="users"
+            formControlName="userId"
+            [filter]="true"
+            filterBy="name"
+            optionLabel="name"
+            optionValue="id"
+            [showClear]="true"
+            placeholder="Выберите пользователя"
+          />
+          <p-calendar
+            class="ml-2"
+            appendTo="body"
+            [formControlName]="'date'"
+            [showTime]="false"
+            [firstDayOfWeek]="1"
+            placeholder="Дата от"
+          ></p-calendar>
+          @if (form.get('sourceName')?.value === 'clients') {
+            <label class="mx-2" for="sold">Показать проданные</label>
+            <p-checkbox
+              id="sold"
+              [(ngModel)]="sold"
+              [ngModelOptions]="{ standalone: true }"
+              [binary]="true"
+              inputId="binary"
+            />
+          }
+        </div>
+      </form>
+    }
   </div>
 
   <div
@@ -58,26 +57,26 @@
 </div>
 
 <!-- <p-toolbar>
-  <div class="p-toolbar-group-left">
-    <span>
-      Кол-во: {{ list.length }}
-    </span>
-    <button
-      pButton
-      type="button"
-      [disabled]="fieldConfigs.length === 0"
-      label="Добавить клиента"
-      icon="pi pi-plus"
-      (click)="openNewClientWindow()"
-    ></button>
-  </div>
+      <div class="p-toolbar-group-left">
+        <span>
+          Кол-во: {{ list.length }}
+        </span>
+        <button
+          pButton
+          type="button"
+          [disabled]="fieldConfigs.length === 0"
+          label="Добавить клиента"
+          icon="pi pi-plus"
+          (click)="openNewClientWindow()"
+        ></button>
+      </div>
 
-  <div class="p-toolbar-group-right">
-    <p-button size="small" (onClick)="refresh()" class="mr-2">
-      <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
-    </p-button>
-  </div>
-</p-toolbar> -->
+      <div class="p-toolbar-group-right">
+        <p-button size="small" (onClick)="refresh()" class="mr-2">
+          <i class="pi pi-refresh" [ngClass]="{'pi-spin': loading}"></i>
+        </p-button>
+      </div>
+    </p-toolbar> -->
 <div class="grid-wrapper">
   <za-pageagle-grid
     [gridConfig]="gridConfig"
@@ -89,4 +88,6 @@
   ></za-pageagle-grid>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

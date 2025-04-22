@@ -1,9 +1,13 @@
 <div class="p-content">
-  <span *ngIf="user === null">Авторизуйтесь!</span>
+  @if (user === null) {
+    <span>Авторизуйтесь!</span>
+  }
 </div>
 
 @if (user) {
-  <za-dashboard *ngIf="user"></za-dashboard>
+  @if (user) {
+    <za-dashboard></za-dashboard>
+  }
 } @else {
   <za-login-form></za-login-form>
 }

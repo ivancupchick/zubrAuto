@@ -1,106 +1,105 @@
-<p-panel *ngIf="loaded" header="Звонки">
-  <ng-template pTemplate="icons">
-    <form
-      *ngIf="form"
-      #ngForm="ngForm"
-      (ngSubmit)="refresh()"
-      [formGroup]="form"
-      class="gap-2"
-    >
-      <p-dropdown
-        appendTo="body"
-        size="small"
-        [options]="availableSpecialists"
-        formControlName="specialistNumber"
-        placeholder="Специалист"
-        optionLabel="name"
-        optionValue="number"
-      ></p-dropdown>
-
-      <input
-        pInputText
-        class="ml-2"
-        type="text"
-        formControlName="number"
-        pInputText
-        placeholder="Телефон"
-      />
-
-      <p-button size="small" (onClick)="refresh()" class="mr-2 mx-2">
-        <span>Фильтр </span>
-        <i
-          class="pi pi-refresh"
-          [ngClass]="{ 'pi-spin': callsDataService.loading$ | async }"
-        ></i>
-      </p-button>
-
-      <p-button size="small" (onClick)="clearFilters()" class="mr-2 mx-2">
-        <span>Очистить </span>
-      </p-button>
-    </form>
-  </ng-template>
-
-  <p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="refresh()">
-    <p-tabPanel header="Мои ({{ myPhoneTotal }})">
-      <!-- <div class="h-8rem">
-        <za-grid
-          *ngIf="gridConfig"
-          [fixedHeight]="140"
-          [virtualScroll]="false"
-          [gridConfig]="gridConfig"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [gridData]="myPhoneCalls"
-        ></za-grid>
-      </div> -->
-    </p-tabPanel>
-    <p-tabPanel *ngIf="!isCarSales" header="Все ({{ allPhoneTotal }})">
-      <!-- <div class="h-8rem">
-        <za-grid
-          *ngIf="gridConfig"
-          [fixedHeight]="140"
-          [virtualScroll]="false"
-          [gridConfig]="gridConfig"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [gridData]="allPhoneCalls"
-        ></za-grid>
-      </div> -->
-    </p-tabPanel>
-    <p-tabPanel header="Использованные ({{ usedPhoneTotal }})">
-      <!-- <div class="h-8rem">
-        <za-grid
-          *ngIf="gridConfig"
-          [fixedHeight]="140"
-          [virtualScroll]="false"
-          [gridConfig]="gridConfig"
-          [actions]="gridActionsConfig"
-          [getColorConfig]="getColorConfig"
-          [gridData]="usedPhoneCalls"
-        ></za-grid>
-      </div> -->
-    </p-tabPanel>
-  </p-tabView>
-
-  <div class="grid-wrapper h-12rem">
-    <za-pageagle-grid
-      *ngIf="(callsDataService.list$ | async)?.list?.length; else empty"
-      [gridConfig]="gridConfig"
-      [actions]="gridActionsConfig"
-      [getColorConfig]="getColorConfig"
-      [dataService]="callsDataService"
-      [sortField]="sortField"
-      [first]="first"
-    ></za-pageagle-grid>
-
-    <ng-template #empty>
-      <div
-        class="w-full h-full flex justify-content-center align-items-center surface-300"
-      >
-        <span>Нет записей</span>
-      </div>
+@if (loaded) {
+  <p-panel header="Звонки">
+    <ng-template pTemplate="icons">
+      @if (form) {
+        <form
+          #ngForm="ngForm"
+          (ngSubmit)="refresh()"
+          [formGroup]="form"
+          class="gap-2"
+        >
+          <p-dropdown
+            appendTo="body"
+            size="small"
+            [options]="availableSpecialists"
+            formControlName="specialistNumber"
+            placeholder="Специалист"
+            optionLabel="name"
+            optionValue="number"
+          ></p-dropdown>
+          <input
+            pInputText
+            class="ml-2"
+            type="text"
+            formControlName="number"
+            pInputText
+            placeholder="Телефон"
+          />
+          <p-button size="small" (onClick)="refresh()" class="mr-2 mx-2">
+            <span>Фильтр </span>
+            <i
+              class="pi pi-refresh"
+              [ngClass]="{ 'pi-spin': callsDataService.loading$ | async }"
+            ></i>
+          </p-button>
+          <p-button size="small" (onClick)="clearFilters()" class="mr-2 mx-2">
+            <span>Очистить </span>
+          </p-button>
+        </form>
+      }
     </ng-template>
-  </div>
-</p-panel>
+    <p-tabView [(activeIndex)]="activeIndex" (activeIndexChange)="refresh()">
+      <p-tabPanel header="Мои ({{ myPhoneTotal }})">
+        <!-- <div class="h-8rem">
+          <za-grid
+            *ngIf="gridConfig"
+            [fixedHeight]="140"
+            [virtualScroll]="false"
+            [gridConfig]="gridConfig"
+            [actions]="gridActionsConfig"
+            [getColorConfig]="getColorConfig"
+            [gridData]="myPhoneCalls"
+          ></za-grid>
+        </div> -->
+      </p-tabPanel>
+      @if (!isCarSales) {
+        <p-tabPanel header="Все ({{ allPhoneTotal }})">
+          <!-- <div class="h-8rem">
+          <za-grid
+            *ngIf="gridConfig"
+            [fixedHeight]="140"
+            [virtualScroll]="false"
+            [gridConfig]="gridConfig"
+            [actions]="gridActionsConfig"
+            [getColorConfig]="getColorConfig"
+            [gridData]="allPhoneCalls"
+          ></za-grid>
+        </div> -->
+        </p-tabPanel>
+      }
+      <p-tabPanel header="Использованные ({{ usedPhoneTotal }})">
+        <!-- <div class="h-8rem">
+      <za-grid
+        *ngIf="gridConfig"
+        [fixedHeight]="140"
+        [virtualScroll]="false"
+        [gridConfig]="gridConfig"
+        [actions]="gridActionsConfig"
+        [getColorConfig]="getColorConfig"
+        [gridData]="usedPhoneCalls"
+      ></za-grid>
+    </div> -->
+      </p-tabPanel>
+    </p-tabView>
+    <div class="grid-wrapper h-12rem">
+      @if ((callsDataService.list$ | async)?.list?.length) {
+        <za-pageagle-grid
+          [gridConfig]="gridConfig"
+          [actions]="gridActionsConfig"
+          [getColorConfig]="getColorConfig"
+          [dataService]="callsDataService"
+          [sortField]="sortField"
+          [first]="first"
+        ></za-pageagle-grid>
+      } @else {
+        <div
+          class="w-full h-full flex justify-content-center align-items-center surface-300"
+        >
+          <span>Нет записей</span>
+        </div>
+      }
+    </div>
+  </p-panel>
+}
 
 <!-- <za-spinner *ngIf="callsDataService.loading$ | async"></za-spinner> -->

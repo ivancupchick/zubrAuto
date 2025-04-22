@@ -6,7 +6,7 @@ import { Subject, finalize, takeUntil } from 'rxjs';
 import { ChangeLogDataService } from '../../services/change-log-data.service';
 import { DynamicDialogConfig } from 'primeng/dynamicdialog';
 import { ChangeLogItem } from '../../interfaces/change-log';
-import { CommonModule } from '@angular/common';
+
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { settingsClientsStrings } from 'src/app/pages/za-settings/settings-clients/settings-clients.strings';
 import { ServerClient } from 'src/app/entities/client';
@@ -22,7 +22,7 @@ import { RequestService } from 'src/app/services/request/request.service';
   templateUrl: './client-change-logs.component.html',
   styleUrls: ['./client-change-logs.component.scss'],
   standalone: true,
-  imports: [TableModule, TooltipModule, ContextMenuModule, CommonModule],
+  imports: [TableModule, TooltipModule, ContextMenuModule],
 })
 export class ClientChangeLogsComponent implements OnInit, OnDestroy {
   loading = false;

@@ -5,12 +5,13 @@
   (onShow)="onShow($event)"
 ></p-contextMenu>
 
-<ng-container
-  *ngIf="{
+@if (
+  {
     loading: (dataService.loading$ | async)!,
     data: (dataService.list$ | async)!,
-  } as uiData"
->
+  };
+  as uiData
+) {
   <p-table
     [lazy]="true"
     (onLazyLoad)="updatePage($event)"
@@ -34,21 +35,23 @@
   >
     <ng-template pTemplate="header">
       <tr>
-        <th *ngIf="checkboxMode" style="width: 3rem">
-          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-        </th>
-        <ng-container *ngFor="let config of gridConfig">
-          <th
-            *ngIf="config.sortable && config.sortable()"
-            [pSortableColumn]="config.name"
-          >
-            {{ config.title }} <p-sortIcon [field]="config.name"></p-sortIcon>
+        @if (checkboxMode) {
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
           </th>
-          <th *ngIf="!config.sortable || !config.sortable()">
-            {{ config.title }}
-          </th>
-        </ng-container>
-
+        }
+        @for (config of gridConfig; track config) {
+          @if (config.sortable && config.sortable()) {
+            <th [pSortableColumn]="config.name">
+              {{ config.title }} <p-sortIcon [field]="config.name"></p-sortIcon>
+            </th>
+          }
+          @if (!config.sortable || !config.sortable()) {
+            <th>
+              {{ config.title }}
+            </th>
+          }
+        }
         <!-- <th></th> -->
       </tr>
     </ng-template>
@@ -72,33 +75,37 @@
         [pContextMenuRow]="gridItem"
         [pSelectableRow]="gridItem"
       >
-        <td *ngIf="checkboxMode">
-          <!-- <p-tableCheckbox [value]="gridItem"></p-tableCheckbox> -->
-        </td>
-        <td *ngFor="let config of gridConfig">
-          {{ config.getValue(gridItem) }}
-        </td>
+        @if (checkboxMode) {
+          <td>
+            <!-- <p-tableCheckbox [value]="gridItem"></p-tableCheckbox> -->
+          </td>
+        }
+        @for (config of gridConfig; track config) {
+          <td>
+            {{ config.getValue(gridItem) }}
+          </td>
+        }
         <!-- <td class="buttons">
-          <button
-            *ngFor="let actionConfig of actions"
-            type="button"
-            pButton
-            [disabled]="actionConfig.disabled ? actionConfig.disabled() : false"
-            pRipple
-            icon="pi pi-{{actionConfig.icon}}"
-            class="p-button-{{actionConfig.buttonClass}}"
-            (click)="actionConfig.handler(gridItem)"
+        <button
+          *ngFor="let actionConfig of actions"
+          type="button"
+          pButton
+          [disabled]="actionConfig.disabled ? actionConfig.disabled() : false"
+          pRipple
+          icon="pi pi-{{actionConfig.icon}}"
+          class="p-button-{{actionConfig.buttonClass}}"
+          (click)="actionConfig.handler(gridItem)"
           >
-            {{ actionConfig?.title }}
-          </button>
-        </td> -->
+          {{ actionConfig?.title }}
+        </button>
+      </td> -->
       </tr>
     </ng-template>
     <!-- <ng-template pTemplate="paginatorleft">
-      <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
-    </ng-template>
-    <ng-template pTemplate="paginatorright">
-      <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
-    </ng-template> -->
+  <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
+</ng-template>
+<ng-template pTemplate="paginatorright">
+  <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
+</ng-template> -->
   </p-table>
-</ng-container>
+}

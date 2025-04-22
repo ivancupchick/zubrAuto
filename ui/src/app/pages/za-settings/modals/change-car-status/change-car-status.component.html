@@ -1,24 +1,28 @@
 <div class="wrapper">
   <div class="content">
-    <div *ngIf="availableStatuses.length > 1" class="status-wrapper">
-      <h5>Поменять статус на</h5>
-      <p-dropdown
-        appendTo="body"
-        [options]="statuses"
-        [(ngModel)]="selectedStatus"
-        placeholder="Выберите статус"
-        optionLabel="value"
-        optionValue="key"
-      ></p-dropdown>
-    </div>
+    @if (availableStatuses.length > 1) {
+      <div class="status-wrapper">
+        <h5>Поменять статус на</h5>
+        <p-dropdown
+          appendTo="body"
+          [options]="statuses"
+          [(ngModel)]="selectedStatus"
+          placeholder="Выберите статус"
+          optionLabel="value"
+          optionValue="key"
+        ></p-dropdown>
+      </div>
+    }
     <div class="comment-wrapper">
       <h5>Комментарий</h5>
       <input type="text" pInputText [(ngModel)]="comment" />
     </div>
-    <div *ngIf="isNextActionDateAvailable" class="dateOfNextAction-wrapper">
-      <h5>Дата следующего дейтсвия</h5>
-      <input type="text" pInputText [(ngModel)]="dateOfNextAction" />
-    </div>
+    @if (isNextActionDateAvailable) {
+      <div class="dateOfNextAction-wrapper">
+        <h5>Дата следующего дейтсвия</h5>
+        <input type="text" pInputText [(ngModel)]="dateOfNextAction" />
+      </div>
+    }
   </div>
 </div>
 
@@ -42,4 +46,6 @@
   ></button>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

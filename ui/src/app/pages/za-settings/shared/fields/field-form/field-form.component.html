@@ -21,12 +21,14 @@
     </span>
   </div>
 
-  <div *ngIf="isVisibleVariants" class="p-field p-col-12 p-md-4">
-    <span class="p-float-label">
-      <textarea pInputTextarea formControlName="variants"></textarea>
-      <label for="variants">Варианты (через запятую)</label>
-    </span>
-  </div>
+  @if (isVisibleVariants) {
+    <div class="p-field p-col-12 p-md-4">
+      <span class="p-float-label">
+        <textarea pInputTextarea formControlName="variants"></textarea>
+        <label for="variants">Варианты (через запятую)</label>
+      </span>
+    </div>
+  }
 
   <div class="p-field p-col-12 p-md-4">
     <div class="p-field-checkbox">
@@ -74,4 +76,6 @@
   </div>
 </form>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

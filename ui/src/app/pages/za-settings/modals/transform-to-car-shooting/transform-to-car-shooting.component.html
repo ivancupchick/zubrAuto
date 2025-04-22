@@ -15,9 +15,9 @@
       <input type="text" pInputText [(ngModel)]="comment" />
     </div>
     <!-- <div class="employ-wrapper">
-      <h5>Сотрудник</h5>
-      <p-dropdown appendTo="body" [options]="carShootingUsers" [(ngModel)]="selectedCarShootingUser" placeholder="Выберите содрудника" optionLabel="value" optionValue="key"></p-dropdown>
-    </div> -->
+    <h5>Сотрудник</h5>
+    <p-dropdown appendTo="body" [options]="carShootingUsers" [(ngModel)]="selectedCarShootingUser" placeholder="Выберите содрудника" optionLabel="value" optionValue="key"></p-dropdown>
+  </div> -->
   </div>
 </div>
 
@@ -41,4 +41,6 @@
   ></button>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

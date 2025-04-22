@@ -2,20 +2,21 @@
   <div class="content">
     <h5>Статистика</h5>
     <p-tabView styleClass="tabview-custom">
-      <p-tabPanel *ngFor="let tab of statisticsTab">
-        <ng-template pTemplate="header">
-          <i class="pi pi-calendar"></i>
-          <span>{{ tab.title }}</span>
-        </ng-template>
-
-        <div>
-          <p-chart
-            type="line"
-            [data]="tab.data"
-            [options]="tab.options"
-          ></p-chart>
-        </div>
-      </p-tabPanel>
+      @for (tab of statisticsTab; track tab) {
+        <p-tabPanel>
+          <ng-template pTemplate="header">
+            <i class="pi pi-calendar"></i>
+            <span>{{ tab.title }}</span>
+          </ng-template>
+          <div>
+            <p-chart
+              type="line"
+              [data]="tab.data"
+              [options]="tab.options"
+            ></p-chart>
+          </div>
+        </p-tabPanel>
+      }
       <p-tabPanel>
         <ng-template pTemplate="header">
           <i class="pi pi-pencil"></i>
@@ -74,4 +75,6 @@
   ></button>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}

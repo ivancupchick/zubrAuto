@@ -20,7 +20,9 @@
   </span>
 </div>
 
-<za-spinner *ngIf="loading"></za-spinner>
+@if (loading) {
+  <za-spinner></za-spinner>
+}
 
 <div class="footer">
   <button

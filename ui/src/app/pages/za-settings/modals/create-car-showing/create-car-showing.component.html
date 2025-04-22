@@ -1,27 +1,31 @@
 <!-- <form> -->
-<div *ngIf="carsOptions.length > 1" class="cars-wrapper">
-  <h5>Выберите машину</h5>
-  <p-dropdown
-    appendTo="body"
-    [options]="carsOptions"
-    [(ngModel)]="selectedCarId"
-    placeholder="Выберите машину"
-    optionLabel="value"
-    optionValue="key"
-  ></p-dropdown>
-</div>
+@if (carsOptions.length > 1) {
+  <div class="cars-wrapper">
+    <h5>Выберите машину</h5>
+    <p-dropdown
+      appendTo="body"
+      [options]="carsOptions"
+      [(ngModel)]="selectedCarId"
+      placeholder="Выберите машину"
+      optionLabel="value"
+      optionValue="key"
+    ></p-dropdown>
+  </div>
+}
 
-<div *ngIf="carsOptions.length > 1" class="status-wrapper">
-  <h5>Выберите статус</h5>
-  <p-dropdown
-    appendTo="body"
-    [options]="statuses"
-    [(ngModel)]="selectedStatus"
-    placeholder="Выберите статус"
-    optionLabel="value"
-    optionValue="key"
-  ></p-dropdown>
-</div>
+@if (carsOptions.length > 1) {
+  <div class="status-wrapper">
+    <h5>Выберите статус</h5>
+    <p-dropdown
+      appendTo="body"
+      [options]="statuses"
+      [(ngModel)]="selectedStatus"
+      placeholder="Выберите статус"
+      optionLabel="value"
+      optionValue="key"
+    ></p-dropdown>
+  </div>
+}
 
 <div class="status-wrapper">
   <h5>Выберите дату и время показа</h5>
