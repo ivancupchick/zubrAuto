@@ -36,8 +36,6 @@ import { SessionService } from 'src/app/services/session/session.service';
 import { ServerUser } from 'src/app/entities/user';
 import { finalize, map, mergeMap, of } from 'rxjs';
 import { ClientPreviewComponent } from '../../client/modals/client-preview/client-preview.component';
-
-
 import { CheckboxModule } from 'primeng/checkbox';
 import { ChipsModule } from 'primeng/chips';
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
@@ -59,7 +57,7 @@ import * as moment from 'moment';
     ButtonModule,
     InputTextareaModule,
     DynamicFormComponent,
-],
+  ],
 })
 export class CreateClientComponent implements OnInit {
   loading = false;

@@ -44,18 +44,11 @@ import { FieldFormComponent } from './shared/fields/field-form/field-form.compon
 import { SettingsClientsComponent } from './settings-clients/settings-clients.component';
 import { GridComponent } from './shared/grid/grid.component';
 import { CreateClientComponent } from './modals/create-client/create-client.component';
-import { FieldService } from 'src/app/services/field/field.service';
 import { SettingsCarsComponent } from './settings-cars/settings-cars.component';
 import { CreateCarComponent } from './modals/create-car/create-car.component';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { AuthInterceptor } from 'src/app/interceptors/auth.interceptor';
+import { HttpClientModule } from '@angular/common/http';
 import { AuthGuard } from './auth.guard';
-import { SessionService } from 'src/app/services/session/session.service';
 import { SettingsResolver } from './settings.resolver';
-import { AuthService } from 'src/app/services/auth/auth.service';
-
-
-import { RequestService } from 'src/app/services/request/request.service';
 import { SettingsRolesComponent } from './settings-roles/settings-roles.component';
 import { CreateRoleComponent } from './modals/create-role/create-role.component';
 import { SettingsUsersComponent } from './settings-users/settings-users.component';
@@ -74,17 +67,12 @@ import { ManageCarShowingComponent } from './modals/manage-car-showing/manage-ca
 import { CreateCarShowingComponent } from './modals/create-car-showing/create-car-showing.component';
 import { CustomerServiceCallComponent } from './modals/customer-service-call/customer-service-call.component';
 import { CompleteClientDealComponent } from './modals/complete-client-deal/complete-client-deal.component';
-import { ServerErrorMessageInterceptor } from 'src/app/services/interseptors/server-error-message-interceptor.service';
-import { MessageService } from 'primeng/api';
 import { ChangeCarOwnerNumberComponent } from './modals/change-car-owner-number/change-car-owner-number.component';
 import { ClientPreviewComponent } from './client/modals/client-preview/client-preview.component';
 import { HighlightModule } from 'ngx-highlightjs';
 
 import { SpinnerComponent } from 'src/app/shared/components/spinner/spinner.component';
-import { UserService } from 'src/app/services/user/user.service';
-import { CarService } from 'src/app/services/car/car.service';
 import { ClientChangeLogsComponent } from './pages/change-log/componets/client-change-logs/client-change-logs.component';
-import { ClientService } from 'src/app/services/client/client.service';
 import { ClientsBaseComponent } from './pages/clients-base/clients-base.component';
 import { CarsBaseComponent } from './pages/cars-base/cars-base.component';
 import { LoginFormComponent } from './pages/login-form/login-form.component';
@@ -232,6 +220,6 @@ const routes: Routes = [
     CompleteClientDealComponent,
     ChangeCarOwnerNumberComponent,
     ClientPreviewComponent,
-],
+  ],
 })
 export class ZASettingsModule {}
