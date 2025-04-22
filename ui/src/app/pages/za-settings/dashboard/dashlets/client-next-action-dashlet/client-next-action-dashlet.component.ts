@@ -95,7 +95,7 @@ export class ClientNextActionDashletComponent implements OnInit, OnDestroy {
   allCars: ServerCar.Response[] = [];
 
   destoyed = new Subject();
-  loading$ = this.clientNextActionDataService.loading$;
+  loading = this.clientNextActionDataService.loading;
 
   loaded = false;
 

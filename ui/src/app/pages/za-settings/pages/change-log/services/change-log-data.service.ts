@@ -1,4 +1,10 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import {
+  DestroyRef,
+  inject,
+  Injectable,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import { ChangeLogItem } from '../interfaces/change-log';
 import {
@@ -13,6 +19,7 @@ import { RequestService } from 'src/app/services/request/request.service';
 import { environment } from 'src/environments/environment';
 import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 const API = 'change-log';
 
@@ -23,27 +30,21 @@ type ChangeLogFilters = {
 @Injectable({
   providedIn: 'root',
 })
-export class ChangeLogDataService
-  extends PageagleGridService<ChangeLogItem>
-  implements OnDestroy
-{
-  private loading = new BehaviorSubject<boolean>(false);
-  public loading$ = this.loading.asObservable();
-
-  private changeLogs = new BehaviorSubject<BaseList<ChangeLogItem>>({
+export class ChangeLogDataService extends PageagleGridService<ChangeLogItem> {
+  loading = signal<boolean>(false);
+  list = signal<BaseList<ChangeLogItem>>({
     list: [],
     total: 0,
   });
-  public list$ = this.changeLogs.asObservable();
 
-  private destroy$ = new Subject();
+  private destroyRef = inject(DestroyRef);
 
   constructor(private requestService: RequestService) {
     super();
   }
 
   public fetchData() {
-    this.loading.next(true);
+    this.loading.set(true);
 
     this.requestService
       .get<BaseList<ChangeLogItem>>(
@@ -51,11 +52,11 @@ export class ChangeLogDataService
         this.payload,
       )
       .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.loading.next(false)),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
       )
       .subscribe((res) => {
-        this.changeLogs.next(res);
+        this.list.set(res);
       });
   }
 
@@ -88,9 +89,5 @@ export class ChangeLogDataService
       `${environment.serverUrl}/${API}`,
       { ...payload },
     );
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
   }
 }

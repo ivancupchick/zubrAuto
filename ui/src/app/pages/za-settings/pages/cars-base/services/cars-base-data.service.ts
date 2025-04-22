@@ -1,4 +1,10 @@
-import { inject, Injectable, OnDestroy } from '@angular/core';
+import {
+  DestroyRef,
+  inject,
+  Injectable,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import {
   BehaviorSubject,
@@ -21,28 +27,23 @@ import { CarService } from 'src/app/services/car/car.service';
 import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { FieldService } from 'src/app/services/field/field.service';
 import { FieldDomains } from 'src/app/entities/field';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 const API = 'cars/crud';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CarsBaseDataService
-  extends PageagleGridService<ServerCar.Response>
-  implements OnDestroy
-{
-  private loading = new BehaviorSubject<boolean>(true);
-  public loading$ = this.loading.asObservable();
-
-  public carsBaseItems = new BehaviorSubject<BaseList<ServerCar.Response>>({
+export class CarsBaseDataService extends PageagleGridService<ServerCar.Response> {
+  loading = signal<boolean>(true);
+  list = signal<BaseList<ServerCar.Response>>({
     list: [],
     total: 0,
   });
-  public list$ = this.carsBaseItems.asObservable();
 
   public filters$ = new BehaviorSubject<any>({});
 
-  private destroy$ = new Subject();
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private requestService: RequestService,
@@ -52,21 +53,21 @@ export class CarsBaseDataService
   }
 
   public fetchData(): void {
-    this.loading.next(true);
+    this.loading.set(true);
     this.requestService
       .get<BaseList<ServerCar.Response>>(
         `${environment.serverUrl}/${API}`,
         this.payload,
       )
       .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.loading.next(false)),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
       )
       .subscribe((carsRes) => {
         console.log(carsRes);
         // this.clientCarsSubject.next(carsRes as unknown as ServerCar.Response[]);
-        this.carsBaseItems.next({ list: carsRes.list, total: carsRes.total });
-        this.loading.next(false);
+        this.list.set({ list: carsRes.list, total: carsRes.total });
+        this.loading.set(false);
       });
   }
 
@@ -90,8 +91,8 @@ export class CarsBaseDataService
         `${environment.serverUrl}/${API}/${Constants.API.CRUD}/${id}`,
       )
       .pipe(
-        takeUntil(this.destroy$),
-        finalize(() => this.loading.next(false)),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
         map((result) => {
           console.log(result);
 
@@ -106,9 +107,5 @@ export class CarsBaseDataService
 
   getCarOwnersFields() {
     return this.fieldService.getFieldsByDomain(FieldDomains.CarOwner);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
   }
 }

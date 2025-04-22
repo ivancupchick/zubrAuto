@@ -1,4 +1,10 @@
-import { Injectable, OnDestroy, inject } from '@angular/core';
+import {
+  DestroyRef,
+  Injectable,
+  OnDestroy,
+  inject,
+  signal,
+} from '@angular/core';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import { ClientService } from 'src/app/services/client/client.service';
 import {
@@ -18,6 +24,7 @@ import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { CarService } from 'src/app/services/car/car.service';
 import { ServerCar } from 'src/app/entities/car';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type ClientNextActionFilters = {
   [key: string]: number | string;
@@ -26,28 +33,22 @@ type ClientNextActionFilters = {
 @Injectable({
   providedIn: 'root',
 })
-export class ClientNextActionDataService
-  extends PageagleGridService<ServerClient.Response>
-  implements OnDestroy
-{
-  private loading = new BehaviorSubject<boolean>(false);
-  public loading$ = this.loading.asObservable();
-
-  private clients = new BehaviorSubject<BaseList<ServerClient.Response>>({
+export class ClientNextActionDataService extends PageagleGridService<ServerClient.Response> {
+  loading = signal<boolean>(false);
+  list = signal<BaseList<ServerClient.Response>>({
     list: [],
     total: 0,
   });
-  public list$ = this.clients.asObservable();
 
   private clientCarsSubject = new BehaviorSubject<ServerCar.Response[]>([]);
   public clientCars$ = this.clientCarsSubject.asObservable();
 
-  private destroy$ = new Subject();
+  private destroyRef = inject(DestroyRef);
   private clientService = inject(ClientService);
   private carService = inject(CarService);
 
   public fetchData() {
-    this.loading.next(true);
+    this.loading.set(true);
 
     this.clientService
       .getClientsByQuery(this.payload as unknown as any) // TODO fix
@@ -68,14 +69,14 @@ export class ClientNextActionDataService
 
           return zip(of(clientRes), this.carService.getCarsByQuery(query));
         }),
-        takeUntil(this.destroy$),
-        finalize(() => this.loading.next(false)),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
       )
       .subscribe(([clientsRes, carsRes]) => {
         if (!Array.isArray(carsRes)) {
           // TODO fix
           this.clientCarsSubject.next(carsRes.list);
-          this.clients.next(clientsRes);
+          this.list.set(clientsRes);
         }
       });
   }
@@ -97,9 +98,5 @@ export class ClientNextActionDataService
     this.payload = payload;
 
     this.fetchData();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
   }
 }

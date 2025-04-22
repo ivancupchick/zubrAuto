@@ -68,10 +68,7 @@
         </div>
         <p-toolbar>
           <div class="p-toolbar-group-left">
-            <span
-              >Кол-во:
-              {{ (clientBaseDataService.list$ | async)?.total || 0 }}</span
-            >
+            <span>Кол-во: {{ list().total || 0 }}</span>
             <button
               pButton
               type="button"
@@ -113,6 +110,6 @@
   ></za-pageagle-grid>
 </div>
 
-@if (loading$ | async) {
+@if (loading()) {
   <za-spinner></za-spinner>
 }

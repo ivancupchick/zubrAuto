@@ -64,7 +64,7 @@
                 <i
                   class="pi pi-refresh"
                   [ngClass]="{
-                    'pi-spin': callRequestsDataService.loading$ | async,
+                    'pi-spin': callRequestsDataService.loading(),
                   }"
                 ></i>
               </p-button>
@@ -120,7 +120,7 @@
       </p-tabPanel>
     </p-tabView>
     <div class="grid-wrapper h-12rem">
-      @if ((callRequestsDataService.list$ | async)?.list?.length) {
+      @if (callRequestsDataService.list().total) {
         <za-pageagle-grid
           [gridConfig]="gridConfig"
           [actions]="gridActionsConfig"

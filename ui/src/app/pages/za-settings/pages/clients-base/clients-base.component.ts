@@ -90,8 +90,8 @@ export class ClientsBaseComponent implements OnInit, OnDestroy {
   gridActionsConfig: GridActionConfigItem<ServerClient.Response>[] = [];
   getColorConfig: ((item: ServerClient.Response) => string) | undefined;
 
-  loading$ = this.clientBaseDataService.loading$;
-  list$ = this.clientBaseDataService.list$;
+  loading = this.clientBaseDataService.loading;
+  list = this.clientBaseDataService.list;
   destoyed = new Subject();
 
   constructor(

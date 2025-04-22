@@ -131,7 +131,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
   gridActionsConfig: GridActionConfigItem<ServerCar.Response>[] = [];
 
   // новое
-  loading$ = this.carsBaseDataService.loading$;
+  loading = this.carsBaseDataService.loading;
   availableCarStatuses: {
     label: FieldNames.CarStatus;
     value: FieldNames.CarStatus;
@@ -159,7 +159,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
   getColorConfig: ((item: ServerCar.Response) => string) | undefined;
 
-  list$ = this.carsBaseDataService.list$;
+  list = this.carsBaseDataService.list;
   destroyed = new Subject();
 
   FieldNames = FieldNames;
@@ -216,7 +216,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
         if (oldType !== this.type) {
           this.initCars();
-          this.carsBaseDataService.carsBaseItems.next({
+          this.carsBaseDataService.list.set({
             list: [],
             total: 0,
           });
@@ -1843,7 +1843,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed.next(null);
-    this.carsBaseDataService.carsBaseItems.next({
+    this.carsBaseDataService.list.set({
       list: [],
       total: 0,
     });

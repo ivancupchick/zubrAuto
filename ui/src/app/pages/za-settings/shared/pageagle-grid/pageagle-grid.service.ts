@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { Injectable, WritableSignal } from '@angular/core';
 import { BaseList } from 'src/app/entities/constants';
 import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
 import { skipEmptyFilters } from 'src/app/shared/utils/form-filter.util';
@@ -22,8 +21,8 @@ export type CarsBaseFilters = PageableData & FiltersData;
   providedIn: 'root',
 })
 export abstract class PageagleGridService<ResponseItemType> {
-  public abstract list$: Observable<BaseList<ResponseItemType>>;
-  public abstract loading$: Observable<boolean>;
+  public abstract list: WritableSignal<BaseList<ResponseItemType>>;
+  public abstract loading: WritableSignal<boolean>;
 
   protected payload: CarsBaseFilters = {
     page: 1,

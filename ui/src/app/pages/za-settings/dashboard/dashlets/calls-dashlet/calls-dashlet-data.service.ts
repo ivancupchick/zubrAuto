@@ -1,4 +1,10 @@
-import { inject, Injectable, OnDestroy } from '@angular/core';
+import {
+  DestroyRef,
+  inject,
+  Injectable,
+  OnDestroy,
+  signal,
+} from '@angular/core';
 import {
   BehaviorSubject,
   finalize,
@@ -17,6 +23,7 @@ import { environment } from 'src/environments/environment';
 import { PageagleGridService } from '../../../shared/pageagle-grid/pageagle-grid.service';
 import { FieldNames } from 'src/app/entities/FieldNames';
 import { ZASortDirection } from 'src/app/shared/enums/sort-direction.enum';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 type CallDashletFilters = {
   [key: string]: number | string;
@@ -25,18 +32,12 @@ type CallDashletFilters = {
 @Injectable({
   providedIn: 'root',
 })
-export class CallsDashletDataService
-  extends PageagleGridService<ServerPhoneCall.Response>
-  implements OnDestroy
-{
-  private loading = new BehaviorSubject<boolean>(false);
-  public loading$ = this.loading.asObservable();
-
-  private calls = new BehaviorSubject<BaseList<ServerPhoneCall.Response>>({
+export class CallsDashletDataService extends PageagleGridService<ServerPhoneCall.Response> {
+  loading = signal<boolean>(false);
+  list = signal<BaseList<ServerPhoneCall.Response>>({
     list: [],
     total: 0,
   });
-  public list$ = this.calls.asObservable();
 
   private clientsSubject = new BehaviorSubject<BaseList<ServerClient.Response>>(
     { list: [], total: 0 },
@@ -45,7 +46,7 @@ export class CallsDashletDataService
 
   ready = false;
 
-  private destroy$ = new Subject();
+  private destroyRef = inject(DestroyRef);
   private clientService = inject(ClientService);
   private requestService = inject(RequestService);
 
@@ -53,7 +54,7 @@ export class CallsDashletDataService
     if (!this.ready) {
       return;
     }
-    this.loading.next(true);
+    this.loading.set(true);
 
     this.requestService
       .get<BaseList<ServerPhoneCall.Response>>(
@@ -75,12 +76,12 @@ export class CallsDashletDataService
               : of({ list: [], total: 0 }),
           );
         }),
-        takeUntil(this.destroy$),
-        finalize(() => this.loading.next(false)),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false)),
       )
       .subscribe(([callsRes, clientRes]) => {
         this.clientsSubject.next(clientRes);
-        this.calls.next(callsRes);
+        this.list.set(callsRes);
       });
   }
 
@@ -101,9 +102,5 @@ export class CallsDashletDataService
     this.payload = payload;
 
     this.fetchData();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next(null);
   }
 }

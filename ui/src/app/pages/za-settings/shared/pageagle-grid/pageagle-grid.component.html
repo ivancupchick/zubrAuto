@@ -7,8 +7,8 @@
 
 @if (
   {
-    loading: (dataService.loading$ | async)!,
-    data: (dataService.list$ | async)!,
+    loading: dataService.loading()!,
+    data: dataService.list()!,
   };
   as uiData
 ) {

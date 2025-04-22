@@ -71,7 +71,6 @@ export enum TabIndex {
     NgClass,
     TabViewModule,
     PageagleGridComponent,
-    AsyncPipe,
   ],
 })
 export class CallRequestsDashletComponent implements OnInit, OnDestroy {

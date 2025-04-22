@@ -178,10 +178,7 @@
           <div class="p-toolbar-group-left">
             <span>Выбрано автомобилей: {{ getAllSelectedCars() }}</span>
             <span>Всего автомобилей: {{ sortedCars.length }}</span>
-            <span
-              >Кол-во:
-              {{ (carsBaseDataService.list$ | async)?.total || 0 }}</span
-            >
+            <span>Кол-во: {{ list().total }}</span>
             <!-- Быть не должно, но уверен  еще пригодится-->
             <button
               pButton
@@ -216,6 +213,6 @@
   ></za-pageagle-grid>
 </div>
 
-@if (loading$ | async) {
+@if (loading()) {
   <za-spinner></za-spinner>
 }

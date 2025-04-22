@@ -29,7 +29,7 @@
             <span>Фильтр </span>
             <i
               class="pi pi-refresh"
-              [ngClass]="{ 'pi-spin': callsDataService.loading$ | async }"
+              [ngClass]="{ 'pi-spin': callsDataService.loading() }"
             ></i>
           </p-button>
           <p-button size="small" (onClick)="clearFilters()" class="mr-2 mx-2">
@@ -82,7 +82,7 @@
       </p-tabPanel>
     </p-tabView>
     <div class="grid-wrapper h-12rem">
-      @if ((callsDataService.list$ | async)?.list?.length) {
+      @if (callsDataService.list().total) {
         <za-pageagle-grid
           [gridConfig]="gridConfig"
           [actions]="gridActionsConfig"

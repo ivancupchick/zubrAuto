@@ -195,14 +195,20 @@ export class CreateClientComponent implements OnInit {
     query[FieldNames.Car.status] =
       CarStatusLists[QueryCarTypes.carsForSale].join(',');
 
+    const carIds =
+      (this.client &&
+        this.client.carIds &&
+        this.client.carIds
+          .split(',')
+          .map((a) => (!Number.isNaN(+a) ? +a : a))
+          .filter((a) => !Number.isNaN(+a))) ||
+      [];
     const obs =
-      this.client && this.client.carIds && this.client.carIds.split(',').length
+      this.client && carIds.length
         ? this.carService
             .getCarsByQuery(
               Object.assign(query, {
-                id: this.client.carIds
-                  .split(',')
-                  .map((a) => (!Number.isNaN(+a) ? +a : a)),
+                id: carIds,
               }),
             )
             .pipe(map((res) => res.list))

@@ -51,7 +51,7 @@
   <div
     class="flex flex-row justify-content-between align-items-center row-gap-1 col-12"
   >
-    <span>Кол-во: {{ (changeLogDataService.list$ | async)?.total || 0 }}</span>
+    <span>Кол-во: {{ changeLogDataService.list().total || 0 }}</span>
     <p-button label="Filter" (onClick)="onFilter()" />
   </div>
 </div>
