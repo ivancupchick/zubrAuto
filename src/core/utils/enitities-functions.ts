@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { StringHash } from 'src/temp/models/hashes';
+import { getSpecialFilterByOperator } from './prisma-sort.utils';
 
 type NaturalDelegate =
   | Prisma.activitiesDelegate
@@ -10,8 +11,8 @@ type NaturalDelegate =
   | Prisma.carOwnersDelegate;
 
 export class BaseQuery {
-  page: number;
-  size: number;
+  page: string;
+  size: string;
   sortOrder: Prisma.SortOrder;
   sortField: string;
 }
@@ -19,10 +20,15 @@ export class BaseQuery {
 export async function getEntityIdsByNaturalQuery<T extends { id: number }>(
   repository: NaturalDelegate,
   query: StringHash<any>,
+  sortOrderr: string = null,
 ): Promise<number[]> {
   // TODO refactor all this
   const ids = new Set<string>(query['id']?.split(',') || []);
   delete query['id'];
+
+  if (!ids.size && !Object.keys(query).length) {
+    return [];
+  }
 
   const { sortOrder, sortField } = query;
   delete query['sortOrder'];
@@ -53,7 +59,7 @@ export async function getEntityIdsByNaturalQuery<T extends { id: number }>(
         orderBy: {
           [sortField || 'id']:
             (sortOrder?.toLowerCase() as Prisma.SortOrder) ||
-            Prisma.SortOrder.desc,
+            Prisma.SortOrder.asc,
         },
       });
       return entities.map((e) => +e.id);
@@ -74,44 +80,7 @@ export async function getEntityIdsByNaturalQuery<T extends { id: number }>(
     specialColumnNames.forEach((cn, chIndex) => {
       const operatorName = specialColumnNameOperators[chIndex];
 
-      switch (
-        query[operatorName] // TODO use DRY please
-      ) {
-        case '<':
-          where[cn] = {
-            lte: query[cn],
-          };
-          break;
-        case '>':
-          where[cn] = {
-            gte: query[cn],
-          };
-          break;
-        case 'range':
-          const values: [string, string] = query[cn].split('-') as [
-            string,
-            string,
-          ]; // TODO controller validation
-
-          where[cn] = {
-            lte: values[1],
-            gte: values[0],
-          };
-          break;
-        case 'like':
-        case 'LIKE':
-          where[cn] = {
-            contains: query[cn], // TODO test
-          };
-          break;
-      }
-
-      // if (operatorName === 'range') {
-      //   const values: [string, string] = query[cn].split('-') as [string, string]; // TODO controller validation
-      //   return `(${cn} > '${values[0]}' AND ${cn} < '${values[1]}')`
-      // }
-
-      // return `(${cn} ${query[operatorName]} '${query[cn]}')`
+      where[cn] = getSpecialFilterByOperator(query, query[operatorName], cn);
     });
 
     specialColumnEntities = await (repository as any).findMany({

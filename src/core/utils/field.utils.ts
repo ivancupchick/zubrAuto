@@ -5,7 +5,7 @@ import { FieldType } from '../fields/fields';
 
 export const getFieldChainsValue = (
   query: StringHash,
-  fields: Models.Field[],
+  fields: Pick<Models.Field, 'name' | 'type' | 'variants'>[],
 ): string[] => {
   fields.forEach((f) => {
     if (f.type === FieldType.Dropdown || f.type === FieldType.Multiselect) {

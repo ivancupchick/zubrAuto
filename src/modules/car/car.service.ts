@@ -13,7 +13,10 @@ import { ServerCar } from 'src/temp/entities/Car';
 import { FieldsUtils, getFieldsWithValues } from 'src/core/utils/field.utils';
 import { FieldDomains } from 'src/core/fields/fields';
 import { CarInfoGetterService } from './services/car-info-getter.service';
-import { getEntityIdsByNaturalQuery } from 'src/core/utils/enitities-functions';
+import {
+  BaseQuery,
+  getEntityIdsByNaturalQuery,
+} from 'src/core/utils/enitities-functions';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -32,6 +35,8 @@ export class CarService {
     carOwners: Models.CarOwner[],
     carOwnerFields: ServerField.Response[],
   ) {
+    // const start = new Date().getTime();
+
     if (cars.length === 0) {
       return [];
     }
@@ -144,6 +149,9 @@ export class CarService {
       };
     });
 
+    // const end = new Date().getTime();
+    // console.log(`cars getCars...: ${end - start}ms`);
+
     return result;
   }
 
@@ -179,312 +187,222 @@ export class CarService {
     return this.getCars(cars, carFields, carOwners, carOwnerFields);
   }
 
-  async findMany(query: StringHash) {
-    const { page, size, sortOrder, sortField } = query;
-    delete query['page'];
-    delete query['size'];
-    delete query['sortOrder'];
-    delete query['sortField'];
+  async findMany(query: BaseQuery & StringHash) {
+    // const methodStart = performance.now();
+    // const logTime = () => `${(performance.now() - methodStart).toFixed(0)}ms`;
+    const { page, size, sortOrder, sortField, ...filterParams } = query;
 
-    const naturalFields = ['createdDate', 'ownerId'];
-    let naturalQuery = {};
+    const DIRECT_FIELDS = ['createdDate', 'ownerId', 'id'];
+    const OWNER_FIELDS = [FieldNames.CarOwner.name];
+    const OWNER_DIRECT_FIELDS = ['number'];
 
-    for (const key in query) {
-      if (Object.prototype.hasOwnProperty.call(query, key)) {
-        if (naturalFields.includes(key)) {
-          naturalQuery[key] = query[key];
-          delete query[key];
-        }
-
-        if (key.indexOf('filter-operator-') === 0) {
-          if (naturalFields.includes(key.split('-')[2])) {
-            naturalQuery[key] = query[key];
-            delete query[key];
+    const extractQuery = (fields, source) => {
+      return Object.keys(source).reduce((prev, key) => {
+        if (fields.includes(key)) {
+          prev[key] = source[key];
+          delete source[key];
+        } else if (key.startsWith('filter-operator-')) {
+          const field = key.split('-')[2];
+          if (fields.includes(field)) {
+            prev[key] = source[key];
+            delete source[key];
           }
         }
-      }
-    }
+        return prev;
+      }, {});
+    };
 
-    const ownerFields = [FieldNames.CarOwner.name] as string[];
-    let ownerQuery = {};
+    const directQuery = extractQuery(DIRECT_FIELDS, filterParams);
+    const ownerQuery = extractQuery(OWNER_FIELDS, filterParams);
+    const ownerDirectQuery = extractQuery(OWNER_DIRECT_FIELDS, filterParams);
 
-    for (const key in query) {
-      if (Object.prototype.hasOwnProperty.call(query, key)) {
-        if (ownerFields.includes(key)) {
-          ownerQuery[key] = query[key];
-          delete query[key];
-        }
-
-        if (key.indexOf('filter-operator-') === 0) {
-          if (ownerFields.includes(key.split('-')[2])) {
-            ownerQuery[key] = query[key];
-            delete query[key];
-          }
-        }
-      }
-    }
-
-    const ownerNaturalFields = ['number'] as string[];
-    let ownerNaturalQuery = {};
-
-    for (const key in query) {
-      if (Object.prototype.hasOwnProperty.call(query, key)) {
-        if (ownerNaturalFields.includes(key)) {
-          ownerNaturalQuery[key] = query[key];
-          delete query[key];
-        }
-
-        if (key.indexOf('filter-operator-') === 0) {
-          if (ownerNaturalFields.includes(key.split('-')[2])) {
-            ownerNaturalQuery[key] = query[key];
-            delete query[key];
-          }
-        }
-      }
-    }
-
-    let searchCarIds: number[] = Object.values(query).length
-      ? await this.fieldChainService.getEntityIdsByQuery(
+    const [customIds, ownerIds, directIds, ownerDirectIds]: number[][] =
+      await Promise.all([
+        this.fieldChainService.getEntityIdsByQuery(
           Models.Table.Cars,
           FieldDomains.Car,
-          query,
-        )
-      : [];
-
-    const ownerSearchCarIds = Object.values(ownerQuery).length
-      ? await this.fieldChainService.getEntityIdsByQuery(
-          Models.Table.CarOwners,
-          FieldDomains.CarOwner,
-          ownerQuery,
-        )
-      : [];
-
-    if (Object.values(ownerQuery).length) {
-      searchCarIds = searchCarIds.filter((id) =>
-        ownerSearchCarIds.includes(id),
-      );
-    }
-
-    const naturalsearchCarIds =
-      Object.values(naturalQuery).length ||
-      (sortField && naturalFields.includes(sortField))
-        ? await getEntityIdsByNaturalQuery(
-            this.prisma.cars,
-            sortField && naturalFields.includes(sortField)
-              ? { ...naturalQuery, sortOrder, sortField }
-              : naturalQuery,
+          filterParams,
+          sortOrder,
+        ),
+        this.fieldChainService
+          .getEntityIdsByQuery(
+            Models.Table.CarOwners,
+            FieldDomains.CarOwner,
+            ownerQuery,
           )
-        : [];
+          .then((ids) => {
+            if (!ids.length) {
+              return [];
+            }
 
-    const naturalsearchOwnerCarIds = Object.values(ownerNaturalQuery).length
-      ? await getEntityIdsByNaturalQuery(
+            return this.prisma.cars
+              .findMany({
+                where: { ownerId: { in: ids } },
+                select: { id: true },
+                orderBy: {
+                  id: sortOrder || 'asc',
+                },
+              })
+              .then((ids) => ids.map((c) => c.id));
+          }),
+        getEntityIdsByNaturalQuery(this.prisma.cars, directQuery, sortOrder),
+        getEntityIdsByNaturalQuery(
           this.prisma.carOwners,
-          ownerNaturalQuery,
-        )
-      : [];
-
-    let carsIds = [...searchCarIds];
-
-    if (
-      (Object.values(query).length || Object.values(ownerQuery).length) &&
-      (Object.values(naturalQuery).length ||
-        (sortField && naturalFields.includes(sortField)))
-    ) {
-      carsIds = searchCarIds.filter((id) => naturalsearchCarIds.includes(id));
-    } else if (
-      !(Object.values(query).length || Object.values(ownerQuery).length) &&
-      (Object.values(naturalQuery).length ||
-        (sortField && naturalFields.includes(sortField)))
-    ) {
-      carsIds = [...naturalsearchCarIds];
-    }
-
-    if (Object.values(ownerNaturalQuery).length) {
-      const carsByNaturalOwners = await this.prisma.cars.findMany({
-        where: {
-          ownerId: {
-            in: naturalsearchOwnerCarIds,
-          },
-        },
-      });
-      const carsIdsByNaturalOwners = carsByNaturalOwners.map((car) => car.id);
-
-      carsIds = carsIds.filter((id) => carsIdsByNaturalOwners.includes(id));
-    }
-
-    if (sortField && sortOrder) {
-      if (sortField.indexOf('/') > 0) {
-        const [firstSortField, secondSortField] = sortField.split('/');
-        const firstSortFieldConfig = await this.prisma.fields.findFirst({
-          where: {
-            domain: FieldDomains.Car,
-            name: firstSortField,
-          },
-        });
-        const secondSortFieldConfig = await this.prisma.fields.findFirst({
-          where: {
-            domain: FieldDomains.Car,
-            name: secondSortField,
-          },
-        });
-
-        const firstWhere: Prisma.fieldIdsWhereInput = {
-          fieldId: firstSortFieldConfig.id,
-          sourceName: Models.Table.Cars,
-        };
-
-        const secondWhere: Prisma.fieldIdsWhereInput = {
-          fieldId: secondSortFieldConfig.id,
-          sourceName: Models.Table.Cars,
-        };
-
-        if (carsIds.length) {
-          firstWhere.sourceId = { in: carsIds };
-          secondWhere.sourceId = { in: carsIds };
-        }
-
-        const firstSortChaines = await this.prisma.fieldIds.findMany({
-          where: firstWhere,
-          orderBy: {
-            value: sortOrder as Prisma.SortOrder,
-          },
-        });
-
-        const secondSortChaines = await this.prisma.fieldIds.findMany({
-          where: secondWhere,
-          orderBy: {
-            value: sortOrder as Prisma.SortOrder,
-          },
-        });
-        const secondSortIds = secondSortChaines.map((ch) => ch.sourceId);
-
-        const groupsByFirst = firstSortChaines.reduce<
-          {
-            id: number;
-            sourceId: number;
-            fieldId: number;
-            value: string | null;
-            sourceName: string | null;
-          }[][]
-        >(
-          (prev, cur) => {
-            let curGroup = prev[prev.length - 1];
-
-            if (!curGroup.length) {
-              return [[cur]];
-            }
-
-            if (curGroup[0].value.trim() !== cur.value.trim()) {
-              return [...prev, [cur]];
-            } else {
-              prev[prev.length - 1].push(cur);
-              return prev;
-            }
-          },
-          [[]],
-        );
-
-        carsIds = [];
-        groupsByFirst.forEach((groupByFirst) => {
-          const groupByFirstIds = groupByFirst.map((g) => g.sourceId);
-
-          const groupBySecond = secondSortIds.filter((s) =>
-            groupByFirstIds.includes(s),
-          );
-          carsIds.push(...groupBySecond);
-        });
-      } else {
-        const sortFieldConfig = !naturalFields.includes(sortField)
-          ? await this.prisma.fields.findFirst({
-              where: {
-                domain: FieldDomains.Car,
-                name: sortField,
-              },
-            })
-          : null;
-
-        if (sortFieldConfig) {
-          const where: Prisma.fieldIdsWhereInput = {
-            fieldId: sortFieldConfig.id,
-            sourceName: Models.Table.Cars,
-          };
-
-          if (carsIds.length) {
-            where.sourceId = { in: carsIds };
+          ownerDirectQuery,
+        ).then((ids) => {
+          if (!ids.length) {
+            return [];
           }
 
-          const sortChaines = await this.prisma.fieldIds.findMany({
-            where: where,
-            orderBy: {
-              value: sortOrder as Prisma.SortOrder,
-            },
-          });
-
-          carsIds = sortChaines.map((ch) => ch.sourceId);
-        } else if (naturalFields.includes(sortField)) {
-          const sortedCarIds = await this.prisma.cars.findMany({
-            where: {
-              id: {
-                in: carsIds,
+          return this.prisma.cars
+            .findMany({
+              where: { ownerId: { in: ids } },
+              select: { id: true },
+              orderBy: {
+                id: sortOrder || 'asc',
               },
-            },
-            orderBy: {
-              [sortField]: sortOrder,
-            },
-          });
+            })
+            .then((ids) => ids.map((c) => c.id));
+        }),
+      ]);
 
-          carsIds = sortedCarIds.map((car) => car.id);
+    let resultIds =
+      (customIds.length && customIds) ||
+      (ownerIds.length && ownerIds) ||
+      (directIds.length && directIds) ||
+      (ownerDirectIds.length && ownerDirectIds);
+    if (ownerIds.length && customIds.length)
+      resultIds = resultIds.filter((id) => ownerIds.includes(id));
+    if (directIds.length && (customIds.length || ownerIds.length))
+      resultIds = resultIds.filter((id) => directIds.includes(id));
+    if (
+      ownerDirectIds.length &&
+      (customIds.length || ownerIds.length || directIds.length)
+    ) {
+      resultIds = resultIds.filter((id) => ownerDirectIds.includes(id));
+    }
+
+    if (sortField && sortField !== 'id') {
+      if (sortField.includes('/')) {
+        const sortMultiplier = sortOrder === 'desc' ? -1 : 1;
+        const [field1, field2] = sortField.split('/');
+        const [config1, config2] = await Promise.all([
+          this.prisma.fields.findFirst({
+            where: { domain: FieldDomains.Car, name: field1 },
+            select: { id: true },
+          }),
+          this.prisma.fields.findFirst({
+            where: { domain: FieldDomains.Car, name: field2 },
+            select: { id: true },
+          }),
+        ]);
+
+        const where = {
+          sourceName: Models.Table.Cars,
+          ...(resultIds.length && { sourceId: { in: resultIds } }),
+        };
+
+        const [data1, data2] = await Promise.all([
+          this.prisma.fieldIds.findMany({
+            where: { ...where, fieldId: config1.id },
+            orderBy: { value: sortOrder },
+            select: { sourceId: true, value: true },
+          }),
+          this.prisma.fieldIds.findMany({
+            where: { ...where, fieldId: config2.id },
+            orderBy: { value: sortOrder },
+            select: { sourceId: true, value: true },
+          }),
+        ]);
+
+        const valueMap1 = data1.reduce((acc, d) => {
+          acc[d.sourceId] = d.value?.trim() ?? '';
+          return acc;
+        }, {});
+
+        const valueMap2 = data2.reduce((acc, d) => {
+          acc[d.sourceId] = d.value?.trim() ?? '';
+          return acc;
+        }, {});
+
+        resultIds = [
+          ...new Set([
+            ...data1.map((d) => d.sourceId),
+            ...data2.map((d) => d.sourceId),
+          ]),
+        ].sort((a, b) => {
+          const comp =
+            (valueMap1[a] ?? '').localeCompare(valueMap1[b] ?? '') *
+            sortMultiplier;
+          return comp !== 0
+            ? comp
+            : (valueMap2[a] ?? '').localeCompare(valueMap2[b] ?? '') *
+                sortMultiplier;
+        });
+      } else if (DIRECT_FIELDS.includes(sortField)) {
+        console.log('deprecated sort');
+        resultIds = (
+          await this.prisma.cars.findMany({
+            where: {
+              ...(resultIds.length && { id: { in: resultIds } }),
+            },
+            orderBy: { [sortField]: sortOrder },
+            select: { id: true },
+          })
+        ).map((c) => c.id);
+      } else {
+        const sortFieldConfig = await this.prisma.fields.findFirst({
+          where: { domain: FieldDomains.Car, name: sortField },
+          select: { id: true },
+        });
+        if (sortFieldConfig) {
+          resultIds = (
+            await this.prisma.fieldIds.findMany({
+              where: {
+                fieldId: sortFieldConfig.id,
+                sourceName: Models.Table.Cars,
+                ...(resultIds.length && { sourceId: { in: resultIds } }),
+              },
+              orderBy: { value: sortOrder },
+              select: { sourceId: true },
+            })
+          ).map((s) => s.sourceId);
         }
       }
     }
 
-    let total = carsIds.length;
+    const total = resultIds.length;
+    const paginatedCarsIds =
+      page && size
+        ? resultIds.slice((+page - 1) * +size, +page * +size)
+        : resultIds;
 
-    if (page && size) {
-      const start = (+page - 1) * +size;
-
-      carsIds = carsIds.slice(start, start + +size);
-    }
-
-    const carsResult =
-      carsIds.length > 0
-        ? await this.prisma.cars.findMany({
-            where: {
-              id: { in: carsIds.map((id) => +id) },
-            },
-          })
-        : [];
-
-    const cars = carsIds
-      .map((id) => carsResult.find((cr) => +cr.id === +id))
-      .filter(Boolean);
-
-    if (!cars.length) {
-      // TODO test
-      return {
-        list: [],
-        total: 0,
-      };
-    }
-
-    const [carFields, carOwners, carOwnerFields] = await Promise.all([
+    const [cars, fields, ownerFields] = await Promise.all([
+      paginatedCarsIds.length
+        ? this.prisma.cars.findMany({ where: { id: { in: paginatedCarsIds } } })
+        : ([] as Models.Car[]),
       this.fieldsService.getFieldsByDomain(FieldDomains.Car),
-      cars.length > 0
-        ? await this.prisma.carOwners.findMany({
-            where: {
-              id: { in: cars.map((c) => c.ownerId) },
-            },
-          })
-        : [],
       this.fieldsService.getFieldsByDomain(FieldDomains.CarOwner),
     ]);
 
-    let list = await this.getCars(cars, carFields, carOwners, carOwnerFields);
+    const carsById = cars.reduce((acc, car) => {
+      acc[car.id] = car;
+      return acc;
+    }, {});
 
-    return {
-      list: list,
-      total: total,
-    };
+    const paginatedCars = paginatedCarsIds.map((id) => carsById[id]).filter(Boolean);
+
+    if (!paginatedCars.length) {
+      return { list: [], total: 0 };
+    }
+
+    const owners = await this.prisma.carOwners.findMany({
+      where: { id: { in: paginatedCars.map((c) => c.ownerId) } },
+    });
+
+    const list = await this.getCars(paginatedCars, fields, owners, ownerFields);
+
+    return { list: list, total };
   }
 
   private async getCarAndOwnerCarFields(

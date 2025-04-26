@@ -975,7 +975,7 @@ export class SettingsCarsComponent implements OnInit, OnDestroy {
       this.type !== QueryCarTypes.carsForSaleTemp
         ? {
             title: this.strings.date,
-            name: 'CreatedDate',
+            name: 'id',
             getValue: (item) => this.getDate(item),
             available: () =>
               !(

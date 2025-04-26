@@ -293,7 +293,11 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     }
     if (filters.status?.length) {
       const { status, ...rest } = filters;
-      filters = { status: status, ...rest };
+      if (status.length !== Object.keys(FieldNames.CarStatus).length) {
+        filters = { status: status, ...rest };
+      } else {
+        filters = rest;
+      }
     } else {
       if (this.availableCarStatuses.length > 0) {
         filters[FieldNames.Car.status] = this.availableCarStatuses.map(
@@ -482,7 +486,7 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
       this.type !== QueryCarTypes.carsForSaleTemp
         ? {
             title: this.strings.date,
-            name: 'CreatedDate',
+            name: 'id',
             getValue: (item) => this.getDate(item),
             available: () =>
               !(
@@ -1827,7 +1831,11 @@ export class CarsBaseComponent implements OnInit, OnDestroy {
     let filters = skipEmptyFilters({ ...structuredClone(this.form.value) });
     if (filters.status?.length) {
       const { status, ...rest } = filters;
-      filters = { status: status, ...rest };
+      if (status.length !== Object.keys(FieldNames.CarStatus).length) {
+        filters = { status: status, ...rest };
+      } else {
+        filters = rest;
+      }
     } else {
       if (this.availableCarStatuses.length > 0) {
         const { status, ...rest } = filters;

@@ -5,8 +5,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Models } from 'src/temp/entities/Models';
 import { Prisma } from '@prisma/client';
 import { getFieldChainsValue } from 'src/core/utils/field.utils';
-import { ExpressionHash } from 'src/core/utils/sql-queries';
 import { ApiError } from 'src/core/exceptions/api.error';
+import { getSpecialFilterByOperator } from 'src/core/utils/prisma-sort.utils';
 
 @Injectable()
 export class FieldChainService {
@@ -176,22 +176,35 @@ export class FieldChainService {
     sourceName: Models.Table,
     entityDomain: FieldDomains,
     query: StringHash,
+    sortOrder: Prisma.SortOrder = null,
   ): Promise<number[]> {
     const ids = new Set<string>(query['id']?.split(',') || []);
     delete query['id'];
 
     let fieldNames = Object.keys(query);
 
-    //  for clients, but not need for cars?
-    // if (fieldNames.length === 0 && ids.size === 0) {
-    //   const needChaines = await fieldChainRepository.find({
-    //     sourceName: [sourceName],
-    //   });
+    if (
+      entityDomain === FieldDomains.Client &&
+      fieldNames.length === 0 &&
+      ids.size === 0
+    ) {
+      const needChaines = await this.prisma.fieldIds.findMany({
+        where: {
+          sourceName: sourceName,
+        },
+        select: {
+          sourceId: true,
+        },
+      });
 
-    //   const allIds = needChaines.map(ch => `${ch.sourceId}`);
+      const allIds = needChaines.map((ch) => ch.sourceId);
 
-    //   return [...(new Set<string>(allIds))];
-    // }
+      return [...new Set<number>(allIds)];
+    }
+
+    if (!ids.size && !fieldNames.length) {
+      return [];
+    }
 
     const specialFieldNameOperators = fieldNames.filter((fn) =>
       fn.includes('filter-operator'),
@@ -207,6 +220,10 @@ export class FieldChainService {
               domain: entityDomain,
               name: { in: specialFieldNames },
             },
+            select: {
+              id: true,
+              name: true,
+            },
           })
         : [];
 
@@ -214,56 +231,34 @@ export class FieldChainService {
       ? await Promise.all(
           specialFieldNames.map((fieldName) => {
             const id = specialFieldIds.find((fc) => fc.name === fieldName);
-            const fieldIdsQuery: Prisma.fieldIdsWhereInput = {
-              sourceName: sourceName,
-              fieldId: id.id,
+            const findManyArgs: Prisma.fieldIdsFindManyArgs = {
+              where: {
+                sourceName: sourceName,
+                fieldId: id.id,
+              },
+              select: {
+                sourceId: true,
+              },
+              orderBy: {
+                sourceId: sortOrder || 'asc',
+              },
             };
+
+            if (ids && ids.size > 0) {
+              findManyArgs.where.sourceId = { in: [...ids].map((id) => +id) };
+            }
 
             const operatorName = specialFieldNameOperators.find((fc) =>
               fc.includes(fieldName),
             );
 
-            switch (query[operatorName]) {
-              case '<':
-                fieldIdsQuery.value = {
-                  lte: query[fieldName],
-                };
-                break;
-              case '>':
-                fieldIdsQuery.value = {
-                  gte: query[fieldName],
-                };
-                break;
-              case 'range':
-                const values: [string, string] = query[fieldName].split(
-                  '-',
-                ) as [string, string]; // TODO controller validation
+            findManyArgs.where.value = getSpecialFilterByOperator(
+              query,
+              query[operatorName],
+              fieldName,
+            );
 
-                fieldIdsQuery.value = {
-                  lte: values[1],
-                  gte: values[0],
-                };
-                break;
-              case 'like':
-              case 'LIKE':
-                fieldIdsQuery.value = {
-                  contains: query[fieldName], // TODO test
-                };
-                break;
-            }
-
-            // let fieldNameQuery = `value ${query[operatorName]} '${query[fieldName]}'`;
-
-            // if (operatorName === 'range') {
-            //   const values: [string, string] = query[fieldName].split('-') as [string, string]; // TODO controller validation
-            //   fieldNameQuery = `value > '${values[0]}' AND value < '${values[1]}'`
-            // }
-
-            // const queryRequest = `SELECT * FROM \`${Models.Table.FieldChains}\` WHERE (sourceName IN ('${Models.Table.Clients}') AND fieldId IN (${id.id}) AND ${fieldNameQuery});`;
-
-            // return fieldChainRepository.queryRequest(queryRequest);
-
-            return this.prisma.fieldIds.findMany({ where: fieldIdsQuery });
+            return this.prisma.fieldIds.findMany(findManyArgs);
           }),
         )
       : [];
@@ -286,8 +281,7 @@ export class FieldChainService {
 
     if (fieldNames.length === 0 && ids.size > 0) {
       if (specialIds && specialIds.length > 0) {
-        ids;
-        return specialIds.filter((id) => ids.has(`${id}`)); // TODO test
+        return specialIds;
       } else {
         return [...ids].map((id) => +id);
       }
@@ -302,6 +296,12 @@ export class FieldChainService {
                 in: fieldNames,
               },
             },
+            select: {
+              id: true,
+              name: true,
+              variants: true,
+              type: true,
+            },
           })
         : [];
 
@@ -313,6 +313,10 @@ export class FieldChainService {
       fieldIdsWhereInput.sourceId = { in: [...ids].map((id) => +id) };
     }
 
+    if (specialIds && specialIds.length > 0) {
+      fieldIdsWhereInput.sourceId = { in: specialIds };
+    }
+
     if (fields.length > 0) {
       fieldIdsWhereInput.fieldId = { in: fields.map((f) => f.id) };
       fieldIdsWhereInput.value = { in: getFieldChainsValue(query, fields) };
@@ -320,42 +324,41 @@ export class FieldChainService {
 
     const needChaines =
       fields.length > 0
-        ? await this.prisma.fieldIds.findMany({ where: fieldIdsWhereInput })
+        ? await this.prisma.fieldIds.findMany({
+            where: fieldIdsWhereInput,
+            select: {
+              fieldId: true,
+              sourceId: true,
+            },
+            orderBy: {
+              sourceId: sortOrder || 'asc',
+            },
+          })
         : [];
 
-    const searchIds = new Set<number>();
+    let searchIds = new Set<number>();
 
-    const matchObj: ExpressionHash<any> = {};
+    const matchObj: {
+      [key: number]: number[];
+    } = {};
 
     if (needChaines.length > 0) {
       needChaines.forEach((ch) => {
         if (!matchObj[ch.fieldId]) {
           matchObj[ch.fieldId] = [];
         }
-        matchObj[ch.fieldId].push(`${ch.sourceId}`);
+        matchObj[ch.fieldId].push(ch.sourceId);
       });
 
-      const matchKeys = fields.map((f) => `${f.id}`);
-
-      needChaines.forEach((ch) => {
-        let currentMatch = 0;
-
-        matchKeys.forEach((key) => {
-          if (matchObj[key] && matchObj[key].includes(`${ch.sourceId}`)) {
-            ++currentMatch;
-          }
-        });
-
-        if (currentMatch === matchKeys.length) {
-          if (specialIds && specialIds.length > 0) {
-            if (specialIds.includes(ch.sourceId)) {
-              searchIds.add(ch.sourceId);
-            }
-          } else {
-            searchIds.add(ch.sourceId);
-          }
+      const chainsIds = Object.values(matchObj).reduce((prev, cur) => {
+        if (!prev.length) {
+          return [...cur];
         }
-      });
+
+        return cur.filter((id) => prev.includes(id));
+      }, []);
+
+      searchIds = new Set(chainsIds);
     } else if (specialIds.length) {
       return [...specialIds];
     }
