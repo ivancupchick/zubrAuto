@@ -188,8 +188,8 @@ export class CarService {
   }
 
   async findMany(query: BaseQuery & StringHash) {
-    // const methodStart = performance.now();
-    // const logTime = () => `${(performance.now() - methodStart).toFixed(0)}ms`;
+    const methodStart = performance.now();
+    const logTime = () => `${(performance.now() - methodStart).toFixed(0)}ms`;
     const { page, size, sortOrder, sortField, ...filterParams } = query;
 
     const DIRECT_FIELDS = ['createdDate', 'ownerId', 'id'];
@@ -402,6 +402,7 @@ export class CarService {
 
     const list = await this.getCars(paginatedCars, fields, owners, ownerFields);
 
+    console.log(logTime());
     return { list: list, total };
   }
 
